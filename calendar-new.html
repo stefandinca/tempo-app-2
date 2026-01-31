@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempoApp - Calendar</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: ['class', '[data-theme="dark"]'],
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#EEF4FF',
+                            100: '#D9E5FF',
+                            200: '#BDD1FF',
+                            300: '#91B4FF',
+                            400: '#5E91FF',
+                            500: '#4A90E2',
+                            600: '#3B73B4',
+                            700: '#2D5A8C',
+                            800: '#1F4166',
+                            900: '#142D47',
+                        },
+                        secondary: {
+                            50: '#FEF8F3',
+                            100: '#FDF1E7',
+                            200: '#F9E1CC',
+                            300: '#F4CBA8',
+                            400: '#EDB07A',
+                            500: '#E09448',
+                            600: '#C47A2E',
+                            700: '#9E5F1F',
+                            800: '#784715',
+                            900: '#52310E',
+                        },
+                        success: {
+                            50: '#ECFDF5',
+                            100: '#D1FAE5',
+                            500: '#10B981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        warning: {
+                            50: '#FFFBEB',
+                            100: '#FEF3C7',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                            700: '#B45309',
+                        },
+                        error: {
+                            50: '#FEF2F2',
+                            100: '#FEE2E2',
+                            500: '#EF4444',
+                            600: '#DC2626',
+                            700: '#B91C1C',
+                        },
+                    },
+                    animation: {
+                        'slide-up': 'slideUp 0.2s ease-out',
+                        'slide-in-right': 'slideInRight 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.2s ease-out',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(8px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #404040;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #525252;
+        }
+
+        /* Skeleton animation */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        [data-theme="dark"] .skeleton {
+            background: linear-gradient(90deg, #262626 25%, #404040 50%, #262626 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Transition utilities */
+        .transition-base {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Calendar grid lines */
+        .calendar-grid-line {
+            background-image: linear-gradient(to bottom, #E5E7EB 1px, transparent 1px);
+            background-size: 100% 60px;
+        }
+        [data-theme="dark"] .calendar-grid-line {
+            background-image: linear-gradient(to bottom, #374151 1px, transparent 1px);
+        }
+
+        /* Time slot hover */
+        .time-slot:hover {
+            background-color: rgba(74, 144, 226, 0.05);
+        }
+        [data-theme="dark"] .time-slot:hover {
+            background-color: rgba(74, 144, 226, 0.1);
+        }
+
+        /* Event card drag */
+        .event-card {
+            cursor: grab;
+        }
+        .event-card:active {
+            cursor: grabbing;
+        }
+        .event-card.dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Focus ring */
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+        }
+
+        /* Current time indicator */
+        .current-time-line {
+            position: relative;
+        }
+        .current-time-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #EF4444;
+            z-index: 10;
+        }
+        .current-time-line::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            width: 8px;
+            height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+            transform: translateY(-3px);
+            z-index: 10;
+        }
+
+        /* Month view day cell */
+        .month-day-cell {
+            min-height: 100px;
+        }
+        @media (min-width: 768px) {
+            .month-day-cell {
+                min-height: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+
+    <!-- ============================================================
+         APPLICATION STATE & DATA
+         ============================================================ -->
+    <script>
+        // Application State
+        const AppState = {
+            currentView: 'week', // 'month', 'week', 'day'
+            currentDate: new Date(2026, 0, 31), // January 31, 2026 (Friday)
+            sidebarOpen: false,
+            filterPanelOpen: false,
+            selectedEvent: null,
+            activeFilters: {
+                therapists: [], // Empty = all selected
+                clients: [],
+                eventTypes: []
+            },
+            theme: localStorage.getItem('theme') || 'light',
+            isLoading: false,
+        };
+
+        // Dummy Data - Team Members (Therapists)
+        const teamMembers = [
+            { id: 1, name: 'Dr. Maria Garcia', initials: 'MG', role: 'Senior ABA Therapist', color: '#4A90E2' },
+            { id: 2, name: 'Dr. Andrei Ionescu', initials: 'AI', role: 'Coordinator', color: '#10B981' },
+            { id: 3, name: 'Dr. Elena Popescu', initials: 'EP', role: 'Speech Therapist', color: '#8B5CF6' },
+            { id: 4, name: 'Dr. Pavel Stefan', initials: 'PS', role: 'Occupational Therapist', color: '#F59E0B' },
+            { id: 5, name: 'Dr. Ana Marinescu', initials: 'AM', role: 'ABA Therapist', color: '#EC4899' },
+        ];
+
+        // Dummy Data - Clients
+        const clients = [
+            { id: 1, name: 'John Smith', age: 7, initials: 'JS' },
+            { id: 2, name: 'Jane Doe', age: 5, initials: 'JD' },
+            { id: 3, name: 'Mike Brown', age: 8, initials: 'MB' },
+            { id: 4, name: 'Sara Lee', age: 6, initials: 'SL' },
+            { id: 5, name: 'Alex Kim', age: 9, initials: 'AK' },
+            { id: 6, name: 'Emma Wilson', age: 4, initials: 'EW' },
+            { id: 7, name: 'Lucas Martin', age: 7, initials: 'LM' },
+        ];
+
+        // Dummy Data - Event Types
+        const eventTypes = [
+            { id: 1, label: 'ABA Session', color: '#4A90E2', duration: 60 },
+            { id: 2, label: 'Speech Therapy', color: '#8B5CF6', duration: 45 },
+            { id: 3, label: 'Occupational Therapy', color: '#F59E0B', duration: 60 },
+            { id: 4, label: 'Evaluation', color: '#10B981', duration: 90 },
+            { id: 5, label: 'Parent Meeting', color: '#EC4899', duration: 30 },
+            { id: 6, label: 'Team Meeting', color: '#6B7280', duration: 60 },
+        ];
+
+        // Generate events for the week of Jan 26 - Feb 1, 2026
+        const events = [
+            // Monday Jan 26
+            { id: 1, date: '2026-01-26', startTime: '09:00', duration: 60, typeId: 1, therapistId: 1, clientId: 1, attendance: 'present' },
+            { id: 2, date: '2026-01-26', startTime: '10:30', duration: 45, typeId: 2, therapistId: 3, clientId: 2, attendance: 'present' },
+            { id: 3, date: '2026-01-26', startTime: '13:00', duration: 60, typeId: 1, therapistId: 2, clientId: 3, attendance: 'absent' },
+            { id: 4, date: '2026-01-26', startTime: '14:30', duration: 60, typeId: 3, therapistId: 4, clientId: 4, attendance: 'present' },
+            { id: 5, date: '2026-01-26', startTime: '16:00', duration: 60, typeId: 1, therapistId: 5, clientId: 5, attendance: null },
+
+            // Tuesday Jan 27
+            { id: 6, date: '2026-01-27', startTime: '08:30', duration: 60, typeId: 1, therapistId: 1, clientId: 2, attendance: 'present' },
+            { id: 7, date: '2026-01-27', startTime: '10:00', duration: 90, typeId: 4, therapistId: 2, clientId: 6, attendance: 'present' },
+            { id: 8, date: '2026-01-27', startTime: '11:30', duration: 45, typeId: 2, therapistId: 3, clientId: 1, attendance: 'excused' },
+            { id: 9, date: '2026-01-27', startTime: '14:00', duration: 60, typeId: 1, therapistId: 1, clientId: 3, attendance: 'present' },
+            { id: 10, date: '2026-01-27', startTime: '15:30', duration: 30, typeId: 5, therapistId: 2, clientId: 4, attendance: null },
+
+            // Wednesday Jan 28
+            { id: 11, date: '2026-01-28', startTime: '09:00', duration: 60, typeId: 1, therapistId: 1, clientId: 5, attendance: 'present' },
+            { id: 12, date: '2026-01-28', startTime: '09:30', duration: 60, typeId: 3, therapistId: 4, clientId: 1, attendance: 'present' },
+            { id: 13, date: '2026-01-28', startTime: '11:00', duration: 45, typeId: 2, therapistId: 3, clientId: 7, attendance: 'present' },
+            { id: 14, date: '2026-01-28', startTime: '13:00', duration: 60, typeId: 6, therapistId: 1, clientId: null, attendance: null },
+            { id: 15, date: '2026-01-28', startTime: '14:30', duration: 60, typeId: 1, therapistId: 5, clientId: 2, attendance: 'absent' },
+            { id: 16, date: '2026-01-28', startTime: '16:00', duration: 60, typeId: 1, therapistId: 2, clientId: 6, attendance: null },
+
+            // Thursday Jan 29
+            { id: 17, date: '2026-01-29', startTime: '08:00', duration: 60, typeId: 1, therapistId: 1, clientId: 4, attendance: 'present' },
+            { id: 18, date: '2026-01-29', startTime: '09:30', duration: 45, typeId: 2, therapistId: 3, clientId: 3, attendance: 'present' },
+            { id: 19, date: '2026-01-29', startTime: '10:30', duration: 60, typeId: 3, therapistId: 4, clientId: 5, attendance: 'present' },
+            { id: 20, date: '2026-01-29', startTime: '13:00', duration: 60, typeId: 1, therapistId: 2, clientId: 7, attendance: 'present' },
+            { id: 21, date: '2026-01-29', startTime: '14:30', duration: 60, typeId: 1, therapistId: 5, clientId: 1, attendance: null },
+            { id: 22, date: '2026-01-29', startTime: '15:30', duration: 30, typeId: 5, therapistId: 1, clientId: 2, attendance: null },
+
+            // Friday Jan 30
+            { id: 23, date: '2026-01-30', startTime: '09:00', duration: 60, typeId: 1, therapistId: 1, clientId: 6, attendance: 'present' },
+            { id: 24, date: '2026-01-30', startTime: '10:30', duration: 60, typeId: 1, therapistId: 2, clientId: 1, attendance: 'present' },
+            { id: 25, date: '2026-01-30', startTime: '11:00', duration: 45, typeId: 2, therapistId: 3, clientId: 4, attendance: 'present' },
+            { id: 26, date: '2026-01-30', startTime: '13:30', duration: 60, typeId: 3, therapistId: 4, clientId: 2, attendance: null },
+            { id: 27, date: '2026-01-30', startTime: '15:00', duration: 60, typeId: 1, therapistId: 5, clientId: 3, attendance: null },
+
+            // Saturday Jan 31 (Today)
+            { id: 28, date: '2026-01-31', startTime: '09:00', duration: 60, typeId: 1, therapistId: 1, clientId: 1, attendance: 'present' },
+            { id: 29, date: '2026-01-31', startTime: '10:30', duration: 45, typeId: 2, therapistId: 3, clientId: 2, attendance: null },
+            { id: 30, date: '2026-01-31', startTime: '11:30', duration: 60, typeId: 1, therapistId: 2, clientId: 5, attendance: null },
+
+            // Sunday Feb 1
+            // No events (weekend)
+        ];
+
+        // Helper Functions
+        function getClient(id) {
+            return clients.find(c => c.id === id);
+        }
+
+        function getTherapist(id) {
+            return teamMembers.find(t => t.id === id);
+        }
+
+        function getEventType(id) {
+            return eventTypes.find(t => t.id === id);
+        }
+
+        function formatTime(time) {
+            const [hours, minutes] = time.split(':');
+            const h = parseInt(hours);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const hour12 = h % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+
+        function formatDate(date, format = 'short') {
+            const d = new Date(date);
+            const options = format === 'long'
+                ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+                : { weekday: 'short', month: 'short', day: 'numeric' };
+            return d.toLocaleDateString('en-US', options);
+        }
+
+        function getWeekDates(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Start from Monday
+            const monday = new Date(d.setDate(diff));
+
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const current = new Date(monday);
+                current.setDate(monday.getDate() + i);
+                dates.push(current);
+            }
+            return dates;
+        }
+
+        function getMonthDates(date) {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = d.getMonth();
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+
+            const dates = [];
+
+            // Add days from previous month to fill first week
+            const startDay = firstDay.getDay() || 7; // Monday = 1
+            for (let i = startDay - 1; i > 0; i--) {
+                const prevDate = new Date(year, month, 1 - i);
+                dates.push({ date: prevDate, isCurrentMonth: false });
+            }
+
+            // Add days of current month
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                dates.push({ date: new Date(year, month, i), isCurrentMonth: true });
+            }
+
+            // Add days from next month to fill last week
+            const remainingDays = 42 - dates.length; // 6 weeks * 7 days
+            for (let i = 1; i <= remainingDays; i++) {
+                dates.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+            }
+
+            return dates;
+        }
+
+        function isSameDay(date1, date2) {
+            const d1 = new Date(date1);
+            const d2 = new Date(date2);
+            return d1.getFullYear() === d2.getFullYear() &&
+                   d1.getMonth() === d2.getMonth() &&
+                   d1.getDate() === d2.getDate();
+        }
+
+        function isToday(date) {
+            return isSameDay(date, AppState.currentDate);
+        }
+
+        function getEventsForDate(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return events.filter(e => e.date === dateStr);
+        }
+
+        function timeToMinutes(time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function getEventPosition(event) {
+            const startMinutes = timeToMinutes(event.startTime);
+            const top = ((startMinutes - 7 * 60) / 60) * 60; // Start from 7 AM, 60px per hour
+            const height = (event.duration / 60) * 60;
+            return { top, height };
+        }
+    </script>
+
+    <!-- ============================================================
+         COMPONENT: Toast Container
+         ============================================================ -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- ============================================================
+         COMPONENT: Sidebar (Desktop)
+         ============================================================ -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+
+        <!-- Logo -->
+        <div class="h-16 flex items-center gap-3 px-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center">
+                <span class="text-white font-bold text-lg">T</span>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-gray-900 dark:text-white">TempoApp</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Therapy Management</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="p-4 space-y-1">
+            <a href="dashboard-new.html" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+
+            <button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span class="font-medium">Calendar</span>
+            </button>
+
+            <a href="dashboard-new.html" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="font-medium">Clients</span>
+                <span class="ml-auto px-2 py-0.5 text-xs bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-full">48</span>
+            </a>
+
+            <a href="dashboard-new.html" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="user-circle" class="w-5 h-5"></i>
+                <span class="font-medium">Team</span>
+            </a>
+
+            <div class="pt-4 pb-2">
+                <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Admin</p>
+            </div>
+
+            <a href="dashboard-new.html" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="credit-card" class="w-5 h-5"></i>
+                <span class="font-medium">Billing</span>
+            </a>
+
+            <a href="dashboard-new.html" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                <span class="font-medium">Analytics</span>
+            </a>
+        </nav>
+
+        <!-- Mini Calendar -->
+        <div class="absolute bottom-4 left-4 right-4">
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium">January 2026</span>
+                    <div class="flex gap-1">
+                        <button class="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-base">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-base">
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-xs">
+                    <span class="text-gray-400">M</span>
+                    <span class="text-gray-400">T</span>
+                    <span class="text-gray-400">W</span>
+                    <span class="text-gray-400">T</span>
+                    <span class="text-gray-400">F</span>
+                    <span class="text-gray-400">S</span>
+                    <span class="text-gray-400">S</span>
+
+                    <span class="text-gray-300 dark:text-gray-600">29</span>
+                    <span class="text-gray-300 dark:text-gray-600">30</span>
+                    <span class="text-gray-300 dark:text-gray-600">31</span>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+
+                    <span>5</span>
+                    <span>6</span>
+                    <span>7</span>
+                    <span>8</span>
+                    <span>9</span>
+                    <span>10</span>
+                    <span>11</span>
+
+                    <span>12</span>
+                    <span>13</span>
+                    <span>14</span>
+                    <span>15</span>
+                    <span>16</span>
+                    <span>17</span>
+                    <span>18</span>
+
+                    <span>19</span>
+                    <span>20</span>
+                    <span>21</span>
+                    <span>22</span>
+                    <span>23</span>
+                    <span>24</span>
+                    <span>25</span>
+
+                    <span>26</span>
+                    <span>27</span>
+                    <span>28</span>
+                    <span>29</span>
+                    <span>30</span>
+                    <span class="w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center mx-auto">31</span>
+                    <span class="text-gray-300 dark:text-gray-600">1</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 lg:hidden hidden" onclick="toggleSidebar()"></div>
+
+    <!-- ============================================================
+         COMPONENT: Main Layout
+         ============================================================ -->
+    <div class="lg:ml-64 min-h-screen flex flex-col pb-16 lg:pb-0">
+
+        <!-- ============================================================
+             COMPONENT: Header
+             ============================================================ -->
+        <header class="sticky top-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-20 flex items-center justify-between px-4 lg:px-6">
+
+            <!-- Left: Mobile Menu + Title -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <div>
+                    <h2 class="font-semibold text-lg">Calendar</h2>
+                    <p id="date-subtitle" class="text-xs text-gray-500 dark:text-gray-400">January 2026</p>
+                </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-2">
+                <!-- Filter Toggle -->
+                <button onclick="toggleFilterPanel()" id="filter-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base relative">
+                    <i data-lucide="filter" class="w-5 h-5"></i>
+                    <span id="filter-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-primary-500 text-white text-xs rounded-full flex items-center justify-center">0</span>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="sun" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+
+                <!-- New Event Button -->
+                <button onclick="showNewEventModal()" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base font-medium">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>New Event</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ============================================================
+             COMPONENT: Calendar Toolbar
+             ============================================================ -->
+        <div class="sticky top-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-10 px-4 lg:px-6 py-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+
+                <!-- Date Navigation -->
+                <div class="flex items-center gap-2">
+                    <button onclick="goToToday()" class="px-3 py-1.5 text-sm font-medium border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                        Today
+                    </button>
+                    <div class="flex items-center">
+                        <button onclick="navigatePrev()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="navigateNext()" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <h3 id="current-range" class="font-semibold text-lg">Jan 26 - Feb 1, 2026</h3>
+                </div>
+
+                <!-- View Switcher -->
+                <div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                    <button onclick="switchView('month')" id="view-month" class="view-btn px-3 py-1.5 text-sm font-medium rounded-md transition-base text-gray-500">
+                        Month
+                    </button>
+                    <button onclick="switchView('week')" id="view-week" class="view-btn px-3 py-1.5 text-sm font-medium rounded-md transition-base bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-white">
+                        Week
+                    </button>
+                    <button onclick="switchView('day')" id="view-day" class="view-btn px-3 py-1.5 text-sm font-medium rounded-md transition-base text-gray-500">
+                        Day
+                    </button>
+                </div>
+            </div>
+
+            <!-- Therapist Filter Chips -->
+            <div class="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-hide pb-1">
+                <span class="text-sm text-gray-500 flex-shrink-0">Team:</span>
+                <button onclick="toggleTherapistFilter(null)" id="filter-all" class="filter-chip flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full transition-base bg-primary-500 text-white">
+                    All
+                </button>
+                ${teamMembers.map(t => `
+                    <button onclick="toggleTherapistFilter(${t.id})" id="filter-${t.id}" class="filter-chip flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full transition-base bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <span class="w-3 h-3 rounded-full flex-shrink-0" style="background: ${t.color}"></span>
+                        <span class="whitespace-nowrap">${t.name.split(' ').slice(-1)[0]}</span>
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+
+        <!-- ============================================================
+             COMPONENT: Calendar Content Area
+             ============================================================ -->
+        <main class="flex-1 overflow-hidden">
+
+            <!-- ============================================================
+                 VIEW: Week View
+                 ============================================================ -->
+            <div id="calendar-week" class="calendar-view h-full">
+                <div class="flex h-full">
+
+                    <!-- Time Gutter -->
+                    <div class="w-16 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <div class="h-12 border-b border-gray-200 dark:border-gray-700"></div>
+                        <div id="time-gutter" class="relative">
+                            <!-- Time labels will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Days Grid -->
+                    <div class="flex-1 overflow-x-auto">
+                        <div class="min-w-[700px] h-full flex flex-col">
+
+                            <!-- Day Headers -->
+                            <div id="day-headers" class="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                <!-- Day headers will be rendered here -->
+                            </div>
+
+                            <!-- Time Grid -->
+                            <div class="flex-1 overflow-y-auto" id="week-scroll-container">
+                                <div class="flex relative" style="height: 840px;"> <!-- 14 hours * 60px -->
+                                    <!-- Day Columns -->
+                                    <div id="day-columns" class="flex flex-1">
+                                        <!-- Day columns will be rendered here -->
+                                    </div>
+
+                                    <!-- Current Time Indicator -->
+                                    <div id="current-time-indicator" class="absolute left-0 right-0 pointer-events-none z-10" style="display: none;">
+                                        <div class="flex items-center">
+                                            <div class="w-2 h-2 bg-error-500 rounded-full"></div>
+                                            <div class="flex-1 h-0.5 bg-error-500"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Month View
+                 ============================================================ -->
+            <div id="calendar-month" class="calendar-view h-full hidden">
+                <div class="h-full flex flex-col p-4 lg:p-6">
+
+                    <!-- Day Headers -->
+                    <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-t-xl overflow-hidden">
+                        <div class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-sm font-medium text-gray-500">Mon</div>
+                        <div class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-sm font-medium text-gray-500">Tue</div>
+                        <div class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-sm font-medium text-gray-500">Wed</div>
+                        <div class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-sm font-medium text-gray-500">Thu</div>
+                        <div class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-sm font-medium text-gray-500">Fri</div>
+                        <div class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-sm font-medium text-gray-500">Sat</div>
+                        <div class="bg-gray-50 dark:bg-gray-800 py-2 text-center text-sm font-medium text-gray-500">Sun</div>
+                    </div>
+
+                    <!-- Month Grid -->
+                    <div id="month-grid" class="flex-1 grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-b-xl overflow-hidden">
+                        <!-- Month cells will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Day View
+                 ============================================================ -->
+            <div id="calendar-day" class="calendar-view h-full hidden">
+                <div class="flex h-full">
+
+                    <!-- Time Gutter -->
+                    <div class="w-16 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <div class="h-20 border-b border-gray-200 dark:border-gray-700"></div>
+                        <div id="day-time-gutter" class="relative">
+                            <!-- Time labels will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Day Content -->
+                    <div class="flex-1 overflow-y-auto">
+                        <!-- Day Header -->
+                        <div id="day-header" class="h-20 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center">
+                            <!-- Day header will be rendered here -->
+                        </div>
+
+                        <!-- Time Grid -->
+                        <div class="relative" style="height: 840px;" id="day-content">
+                            <!-- Day events will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ============================================================
+         COMPONENT: Bottom Navigation (Mobile)
+         ============================================================ -->
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 lg:hidden z-20 flex items-center justify-around px-2">
+        <a href="dashboard-new.html" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Home</span>
+        </a>
+        <button class="flex flex-col items-center gap-1 p-2 text-primary-500">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Calendar</span>
+        </button>
+        <button onclick="showNewEventModal()" class="flex items-center justify-center w-12 h-12 -mt-6 bg-primary-500 rounded-full shadow-lg text-white hover:bg-primary-600 transition-base">
+            <i data-lucide="plus" class="w-6 h-6"></i>
+        </button>
+        <a href="dashboard-new.html" class="flex flex-col items-center gap-1 p-2 text-gray-400">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Clients</span>
+        </a>
+        <button class="flex flex-col items-center gap-1 p-2 text-gray-400">
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Profile</span>
+        </button>
+    </nav>
+
+    <!-- ============================================================
+         COMPONENT: Filter Panel (Slide-in)
+         ============================================================ -->
+    <div id="filter-panel" class="fixed inset-y-0 right-0 w-full sm:w-80 bg-white dark:bg-gray-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <!-- Panel Header -->
+        <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold">Filters</h3>
+            <div class="flex items-center gap-2">
+                <button onclick="clearAllFilters()" class="text-sm text-primary-500 hover:text-primary-600 font-medium">Clear All</button>
+                <button onclick="toggleFilterPanel()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Content -->
+        <div class="p-4 overflow-y-auto h-[calc(100%-4rem)]">
+            <!-- Team Members -->
+            <div class="mb-6">
+                <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Team Members</h4>
+                <div class="space-y-2">
+                    ${teamMembers.map(t => `
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-base">
+                            <input type="checkbox" checked class="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <span class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium" style="background: ${t.color}">${t.initials}</span>
+                            <span class="flex-1">${t.name}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Event Types -->
+            <div class="mb-6">
+                <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Event Types</h4>
+                <div class="space-y-2">
+                    ${eventTypes.map(t => `
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-base">
+                            <input type="checkbox" checked class="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <span class="w-3 h-3 rounded-full" style="background: ${t.color}"></span>
+                            <span class="flex-1">${t.label}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Clients -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Clients</h4>
+                <div class="relative mb-3">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    <input type="text" placeholder="Search clients..." class="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div class="space-y-2 max-h-48 overflow-y-auto">
+                    ${clients.map(c => `
+                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-base">
+                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                            <span class="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600 text-sm font-medium">${c.initials}</span>
+                            <span class="flex-1">${c.name}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="filter-panel-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleFilterPanel()"></div>
+
+    <!-- ============================================================
+         COMPONENT: Event Detail Panel (Slide-in)
+         ============================================================ -->
+    <div id="event-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-gray-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <!-- Panel Header -->
+        <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold">Session Details</h3>
+            <button onclick="closeEventPanel()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Panel Content -->
+        <div id="event-panel-content" class="p-4 overflow-y-auto h-[calc(100%-4rem)]">
+            <!-- Content will be rendered dynamically -->
+        </div>
+    </div>
+    <div id="event-panel-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeEventPanel()"></div>
+
+    <!-- ============================================================
+         COMPONENT: New Event Modal
+         ============================================================ -->
+    <div id="new-event-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideNewEventModal()"></div>
+
+        <!-- Modal -->
+        <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl animate-scale-in">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-semibold text-lg">New Event</h3>
+                <button onclick="hideNewEventModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form class="p-4 space-y-4" onsubmit="event.preventDefault(); createEvent();">
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Event Type <span class="text-error-500">*</span></label>
+                    <select id="new-event-type" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        ${eventTypes.map(t => `<option value="${t.id}">${t.label}</option>`).join('')}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Client <span class="text-error-500">*</span></label>
+                    <select class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">Select client...</option>
+                        ${clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Therapist <span class="text-error-500">*</span></label>
+                    <select class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">Select therapist...</option>
+                        ${teamMembers.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5">Date</label>
+                        <input type="date" id="new-event-date" value="2026-01-31" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5">Time</label>
+                        <input type="time" id="new-event-time" value="09:00" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Duration</label>
+                    <select class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="30">30 minutes</option>
+                        <option value="45">45 minutes</option>
+                        <option value="60" selected>60 minutes</option>
+                        <option value="90">90 minutes</option>
+                        <option value="120">120 minutes</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="repeat-event" class="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                    <label for="repeat-event" class="text-sm">Repeat this event</label>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="hideNewEventModal()" class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base font-medium">
+                        Create Event
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         JAVASCRIPT: Application Logic
+         ============================================================ -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // ============================================================
+        // Theme Management
+        // ============================================================
+        function initTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            AppState.theme = theme;
+        }
+
+        function toggleTheme() {
+            const newTheme = AppState.theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            AppState.theme = newTheme;
+            showToast('Theme changed to ' + newTheme + ' mode', 'info');
+        }
+
+        // ============================================================
+        // Toast Notifications
+        // ============================================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const icons = {
+                success: 'check-circle',
+                error: 'x-circle',
+                warning: 'alert-triangle',
+                info: 'info'
+            };
+
+            const colors = {
+                success: 'bg-success-500',
+                error: 'bg-error-500',
+                warning: 'bg-warning-500',
+                info: 'bg-primary-500'
+            };
+
+            toast.className = `flex items-center gap-3 px-4 py-3 ${colors[type]} text-white rounded-lg shadow-lg animate-slide-up`;
+            toast.innerHTML = `
+                <i data-lucide="${icons[type]}" class="w-5 h-5"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        // Sidebar
+        // ============================================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // ============================================================
+        // Filter Panel
+        // ============================================================
+        function toggleFilterPanel() {
+            const panel = document.getElementById('filter-panel');
+            const overlay = document.getElementById('filter-panel-overlay');
+            panel.classList.toggle('translate-x-full');
+            overlay.classList.toggle('hidden');
+            AppState.filterPanelOpen = !panel.classList.contains('translate-x-full');
+        }
+
+        function toggleTherapistFilter(therapistId) {
+            if (therapistId === null) {
+                // "All" clicked - clear filters
+                AppState.activeFilters.therapists = [];
+            } else {
+                const index = AppState.activeFilters.therapists.indexOf(therapistId);
+                if (index > -1) {
+                    AppState.activeFilters.therapists.splice(index, 1);
+                } else {
+                    AppState.activeFilters.therapists.push(therapistId);
+                }
+            }
+            updateFilterChips();
+            renderCurrentView();
+        }
+
+        function updateFilterChips() {
+            const allBtn = document.getElementById('filter-all');
+            const isAllSelected = AppState.activeFilters.therapists.length === 0;
+
+            if (isAllSelected) {
+                allBtn.classList.add('bg-primary-500', 'text-white');
+                allBtn.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+            } else {
+                allBtn.classList.remove('bg-primary-500', 'text-white');
+                allBtn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+            }
+
+            teamMembers.forEach(t => {
+                const btn = document.getElementById(`filter-${t.id}`);
+                if (!btn) return;
+
+                const isActive = AppState.activeFilters.therapists.includes(t.id);
+                if (isActive) {
+                    btn.classList.add('bg-primary-500', 'text-white');
+                    btn.classList.remove('bg-gray-100', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                } else {
+                    btn.classList.remove('bg-primary-500', 'text-white');
+                    btn.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300');
+                }
+            });
+        }
+
+        function clearAllFilters() {
+            AppState.activeFilters.therapists = [];
+            AppState.activeFilters.clients = [];
+            AppState.activeFilters.eventTypes = [];
+            updateFilterChips();
+            renderCurrentView();
+            toggleFilterPanel();
+            showToast('Filters cleared', 'info');
+        }
+
+        // ============================================================
+        // View Switching
+        // ============================================================
+        function switchView(view) {
+            AppState.currentView = view;
+
+            // Hide all views
+            document.querySelectorAll('.calendar-view').forEach(v => v.classList.add('hidden'));
+
+            // Show selected view
+            document.getElementById(`calendar-${view}`).classList.remove('hidden');
+
+            // Update view buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-gray-600', 'shadow-sm', 'text-gray-900', 'dark:text-white');
+                btn.classList.add('text-gray-500');
+            });
+
+            const activeBtn = document.getElementById(`view-${view}`);
+            activeBtn.classList.add('bg-white', 'dark:bg-gray-600', 'shadow-sm', 'text-gray-900', 'dark:text-white');
+            activeBtn.classList.remove('text-gray-500');
+
+            updateDateRange();
+            renderCurrentView();
+        }
+
+        // ============================================================
+        // Date Navigation
+        // ============================================================
+        function navigatePrev() {
+            const d = new Date(AppState.currentDate);
+            switch (AppState.currentView) {
+                case 'month':
+                    d.setMonth(d.getMonth() - 1);
+                    break;
+                case 'week':
+                    d.setDate(d.getDate() - 7);
+                    break;
+                case 'day':
+                    d.setDate(d.getDate() - 1);
+                    break;
+            }
+            AppState.currentDate = d;
+            updateDateRange();
+            renderCurrentView();
+        }
+
+        function navigateNext() {
+            const d = new Date(AppState.currentDate);
+            switch (AppState.currentView) {
+                case 'month':
+                    d.setMonth(d.getMonth() + 1);
+                    break;
+                case 'week':
+                    d.setDate(d.getDate() + 7);
+                    break;
+                case 'day':
+                    d.setDate(d.getDate() + 1);
+                    break;
+            }
+            AppState.currentDate = d;
+            updateDateRange();
+            renderCurrentView();
+        }
+
+        function goToToday() {
+            AppState.currentDate = new Date(2026, 0, 31); // January 31, 2026
+            updateDateRange();
+            renderCurrentView();
+            showToast('Jumped to today', 'info');
+        }
+
+        function updateDateRange() {
+            const rangeEl = document.getElementById('current-range');
+            const subtitleEl = document.getElementById('date-subtitle');
+            const d = AppState.currentDate;
+
+            switch (AppState.currentView) {
+                case 'month':
+                    const monthName = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    rangeEl.textContent = monthName;
+                    subtitleEl.textContent = monthName;
+                    break;
+                case 'week':
+                    const weekDates = getWeekDates(d);
+                    const startMonth = weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const endMonth = weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    rangeEl.textContent = `${startMonth} - ${endMonth}`;
+                    subtitleEl.textContent = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    break;
+                case 'day':
+                    const dayStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+                    rangeEl.textContent = dayStr;
+                    subtitleEl.textContent = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    break;
+            }
+        }
+
+        // ============================================================
+        // Render Current View
+        // ============================================================
+        function renderCurrentView() {
+            switch (AppState.currentView) {
+                case 'week':
+                    renderWeekView();
+                    break;
+                case 'month':
+                    renderMonthView();
+                    break;
+                case 'day':
+                    renderDayView();
+                    break;
+            }
+        }
+
+        // ============================================================
+        // Week View Rendering
+        // ============================================================
+        function renderWeekView() {
+            renderTimeGutter();
+            renderDayHeaders();
+            renderDayColumns();
+            updateCurrentTimeIndicator();
+        }
+
+        function renderTimeGutter() {
+            const gutter = document.getElementById('time-gutter');
+            let html = '';
+            for (let hour = 7; hour <= 20; hour++) {
+                const time = hour <= 12 ? `${hour} AM` : `${hour - 12} PM`;
+                html += `
+                    <div class="h-[60px] flex items-start justify-end pr-2 -mt-2">
+                        <span class="text-xs text-gray-400">${hour === 12 ? '12 PM' : time}</span>
+                    </div>
+                `;
+            }
+            gutter.innerHTML = html;
+        }
+
+        function renderDayHeaders() {
+            const container = document.getElementById('day-headers');
+            const weekDates = getWeekDates(AppState.currentDate);
+
+            container.innerHTML = weekDates.map(date => {
+                const isCurrentDay = isToday(date);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                const dayNum = date.getDate();
+
+                return `
+                    <div class="flex-1 h-12 flex flex-col items-center justify-center border-r border-gray-200 dark:border-gray-700 last:border-r-0 ${isCurrentDay ? 'bg-primary-50 dark:bg-primary-900/20' : ''}">
+                        <span class="text-xs text-gray-500 uppercase">${dayName}</span>
+                        <span class="text-lg font-semibold ${isCurrentDay ? 'w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center' : ''}">${dayNum}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDayColumns() {
+            const container = document.getElementById('day-columns');
+            const weekDates = getWeekDates(AppState.currentDate);
+
+            container.innerHTML = weekDates.map((date, index) => {
+                const isCurrentDay = isToday(date);
+                const dayEvents = getEventsForDate(date);
+
+                // Filter events based on active filters
+                const filteredEvents = dayEvents.filter(e => {
+                    if (AppState.activeFilters.therapists.length > 0) {
+                        return AppState.activeFilters.therapists.includes(e.therapistId);
+                    }
+                    return true;
+                });
+
+                const eventsHtml = filteredEvents.map(event => {
+                    const pos = getEventPosition(event);
+                    const eventType = getEventType(event.typeId);
+                    const client = getClient(event.clientId);
+                    const therapist = getTherapist(event.therapistId);
+
+                    const attendanceColors = {
+                        'present': 'border-l-success-500',
+                        'absent': 'border-l-error-500',
+                        'excused': 'border-l-warning-500',
+                        null: 'border-l-gray-300'
+                    };
+
+                    return `
+                        <div
+                            class="event-card absolute left-1 right-1 rounded-lg p-2 overflow-hidden cursor-pointer hover:shadow-lg transition-base border-l-4 ${attendanceColors[event.attendance]}"
+                            style="top: ${pos.top}px; height: ${pos.height - 4}px; background: ${eventType.color}20;"
+                            onclick="openEventPanel(${event.id})"
+                        >
+                            <div class="flex items-start justify-between">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-medium truncate" style="color: ${eventType.color}">${formatTime(event.startTime)}</p>
+                                    <p class="text-sm font-medium truncate text-gray-900 dark:text-white">${client ? client.name : eventType.label}</p>
+                                    ${pos.height > 50 ? `<p class="text-xs text-gray-500 truncate">${eventType.label}</p>` : ''}
+                                </div>
+                                <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-medium" style="background: ${therapist.color}">
+                                    ${therapist.initials}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="flex-1 relative border-r border-gray-200 dark:border-gray-700 last:border-r-0 ${isCurrentDay ? 'bg-primary-50/30 dark:bg-primary-900/10' : ''} calendar-grid-line">
+                        ${eventsHtml}
+
+                        <!-- Clickable time slots -->
+                        ${Array(14).fill(0).map((_, i) => `
+                            <div
+                                class="time-slot absolute left-0 right-0 h-[60px] cursor-pointer"
+                                style="top: ${i * 60}px;"
+                                onclick="createEventAt('${date.toISOString().split('T')[0]}', '${String(7 + i).padStart(2, '0')}:00')"
+                            ></div>
+                        `).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCurrentTimeIndicator() {
+            // For demo purposes, show indicator at 10:30 AM on today
+            const indicator = document.getElementById('current-time-indicator');
+            const weekDates = getWeekDates(AppState.currentDate);
+            const todayIndex = weekDates.findIndex(d => isToday(d));
+
+            if (todayIndex > -1) {
+                // Position at 10:30 AM (3.5 hours after 7 AM = 210px)
+                const top = 210; // 3.5 * 60
+                indicator.style.top = `${top}px`;
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // Month View Rendering
+        // ============================================================
+        function renderMonthView() {
+            const container = document.getElementById('month-grid');
+            const monthDates = getMonthDates(AppState.currentDate);
+
+            container.innerHTML = monthDates.map(({ date, isCurrentMonth }) => {
+                const dayEvents = getEventsForDate(date);
+                const isCurrentDay = isToday(date);
+                const maxVisibleEvents = 3;
+
+                const visibleEvents = dayEvents.slice(0, maxVisibleEvents);
+                const remainingCount = dayEvents.length - maxVisibleEvents;
+
+                return `
+                    <div class="month-day-cell bg-white dark:bg-gray-800 p-2 ${!isCurrentMonth ? 'opacity-40' : ''} ${isCurrentDay ? 'ring-2 ring-primary-500 ring-inset' : ''} cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-base" onclick="goToDate('${date.toISOString().split('T')[0]}')">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm font-medium ${isCurrentDay ? 'w-7 h-7 bg-primary-500 text-white rounded-full flex items-center justify-center' : ''}">${date.getDate()}</span>
+                            ${dayEvents.length > 0 ? `<span class="text-xs text-gray-400">${dayEvents.length}</span>` : ''}
+                        </div>
+                        <div class="space-y-1">
+                            ${visibleEvents.map(event => {
+                                const eventType = getEventType(event.typeId);
+                                const client = getClient(event.clientId);
+                                return `
+                                    <div class="text-xs p-1 rounded truncate" style="background: ${eventType.color}20; color: ${eventType.color}">
+                                        ${formatTime(event.startTime)} ${client ? client.name : eventType.label}
+                                    </div>
+                                `;
+                            }).join('')}
+                            ${remainingCount > 0 ? `
+                                <div class="text-xs text-gray-500 pl-1">+${remainingCount} more</div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function goToDate(dateStr) {
+            AppState.currentDate = new Date(dateStr + 'T12:00:00');
+            switchView('day');
+        }
+
+        // ============================================================
+        // Day View Rendering
+        // ============================================================
+        function renderDayView() {
+            renderDayTimeGutter();
+            renderDayHeader();
+            renderDayContent();
+        }
+
+        function renderDayTimeGutter() {
+            const gutter = document.getElementById('day-time-gutter');
+            let html = '';
+            for (let hour = 7; hour <= 20; hour++) {
+                const time = hour <= 12 ? `${hour} AM` : `${hour - 12} PM`;
+                html += `
+                    <div class="h-[60px] flex items-start justify-end pr-2 -mt-2">
+                        <span class="text-xs text-gray-400">${hour === 12 ? '12 PM' : time}</span>
+                    </div>
+                `;
+            }
+            gutter.innerHTML = html;
+        }
+
+        function renderDayHeader() {
+            const container = document.getElementById('day-header');
+            const d = AppState.currentDate;
+            const isCurrentDay = isToday(d);
+
+            container.innerHTML = `
+                <div class="text-center">
+                    <p class="text-sm text-gray-500 uppercase">${d.toLocaleDateString('en-US', { weekday: 'long' })}</p>
+                    <p class="text-3xl font-bold ${isCurrentDay ? 'text-primary-500' : ''}">${d.getDate()}</p>
+                    <p class="text-sm text-gray-500">${d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                </div>
+            `;
+        }
+
+        function renderDayContent() {
+            const container = document.getElementById('day-content');
+            const dayEvents = getEventsForDate(AppState.currentDate);
+
+            // Filter events
+            const filteredEvents = dayEvents.filter(e => {
+                if (AppState.activeFilters.therapists.length > 0) {
+                    return AppState.activeFilters.therapists.includes(e.therapistId);
+                }
+                return true;
+            });
+
+            // Grid lines
+            let gridHtml = '';
+            for (let i = 0; i < 14; i++) {
+                gridHtml += `
+                    <div class="absolute left-0 right-0 h-[60px] border-b border-gray-100 dark:border-gray-700/50 time-slot cursor-pointer" style="top: ${i * 60}px;" onclick="createEventAt('${AppState.currentDate.toISOString().split('T')[0]}', '${String(7 + i).padStart(2, '0')}:00')"></div>
+                `;
+            }
+
+            // Events - group by time to handle overlaps
+            const eventsHtml = filteredEvents.map(event => {
+                const pos = getEventPosition(event);
+                const eventType = getEventType(event.typeId);
+                const client = getClient(event.clientId);
+                const therapist = getTherapist(event.therapistId);
+
+                const attendanceColors = {
+                    'present': 'border-l-success-500',
+                    'absent': 'border-l-error-500',
+                    'excused': 'border-l-warning-500',
+                    null: 'border-l-gray-300'
+                };
+
+                return `
+                    <div
+                        class="event-card absolute left-4 right-4 rounded-xl p-4 overflow-hidden cursor-pointer hover:shadow-xl transition-base border-l-4 ${attendanceColors[event.attendance]}"
+                        style="top: ${pos.top}px; height: ${pos.height - 8}px; background: ${eventType.color}15;"
+                        onclick="openEventPanel(${event.id})"
+                    >
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-medium flex-shrink-0" style="background: ${therapist.color}">
+                                ${therapist.initials}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-sm font-medium" style="color: ${eventType.color}">${formatTime(event.startTime)} - ${formatTime(event.startTime.split(':')[0] + ':' + String(parseInt(event.startTime.split(':')[1]) + event.duration).padStart(2, '0'))}</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full" style="background: ${eventType.color}30; color: ${eventType.color}">${eventType.label}</span>
+                                </div>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white truncate">${client ? client.name : 'Team Meeting'}</p>
+                                <p class="text-sm text-gray-500">${therapist.name}</p>
+                            </div>
+                            <div>
+                                ${event.attendance === 'present' ? '<span class="px-2 py-1 text-xs bg-success-100 text-success-700 rounded-full">Present</span>' : ''}
+                                ${event.attendance === 'absent' ? '<span class="px-2 py-1 text-xs bg-error-100 text-error-700 rounded-full">Absent</span>' : ''}
+                                ${event.attendance === 'excused' ? '<span class="px-2 py-1 text-xs bg-warning-100 text-warning-700 rounded-full">Excused</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = gridHtml + eventsHtml;
+        }
+
+        // ============================================================
+        // Event Panel
+        // ============================================================
+        function openEventPanel(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+
+            const client = getClient(event.clientId);
+            const therapist = getTherapist(event.therapistId);
+            const eventType = getEventType(event.typeId);
+
+            const content = document.getElementById('event-panel-content');
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Event Header -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: ${eventType.color}20;">
+                            <i data-lucide="calendar" class="w-6 h-6" style="color: ${eventType.color}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">${eventType.label}</h4>
+                            <p class="text-sm text-gray-500">${formatTime(event.startTime)} - ${event.duration} min</p>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Date</p>
+                                <p class="font-medium">${formatDate(event.date, 'long')}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Duration</p>
+                                <p class="font-medium">${event.duration} minutes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${client ? `
+                    <!-- Client Info -->
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Client</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                                <span class="text-primary-600 font-medium">${client.initials}</span>
+                            </div>
+                            <div>
+                                <p class="font-medium">${client.name}</p>
+                                <p class="text-sm text-gray-500">Age: ${client.age} years</p>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Therapist Info -->
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Therapist</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white" style="background: ${therapist.color}">
+                                ${therapist.initials}
+                            </div>
+                            <div>
+                                <p class="font-medium">${therapist.name}</p>
+                                <p class="text-sm text-gray-500">${therapist.role}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance -->
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-3">Attendance</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setAttendance(${event.id}, 'present')" class="py-3 rounded-xl text-sm font-medium transition-base flex flex-col items-center gap-1 ${event.attendance === 'present' ? 'bg-success-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-success-100'}">
+                                <i data-lucide="check" class="w-5 h-5"></i>
+                                Present
+                            </button>
+                            <button onclick="setAttendance(${event.id}, 'absent')" class="py-3 rounded-xl text-sm font-medium transition-base flex flex-col items-center gap-1 ${event.attendance === 'absent' ? 'bg-error-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-error-100'}">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                                Absent
+                            </button>
+                            <button onclick="setAttendance(${event.id}, 'excused')" class="py-3 rounded-xl text-sm font-medium transition-base flex flex-col items-center gap-1 ${event.attendance === 'excused' ? 'bg-warning-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-warning-100'}">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                                Excused
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Program Scores -->
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-3">Program Scores</p>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-medium">Matching</span>
+                                    <span class="text-sm text-gray-500">Total: 5</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm hover:bg-gray-300 transition-base">-</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm hover:bg-gray-300 transition-base">0</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm hover:bg-gray-300 transition-base">P</button>
+                                    <button class="py-2 bg-primary-500 text-white rounded-lg font-mono text-sm hover:bg-primary-600 transition-base">+</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-medium">Imitation</span>
+                                    <span class="text-sm text-gray-500">Total: 3</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm hover:bg-gray-300 transition-base">-</button>
+                                    <button class="py-2 bg-primary-500 text-white rounded-lg font-mono text-sm hover:bg-primary-600 transition-base">0</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm hover:bg-gray-300 transition-base">P</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm hover:bg-gray-300 transition-base">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Session Notes</p>
+                        <textarea placeholder="Add notes about this session..." rows="4" class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border-none rounded-xl resize-none focus:ring-2 focus:ring-primary-500"></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3">
+                        <button onclick="closeEventPanel(); showToast('Session saved successfully');" class="flex-1 py-3 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-base">
+                            Save Changes
+                        </button>
+                        <button class="p-3 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                            <i data-lucide="trash-2" class="w-5 h-5 text-error-500"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+
+            document.getElementById('event-panel').classList.remove('translate-x-full');
+            document.getElementById('event-panel-overlay').classList.remove('hidden');
+        }
+
+        function closeEventPanel() {
+            document.getElementById('event-panel').classList.add('translate-x-full');
+            document.getElementById('event-panel-overlay').classList.add('hidden');
+        }
+
+        function setAttendance(eventId, status) {
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                event.attendance = status;
+                renderCurrentView();
+                openEventPanel(eventId); // Refresh panel
+                showToast(`Attendance marked as ${status}`, 'success');
+            }
+        }
+
+        // ============================================================
+        // Create Event
+        // ============================================================
+        function createEventAt(date, time) {
+            document.getElementById('new-event-date').value = date;
+            document.getElementById('new-event-time').value = time;
+            showNewEventModal();
+        }
+
+        function showNewEventModal() {
+            document.getElementById('new-event-modal').classList.remove('hidden');
+        }
+
+        function hideNewEventModal() {
+            document.getElementById('new-event-modal').classList.add('hidden');
+        }
+
+        function createEvent() {
+            hideNewEventModal();
+            showToast('Event created successfully', 'success');
+            renderCurrentView();
+        }
+
+        // ============================================================
+        // Keyboard Shortcuts
+        // ============================================================
+        document.addEventListener('keydown', (e) => {
+            // Escape to close panels
+            if (e.key === 'Escape') {
+                closeEventPanel();
+                hideNewEventModal();
+                if (AppState.filterPanelOpen) toggleFilterPanel();
+            }
+
+            // N for new event
+            if (e.key === 'n' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                showNewEventModal();
+            }
+
+            // T for today
+            if (e.key === 't' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                goToToday();
+            }
+
+            // 1, 2, 3 for view switching
+            if (e.key === '1' && !e.metaKey && !e.ctrlKey && document.activeElement.tagName !== 'INPUT') {
+                switchView('month');
+            }
+            if (e.key === '2' && !e.metaKey && !e.ctrlKey && document.activeElement.tagName !== 'INPUT') {
+                switchView('week');
+            }
+            if (e.key === '3' && !e.metaKey && !e.ctrlKey && document.activeElement.tagName !== 'INPUT') {
+                switchView('day');
+            }
+
+            // Arrow keys for navigation
+            if (e.key === 'ArrowLeft' && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+                navigatePrev();
+            }
+            if (e.key === 'ArrowRight' && !e.metaKey && document.activeElement.tagName !== 'INPUT') {
+                navigateNext();
+            }
+        });
+
+        // ============================================================
+        // Initialize Application
+        // ============================================================
+        function init() {
+            initTheme();
+            updateDateRange();
+            renderCurrentView();
+
+            // Scroll to 8 AM in week view
+            setTimeout(() => {
+                const scrollContainer = document.getElementById('week-scroll-container');
+                if (scrollContainer) {
+                    scrollContainer.scrollTop = 60; // 1 hour from 7 AM
+                }
+            }, 100);
+        }
+
+        // Run on DOM ready
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body>
+</html>

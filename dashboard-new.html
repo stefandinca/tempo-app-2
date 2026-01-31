@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempoApp - Dashboard</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: ['class', '[data-theme="dark"]'],
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#EEF4FF',
+                            100: '#D9E5FF',
+                            200: '#BDD1FF',
+                            300: '#91B4FF',
+                            400: '#5E91FF',
+                            500: '#4A90E2',
+                            600: '#3B73B4',
+                            700: '#2D5A8C',
+                            800: '#1F4166',
+                            900: '#142D47',
+                        },
+                        secondary: {
+                            50: '#FEF8F3',
+                            100: '#FDF1E7',
+                            200: '#F9E1CC',
+                            300: '#F4CBA8',
+                            400: '#EDB07A',
+                            500: '#E09448',
+                            600: '#C47A2E',
+                            700: '#9E5F1F',
+                            800: '#784715',
+                            900: '#52310E',
+                        },
+                        success: {
+                            50: '#ECFDF5',
+                            100: '#D1FAE5',
+                            500: '#10B981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        warning: {
+                            50: '#FFFBEB',
+                            100: '#FEF3C7',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                            700: '#B45309',
+                        },
+                        error: {
+                            50: '#FEF2F2',
+                            100: '#FEE2E2',
+                            500: '#EF4444',
+                            600: '#DC2626',
+                            700: '#B91C1C',
+                        },
+                    },
+                    animation: {
+                        'slide-up': 'slideUp 0.2s ease-out',
+                        'slide-in-right': 'slideInRight 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.2s ease-out',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(8px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #404040;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #525252;
+        }
+
+        /* Skeleton animation */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        [data-theme="dark"] .skeleton {
+            background: linear-gradient(90deg, #262626 25%, #404040 50%, #262626 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Transition utilities */
+        .transition-base {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Focus ring */
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+        }
+
+        /* Dark mode transitions */
+        html {
+            transition: background-color 0.3s, color 0.3s;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+
+    <!-- ============================================================
+         APPLICATION STATE & DATA
+         ============================================================ -->
+    <script>
+        // Application State
+        const AppState = {
+            currentView: 'dashboard',
+            sidebarOpen: false,
+            profileDropdownOpen: false,
+            commandPaletteOpen: false,
+            theme: localStorage.getItem('theme') || 'light',
+            isLoading: true,
+            notifications: [],
+            toasts: [],
+        };
+
+        // Dummy Data - Team Members
+        const teamMembers = [
+            { id: 1, name: 'Dr. Maria Garcia', initials: 'MG', role: 'Senior ABA Therapist', color: '#4A90E2', sessions: 32, clients: 12 },
+            { id: 2, name: 'Dr. Andrei Ionescu', initials: 'AI', role: 'Coordinator', color: '#10B981', sessions: 28, clients: 8 },
+            { id: 3, name: 'Dr. Elena Popescu', initials: 'EP', role: 'Speech Therapist', color: '#8B5CF6', sessions: 24, clients: 10 },
+            { id: 4, name: 'Dr. Pavel Stefan', initials: 'PS', role: 'Occupational Therapist', color: '#F59E0B', sessions: 20, clients: 6 },
+        ];
+
+        // Dummy Data - Clients
+        const clients = [
+            { id: 1, name: 'John Smith', age: 7, progress: 78, therapistId: 1, nextSession: '2026-01-31T09:00:00' },
+            { id: 2, name: 'Jane Doe', age: 5, progress: 65, therapistId: 1, nextSession: '2026-01-31T10:30:00' },
+            { id: 3, name: 'Mike Brown', age: 8, progress: 82, therapistId: 2, nextSession: '2026-01-31T13:00:00' },
+            { id: 4, name: 'Sara Lee', age: 6, progress: 71, therapistId: 3, nextSession: '2026-01-31T15:00:00' },
+            { id: 5, name: 'Alex Kim', age: 9, progress: 88, therapistId: 4, nextSession: '2026-02-01T09:00:00' },
+        ];
+
+        // Dummy Data - Today's Events
+        const todaysEvents = [
+            {
+                id: 1,
+                clientId: 1,
+                therapistId: 1,
+                time: '09:00',
+                endTime: '10:00',
+                type: 'ABA Session',
+                status: 'completed',
+                attendance: 'present',
+                programScores: { matching: 3, imitation: 2, verbal: 4 }
+            },
+            {
+                id: 2,
+                clientId: 2,
+                therapistId: 1,
+                time: '10:30',
+                endTime: '11:30',
+                type: 'Speech Therapy',
+                status: 'in-progress',
+                attendance: null,
+                programScores: {}
+            },
+            {
+                id: 3,
+                clientId: 3,
+                therapistId: 2,
+                time: '13:00',
+                endTime: '14:00',
+                type: 'ABA Session',
+                status: 'upcoming',
+                attendance: null,
+                programScores: {}
+            },
+            {
+                id: 4,
+                clientId: 4,
+                therapistId: 3,
+                time: '15:00',
+                endTime: '16:00',
+                type: 'Evaluation',
+                status: 'upcoming',
+                attendance: null,
+                programScores: {}
+            },
+        ];
+
+        // Dummy Data - Recent Activities
+        const recentActivities = [
+            { id: 1, user: 'Dr. Maria Garcia', action: 'logged attendance', target: 'John Smith', time: '5 min ago', icon: 'check-circle' },
+            { id: 2, user: 'Dr. Andrei Ionescu', action: 'created event', target: 'Team Meeting', time: '15 min ago', icon: 'calendar-plus' },
+            { id: 3, user: 'Dr. Elena Popescu', action: 'updated progress', target: 'Sara Lee', time: '1 hour ago', icon: 'trending-up' },
+            { id: 4, user: 'System', action: 'generated report', target: 'Monthly Summary', time: '2 hours ago', icon: 'file-text' },
+            { id: 5, user: 'Dr. Pavel Stefan', action: 'added note', target: 'Alex Kim', time: '3 hours ago', icon: 'message-square' },
+        ];
+
+        // Dummy Data - KPIs
+        const kpiData = {
+            todayRevenue: { value: 2450, change: 12, trend: 'up' },
+            activeClients: { value: 48, change: 3, trend: 'up' },
+            attendanceRate: { value: 94, change: -2, trend: 'down' },
+            sessionsToday: { value: 24, change: 0, trend: 'neutral' },
+        };
+
+        // Dummy Data - Weekly Chart
+        const weeklyChartData = {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            sessions: [28, 32, 30, 35, 29, 12, 0],
+            attendance: [26, 30, 28, 33, 27, 11, 0],
+        };
+
+        // Helper Functions
+        function getClient(id) {
+            return clients.find(c => c.id === id);
+        }
+
+        function getTherapist(id) {
+            return teamMembers.find(t => t.id === id);
+        }
+
+        function formatTime(time) {
+            const [hours, minutes] = time.split(':');
+            const h = parseInt(hours);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const hour12 = h % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+    </script>
+
+    <!-- ============================================================
+         COMPONENT: Toast Container
+         ============================================================ -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- ============================================================
+         COMPONENT: Command Palette (Cmd+K)
+         ============================================================ -->
+    <div id="command-palette" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleCommandPalette()"></div>
+
+        <!-- Modal -->
+        <div class="absolute top-[20%] left-1/2 -translate-x-1/2 w-full max-w-lg bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden animate-scale-in">
+            <!-- Search Input -->
+            <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <i data-lucide="search" class="w-5 h-5 text-gray-400"></i>
+                <input
+                    type="text"
+                    id="command-input"
+                    placeholder="Search or type a command..."
+                    class="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-white placeholder-gray-400"
+                    autocomplete="off"
+                >
+                <kbd class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded">ESC</kbd>
+            </div>
+
+            <!-- Results -->
+            <div class="max-h-80 overflow-y-auto p-2">
+                <!-- Recent -->
+                <div class="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Recent</div>
+                <button class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base text-left">
+                    <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                    <span class="flex-1">Go to Calendar</span>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 rounded">G C</kbd>
+                </button>
+                <button class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base text-left">
+                    <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
+                    <span class="flex-1">John Smith (Client)</span>
+                </button>
+
+                <!-- Actions -->
+                <div class="px-2 py-1.5 mt-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</div>
+                <button class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base text-left">
+                    <i data-lucide="plus" class="w-4 h-4 text-primary-500"></i>
+                    <span class="flex-1">New Event</span>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 rounded">N</kbd>
+                </button>
+                <button class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base text-left">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-primary-500"></i>
+                    <span class="flex-1">New Client</span>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 rounded">Shift+C</kbd>
+                </button>
+
+                <!-- Navigation -->
+                <div class="px-2 py-1.5 mt-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Navigation</div>
+                <button onclick="navigateTo('dashboard'); toggleCommandPalette();" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base text-left">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-gray-400"></i>
+                    <span class="flex-1">Dashboard</span>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 rounded">G D</kbd>
+                </button>
+                <button onclick="navigateTo('calendar'); toggleCommandPalette();" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base text-left">
+                    <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                    <span class="flex-1">Calendar</span>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 rounded">G C</kbd>
+                </button>
+                <button onclick="navigateTo('clients'); toggleCommandPalette();" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base text-left">
+                    <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+                    <span class="flex-1">Clients</span>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 rounded">G L</kbd>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         COMPONENT: Sidebar (Desktop)
+         ============================================================ -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+
+        <!-- Logo -->
+        <div class="h-16 flex items-center gap-3 px-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center">
+                <span class="text-white font-bold text-lg">T</span>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-gray-900 dark:text-white">TempoApp</h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Therapy Management</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="p-4 space-y-1">
+            <button onclick="navigateTo('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="font-medium">Dashboard</span>
+            </button>
+
+            <button onclick="navigateTo('calendar')" id="nav-calendar" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="calendar" class="w-5 h-5"></i>
+                <span class="font-medium">Calendar</span>
+            </button>
+
+            <button onclick="navigateTo('clients')" id="nav-clients" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="font-medium">Clients</span>
+                <span class="ml-auto px-2 py-0.5 text-xs bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-full">48</span>
+            </button>
+
+            <button onclick="navigateTo('team')" id="nav-team" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="user-circle" class="w-5 h-5"></i>
+                <span class="font-medium">Team</span>
+            </button>
+
+            <div class="pt-4 pb-2">
+                <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Admin</p>
+            </div>
+
+            <button onclick="navigateTo('billing')" id="nav-billing" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="credit-card" class="w-5 h-5"></i>
+                <span class="font-medium">Billing</span>
+            </button>
+
+            <button onclick="navigateTo('analytics')" id="nav-analytics" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                <span class="font-medium">Analytics</span>
+            </button>
+
+            <button onclick="navigateTo('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="font-medium">Settings</span>
+            </button>
+        </nav>
+
+        <!-- Keyboard Shortcut Hint -->
+        <div class="absolute bottom-4 left-4 right-4">
+            <button onclick="toggleCommandPalette()" class="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-base">
+                <i data-lucide="search" class="w-4 h-4"></i>
+                <span>Search...</span>
+                <kbd class="ml-auto px-1.5 py-0.5 text-xs bg-white dark:bg-gray-600 rounded shadow-sm">⌘K</kbd>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 lg:hidden hidden" onclick="toggleSidebar()"></div>
+
+    <!-- ============================================================
+         COMPONENT: Main Layout
+         ============================================================ -->
+    <div class="lg:ml-64 min-h-screen flex flex-col pb-16 lg:pb-0">
+
+        <!-- ============================================================
+             COMPONENT: Header
+             ============================================================ -->
+        <header class="sticky top-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-20 flex items-center justify-between px-4 lg:px-6">
+
+            <!-- Left: Mobile Menu + Page Title -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <div>
+                    <h2 id="page-title" class="font-semibold text-lg">Dashboard</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Friday, January 31, 2026</p>
+                </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-2">
+                <!-- Search (Desktop) -->
+                <button onclick="toggleCommandPalette()" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-base">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <span>Search...</span>
+                    <kbd class="px-1.5 py-0.5 text-xs bg-white dark:bg-gray-600 rounded shadow-sm">⌘K</kbd>
+                </button>
+
+                <!-- Refresh -->
+                <button onclick="refreshData()" id="refresh-btn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="sun" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+
+                <!-- Notifications -->
+                <button class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base relative">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-error-500 rounded-full"></span>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleProfileDropdown()" class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                        <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-medium">MG</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 hidden sm:block"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div id="profile-dropdown" class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-1 hidden animate-fade-in">
+                        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                            <p class="font-medium">Dr. Maria Garcia</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">maria@tempo.com</p>
+                        </div>
+                        <a href="#" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                            <i data-lucide="settings" class="w-4 h-4"></i>
+                            <span>Settings</span>
+                        </a>
+                        <div class="border-t border-gray-200 dark:border-gray-700 mt-1 pt-1">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-error-500 hover:bg-error-50 dark:hover:bg-error-900/20 transition-base">
+                                <i data-lucide="log-out" class="w-4 h-4"></i>
+                                <span>Sign out</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============================================================
+             COMPONENT: Main Content Area
+             ============================================================ -->
+        <main class="flex-1 p-4 lg:p-6">
+
+            <!-- ============================================================
+                 VIEW: Dashboard
+                 ============================================================ -->
+            <div id="view-dashboard" class="view-content">
+
+                <!-- KPI Cards Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+                    <!-- KPI Card 1: Today's Revenue -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-base cursor-pointer group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Today's Revenue</span>
+                            <div class="w-8 h-8 bg-success-100 dark:bg-success-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-base">
+                                <i data-lucide="dollar-sign" class="w-4 h-4 text-success-600"></i>
+                            </div>
+                        </div>
+                        <div id="kpi-revenue" class="skeleton-kpi">
+                            <p class="text-2xl font-bold">$2,450</p>
+                            <p class="text-sm text-success-600 flex items-center gap-1">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                +12% vs yesterday
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- KPI Card 2: Active Clients -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-base cursor-pointer group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Active Clients</span>
+                            <div class="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-base">
+                                <i data-lucide="users" class="w-4 h-4 text-primary-600"></i>
+                            </div>
+                        </div>
+                        <div id="kpi-clients" class="skeleton-kpi">
+                            <p class="text-2xl font-bold">48</p>
+                            <p class="text-sm text-success-600 flex items-center gap-1">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i>
+                                +3 this month
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- KPI Card 3: Attendance Rate -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-base cursor-pointer group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Attendance Rate</span>
+                            <div class="w-8 h-8 bg-warning-100 dark:bg-warning-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-base">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-warning-600"></i>
+                            </div>
+                        </div>
+                        <div id="kpi-attendance" class="skeleton-kpi">
+                            <p class="text-2xl font-bold">94%</p>
+                            <p class="text-sm text-error-500 flex items-center gap-1">
+                                <i data-lucide="trending-down" class="w-3 h-3"></i>
+                                -2% vs last week
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- KPI Card 4: Sessions Today -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-base cursor-pointer group">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Sessions Today</span>
+                            <div class="w-8 h-8 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-base">
+                                <i data-lucide="calendar-check" class="w-4 h-4 text-secondary-600"></i>
+                            </div>
+                        </div>
+                        <div id="kpi-sessions" class="skeleton-kpi">
+                            <p class="text-2xl font-bold">24</p>
+                            <p class="text-sm text-gray-500 flex items-center gap-1">
+                                <i data-lucide="minus" class="w-3 h-3"></i>
+                                Same as yesterday
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid lg:grid-cols-3 gap-6">
+
+                    <!-- Left Column: Today's Schedule -->
+                    <div class="lg:col-span-2 space-y-6">
+
+                        <!-- Today's Schedule Card -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="font-semibold">Today's Schedule</h3>
+                                <button onclick="navigateTo('calendar')" class="text-sm text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1">
+                                    View All
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <div id="schedule-container" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <!-- Schedule items will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Weekly Overview Chart -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-semibold">Weekly Overview</h3>
+                                <div class="flex items-center gap-4 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-primary-500"></div>
+                                        <span class="text-gray-500 dark:text-gray-400">Sessions</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-3 h-3 rounded-full bg-success-500"></div>
+                                        <span class="text-gray-500 dark:text-gray-400">Attended</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h-64">
+                                <canvas id="weekly-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Activity & Team -->
+                    <div class="space-y-6">
+
+                        <!-- Recent Activity -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="font-semibold">Recent Activity</h3>
+                                <button class="text-sm text-primary-500 hover:text-primary-600 font-medium">View All</button>
+                            </div>
+
+                            <div id="activity-container" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <!-- Activity items will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Team Performance -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="font-semibold">Team Performance</h3>
+                                <button class="text-sm text-primary-500 hover:text-primary-600 font-medium">Details</button>
+                            </div>
+
+                            <div id="team-container" class="p-4 space-y-4">
+                                <!-- Team items will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Calendar (Placeholder)
+                 ============================================================ -->
+            <div id="view-calendar" class="view-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="calendar" class="w-8 h-8 text-primary-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Calendar View</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">The full calendar interface would be displayed here with month/week/day views.</p>
+                    <button onclick="navigateTo('dashboard')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Clients (Placeholder)
+                 ============================================================ -->
+            <div id="view-clients" class="view-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                                <input type="text" placeholder="Search clients..." class="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg focus:ring-2 focus:ring-primary-500 w-64">
+                            </div>
+                            <div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                                <button class="px-3 py-1 text-sm font-medium bg-white dark:bg-gray-600 rounded shadow-sm">Active</button>
+                                <button class="px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-700">Archived</button>
+                            </div>
+                        </div>
+                        <button class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base flex items-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            New Client
+                        </button>
+                    </div>
+
+                    <!-- Client Grid -->
+                    <div class="p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="clients-grid">
+                        <!-- Client cards will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Team (Placeholder)
+                 ============================================================ -->
+            <div id="view-team" class="view-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="user-circle" class="w-8 h-8 text-primary-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Team Management</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">Team member profiles and performance metrics would be displayed here.</p>
+                    <button onclick="navigateTo('dashboard')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Billing (Placeholder)
+                 ============================================================ -->
+            <div id="view-billing" class="view-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="credit-card" class="w-8 h-8 text-primary-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Billing & Invoices</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">Financial management and invoicing would be displayed here.</p>
+                    <button onclick="navigateTo('dashboard')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Analytics (Placeholder)
+                 ============================================================ -->
+            <div id="view-analytics" class="view-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="bar-chart-2" class="w-8 h-8 text-primary-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Analytics Dashboard</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">Performance metrics and insights would be displayed here.</p>
+                    <button onclick="navigateTo('dashboard')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 VIEW: Settings (Placeholder)
+                 ============================================================ -->
+            <div id="view-settings" class="view-content hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="settings" class="w-8 h-8 text-primary-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Settings</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">Application settings and preferences would be displayed here.</p>
+                    <button onclick="navigateTo('dashboard')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ============================================================
+         COMPONENT: Bottom Navigation (Mobile)
+         ============================================================ -->
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 lg:hidden z-20 flex items-center justify-around px-2">
+        <button onclick="navigateTo('dashboard')" id="mobile-nav-dashboard" class="mobile-nav-item flex flex-col items-center gap-1 p-2 text-primary-500">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Home</span>
+        </button>
+        <button onclick="navigateTo('calendar')" id="mobile-nav-calendar" class="mobile-nav-item flex flex-col items-center gap-1 p-2 text-gray-400">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Calendar</span>
+        </button>
+        <button onclick="showNewEventModal()" class="flex items-center justify-center w-12 h-12 -mt-6 bg-primary-500 rounded-full shadow-lg text-white hover:bg-primary-600 transition-base">
+            <i data-lucide="plus" class="w-6 h-6"></i>
+        </button>
+        <button onclick="navigateTo('clients')" id="mobile-nav-clients" class="mobile-nav-item flex flex-col items-center gap-1 p-2 text-gray-400">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Clients</span>
+        </button>
+        <button onclick="toggleProfileDropdown()" class="mobile-nav-item flex flex-col items-center gap-1 p-2 text-gray-400">
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-xs font-medium">Profile</span>
+        </button>
+    </nav>
+
+    <!-- ============================================================
+         COMPONENT: Event Detail Panel (Slide-in)
+         ============================================================ -->
+    <div id="event-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-gray-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <!-- Panel Header -->
+        <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="font-semibold">Session Details</h3>
+            <button onclick="closeEventPanel()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Panel Content -->
+        <div id="event-panel-content" class="p-4 overflow-y-auto h-[calc(100%-4rem)]">
+            <!-- Content will be rendered dynamically -->
+        </div>
+    </div>
+    <div id="event-panel-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeEventPanel()"></div>
+
+    <!-- ============================================================
+         COMPONENT: New Event Modal
+         ============================================================ -->
+    <div id="new-event-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="hideNewEventModal()"></div>
+
+        <!-- Modal -->
+        <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl animate-scale-in">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="font-semibold text-lg">New Event</h3>
+                <button onclick="hideNewEventModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form class="p-4 space-y-4" onsubmit="event.preventDefault(); createEvent();">
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Event Type <span class="text-error-500">*</span></label>
+                    <select class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option>ABA Session</option>
+                        <option>Speech Therapy</option>
+                        <option>Occupational Therapy</option>
+                        <option>Evaluation</option>
+                        <option>Parent Meeting</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Client <span class="text-error-500">*</span></label>
+                    <select class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">Select client...</option>
+                        <option>John Smith</option>
+                        <option>Jane Doe</option>
+                        <option>Mike Brown</option>
+                        <option>Sara Lee</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Therapist <span class="text-error-500">*</span></label>
+                    <select class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">Select therapist...</option>
+                        <option>Dr. Maria Garcia</option>
+                        <option>Dr. Andrei Ionescu</option>
+                        <option>Dr. Elena Popescu</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5">Date</label>
+                        <input type="date" value="2026-01-31" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5">Time</label>
+                        <input type="time" value="09:00" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1.5">Duration</label>
+                    <select class="w-full px-3 py-2.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option>30 minutes</option>
+                        <option>45 minutes</option>
+                        <option selected>60 minutes</option>
+                        <option>90 minutes</option>
+                        <option>120 minutes</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="repeat-event" class="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500">
+                    <label for="repeat-event" class="text-sm">Repeat this event</label>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="hideNewEventModal()" class="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-base font-medium">
+                        Create Event
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         JAVASCRIPT: Application Logic
+         ============================================================ -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // ============================================================
+        // Theme Management
+        // ============================================================
+        function initTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            AppState.theme = theme;
+        }
+
+        function toggleTheme() {
+            const newTheme = AppState.theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            AppState.theme = newTheme;
+
+            // Reinitialize chart with new theme
+            if (weeklyChart) {
+                updateChartTheme();
+            }
+
+            showToast('Theme changed to ' + newTheme + ' mode', 'info');
+        }
+
+        // ============================================================
+        // Navigation
+        // ============================================================
+        function navigateTo(view) {
+            // Hide all views
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+
+            // Show selected view
+            const viewElement = document.getElementById('view-' + view);
+            if (viewElement) {
+                viewElement.classList.remove('hidden');
+                viewElement.classList.add('animate-fade-in');
+            }
+
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-primary-50', 'dark:bg-primary-900/30', 'text-primary-600', 'dark:text-primary-400');
+                item.classList.add('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            });
+
+            const activeNav = document.getElementById('nav-' + view);
+            if (activeNav) {
+                activeNav.classList.add('bg-primary-50', 'dark:bg-primary-900/30', 'text-primary-600', 'dark:text-primary-400');
+                activeNav.classList.remove('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+            }
+
+            // Update mobile nav
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('text-primary-500');
+                item.classList.add('text-gray-400');
+            });
+
+            const activeMobileNav = document.getElementById('mobile-nav-' + view);
+            if (activeMobileNav) {
+                activeMobileNav.classList.add('text-primary-500');
+                activeMobileNav.classList.remove('text-gray-400');
+            }
+
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                calendar: 'Calendar',
+                clients: 'Clients',
+                team: 'Team',
+                billing: 'Billing',
+                analytics: 'Analytics',
+                settings: 'Settings'
+            };
+            document.getElementById('page-title').textContent = titles[view] || 'Dashboard';
+
+            // Close sidebar on mobile
+            if (window.innerWidth < 1024) {
+                closeSidebar();
+            }
+
+            AppState.currentView = view;
+
+            // Render view-specific content
+            if (view === 'clients') {
+                renderClientsGrid();
+            }
+        }
+
+        // ============================================================
+        // Sidebar
+        // ============================================================
+        function toggleSidebar() {
+            AppState.sidebarOpen ? closeSidebar() : openSidebar();
+        }
+
+        function openSidebar() {
+            document.getElementById('sidebar').classList.remove('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.remove('hidden');
+            AppState.sidebarOpen = true;
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.add('hidden');
+            AppState.sidebarOpen = false;
+        }
+
+        // ============================================================
+        // Profile Dropdown
+        // ============================================================
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('hidden');
+            AppState.profileDropdownOpen = !dropdown.classList.contains('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('profile-dropdown');
+            const trigger = e.target.closest('[onclick*="toggleProfileDropdown"]');
+            if (!trigger && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // ============================================================
+        // Command Palette
+        // ============================================================
+        function toggleCommandPalette() {
+            const palette = document.getElementById('command-palette');
+            palette.classList.toggle('hidden');
+            AppState.commandPaletteOpen = !palette.classList.contains('hidden');
+
+            if (AppState.commandPaletteOpen) {
+                setTimeout(() => {
+                    document.getElementById('command-input').focus();
+                }, 100);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Cmd/Ctrl + K for command palette
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                toggleCommandPalette();
+            }
+
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                if (AppState.commandPaletteOpen) toggleCommandPalette();
+                closeEventPanel();
+                hideNewEventModal();
+            }
+
+            // N for new event (when no input focused)
+            if (e.key === 'n' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                showNewEventModal();
+            }
+        });
+
+        // ============================================================
+        // Toast Notifications
+        // ============================================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const icons = {
+                success: 'check-circle',
+                error: 'x-circle',
+                warning: 'alert-triangle',
+                info: 'info'
+            };
+
+            const colors = {
+                success: 'bg-success-500',
+                error: 'bg-error-500',
+                warning: 'bg-warning-500',
+                info: 'bg-primary-500'
+            };
+
+            toast.className = `flex items-center gap-3 px-4 py-3 ${colors[type]} text-white rounded-lg shadow-lg animate-slide-up`;
+            toast.innerHTML = `
+                <i data-lucide="${icons[type]}" class="w-5 h-5"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        // Schedule Rendering
+        // ============================================================
+        function renderSchedule() {
+            const container = document.getElementById('schedule-container');
+
+            if (AppState.isLoading) {
+                // Skeleton loading
+                container.innerHTML = Array(4).fill(0).map(() => `
+                    <div class="p-4">
+                        <div class="flex items-start gap-4">
+                            <div class="skeleton w-16 h-4 rounded"></div>
+                            <div class="flex-1">
+                                <div class="skeleton w-3/4 h-5 rounded mb-2"></div>
+                                <div class="skeleton w-1/2 h-4 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                return;
+            }
+
+            container.innerHTML = todaysEvents.map(event => {
+                const client = getClient(event.clientId);
+                const therapist = getTherapist(event.therapistId);
+
+                const statusColors = {
+                    'completed': 'bg-success-500',
+                    'in-progress': 'bg-warning-500',
+                    'upcoming': 'bg-gray-300 dark:bg-gray-600'
+                };
+
+                const statusLabels = {
+                    'completed': 'Completed',
+                    'in-progress': 'In Progress',
+                    'upcoming': 'Upcoming'
+                };
+
+                return `
+                    <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-base cursor-pointer group" onclick="openEventPanel(${event.id})">
+                        <div class="flex items-start gap-4">
+                            <!-- Time -->
+                            <div class="text-sm text-gray-500 dark:text-gray-400 w-20 flex-shrink-0">
+                                <div class="font-medium">${formatTime(event.time)}</div>
+                                <div class="text-xs">${formatTime(event.endTime)}</div>
+                            </div>
+
+                            <!-- Status Indicator -->
+                            <div class="mt-1.5">
+                                <div class="w-3 h-3 rounded-full ${statusColors[event.status]}"></div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h4 class="font-medium truncate">${client.name}</h4>
+                                    <span class="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 rounded-full">${event.type}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <div class="w-5 h-5 rounded-full flex items-center justify-center text-xs text-white font-medium" style="background: ${therapist.color}">
+                                        ${therapist.initials}
+                                    </div>
+                                    <span>${therapist.name}</span>
+                                </div>
+
+                                ${event.status === 'in-progress' || event.status === 'completed' ? `
+                                    <!-- Attendance Buttons -->
+                                    <div class="mt-3 flex items-center gap-2">
+                                        <span class="text-xs text-gray-500 mr-1">Attendance:</span>
+                                        <button onclick="event.stopPropagation(); setAttendance(${event.id}, 'present')" class="px-3 py-1 text-xs rounded-full transition-base ${event.attendance === 'present' ? 'bg-success-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-success-100 dark:hover:bg-success-900/30'}">
+                                            Present
+                                        </button>
+                                        <button onclick="event.stopPropagation(); setAttendance(${event.id}, 'absent')" class="px-3 py-1 text-xs rounded-full transition-base ${event.attendance === 'absent' ? 'bg-error-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-error-100 dark:hover:bg-error-900/30'}">
+                                            Absent
+                                        </button>
+                                        <button onclick="event.stopPropagation(); setAttendance(${event.id}, 'excused')" class="px-3 py-1 text-xs rounded-full transition-base ${event.attendance === 'excused' ? 'bg-warning-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-warning-100 dark:hover:bg-warning-900/30'}">
+                                            A/M
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- Arrow -->
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 opacity-0 group-hover:opacity-100 transition-base"></i>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // ============================================================
+        // Activity Rendering
+        // ============================================================
+        function renderActivity() {
+            const container = document.getElementById('activity-container');
+
+            if (AppState.isLoading) {
+                container.innerHTML = Array(5).fill(0).map(() => `
+                    <div class="p-4 flex items-start gap-3">
+                        <div class="skeleton w-8 h-8 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="skeleton w-3/4 h-4 rounded mb-2"></div>
+                            <div class="skeleton w-1/4 h-3 rounded"></div>
+                        </div>
+                    </div>
+                `).join('');
+                return;
+            }
+
+            container.innerHTML = recentActivities.map(activity => `
+                <div class="p-4 flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-base">
+                    <div class="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${activity.icon}" class="w-4 h-4 text-primary-500"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm">
+                            <span class="font-medium">${activity.user}</span>
+                            <span class="text-gray-500 dark:text-gray-400"> ${activity.action} </span>
+                            <span class="font-medium">${activity.target}</span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-0.5">${activity.time}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // ============================================================
+        // Team Performance Rendering
+        // ============================================================
+        function renderTeamPerformance() {
+            const container = document.getElementById('team-container');
+
+            if (AppState.isLoading) {
+                container.innerHTML = Array(4).fill(0).map(() => `
+                    <div class="flex items-center gap-3">
+                        <div class="skeleton w-10 h-10 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="skeleton w-1/2 h-4 rounded mb-1"></div>
+                            <div class="skeleton w-full h-2 rounded"></div>
+                        </div>
+                    </div>
+                `).join('');
+                return;
+            }
+
+            const maxSessions = Math.max(...teamMembers.map(t => t.sessions));
+
+            container.innerHTML = teamMembers.map(member => `
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium" style="background: ${member.color}">
+                        ${member.initials}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="font-medium text-sm truncate">${member.name}</p>
+                            <span class="text-xs text-gray-500">${member.sessions} sessions</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500" style="width: ${(member.sessions / maxSessions) * 100}%; background: ${member.color}"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        // Clients Grid Rendering
+        // ============================================================
+        function renderClientsGrid() {
+            const container = document.getElementById('clients-grid');
+            if (!container) return;
+
+            container.innerHTML = clients.map(client => {
+                const therapist = getTherapist(client.therapistId);
+                const progressColor = client.progress >= 80 ? 'bg-success-500' : client.progress >= 60 ? 'bg-warning-500' : 'bg-error-500';
+
+                return `
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:shadow-lg hover:border-primary-200 dark:hover:border-primary-800 transition-base cursor-pointer group">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                                    <span class="text-primary-600 dark:text-primary-400 font-semibold">${client.name.split(' ').map(n => n[0]).join('')}</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">${client.name}</h4>
+                                    <p class="text-sm text-gray-500">Age: ${client.age} years</p>
+                                </div>
+                            </div>
+                            <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-base">
+                                <i data-lucide="more-vertical" class="w-4 h-4 text-gray-400"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2 text-sm">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs text-white" style="background: ${therapist.color}">
+                                    ${therapist.initials}
+                                </div>
+                                <span class="text-gray-600 dark:text-gray-300">${therapist.name}</span>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between text-sm mb-1">
+                                    <span class="text-gray-500">Progress</span>
+                                    <span class="font-medium">${client.progress}%</span>
+                                </div>
+                                <div class="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div class="h-full ${progressColor} rounded-full transition-all duration-500" style="width: ${client.progress}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                            <button class="text-sm text-primary-500 hover:text-primary-600 font-medium">View Profile</button>
+                            <button class="text-sm text-gray-400 hover:text-gray-600">Schedule</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // ============================================================
+        // Event Panel
+        // ============================================================
+        function openEventPanel(eventId) {
+            const event = todaysEvents.find(e => e.id === eventId);
+            if (!event) return;
+
+            const client = getClient(event.clientId);
+            const therapist = getTherapist(event.therapistId);
+
+            const content = document.getElementById('event-panel-content');
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Event Header -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
+                            <i data-lucide="calendar" class="w-6 h-6 text-primary-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg">${event.type}</h4>
+                            <p class="text-sm text-gray-500">${formatTime(event.time)} - ${formatTime(event.endTime)}</p>
+                        </div>
+                    </div>
+
+                    <!-- Client Info -->
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Client</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                                <span class="text-primary-600 font-medium">${client.name.split(' ').map(n => n[0]).join('')}</span>
+                            </div>
+                            <div>
+                                <p class="font-medium">${client.name}</p>
+                                <p class="text-sm text-gray-500">Age: ${client.age} years</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Therapist Info -->
+                    <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Therapist</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white" style="background: ${therapist.color}">
+                                ${therapist.initials}
+                            </div>
+                            <div>
+                                <p class="font-medium">${therapist.name}</p>
+                                <p class="text-sm text-gray-500">${therapist.role}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance -->
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-3">Attendance</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setAttendance(${event.id}, 'present')" class="py-3 rounded-xl text-sm font-medium transition-base ${event.attendance === 'present' ? 'bg-success-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-success-100'}">
+                                <i data-lucide="check" class="w-4 h-4 mx-auto mb-1"></i>
+                                Present
+                            </button>
+                            <button onclick="setAttendance(${event.id}, 'absent')" class="py-3 rounded-xl text-sm font-medium transition-base ${event.attendance === 'absent' ? 'bg-error-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-error-100'}">
+                                <i data-lucide="x" class="w-4 h-4 mx-auto mb-1"></i>
+                                Absent
+                            </button>
+                            <button onclick="setAttendance(${event.id}, 'excused')" class="py-3 rounded-xl text-sm font-medium transition-base ${event.attendance === 'excused' ? 'bg-warning-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-warning-100'}">
+                                <i data-lucide="clock" class="w-4 h-4 mx-auto mb-1"></i>
+                                Excused
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Program Scores -->
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-3">Program Scores</p>
+                        <div class="space-y-3">
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-medium">Matching</span>
+                                    <span class="text-sm text-gray-500">Total: ${event.programScores.matching || 0}</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm">-</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm">0</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm">P</button>
+                                    <button class="py-2 bg-primary-500 text-white rounded-lg font-mono text-sm">+</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-medium">Imitation</span>
+                                    <span class="text-sm text-gray-500">Total: ${event.programScores.imitation || 0}</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm">-</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm">0</button>
+                                    <button class="py-2 bg-primary-500 text-white rounded-lg font-mono text-sm">P</button>
+                                    <button class="py-2 bg-gray-200 dark:bg-gray-600 rounded-lg font-mono text-sm">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Session Notes</p>
+                        <textarea placeholder="Add notes about this session..." rows="4" class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border-none rounded-xl resize-none focus:ring-2 focus:ring-primary-500"></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-3">
+                        <button onclick="closeEventPanel(); showToast('Session saved successfully');" class="flex-1 py-3 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-base">
+                            Save Changes
+                        </button>
+                        <button class="p-3 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-base">
+                            <i data-lucide="trash-2" class="w-5 h-5 text-error-500"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+
+            document.getElementById('event-panel').classList.remove('translate-x-full');
+            document.getElementById('event-panel-overlay').classList.remove('hidden');
+        }
+
+        function closeEventPanel() {
+            document.getElementById('event-panel').classList.add('translate-x-full');
+            document.getElementById('event-panel-overlay').classList.add('hidden');
+        }
+
+        // ============================================================
+        // Attendance
+        // ============================================================
+        function setAttendance(eventId, status) {
+            const event = todaysEvents.find(e => e.id === eventId);
+            if (event) {
+                event.attendance = status;
+                renderSchedule();
+                showToast(`Attendance marked as ${status}`, 'success');
+
+                // Re-render panel if open
+                if (!document.getElementById('event-panel').classList.contains('translate-x-full')) {
+                    openEventPanel(eventId);
+                }
+            }
+        }
+
+        // ============================================================
+        // New Event Modal
+        // ============================================================
+        function showNewEventModal() {
+            document.getElementById('new-event-modal').classList.remove('hidden');
+        }
+
+        function hideNewEventModal() {
+            document.getElementById('new-event-modal').classList.add('hidden');
+        }
+
+        function createEvent() {
+            hideNewEventModal();
+            showToast('Event created successfully', 'success');
+        }
+
+        // ============================================================
+        // Refresh Data
+        // ============================================================
+        function refreshData() {
+            const btn = document.getElementById('refresh-btn');
+            btn.classList.add('animate-spin');
+
+            AppState.isLoading = true;
+            renderSchedule();
+            renderActivity();
+            renderTeamPerformance();
+
+            setTimeout(() => {
+                AppState.isLoading = false;
+                renderSchedule();
+                renderActivity();
+                renderTeamPerformance();
+                btn.classList.remove('animate-spin');
+                showToast('Data refreshed', 'success');
+            }, 1500);
+        }
+
+        // ============================================================
+        // Charts
+        // ============================================================
+        let weeklyChart = null;
+
+        function initChart() {
+            const ctx = document.getElementById('weekly-chart');
+            if (!ctx) return;
+
+            const isDark = AppState.theme === 'dark';
+
+            weeklyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: weeklyChartData.labels,
+                    datasets: [
+                        {
+                            label: 'Sessions',
+                            data: weeklyChartData.sessions,
+                            backgroundColor: '#4A90E2',
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                        },
+                        {
+                            label: 'Attended',
+                            data: weeklyChartData.attendance,
+                            backgroundColor: '#10B981',
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: isDark ? '#9CA3AF' : '#6B7280'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: isDark ? '#374151' : '#F3F4F6'
+                            },
+                            ticks: {
+                                color: isDark ? '#9CA3AF' : '#6B7280'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartTheme() {
+            if (!weeklyChart) return;
+
+            const isDark = AppState.theme === 'dark';
+
+            weeklyChart.options.scales.x.ticks.color = isDark ? '#9CA3AF' : '#6B7280';
+            weeklyChart.options.scales.y.ticks.color = isDark ? '#9CA3AF' : '#6B7280';
+            weeklyChart.options.scales.y.grid.color = isDark ? '#374151' : '#F3F4F6';
+
+            weeklyChart.update();
+        }
+
+        // ============================================================
+        // Initialize Application
+        // ============================================================
+        function init() {
+            initTheme();
+
+            // Simulate loading
+            setTimeout(() => {
+                AppState.isLoading = false;
+                renderSchedule();
+                renderActivity();
+                renderTeamPerformance();
+                initChart();
+            }, 1000);
+
+            // Initial render with skeletons
+            renderSchedule();
+            renderActivity();
+            renderTeamPerformance();
+        }
+
+        // Run on DOM ready
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+</body>
+</html>
