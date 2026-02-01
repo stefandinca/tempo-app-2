@@ -14,6 +14,7 @@ import {
   Briefcase
 } from "lucide-react";
 import { clsx } from "clsx";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -23,14 +24,18 @@ const navItems = [
 ];
 
 const adminItems = [
-  { name: "Billing", href: "/billing/", icon: CreditCard },
-  { name: "Analytics", href: "/analytics/", icon: BarChart2 },
-  { name: "Services", href: "/services/", icon: Briefcase },
-  { name: "Settings", href: "/settings/", icon: Settings },
+  { name: "Billing", href: "/billing/", icon: CreditCard, roles: ['Admin'] },
+  { name: "Analytics", href: "/analytics/", icon: BarChart2, roles: ['Admin', 'Coordinator'] },
+  { name: "Services", href: "/services/", icon: Briefcase, roles: ['Admin', 'Coordinator'] },
+  { name: "Settings", href: "/settings/", icon: Settings, roles: ['Admin'] },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { userRole } = useAuth();
+
+  // Don't show regular sidebar for parents (they use a different shell or portal view)
+  if (userRole === 'Parent') return null;
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 z-40 hidden lg:block">
@@ -71,30 +76,36 @@ export default function Sidebar() {
           );
         })}
 
-        <div className="pt-6 pb-2">
-          <p className="px-3 text-xs font-semibold text-neutral-400 uppercase tracking-wide">
-            Admin
-          </p>
-        </div>
+        {(userRole === 'Admin' || userRole === 'Coordinator') && (
+          <>
+            <div className="pt-6 pb-2">
+              <p className="px-3 text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+                Management
+              </p>
+            </div>
 
-        {adminItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={clsx(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
-                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-              )}
-            >
-              <item.icon className="w-5 h-5" />
-              <span>{item.name}</span>
-            </Link>
-          );
-        })}
+            {adminItems
+              .filter(item => item.roles.includes(userRole as string))
+              .map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={clsx(
+                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
+                        : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+          </>
+        )}
       </nav>
 
       {/* Search Hint */}

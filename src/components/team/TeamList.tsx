@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useTeamMembers } from "@/hooks/useCollections";
 import TeamMemberCard, { TeamMember } from "./TeamMemberCard";
-import { Search, Plus } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { Search, Plus, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface TeamListProps {
   onEdit: (member: TeamMember) => void;
@@ -14,6 +14,7 @@ interface TeamListProps {
 export default function TeamList({ onEdit, onAdd }: TeamListProps) {
   const { data: teamMembers, loading } = useTeamMembers();
   const [search, setSearch] = useState("");
+  const { userRole } = useAuth();
 
   const filteredMembers = teamMembers.filter(m => 
     m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -44,13 +45,15 @@ export default function TeamList({ onEdit, onAdd }: TeamListProps) {
           />
         </div>
         
-        <button 
-          onClick={onAdd}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Add Member
-        </button>
+        {userRole === 'Admin' && (
+          <button 
+            onClick={onAdd}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Member
+          </button>
+        )}
       </div>
 
       {/* Grid */}

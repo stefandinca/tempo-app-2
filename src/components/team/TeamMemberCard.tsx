@@ -2,6 +2,7 @@
 
 import { Edit, User, Mail, Calendar } from "lucide-react";
 import { clsx } from "clsx";
+import { useAuth } from "@/context/AuthContext";
 
 export interface TeamMember {
   id: string;
@@ -21,16 +22,20 @@ interface TeamMemberCardProps {
 }
 
 export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) {
+  const { userRole } = useAuth();
+
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 hover:shadow-md transition-all group relative">
       
       {/* Edit Button (Top Right) */}
-      <button 
-        onClick={() => onEdit(member)}
-        className="absolute top-4 right-4 p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-primary-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-      >
-        <Edit className="w-4 h-4" />
-      </button>
+      {userRole === 'Admin' && (
+        <button 
+          onClick={() => onEdit(member)}
+          className="absolute top-4 right-4 p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-primary-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+        >
+          <Edit className="w-4 h-4" />
+        </button>
+      )}
 
       {/* Header: Avatar & Name */}
       <div className="flex items-start gap-4 mb-4">

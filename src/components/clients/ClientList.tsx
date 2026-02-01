@@ -5,6 +5,7 @@ import { useClients } from "@/hooks/useCollections";
 import ClientCard, { Client } from "./ClientCard";
 import { Search, Plus, Filter, ArrowUpDown, Loader2, Users } from "lucide-react";
 import { clsx } from "clsx";
+import { useAuth } from "@/context/AuthContext";
 
 interface ClientListProps {
   onAdd: () => void;
@@ -15,6 +16,7 @@ export default function ClientList({ onAdd }: ClientListProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<'active' | 'archived' | 'all'>('active');
   const [sortBy, setSortBy] = useState<'name' | 'recent'>('name');
+  const { userRole } = useAuth();
 
   const filteredClients = useMemo(() => {
     let result = clients.filter(c => 
@@ -93,13 +95,15 @@ export default function ClientList({ onAdd }: ClientListProps) {
             <option value="recent">Sort by Recent</option>
           </select>
 
-          <button 
-            onClick={onAdd}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="whitespace-nowrap">New Client</span>
-          </button>
+          {(userRole === 'Admin' || userRole === 'Coordinator') && (
+            <button 
+              onClick={onAdd}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="whitespace-nowrap">New Client</span>
+            </button>
+          )}
         </div>
       </div>
 

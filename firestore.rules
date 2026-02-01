@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/team_members/$(request.auth.uid)).data.role;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && getUserRole() == 'Admin';
+    }
+    
+    function isCoordinator() {
+      return isSignedIn() && getUserRole() == 'Coordinator';
+    }
+    
+    function isTherapist() {
+      return isSignedIn() && getUserRole() == 'Therapist';
+    }
+    
+    function isParent() {
+      // Parents are in the clients collection for now as users
+      return isSignedIn() && exists(/databases/$(database)/documents/clients/$(request.auth.uid));
+    }
+
+    // --- Collections ---
+
+    // Team Members
+    match /team_members/{memberId} {
+      allow read: if isSignedIn(); // All staff can see team
+      allow write: if isAdmin();    // Only Admin can manage team
+    }
+
+    // Clients
+    match /clients/{clientId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || (isParent() && request.auth.uid == clientId);
+      allow create, update: if isAdmin() || isCoordinator();
+      allow delete: if isAdmin();
+    }
+
+    // Events
+    match /events/{eventId} {
+      allow read: if isSignedIn(); // All staff can see calendar. Parents see via separate logic?
+      allow create: if isAdmin() || isCoordinator() || isTherapist();
+      allow update: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
+      allow delete: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
+    }
+
+    // Services
+    match /services/{serviceId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Programs
+    match /programs/{programId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    
+    // Evolution / Evaluations (Under clients)
+    match /clients/{clientId}/evaluations/{evalId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || (isParent() && request.auth.uid == clientId);
+      allow write: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
+  }
+}

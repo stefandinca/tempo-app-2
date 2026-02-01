@@ -55,10 +55,26 @@ This document outlines the core functional requirements for TempoApp, categorize
 | **P2** | As a Parent, I want to see my child's upcoming therapy schedule on a mobile-friendly dashboard. | Mobile-first dashboard showing a simple vertical list of upcoming appointments with therapist names and times. |
 | **P3** | As a Parent, I want to see visual charts of my child's progress in different developmental areas. | "Progress" tab showing line or bar charts for domains like "Communication", "Motor Skills", and "Social Play" based on clinical assessments. |
 | **P4** | As a Parent, I want to download reports shared by the clinic. | A "Documents" tab that lists shared PDF reports with a clear "Download" icon. |
+| **P5** | As a Parent, I want to confirm my child's attendance for upcoming sessions. | A "Confirm" button on upcoming session cards in the portal that updates the event status to 'Confirmed' for the therapist to see. |
+| **P6** | As a Parent, I want to view "Public" session notes left by the therapist. | A "Notes" section under each completed session in the portal, showing only comments marked as `isPublic` by the therapist. |
 
 ---
 
-## 5. Technical & System Stories
+## 5. Messaging User Stories
+
+**Focus:** Internal clinic communication and parent engagement.
+
+| ID | User Story | UX / Functional Specifics |
+|:---|:---|:---|
+| **M1** | As a Team Member, I want to have direct chats with other staff members. | A "Messages" page with a sidebar listing all staff members. Clicking a name opens a standard chat interface with bubbles, timestamps, and read receipts. |
+| **M2** | As a Therapist, I want to message the parent of my assigned client directly in the app. | On the Client Profile or Event Detail Panel, a "Message Parent" button opens a chat thread linked to that client's parent user. |
+| **M3** | As an Admin, I want to send a broadcast announcement to all team members. | A "New Broadcast" action in the messaging center. Typing a message and hitting send puts it at the top of every staff member's activity feed and messaging list. |
+| **M4** | As a User, I want to see unread message badges so I don't miss important communication. | A red numeric badge on the "Messages" sidebar icon and individual chat items showing the count of unread messages. |
+| **M5** | As a Parent, I want to be able to send a quick message to the coordinator about a cancellation. | A floating "Chat" button in the Parent Portal that defaults the conversation to the clinic Coordinator. |
+
+---
+
+## 6. Technical & System Stories
 
 **Focus:** Reliability, security, and performance.
 
@@ -67,4 +83,4 @@ This document outlines the core functional requirements for TempoApp, categorize
 | **S1** | As a User, I want the app to work offline so I can log sessions in areas with poor connectivity. | Implement Firestore offline persistence. A "Syncing" vs "Synced" status indicator should appear in the header when connectivity changes. |
 | **S2** | As a User, I want the UI to be fast and responsive, especially on tablets. | Target <2s load time. Use skeleton loaders for all cards and lists during data fetching to provide immediate visual feedback. |
 | **S3** | As a User, I want a "Dark Mode" option to reduce eye strain during evening documentation. | A theme toggle in the header/sidebar that persists the user's preference in local storage. |
-| **S4** | As a User I want to be able to change my name, e-mail address, phone number and highlight color that gets used for events assigned to me.
+| **S4** | As a User, I want to be able to change my name, e-mail address, phone number and highlight color. | A "Profile Settings" page where users can update their details. Color changes should reflect immediately on all calendar events assigned to them. |

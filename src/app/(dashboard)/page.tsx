@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { 
   TrendingUp, 
   TrendingDown,
@@ -14,11 +15,15 @@ import {
   Loader2
 } from "lucide-react";
 import { useEvents, useClients, useTeamMembers } from "@/hooks/useCollections";
+import EventDetailPanel from "@/components/calendar/EventDetailPanel";
 
 export default function Dashboard() {
   const { data: events, loading: eventsLoading } = useEvents();
   const { data: clients } = useClients();
   const { data: team } = useTeamMembers();
+
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   // Helper to resolve relationships
   const getClient = (id: string) => clients.find(c => c.id === id) || { name: "Unknown Client" };
@@ -125,6 +130,10 @@ export default function Dashboard() {
                         color={therapist.color}
                         status={evt.status}
                         showActions={evt.status === 'in-progress'}
+                        onClick={() => {
+                          setSelectedEvent(evt);
+                          setIsDetailOpen(true);
+                        }}
                      />
                    );
                  })
@@ -132,6 +141,13 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Event Detail Panel */}
+        <EventDetailPanel 
+          event={selectedEvent}
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+        />
 
         {/* Right Column: Activity (Still Mocked for now) */}
         <div className="space-y-6">
@@ -196,7 +212,7 @@ function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendC
   );
 }
 
-function ScheduleItem({ time, endTime, client, type, therapist, initials, color, status, showActions }: any) {
+function ScheduleItem({ time, endTime, client, type, therapist, initials, color, status, showActions, onClick }: any) {
   const statusColors: any = {
     'completed': 'bg-success-500',
     'in-progress': 'bg-warning-500',
@@ -204,7 +220,10 @@ function ScheduleItem({ time, endTime, client, type, therapist, initials, color,
   };
 
   return (
-    <div className="p-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors cursor-pointer group">
+    <div 
+      onClick={onClick}
+      className="p-4 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors cursor-pointer group"
+    >
       <div className="flex items-start gap-4">
         {/* Time */}
         <div className="text-sm text-neutral-500 dark:text-neutral-400 w-16 flex-shrink-0">
@@ -240,10 +259,22 @@ function ScheduleItem({ time, endTime, client, type, therapist, initials, color,
           {showActions && (
             <div className="mt-3 flex items-center gap-2 animate-in slide-in-from-top-2 duration-200">
               <span className="text-xs text-neutral-500 mr-1">Attendance:</span>
-              <button className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-success-100 dark:hover:bg-success-900/30 hover:text-success-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // logic for present
+                }}
+                className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-success-100 dark:hover:bg-success-900/30 hover:text-success-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700"
+              >
                 Present
               </button>
-              <button className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-error-100 dark:hover:bg-error-900/30 hover:text-error-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // logic for absent
+                }}
+                className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-error-100 dark:hover:bg-error-900/30 hover:text-error-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700"
+              >
                 Absent
               </button>
             </div>
