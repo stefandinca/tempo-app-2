@@ -65,7 +65,7 @@ export default function CalendarPage() {
 
   const handleSlotClick = (date: Date) => {
     const timeString = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-    openModal(date, timeString);
+    openModal({ date, time: timeString });
   };
 
   // Helper to switch to day view when clicking a month cell

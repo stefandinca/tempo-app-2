@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
@@ -18,21 +18,44 @@ interface NewEventModalProps {
   onEventCreated: () => void; // Callback to refresh calendar
   initialDate?: Date;
   initialTime?: string;
+  initialClientId?: string;
 }
 
 const STEPS = ["Details", "Clients", "Programs", "Summary"];
 
-export default function NewEventModal({ 
-  isOpen, 
-  onClose, 
+export default function NewEventModal({
+  isOpen,
+  onClose,
   onEventCreated,
   initialDate,
-  initialTime 
+  initialTime,
+  initialClientId
 }: NewEventModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<EventFormData>(INITIAL_DATA);
+  const [formData, setFormData] = useState<EventFormData>(() => ({
+    ...INITIAL_DATA,
+    selectedClients: initialClientId ? [initialClientId] : []
+  }));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success, error } = useToast();
+
+  // Reset form when modal opens with new initial data
+  const resetForm = () => {
+    setCurrentStep(0);
+    setFormData({
+      ...INITIAL_DATA,
+      selectedClients: initialClientId ? [initialClientId] : [],
+      date: initialDate ? initialDate.toISOString().split('T')[0] : INITIAL_DATA.date,
+      startTime: initialTime || INITIAL_DATA.startTime
+    });
+  };
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen, initialClientId, initialDate, initialTime]);
 
   const updateData = (updates: Partial<EventFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -85,8 +108,6 @@ export default function NewEventModal({
       setIsSubmitting(false);
       onEventCreated();
       onClose();
-      setCurrentStep(0);
-      setFormData(INITIAL_DATA); // Reset
       success("Event created successfully");
       
     } catch (err) {

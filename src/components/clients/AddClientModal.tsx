@@ -20,7 +20,8 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
 
   const [formData, setFormData] = useState({
     name: "",
-    age: "",
+    birthDate: "",
+    phone: "",
     parentName: "",
     parentEmail: "",
     medicalInfo: "",
@@ -33,8 +34,13 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
 
     try {
       const payload = {
-        ...formData,
-        age: parseInt(formData.age) || 0,
+        name: formData.name,
+        birthDate: formData.birthDate || null,
+        phone: formData.phone,
+        parentName: formData.parentName,
+        parentEmail: formData.parentEmail,
+        medicalInfo: formData.medicalInfo,
+        assignedTherapistId: formData.assignedTherapistId,
         progress: 0,
         isArchived: false,
         createdAt: serverTimestamp(),
@@ -44,7 +50,8 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
       success("Client added successfully");
       setFormData({
         name: "",
-        age: "",
+        birthDate: "",
+        phone: "",
         parentName: "",
         parentEmail: "",
         medicalInfo: "",
@@ -86,10 +93,10 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
           {/* Basic Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Child Name</label>
-              <input 
+              <input
                 type="text"
                 required
                 placeholder="e.g. John Doe"
@@ -99,16 +106,26 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Age</label>
-              <input 
-                type="number"
-                required
-                placeholder="Years"
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Birth Date</label>
+              <input
+                type="date"
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
-                value={formData.age}
-                onChange={e => setFormData({...formData, age: e.target.value})}
+                value={formData.birthDate}
+                onChange={e => setFormData({...formData, birthDate: e.target.value})}
               />
             </div>
+          </div>
+
+          {/* Phone Number */}
+          <div>
+            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Phone Number</label>
+            <input
+              type="tel"
+              placeholder="e.g. 0721 234 567"
+              className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
+              value={formData.phone}
+              onChange={e => setFormData({...formData, phone: e.target.value})}
+            />
           </div>
 
           {/* Parent Info */}

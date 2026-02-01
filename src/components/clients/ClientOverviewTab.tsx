@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, User, ShieldAlert, Calendar, Clock, BarChart } from "lucide-react";
+import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useCollections";
 
 interface ClientOverviewTabProps {
@@ -29,10 +29,41 @@ export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
               </div>
             </div>
             <div className="space-y-1">
+              <p className="text-xs text-neutral-500 uppercase tracking-wide font-semibold">Phone Number</p>
+              <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                <Phone className="w-4 h-4 text-neutral-400" />
+                {client.phone ? (
+                  <a
+                    href={`tel:${client.phone}`}
+                    className="font-medium hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  >
+                    {client.phone}
+                  </a>
+                ) : (
+                  <span className="font-medium">Not provided</span>
+                )}
+              </div>
+            </div>
+            <div className="space-y-1">
               <p className="text-xs text-neutral-500 uppercase tracking-wide font-semibold">Email Address</p>
               <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
                 <Mail className="w-4 h-4 text-neutral-400" />
                 <span className="font-medium">{client.parentEmail || "Not provided"}</span>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-neutral-500 uppercase tracking-wide font-semibold">Birth Date</p>
+              <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
+                <Cake className="w-4 h-4 text-neutral-400" />
+                <span className="font-medium">
+                  {client.birthDate
+                    ? new Date(client.birthDate).toLocaleDateString('ro-RO', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                      })
+                    : "Not provided"}
+                </span>
               </div>
             </div>
           </div>
