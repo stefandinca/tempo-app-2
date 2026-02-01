@@ -1,22 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { 
-  X, 
-  Calendar, 
-  Clock, 
-  User, 
-  BookOpen, 
-  Check, 
-  Trash2, 
+import { useState, useEffect, useCallback } from "react";
+import {
+  X,
+  Calendar,
+  Clock,
+  User,
+  BookOpen,
+  Check,
+  Trash2,
   Loader2,
-  AlertCircle
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useClients, useTeamMembers, usePrograms } from "@/hooks/useCollections";
+import ProgramScoreCounter, { ProgramScores } from "./ProgramScoreCounter";
 
 interface EventDetailPanelProps {
   event: any; // Firestore Event Document
@@ -35,14 +37,37 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [programScores, setProgramScores] = useState<Record<string, ProgramScores>>({});
+  const [isScoresExpanded, setIsScoresExpanded] = useState(true);
+
+  // Default scores for a new program
+  const defaultScores: ProgramScores = { minus: 0, zero: 0, prompted: 0, plus: 0 };
 
   // Sync state when event changes
   useEffect(() => {
     if (event) {
       setAttendance(event.attendance || null);
       setNotes(event.details || "");
+
+      // Initialize program scores from event or create defaults
+      const existingScores = event.programScores || {};
+      const initialScores: Record<string, ProgramScores> = {};
+
+      (event.programIds || []).forEach((programId: string) => {
+        initialScores[programId] = existingScores[programId] || { ...defaultScores };
+      });
+
+      setProgramScores(initialScores);
     }
   }, [event]);
+
+  // Handle score changes
+  const handleScoreChange = useCallback((programId: string, scores: ProgramScores) => {
+    setProgramScores(prev => ({
+      ...prev,
+      [programId]: scores
+    }));
+  }, []);
 
   if (!event) return null;
 
@@ -57,6 +82,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       await updateDoc(eventRef, {
         attendance,
         details: notes,
+        programScores,
         status: attendance ? "completed" : "upcoming"
       });
       success("Event updated successfully");
@@ -207,29 +233,56 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
             </div>
           </div>
 
-          {/* Program Scores (Simplified placeholder for now) */}
+          {/* Program Scores */}
           <div>
-            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Programs & Scores</p>
-            <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-100 dark:border-neutral-800">
-              {selectedPrograms.length > 0 ? (
-                <div className="space-y-3">
-                  {selectedPrograms.map(p => (
-                    <div key={p.id} className="flex items-start gap-3">
-                      <BookOpen className="w-4 h-4 text-primary-500 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-neutral-900 dark:text-white">{p.title}</p>
-                        <p className="text-xs text-neutral-500">{p.description}</p>
-                      </div>
-                    </div>
+            <button
+              type="button"
+              onClick={() => setIsScoresExpanded(!isScoresExpanded)}
+              className="w-full flex items-center justify-between mb-3 group"
+            >
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                  Programs & Scores
+                </p>
+                {selectedPrograms.length > 0 && (
+                  <span className="text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-600 px-2 py-0.5 rounded-full font-bold">
+                    {selectedPrograms.length}
+                  </span>
+                )}
+              </div>
+              {selectedPrograms.length > 0 && (
+                isScoresExpanded ? (
+                  <ChevronUp className="w-4 h-4 text-neutral-400 group-hover:text-neutral-600" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-neutral-400 group-hover:text-neutral-600" />
+                )
+              )}
+            </button>
+
+            {selectedPrograms.length > 0 ? (
+              isScoresExpanded && (
+                <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
+                  {selectedPrograms.map(program => (
+                    <ProgramScoreCounter
+                      key={program.id}
+                      programId={program.id}
+                      programTitle={program.title}
+                      programDescription={program.description}
+                      scores={programScores[program.id] || defaultScores}
+                      onChange={handleScoreChange}
+                    />
                   ))}
                 </div>
-              ) : (
+              )
+            ) : (
+              <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-100 dark:border-neutral-800">
                 <div className="text-center py-4">
                   <BookOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-                  <p className="text-sm text-neutral-500 italic">No programs tracked for this session.</p>
+                  <p className="text-sm text-neutral-500 italic">No programs assigned to this session.</p>
+                  <p className="text-xs text-neutral-400 mt-1">Add programs when creating the event.</p>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Session Notes */}

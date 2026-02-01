@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { EventFormData } from "./types";
-import { Search, Check, BookOpen, Loader2 } from "lucide-react";
+import { Search, Check, BookOpen, Loader2, Info, Target } from "lucide-react";
 import { clsx } from "clsx";
-import { usePrograms } from "@/hooks/useCollections";
+import { usePrograms, useInterventionPlans } from "@/hooks/useCollections";
 
 interface StepProgramsProps {
   data: EventFormData;
@@ -15,9 +15,36 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
   const [search, setSearch] = useState("");
   const { data: programs, loading } = usePrograms();
 
-  const filteredPrograms = (programs || []).filter(prog => 
+  // Get intervention plans for selected client
+  const clientId = data.selectedClients[0] || "";
+  const { data: plans, getActivePlanForDate } = useInterventionPlans(clientId);
+
+  // Track if we've auto-populated to avoid re-triggering
+  const hasAutoPopulated = useRef(false);
+  const previousClientId = useRef<string>("");
+
+  // Find active plan for the event date
+  const eventDate = data.date ? new Date(data.date) : new Date();
+  const activePlan = clientId ? getActivePlanForDate(eventDate) : null;
+
+  // Auto-populate programs from active plan when client changes or plans load
+  useEffect(() => {
+    // Reset if client changed
+    if (previousClientId.current !== clientId) {
+      hasAutoPopulated.current = false;
+      previousClientId.current = clientId;
+    }
+
+    // Auto-populate if we have an active plan and haven't done so yet
+    if (activePlan && !hasAutoPopulated.current && data.selectedPrograms.length === 0) {
+      updateData({ selectedPrograms: [...activePlan.programIds] });
+      hasAutoPopulated.current = true;
+    }
+  }, [activePlan, clientId, data.selectedPrograms.length, updateData]);
+
+  const filteredPrograms = (programs || []).filter(prog =>
     prog.title.toLowerCase().includes(search.toLowerCase()) ||
-    prog.description.toLowerCase().includes(search.toLowerCase())
+    (prog.description || "").toLowerCase().includes(search.toLowerCase())
   );
 
   const toggleProgram = (id: string) => {
@@ -28,8 +55,32 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
     updateData({ selectedPrograms: updated });
   };
 
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric"
+    });
+  };
+
   return (
     <div className="space-y-4">
+      {/* Active Plan Indicator */}
+      {activePlan && (
+        <div className="flex items-start gap-3 p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Target className="w-4 h-4 text-primary-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
+              {activePlan.programIds.length} programs auto-selected from active plan
+            </p>
+            <p className="text-xs text-primary-600 dark:text-primary-400 mt-0.5">
+              &quot;{activePlan.name}&quot; ({formatDate(activePlan.startDate)} - {formatDate(activePlan.endDate)})
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header & Search */}
       <div className="flex flex-col gap-3">
         <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -37,9 +88,9 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
         </label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-          <input 
-            type="text" 
-            placeholder="Search programs..." 
+          <input
+            type="text"
+            placeholder="Search programs..."
             className="w-full pl-9 pr-4 py-2.5 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

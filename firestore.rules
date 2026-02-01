@@ -65,5 +65,10 @@ service cloud.firestore {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow write: if isAdmin() || isCoordinator() || isTherapist();
     }
+
+    match /clients/{clientId}/interventionPlans/{planId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow write: if isAdmin() || isCoordinator();
+    }
   }
 }

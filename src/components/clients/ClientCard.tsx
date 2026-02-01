@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MoreVertical, User, Calendar, TrendingUp, Phone, Edit, Trash2, Archive } from "lucide-react";
+import { MoreVertical, User, Calendar, TrendingUp, Phone, Edit, Trash2, Archive, Target } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
-import { useTeamMembers, useEvents } from "@/hooks/useCollections";
+import { useTeamMembers, useEvents, useInterventionPlans } from "@/hooks/useCollections";
 import { useEventModal } from "@/context/EventModalContext";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
@@ -45,6 +45,7 @@ function calculateAge(birthDate: string | null | undefined): number | null {
 export default function ClientCard({ client }: ClientCardProps) {
   const { data: teamMembers } = useTeamMembers();
   const { data: events } = useEvents();
+  const { activePlan } = useInterventionPlans(client.id);
   const { openModal } = useEventModal();
   const { success, error } = useToast();
 
@@ -146,6 +147,12 @@ export default function ClientCard({ client }: ClientCardProps) {
               {client.isArchived && (
                 <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded">
                   Archived
+                </span>
+              )}
+              {activePlan && !client.isArchived && (
+                <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded flex items-center gap-0.5" title={`Active Plan: ${activePlan.name}`}>
+                  <Target className="w-2.5 h-2.5" />
+                  Plan
                 </span>
               )}
             </div>
