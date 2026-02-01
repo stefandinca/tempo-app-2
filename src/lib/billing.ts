@@ -11,12 +11,16 @@ export interface BillingLineItem {
   duration: number; // minutes
   basePrice: number; // per hour
   amount: number; // calculated
+  attendance: "present" | "absent" | "excused" | null;
+  isBillable: boolean;
 }
 
 export interface ClientInvoice {
   clientId: string;
   clientName: string;
   sessions: number;
+  billableSessions: number;
+  excusedSessions: number;
   totalHours: number;
   lineItems: BillingLineItem[];
   subtotal: number;
@@ -80,8 +84,8 @@ export function aggregateClientInvoices(
 
   events.forEach(event => {
     if (!event.clientId) return;
-    // Skip explicitly absent sessions, bill everything else
-    if (event.attendance === "absent") return;
+    // Only include sessions with attendance marked
+    if (!event.attendance) return;
 
     const existing = clientEventsMap.get(event.clientId) || [];
     existing.push(event);
@@ -101,12 +105,16 @@ export function aggregateClientInvoices(
     clientEvents.forEach(event => {
       const service = services.find(s => s.id === event.type);
       const basePrice = service?.basePrice || 0;
-      const isBillable = service?.isBillable !== false;
+      const serviceBillable = service?.isBillable !== false;
 
-      if (!isBillable) return;
+      if (!serviceBillable) return;
 
       const duration = event.duration || 60;
-      const amount = calculateSessionAmount(duration, basePrice);
+      const attendance = event.attendance as "present" | "absent" | "excused" | null;
+
+      // Present and Absent are billable, Excused is not
+      const isSessionBillable = attendance === "present" || attendance === "absent";
+      const amount = isSessionBillable ? calculateSessionAmount(duration, basePrice) : 0;
 
       lineItems.push({
         eventId: event.id,
@@ -115,15 +123,21 @@ export function aggregateClientInvoices(
         serviceLabel: service?.label || event.type,
         duration,
         basePrice,
-        amount
+        amount,
+        attendance,
+        isBillable: isSessionBillable
       });
 
-      totalMinutes += duration;
+      if (isSessionBillable) {
+        totalMinutes += duration;
+      }
     });
 
     if (lineItems.length === 0) return;
 
-    const subtotal = lineItems.reduce((sum, item) => sum + item.amount, 0);
+    const billableItems = lineItems.filter(item => item.isBillable);
+    const excusedCount = lineItems.filter(item => !item.isBillable).length;
+    const subtotal = billableItems.reduce((sum, item) => sum + item.amount, 0);
     const discountRate = client.discountRate || 0;
     const discount = subtotal * discountRate;
     const total = subtotal - discount;
@@ -132,6 +146,8 @@ export function aggregateClientInvoices(
       clientId,
       clientName: client.name,
       sessions: lineItems.length,
+      billableSessions: billableItems.length,
+      excusedSessions: excusedCount,
       totalHours: Math.round((totalMinutes / 60) * 10) / 10,
       lineItems,
       subtotal,

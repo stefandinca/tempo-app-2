@@ -153,7 +153,12 @@ export default function ClientInvoicesTable({
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center text-neutral-700 dark:text-neutral-300">
-                      {invoice.sessions}
+                      {invoice.billableSessions}
+                      {invoice.excusedSessions > 0 && (
+                        <span className="text-xs text-neutral-400 ml-1">
+                          (+{invoice.excusedSessions} excused)
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-center text-neutral-700 dark:text-neutral-300">
                       {invoice.totalHours}h
@@ -242,7 +247,12 @@ export default function ClientInvoicesTable({
                             {invoice.lineItems.map((item, idx) => (
                               <div
                                 key={idx}
-                                className="flex items-center justify-between py-2 px-3 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-100 dark:border-neutral-800"
+                                className={clsx(
+                                  "flex items-center justify-between py-2 px-3 rounded-lg border",
+                                  item.isBillable
+                                    ? "bg-white dark:bg-neutral-900 border-neutral-100 dark:border-neutral-800"
+                                    : "bg-neutral-100 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 opacity-60"
+                                )}
                               >
                                 <div className="flex items-center gap-4">
                                   <span className="text-sm text-neutral-500 w-20">
@@ -257,9 +267,29 @@ export default function ClientInvoicesTable({
                                   <span className="text-xs text-neutral-400">
                                     ({item.duration} min)
                                   </span>
+                                  {item.attendance && (
+                                    <span className={clsx(
+                                      "text-xs px-1.5 py-0.5 rounded font-medium",
+                                      item.attendance === "present" && "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400",
+                                      item.attendance === "absent" && "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400",
+                                      item.attendance === "excused" && "bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400"
+                                    )}>
+                                      {item.attendance === "present" && "Present"}
+                                      {item.attendance === "absent" && "No-show"}
+                                      {item.attendance === "excused" && "Excused"}
+                                    </span>
+                                  )}
                                 </div>
-                                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                  {formatCurrency(item.amount)} RON
+                                <span className={clsx(
+                                  "text-sm font-medium",
+                                  item.isBillable
+                                    ? "text-neutral-700 dark:text-neutral-300"
+                                    : "text-neutral-400 line-through"
+                                )}>
+                                  {item.isBillable
+                                    ? `${formatCurrency(item.amount)} RON`
+                                    : "Not billed"
+                                  }
                                 </span>
                               </div>
                             ))}
