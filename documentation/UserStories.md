@@ -67,3 +67,4 @@ This document outlines the core functional requirements for TempoApp, categorize
 | **S1** | As a User, I want the app to work offline so I can log sessions in areas with poor connectivity. | Implement Firestore offline persistence. A "Syncing" vs "Synced" status indicator should appear in the header when connectivity changes. |
 | **S2** | As a User, I want the UI to be fast and responsive, especially on tablets. | Target <2s load time. Use skeleton loaders for all cards and lists during data fetching to provide immediate visual feedback. |
 | **S3** | As a User, I want a "Dark Mode" option to reduce eye strain during evening documentation. | A theme toggle in the header/sidebar that persists the user's preference in local storage. |
+| **S4** | As a User I want to be able to change my name, e-mail address, phone number and highlight color that gets used for events assigned to me.
