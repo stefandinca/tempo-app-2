@@ -11,25 +11,43 @@ import {
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers } from "@/hooks/useCollections";
+import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
+import { useState } from "react";
 
 export default function ParentDashboard() {
   const { data: client, sessions, loading, error } = usePortalData();
   const { data: team } = useTeamMembers();
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   if (loading) return <PortalLoading />;
   if (error || !client) return <PortalError message={error || "Could not load child data."} />;
 
+  // Helper to parse dates (handles ISO strings or Firestore Timestamps)
+  const parseDate = (val: any) => {
+    if (!val) return new Date(0);
+    if (val.seconds) return new Date(val.seconds * 1000);
+    return new Date(val);
+  };
+
   // Logic: Find next upcoming session
   const now = new Date();
-  const upcomingSessions = sessions.filter(s => new Date(s.startTime) >= now);
+  const upcomingSessions = sessions
+    .filter(s => parseDate(s.startTime) >= now)
+    .sort((a, b) => parseDate(a.startTime).getTime() - parseDate(b.startTime).getTime());
+    
   const nextSession = upcomingSessions[0];
   
-  const getTherapist = (id: string) => team.find(t => t.id === id);
+  const getTherapist = (id: string) => {
+    const found = (team || []).find(t => t.id === id);
+    if (!found && id) console.log(`Therapist with ID ${id} not found in team list of ${team?.length || 0} members`);
+    return found;
+  };
   const nextTherapist = nextSession ? getTherapist(nextSession.therapistId) : null;
 
   // Stats
   const currentMonth = new Date().getMonth();
-  const sessionsThisMonth = sessions.filter(s => new Date(s.startTime).getMonth() === currentMonth);
+  const sessionsThisMonth = sessions.filter(s => parseDate(s.startTime).getMonth() === currentMonth);
   const completedThisMonth = sessionsThisMonth.filter(s => s.status === 'completed');
 
   return (
@@ -44,13 +62,19 @@ export default function ParentDashboard() {
       {/* Upcoming Session Card */}
       <section className="px-4">
         {nextSession ? (
-          <div className="bg-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-500/30 relative overflow-hidden">
+          <div 
+            onClick={() => {
+              setSelectedEvent(nextSession);
+              setIsDetailOpen(true);
+            }}
+            className="bg-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-500/30 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+          >
             <div className="absolute top-0 right-0 p-4 opacity-20">
               <Calendar className="w-24 h-24" />
             </div>
             <p className="text-primary-100 text-xs font-bold uppercase tracking-wider mb-1">Next Session</p>
             <h2 className="text-xl font-bold mb-4">
-              {new Date(nextSession.startTime).toLocaleDateString('en-US', { weekday: 'long' })}, {new Date(nextSession.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {parseDate(nextSession.startTime).toLocaleDateString('en-US', { weekday: 'long' })}, {parseDate(nextSession.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </h2>
             
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
@@ -64,12 +88,9 @@ export default function ParentDashboard() {
                 <p className="text-sm font-bold">{nextSession.type}</p>
                 <p className="text-xs text-primary-100">with {nextTherapist?.name || 'Assigned Therapist'}</p>
               </div>
-              <Link 
-                href={`/parent/schedule`}
-                className="ml-auto p-2 bg-white text-primary-600 rounded-xl"
-              >
+              <div className="ml-auto p-2 bg-white text-primary-600 rounded-xl">
                 <ChevronRight className="w-5 h-5" />
-              </Link>
+              </div>
             </div>
           </div>
         ) : (
@@ -122,9 +143,16 @@ export default function ParentDashboard() {
               </button>
             </div>
           ))}
-        </div>
-      </section>
-
-    </div>
-  );
-}
+                </div>
+              </section>
+        
+              <ParentEventDetailPanel 
+                event={selectedEvent}
+                isOpen={isDetailOpen}
+                onClose={() => setIsDetailOpen(false)}
+              />
+        
+            </div>
+          );
+        }
+        

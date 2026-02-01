@@ -46,13 +46,14 @@ export function usePortalData() {
       
       const sessionsQuery = query(
         collection(db, "events"),
-        where("clientIds", "array-contains", clientId), // Using array-contains for future multi-client support
+        where("clientId", "==", clientId),
         orderBy("startTime", "asc")
       );
 
       unsubscribeSessions = onSnapshot(sessionsQuery, (sessSnap) => {
         const sessItems: any[] = [];
         sessSnap.forEach(doc => sessItems.push({ id: doc.id, ...doc.data() }));
+        console.log(`Loaded ${sessItems.length} sessions for client ${clientId}`);
         setSessions(sessItems);
         setLoading(false);
       }, (err) => {

@@ -1,20 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, KeyRound, ChevronRight } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
-export default function ParentLoginPage() {
+function ParentLoginContent() {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-fill code from URL if present
+  useEffect(() => {
+    const urlCode = searchParams.get("code");
+    if (urlCode) {
+      setCode(urlCode.toUpperCase());
+    }
+  }, [searchParams]);
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (code.length < 4) {
       setError("Please enter a valid client code.");
       return;
@@ -109,13 +118,24 @@ export default function ParentLoginPage() {
           <p className="text-xs text-neutral-500 leading-relaxed">
             Don&apos;t have a code? Please contact your clinic administrator or therapy coordinator.
           </p>
-                </div>
-                          </div>
-                          
-                          <Link href="/login/" className="mt-8 text-sm text-neutral-500 hover:text-primary-600 transition-colors">
-                            Staff Login
-                          </Link>
-                        </div>
-                      );
-                    }
-                    
+        </div>
+      </div>
+      
+      <Link href="/login/" className="mt-8 text-sm text-neutral-500 hover:text-primary-600 transition-colors">
+        Staff Login
+      </Link>
+    </div>
+  );
+}
+
+export default function ParentLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    }>
+      <ParentLoginContent />
+    </Suspense>
+  );
+}

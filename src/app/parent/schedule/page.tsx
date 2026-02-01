@@ -7,19 +7,34 @@ import {
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers } from "@/hooks/useCollections";
 import { clsx } from "clsx";
+import { useState } from "react";
+import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
 
 export default function ParentSchedulePage() {
   const { data: client, sessions, loading, error } = usePortalData();
   const { data: team } = useTeamMembers();
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   if (loading) return <PortalLoading />;
   if (error || !client) return <PortalError message={error || "Could not load schedule."} />;
 
-  const getTherapist = (id: string) => team.find(t => t.id === id);
+  const getTherapist = (id: string) => {
+    const found = (team || []).find(t => t.id === id);
+    if (!found && id) console.log(`Schedule: Therapist with ID ${id} not found in team list of ${team?.length || 0} members`);
+    return found;
+  };
+
+  // Helper to parse dates
+  const parseDate = (val: any) => {
+    if (!val) return new Date(0);
+    if (val.seconds) return new Date(val.seconds * 1000);
+    return new Date(val);
+  };
 
   // Group sessions by date
   const groupedSessions = sessions.reduce((acc: any, sess) => {
-    const dateKey = new Date(sess.startTime).toLocaleDateString('en-US', { 
+    const dateKey = parseDate(sess.startTime).toLocaleDateString('en-US', { 
       weekday: 'long', 
       month: 'long', 
       day: 'numeric' 
@@ -52,21 +67,26 @@ export default function ParentSchedulePage() {
               <div className="space-y-3">
                 {dateSessions.map((sess: any) => {
                   const therapist = getTherapist(sess.therapistId);
-                  const isUpcoming = new Date(sess.startTime) > new Date();
+                  const sessDate = parseDate(sess.startTime);
+                  const isUpcoming = sessDate > new Date();
                   
                   return (
                     <div 
                       key={sess.id}
+                      onClick={() => {
+                        setSelectedEvent(sess);
+                        setIsDetailOpen(true);
+                      }}
                       className={clsx(
-                        "bg-white dark:bg-neutral-900 p-4 rounded-2xl border transition-all shadow-sm",
-                        isUpcoming ? "border-primary-100 dark:border-primary-900/30" : "border-neutral-200 dark:border-neutral-800 opacity-80"
+                        "bg-white dark:bg-neutral-900 p-4 rounded-2xl border transition-all shadow-sm cursor-pointer active:scale-[0.99]",
+                        isUpcoming ? "border-primary-100 dark:border-primary-900/30 hover:border-primary-300" : "border-neutral-200 dark:border-neutral-800 opacity-80"
                       )}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm font-bold text-neutral-900 dark:text-white">
-                              {new Date(sess.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {sessDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                             <span className="w-1 h-1 rounded-full bg-neutral-300" />
                             <span className="text-sm font-medium text-neutral-500">
@@ -111,8 +131,15 @@ export default function ParentSchedulePage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-    </div>
-  );
-}
+                </div>
+              )}
+        
+              <ParentEventDetailPanel 
+                event={selectedEvent}
+                isOpen={isDetailOpen}
+                onClose={() => setIsDetailOpen(false)}
+              />
+            </div>
+          );
+        }
+        

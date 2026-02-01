@@ -1,7 +1,12 @@
 "use client";
 
-import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake } from "lucide-react";
+import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useCollections";
+import { useState } from "react";
+import { db } from "@/lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { useToast } from "@/context/ToastContext";
+import { clsx } from "clsx";
 
 interface ClientOverviewTabProps {
   client: any;
@@ -9,7 +14,50 @@ interface ClientOverviewTabProps {
 
 export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
   const { data: teamMembers } = useTeamMembers();
-  const therapist = teamMembers.find(t => t.id === client.assignedTherapistId);
+  const { success, error: toastError } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const therapist = (teamMembers || []).find(t => t.id === client.assignedTherapistId);
+
+  const generateCode = async () => {
+    setIsGenerating(true);
+    try {
+      // Logic: Initials + Random 4 digits (e.g. JS-4921)
+      const initials = client.name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+      const random = Math.floor(1000 + Math.random() * 9000);
+      const newCode = `${initials}-${random}`;
+
+      await updateDoc(doc(db, "clients", client.id), {
+        clientCode: newCode
+      });
+      success("New access code generated!");
+    } catch (err) {
+      console.error(err);
+      toastError("Failed to generate code");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyInviteLink = () => {
+    if (!client.clientCode) return;
+    
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    // Use the v2 path for production compatibility
+    const path = baseUrl.includes('localhost') ? '/parent' : '/v2/parent';
+    const link = `${baseUrl}${path}/?code=${client.clientCode}`;
+    
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    success("Invite link copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
@@ -107,6 +155,61 @@ export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
       {/* Right Column: Stats & Schedule */}
       <div className="space-y-6">
         
+        {/* Portal Access Card */}
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-4 opacity-5">
+            <Key className="w-20 h-24" />
+          </div>
+          <h3 className="font-bold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
+            <Key className="w-5 h-5 text-primary-500" />
+            Portal Access
+          </h3>
+          
+          {client.clientCode ? (
+            <div className="space-y-4">
+              <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl border border-neutral-100 dark:border-neutral-800 text-center">
+                <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Current Access Code</p>
+                <p className="text-2xl font-mono font-bold text-primary-600 tracking-wider uppercase">{client.clientCode}</p>
+              </div>
+              
+              <div className="flex gap-2">
+                <button 
+                  onClick={copyInviteLink}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-xl text-sm font-bold hover:opacity-90 transition-all"
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  {copied ? "Copied!" : "Copy Invite Link"}
+                </button>
+                <button 
+                  onClick={generateCode}
+                  disabled={isGenerating}
+                  className="p-2.5 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all disabled:opacity-50"
+                  title="Reset Code"
+                >
+                  <RefreshCw className={clsx("w-5 h-5", isGenerating && "animate-spin")} />
+                </button>
+              </div>
+              <p className="text-[10px] text-neutral-500 text-center leading-relaxed">
+                Parents can access the portal using this code or by clicking the unique invite link.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="py-4 text-center">
+                <p className="text-sm text-neutral-500 mb-4">Portal access is not yet configured for this client.</p>
+                <button 
+                  onClick={generateCode}
+                  disabled={isGenerating}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20 disabled:opacity-70"
+                >
+                  {isGenerating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Key className="w-5 h-5" />}
+                  Generate Access Code
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Quick Stats */}
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-4">Quick Stats</h3>
