@@ -118,7 +118,7 @@ export default function LoginPage() {
               </label>
             </div>
 
-            <div class="text-sm">
+            <div className="text-sm">
               <a
                 href="#"
                 className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
