@@ -97,7 +97,7 @@ export default function ClientCard({ client }: ClientCardProps) {
       {/* Footer Actions */}
       <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-3">
         <Link 
-          href={`/clients/${client.id}`}
+          href={`/clients/profile?id=${client.id}`}
           className="flex-1 text-center py-2 px-3 text-sm font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-xl hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 transition-all"
         >
           View Profile
