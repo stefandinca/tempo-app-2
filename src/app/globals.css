@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 249 250 251; /* neutral-50 */
+    --foreground: 17 24 39; /* neutral-900 */
+  }
+
+  [data-theme="dark"] {
+    --background: 10 10 10; /* neutral-50 dark */
+    --foreground: 245 245 245; /* neutral-900 dark */
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50 antialiased;
+  }
+}
+
+/* Custom Utilities */
+.transition-base {
+  @apply transition-all duration-200 ease-in-out;
+}

@@ -1,0 +1,176 @@
+"use client";
+
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
+import { User, Bell, Shield, Moon, LogOut, Check } from "lucide-react";
+import { clsx } from "clsx";
+
+export default function SettingsPage() {
+  const { user, signOut } = useAuth();
+  const { success } = useToast();
+  const [activeTab, setActiveTab] = useState("profile");
+  const [notifications, setNotifications] = useState(true);
+  const [theme, setTheme] = useState("light");
+
+  const handleSave = () => {
+    success("Settings saved successfully");
+  };
+
+  return (
+    <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
+      
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Settings</h1>
+        <p className="text-sm text-neutral-500">Manage your account and system preferences</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        {/* Sidebar Nav */}
+        <nav className="space-y-1">
+          {[
+            { id: "profile", label: "Profile", icon: User },
+            { id: "notifications", label: "Notifications", icon: Bell },
+            { id: "security", label: "Security", icon: Shield },
+            { id: "appearance", label: "Appearance", icon: Moon },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={clsx(
+                "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors text-left",
+                activeTab === item.id
+                  ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
+                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              )}
+            >
+              <item.icon className="w-4 h-4" />
+              {item.label}
+            </button>
+          ))}
+          
+          <div className="pt-4 mt-4 border-t border-neutral-200 dark:border-neutral-800">
+            <button
+              onClick={() => signOut()}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors text-left"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
+        </nav>
+
+        {/* Content Area */}
+        <div className="lg:col-span-3 space-y-6">
+          
+          {activeTab === "profile" && (
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Profile Information</h3>
+                <p className="text-sm text-neutral-500">Update your personal details.</p>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-2xl font-bold text-primary-600 dark:text-primary-400">
+                  {user?.email?.[0].toUpperCase() || "U"}
+                </div>
+                <button className="px-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+                  Change Avatar
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Full Name</label>
+                  <input 
+                    type="text" 
+                    defaultValue="Dr. Maria Garcia" 
+                    className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Email Address</label>
+                  <input 
+                    type="email" 
+                    value={user?.email || ""} 
+                    disabled
+                    className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-500 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 flex justify-end">
+                <button 
+                  onClick={handleSave}
+                  className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-bold transition-all shadow-lg shadow-primary-500/20"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "notifications" && (
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Notifications</h3>
+                <p className="text-sm text-neutral-500">Manage how you receive updates.</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
+                  <div>
+                    <p className="font-medium text-neutral-900 dark:text-white">Email Notifications</p>
+                    <p className="text-xs text-neutral-500">Receive daily summaries and alerts.</p>
+                  </div>
+                  <button 
+                    onClick={() => setNotifications(!notifications)}
+                    className={clsx(
+                      "w-12 h-6 rounded-full transition-colors relative",
+                      notifications ? "bg-primary-500" : "bg-neutral-300 dark:bg-neutral-700"
+                    )}
+                  >
+                    <div className={clsx(
+                      "absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm",
+                      notifications ? "translate-x-6" : "translate-x-0"
+                    )} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "appearance" && (
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Appearance</h3>
+                <p className="text-sm text-neutral-500">Customize the interface.</p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                {['light', 'dark', 'system'].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTheme(t)}
+                    className={clsx(
+                      "p-4 rounded-xl border-2 text-center transition-all",
+                      theme === t 
+                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20" 
+                        : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700"
+                    )}
+                  >
+                    <p className="text-sm font-bold capitalize text-neutral-900 dark:text-white">{t}</p>
+                    {theme === t && <Check className="w-4 h-4 text-primary-500 mx-auto mt-2" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}

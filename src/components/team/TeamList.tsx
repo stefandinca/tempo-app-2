@@ -1,0 +1,74 @@
+"use client";
+
+import { useState } from "react";
+import { useTeamMembers } from "@/hooks/useCollections";
+import TeamMemberCard, { TeamMember } from "./TeamMemberCard";
+import { Search, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
+
+interface TeamListProps {
+  onEdit: (member: TeamMember) => void;
+  onAdd: () => void;
+}
+
+export default function TeamList({ onEdit, onAdd }: TeamListProps) {
+  const { data: teamMembers, loading } = useTeamMembers();
+  const [search, setSearch] = useState("");
+
+  const filteredMembers = teamMembers.filter(m => 
+    m.name.toLowerCase().includes(search.toLowerCase()) ||
+    m.role.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+          <input 
+            type="text" 
+            placeholder="Search team members..." 
+            className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        
+        <button 
+          onClick={onAdd}
+          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors shadow-sm"
+        >
+          <Plus className="w-4 h-4" />
+          Add Member
+        </button>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filteredMembers.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-neutral-500">
+            No team members found.
+          </div>
+        ) : (
+          filteredMembers.map((member: any) => (
+            <TeamMemberCard 
+              key={member.id} 
+              member={member} 
+              onEdit={onEdit} 
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
