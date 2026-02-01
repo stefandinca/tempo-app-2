@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useClient } from "@/hooks/useClient";
 import ClientProfileHeader from "@/components/clients/ClientProfileHeader";
 import ClientOverviewTab from "@/components/clients/ClientOverviewTab";
+import ClientProgramsTab from "@/components/clients/ClientProgramsTab";
 import { Loader2, AlertCircle } from "lucide-react";
 
 function ClientProfileContent() {
@@ -56,7 +57,8 @@ function ClientProfileContent() {
 
       <div className="pt-2">
         {activeTab === "overview" && <ClientOverviewTab client={client} />}
-        {activeTab !== "overview" && (
+        {activeTab === "programs" && <ClientProgramsTab client={client} />}
+        {activeTab !== "overview" && activeTab !== "programs" && (
           <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800">
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white capitalize">{activeTab} Section</h3>
             <p className="text-neutral-500 mt-1">This section is currently under development.</p>

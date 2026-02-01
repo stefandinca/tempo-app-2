@@ -30,12 +30,3 @@ export const INITIAL_DATA: EventFormData = {
   selectedClients: [],
   selectedPrograms: []
 };
-
-// Dummy Programs Data (since we don't have a collection yet)
-export const MOCK_PROGRAMS = [
-  { id: "p1", title: "Visual Matching", description: "Match identical pictures" },
-  { id: "p2", title: "Verbal Imitation", description: "Repeat words" },
-  { id: "p3", title: "Receptive Instructions", description: "Follow simple commands" },
-  { id: "p4", title: "Social Play", description: "Turn taking with peers" },
-  { id: "p5", title: "Fine Motor", description: "Pincer grasp activities" },
-];

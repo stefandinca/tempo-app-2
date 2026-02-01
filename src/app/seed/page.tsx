@@ -16,15 +16,15 @@ const TEAM_MEMBERS = [
 
 // Client data migrated from legacy SQL database
 const CLIENTS = [
-  { id: "adelina2511", name: "Adelina Maria Laura Letu", phone: "0770706421", birthDate: "2019-11-25", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0 },
-  { id: "ahmadi2006", name: "Ahmadi Adrin", phone: "0757083554", birthDate: "2021-06-20", medicalInfo: "", isArchived: false, progress: 0 },
-  { id: "alex6130", name: "Mocanu Alexandru Matei", phone: "0723262003", birthDate: "2016-04-05", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0 },
-  { id: "amalia8204", name: "Amalia Vespan", phone: "0721114504", birthDate: null, medicalInfo: "astm bronsic", isArchived: false, progress: 0 },
-  { id: "ana2107", name: "Ana Maria Zamfir", phone: "0721055890", birthDate: "2019-07-21", medicalInfo: "Mentat (5mil), Pantoten (5ml), D3, Omega3", isArchived: false, progress: 0 },
+  { id: "adelina2511", name: "Adelina Maria Laura Letu", phone: "0770706421", birthDate: "2019-11-25", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0, programIds: ["prog_1", "prog_2", "prog_3"] },
+  { id: "ahmadi2006", name: "Ahmadi Adrin", phone: "0757083554", birthDate: "2021-06-20", medicalInfo: "", isArchived: false, progress: 0, programIds: ["prog_4", "prog_5"] },
+  { id: "alex6130", name: "Mocanu Alexandru Matei", phone: "0723262003", birthDate: "2016-04-05", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0, programIds: ["prog_6", "prog_7", "prog_8"] },
+  { id: "amalia8204", name: "Amalia Vespan", phone: "0721114504", birthDate: null, medicalInfo: "astm bronsic", isArchived: false, progress: 0, programIds: ["prog_9", "prog_10"] },
+  { id: "ana2107", name: "Ana Maria Zamfir", phone: "0721055890", birthDate: "2019-07-21", medicalInfo: "Mentat (5mil), Pantoten (5ml), D3, Omega3", isArchived: false, progress: 0, programIds: ["prog_11", "prog_12"] },
   { id: "aurora2306", name: "Aurora Sophia Alexe", phone: "0726206763", birthDate: "2022-06-23", medicalInfo: "Alergie la fructe de mare", isArchived: false, progress: 0 },
   { id: "bicheru1507", name: "Bicheru Ana Caroline", phone: "0722240323", birthDate: "2021-07-15", medicalInfo: "hiperactivitate bronsica fara tratament", isArchived: false, progress: 0 },
   { id: "bulea0709", name: "Bulea Iacob Mihai", phone: "0734774615", birthDate: "2021-09-07", medicalInfo: "", isArchived: false, progress: 0 },
-  { id: "cezar1802", name: "Cezar Casian Dinca", parentEmail: "stefan.dinca07@gmail.com", phone: "0746 060 987", birthDate: "2021-02-18", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0 },
+  { id: "cezar1802", name: "Cezar Casian Dinca", parentEmail: "stefan.dinca07@gmail.com", phone: "0746 060 987", birthDate: "2021-02-18", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0, programIds: ["prog_1", "prog_5", "prog_9"] },
   { id: "clara2109", name: "Clara Medeea Postolache", phone: "0747559027", birthDate: "2022-09-21", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0 },
   { id: "colin1110", name: "Colin Andrei Dragan", phone: "0727065668", birthDate: "2018-10-11", medicalInfo: "Anafranil", isArchived: false, progress: 0 },
   { id: "david0609", name: "David Samuel Meri", phone: "0728083702", birthDate: "2015-09-06", medicalInfo: "", isArchived: false, progress: 0 },
@@ -90,6 +90,44 @@ const SERVICES = [
   { id: "psihoterapie", label: "Psihoterapie", isBillable: true, basePrice: 250.00, requiresTime: true },
   { id: "sedinta", label: "Sedinta", isBillable: false, basePrice: 200.00, requiresTime: false },
   { id: "therapy", label: "Terapie", isBillable: true, basePrice: 195.00, requiresTime: true },
+];
+
+const PROGRAMS = [
+  { id: "prog_1", title: "Imitare orala", description: "Reproduce miscarile gurii si sunetele produse de terapeut (ex: suflat, deschis gura, pronuntat silabe)." },
+  { id: "prog_10", title: "Gesturi si limbaj functional", description: "Copilul foloseste gesturi sau cuvinte pentru a cere, a refuza sau a comunica nevoi („vreau apa”, „gata”)." },
+  { id: "prog_11", title: "Imitare verbala", description: "Repeta cuvinte sau propozitii dupa adult („spune mama”, „spune apa”)." },
+  { id: "prog_12", title: "Joc si miscare", description: "Activitati care combina jocul cu exercitiile fizice pentru coordonare si socializare." },
+  { id: "prog_13", title: "Atentie", description: "Exercitii pentru a creste capacitatea de concentrare pe o sarcina sau pe interlocutor." },
+  { id: "prog_2", title: "Stimulare de limbaj", description: "Activitati pentru a creste dorinta si capacitatea copilului de a comunica verbal." },
+  { id: "prog_20", title: "test program3", description: "test program descriere" },
+  { id: "prog_3", title: "Instructiuni functionale", description: "Urmeaza comenzi simple din viata de zi cu zi („adu mingea”, „pune cana pe masa”)." },
+  { id: "prog_4", title: "Imitare motorie cu si fara obiect", description: "Copiaza actiuni ale adultului care implica obiecte (ex: bate toba, împinge o masinuta)." },
+  { id: "prog_5", title: "Receptiv obiecte/actiuni/categorii", description: "Copilul învata sa recunoasca si sa indice obiecte atunci când sunt denumite („arata scaunul”)." },
+  { id: "prog_6", title: "Motricitate", description: "Exercitii pentru dezvoltarea miscarilor fine si grosiere (ex: apucare, sarituri, tras linii)." },
+  { id: "prog_7", title: "Raspuns la nume", description: "Învata sa se întoarca sau sa raspunda cand îsi aude numele." },
+  { id: "prog_8", title: "Asteapta", description: "Învata sa astepte pe rând, si amâne o dorinta sau o actiune." },
+  { id: "prog_9", title: "Joc social", description: "Exercitii de interactiune si schimb reciproc în joc (ex: „da-mi mingea”, „hai sa construim împreuna”)." },
+  { id: "prog_cauzalitatea_emotiilor", title: "Cauzalitatea emotiilor", description: "Cum se simte? De ce e trist/fericit/obosit?" },
+  { id: "prog_colorat_desenat", title: "Colorat/Desenat", description: "" },
+  { id: "prog_comunicare_si_limbaj", title: "Comunicare si limbaj", description: "" },
+  { id: "prog_conversatie", title: "Conversatie", description: "afirmatii mutuale" },
+  { id: "prog_da_nu_factual", title: "Da/Nu factual", description: "" },
+  { id: "prog_discriminare_comportamente", title: "Discriminare comportamente", description: "" },
+  { id: "prog_expresiv_obiecte_actiuni_categorii", title: "Expresiv obiecte/actiuni/categorii", description: "" },
+  { id: "prog_lucru_independent", title: "Lucru independent", description: "" },
+  { id: "prog_mand", title: "MAND", description: "" },
+  { id: "prog_matematica", title: "Matematica", description: "" },
+  { id: "prog_potriviri", title: "Potriviri", description: "" },
+  { id: "prog_pozitii_spatiale", title: "Pozitii spatiale", description: "" },
+  { id: "prog_scris_citit", title: "Scris/citit", description: "" },
+  { id: "prog_scris_si_colorat", title: "Scris si colorat", description: "" },
+  { id: "prog_secventialitate", title: "Secventialitate", description: "" },
+  { id: "prog_sintaxa", title: "Sintaxa", description: "" },
+  { id: "prog_tact", title: "TACT", description: "" },
+  { id: "prog_temporalitate", title: "Temporalitate", description: "" },
+  { id: "prog_teoria_mintii", title: "Teoria Mintii", description: "" },
+  { id: "prog_transmitere_de_mesaj", title: "Transmitere de mesaj", description: "" },
+  { id: "prog_whq_in_povesti", title: "WHQ in povesti", description: "" },
 ];
 
 // Helper to get today at specific hour
@@ -196,6 +234,13 @@ export default function SeedPage() {
         batch.set(ref, service);
       });
 
+      // 5. Programs (Migration from SQL)
+      addToLog(`Preparing ${PROGRAMS.length} programs from legacy SQL...`);
+      PROGRAMS.forEach(prog => {
+        const ref = doc(db, "programs", prog.id);
+        batch.set(ref, prog);
+      });
+
       // Commit
       addToLog("Committing batch write to Firestore...");
       await batch.commit();
@@ -228,7 +273,8 @@ export default function SeedPage() {
             <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">team_members</code>,
             <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">clients</code>,
             <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">events</code>,
-            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">services</code>.
+            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">services</code>,
+            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">programs</code>.
           </p>
 
           <button

@@ -1,7 +1,7 @@
 "use client";
 
-import { EventFormData, MOCK_PROGRAMS } from "./types";
-import { useClients, useTeamMembers, useServices } from "@/hooks/useCollections";
+import { EventFormData } from "./types";
+import { useClients, useTeamMembers, useServices, usePrograms } from "@/hooks/useCollections";
 import { Calendar, Clock, User, BookOpen, Repeat } from "lucide-react";
 
 interface StepSummaryProps {
@@ -12,11 +12,12 @@ export default function StepSummary({ data }: StepSummaryProps) {
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
   const { data: services } = useServices();
+  const { data: programs } = usePrograms();
 
-  const selectedClients = clients.filter(c => data.selectedClients.includes(c.id));
-  const selectedTeam = teamMembers.filter(t => data.selectedTeamMembers.includes(t.id));
-  const selectedPrograms = MOCK_PROGRAMS.filter(p => data.selectedPrograms.includes(p.id));
-  const selectedService = services.find(s => s.id === data.eventType);
+  const selectedClients = (clients || []).filter(c => data.selectedClients.includes(c.id));
+  const selectedTeam = (teamMembers || []).filter(t => data.selectedTeamMembers.includes(t.id));
+  const selectedPrograms = (programs || []).filter(p => data.selectedPrograms.includes(p.id));
+  const selectedService = (services || []).find(s => s.id === data.eventType);
 
   return (
     <div className="space-y-6">

@@ -61,3 +61,7 @@ export function useTeamMembers() {
 export function useServices() {
   return useCollection<any>("services");
 }
+
+export function usePrograms() {
+  return useCollection<any>("programs");
+}

@@ -16,7 +16,7 @@ import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
-import { useClients, useTeamMembers } from "@/hooks/useCollections";
+import { useClients, useTeamMembers, usePrograms } from "@/hooks/useCollections";
 
 interface EventDetailPanelProps {
   event: any; // Firestore Event Document
@@ -28,6 +28,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const { success, error } = useToast();
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
+  const { data: programs } = usePrograms();
 
   // Local state for editing
   const [attendance, setAttendance] = useState<string | null>(null);
@@ -45,8 +46,9 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
   if (!event) return null;
 
-  const client = clients.find(c => c.id === event.clientId);
-  const therapist = teamMembers.find(t => t.id === event.therapistId);
+  const client = (clients || []).find(c => c.id === event.clientId);
+  const therapist = (teamMembers || []).find(t => t.id === event.therapistId);
+  const selectedPrograms = (programs || []).filter(p => event.programIds?.includes(p.id));
 
   const handleSave = async () => {
     setIsSubmitting(true);
@@ -208,9 +210,25 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           {/* Program Scores (Simplified placeholder for now) */}
           <div>
             <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Programs & Scores</p>
-            <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-100 dark:border-neutral-800 text-center py-8">
-              <BookOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-              <p className="text-sm text-neutral-500 italic">No programs tracked for this session.</p>
+            <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-100 dark:border-neutral-800">
+              {selectedPrograms.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedPrograms.map(p => (
+                    <div key={p.id} className="flex items-start gap-3">
+                      <BookOpen className="w-4 h-4 text-primary-500 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-neutral-900 dark:text-white">{p.title}</p>
+                        <p className="text-xs text-neutral-500">{p.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <BookOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
+                  <p className="text-sm text-neutral-500 italic">No programs tracked for this session.</p>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { EventFormData, MOCK_PROGRAMS } from "./types";
-import { Search, Check, BookOpen } from "lucide-react";
+import { EventFormData } from "./types";
+import { Search, Check, BookOpen, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
+import { usePrograms } from "@/hooks/useCollections";
 
 interface StepProgramsProps {
   data: EventFormData;
@@ -12,8 +13,9 @@ interface StepProgramsProps {
 
 export default function StepPrograms({ data, updateData }: StepProgramsProps) {
   const [search, setSearch] = useState("");
+  const { data: programs, loading } = usePrograms();
 
-  const filteredPrograms = MOCK_PROGRAMS.filter(prog => 
+  const filteredPrograms = (programs || []).filter(prog => 
     prog.title.toLowerCase().includes(search.toLowerCase()) ||
     prog.description.toLowerCase().includes(search.toLowerCase())
   );
@@ -47,7 +49,12 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
 
       {/* Program List */}
       <div className="max-h-[320px] overflow-y-auto space-y-2 pr-1">
-        {filteredPrograms.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
+            <Loader2 className="w-8 h-8 animate-spin mb-2" />
+            <p className="text-sm">Loading programs...</p>
+          </div>
+        ) : filteredPrograms.length === 0 ? (
           <div className="text-center py-8 text-neutral-500 text-sm">
             No programs found matching &quot;{search}&quot;
           </div>
