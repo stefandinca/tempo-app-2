@@ -74,7 +74,20 @@ const CLIENTS = [
   { id: "valentin1611", name: "Valentin Alexandru Rimbu", phone: "0766104342", birthDate: "2021-11-16", medicalInfo: "Alergie la nuca de cocos!", isArchived: false, progress: 0 },
   { id: "vic1589", name: "Victor Vulcan", phone: "0740824698", birthDate: null, medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0 },
   { id: "victor0405", name: "Victor Ioan Brinzea", phone: "0722349489", birthDate: "2019-05-04", medicalInfo: "fara alergii, fara medicatie", isArchived: false, progress: 0 },
-  { id: "zian2206", name: "Zian Matei Vlad", phone: "0736243611", birthDate: "2021-06-22", medicalInfo: "Alergie la vancomicina, tratament neuro", isArchived: false, progress: 0 },
+  { id: "zian2206", name: "Zian Matei Vlad", phone: "0736243611", birthDate: "2021-06-22", medicalInfo: "Alergie la vancomicina, tratament neuro", isArchived: false, progress: 0, programIds: ["prog_1", "prog_5", "prog_9"] },
+  { 
+    id: "test-child-id", 
+    name: "Alex Test Child", 
+    parentEmail: "parent@test.com", 
+    parentName: "Alexandru Parent",
+    phone: "0700000000", 
+    birthDate: "2020-01-01", 
+    medicalInfo: "No allergies. Test user.", 
+    isArchived: false, 
+    progress: 68, 
+    programIds: ["prog_1", "prog_2", "prog_3"],
+    clientCode: "DEMO123" 
+  },
 ];
 
 // Services/Event Types migrated from legacy SQL database

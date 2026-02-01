@@ -8,57 +8,67 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function getUserRole() {
-      return get(/databases/$(database)/documents/team_members/$(request.auth.uid)).data.role;
+    // Safely get user role without crashing if doc doesn't exist
+    function getUserData() {
+      return get(/databases/$(database)/documents/team_members/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/team_members/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/team_members/$(request.auth.uid)).data.role == role;
     }
     
     function isAdmin() {
-      return isSignedIn() && getUserRole() == 'Admin';
+      return hasRole('Admin');
     }
     
     function isCoordinator() {
-      return isSignedIn() && getUserRole() == 'Coordinator';
+      return hasRole('Coordinator');
     }
     
     function isTherapist() {
-      return isSignedIn() && getUserRole() == 'Therapist';
+      return hasRole('Therapist');
     }
     
-    function isParent() {
-      // Parents are in the clients collection for now as users
-      return isSignedIn() && exists(/databases/$(database)/documents/clients/$(request.auth.uid));
+    function isParent(clientId) {
+      return isSignedIn() && request.auth.uid == clientId;
     }
 
     // --- Collections ---
 
     // Team Members
     match /team_members/{memberId} {
-      allow read: if isSignedIn(); // All staff can see team
-      allow write: if isAdmin();    // Only Admin can manage team
+      allow read: if isSignedIn(); 
+      allow write: if isAdmin();
     }
 
     // Clients
     match /clients/{clientId} {
-      allow read: if isAdmin() || isCoordinator() || isTherapist() || (isParent() && request.auth.uid == clientId);
+      // 1. Allow public to QUERY by clientCode (for login verification)
+      // Note: In production, it's better to use a Cloud Function or a separate 'codes' collection
+      allow list: if true; 
+      
+      // 2. Allow reading full profile if Staff or the specific Parent
+      allow get: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      
       allow create, update: if isAdmin() || isCoordinator();
       allow delete: if isAdmin();
     }
 
     // Events
     match /events/{eventId} {
-      allow read: if isSignedIn(); // All staff can see calendar. Parents see via separate logic?
+      allow read: if isSignedIn();
       allow create: if isAdmin() || isCoordinator() || isTherapist();
       allow update: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
       allow delete: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
     }
 
-    // Services
+    // Services & Programs
     match /services/{serviceId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
-
-    // Programs
     match /programs/{programId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
@@ -66,9 +76,8 @@ service cloud.firestore {
     
     // Evolution / Evaluations (Under clients)
     match /clients/{clientId}/evaluations/{evalId} {
-      allow read: if isAdmin() || isCoordinator() || isTherapist() || (isParent() && request.auth.uid == clientId);
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow write: if isAdmin() || isCoordinator() || isTherapist();
     }
-
   }
 }

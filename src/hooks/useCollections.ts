@@ -6,11 +6,13 @@ import {
   QueryConstraint, 
   doc, 
   getDoc, 
-  DocumentData 
+  DocumentData,
+  where,
+  orderBy 
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-// Generic Hook for Collections
+// ... existing generic hook ...
 export function useCollection<T = DocumentData>(
   collectionName: string, 
   constraints: QueryConstraint[] = []
@@ -64,4 +66,43 @@ export function useServices() {
 
 export function usePrograms() {
   return useCollection<any>("programs");
+}
+
+export function useClientEvents(clientId: string) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!clientId) {
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, "events"),
+      where("clientId", "==", clientId),
+      orderBy("startTime", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, 
+      (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        setData(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error(`Error fetching client events:`, err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [clientId]);
+
+  return { data, loading, error };
 }

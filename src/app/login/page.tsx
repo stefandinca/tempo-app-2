@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { AlertCircle, Loader2 } from "lucide-react";
 
@@ -147,12 +148,12 @@ export default function LoginPage() {
         <div className="text-center mt-4">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Are you a parent?{" "}
-            <a
-              href="#"
+            <Link
+              href="/parent/"
               className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
             >
               Access Parent Portal
-            </a>
+            </Link>
           </p>
         </div>
       </div>
