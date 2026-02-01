@@ -6,6 +6,7 @@ import { useClient } from "@/hooks/useClient";
 import ClientProfileHeader from "@/components/clients/ClientProfileHeader";
 import ClientOverviewTab from "@/components/clients/ClientOverviewTab";
 import ClientProgramsTab from "@/components/clients/ClientProgramsTab";
+import EditClientModal from "@/components/clients/EditClientModal";
 import { Loader2, AlertCircle } from "lucide-react";
 
 function ClientProfileContent() {
@@ -13,6 +14,7 @@ function ClientProfileContent() {
   const id = searchParams.get("id");
   const { data: client, loading, error } = useClient(id || "");
   const [activeTab, setActiveTab] = useState("overview");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   if (!id) {
     return (
@@ -50,9 +52,10 @@ function ClientProfileContent() {
   return (
     <div className="flex-1 p-6 space-y-8 max-w-7xl mx-auto w-full">
       <ClientProfileHeader 
-        clientName={client.name} 
+        client={client} 
         activeTab={activeTab} 
-        onTabChange={setActiveTab} 
+        onTabChange={setActiveTab}
+        onEdit={() => setIsEditModalOpen(true)} 
       />
 
       <div className="pt-2">
@@ -65,6 +68,12 @@ function ClientProfileContent() {
           </div>
         )}
       </div>
+
+      <EditClientModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        client={client}
+      />
     </div>
   );
 }

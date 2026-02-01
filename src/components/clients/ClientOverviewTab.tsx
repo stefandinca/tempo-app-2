@@ -1,7 +1,7 @@
 "use client";
 
-import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw } from "lucide-react";
-import { useTeamMembers } from "@/hooks/useCollections";
+import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2 } from "lucide-react";
+import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
 import { useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
@@ -14,11 +14,35 @@ interface ClientOverviewTabProps {
 
 export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
   const { data: teamMembers } = useTeamMembers();
+  const { data: events, loading: eventsLoading } = useClientEvents(client.id);
   const { success, error: toastError } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const therapist = (teamMembers || []).find(t => t.id === client.assignedTherapistId);
+
+  // Helper to parse dates (handles ISO strings or Firestore Timestamps)
+  const parseDate = (val: any) => {
+    if (!val) return new Date(0);
+    if (val.seconds) return new Date(val.seconds * 1000);
+    return new Date(val);
+  };
+
+  // Stats Calculations
+  const totalSessions = events?.length || 0;
+  const completedSessions = events?.filter(e => e.status === 'completed') || [];
+  const presentSessions = completedSessions.filter(e => e.attendance === 'present').length;
+  const attendanceRate = completedSessions.length > 0 
+    ? Math.round((presentSessions / completedSessions.length) * 100) 
+    : 0;
+  const activeProgramsCount = client.programIds?.length || 0;
+
+  // Upcoming Schedule Logic
+  const now = new Date();
+  const upcomingEvents = (events || [])
+    .filter(e => parseDate(e.startTime) >= now)
+    .sort((a, b) => parseDate(a.startTime).getTime() - parseDate(b.startTime).getTime())
+    .slice(0, 3); // Show next 3
 
   const generateCode = async () => {
     setIsGenerating(true);
@@ -219,38 +243,67 @@ export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
                 <Calendar className="w-4 h-4" />
                 <span>Total Sessions</span>
               </div>
-              <span className="font-bold">24</span>
+              <span className="font-bold text-neutral-900 dark:text-white">
+                {eventsLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : totalSessions}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-neutral-500">
                 <Clock className="w-4 h-4" />
                 <span>Attendance Rate</span>
               </div>
-              <span className="font-bold text-success-600">92%</span>
+              <span className={clsx(
+                "font-bold",
+                attendanceRate >= 90 ? "text-success-600" : attendanceRate >= 75 ? "text-warning-600" : "text-error-600"
+              )}>
+                {eventsLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : `${attendanceRate}%`}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-neutral-500">
                 <BarChart className="w-4 h-4" />
                 <span>Active Programs</span>
               </div>
-              <span className="font-bold text-primary-600">5</span>
+              <span className="font-bold text-primary-600">{activeProgramsCount}</span>
             </div>
           </div>
         </div>
 
-        {/* Schedule Summary Placeholder */}
+        {/* Upcoming Schedule */}
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-4">Upcoming Schedule</h3>
-          <div className="space-y-3">
-            <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-900/50">
-              <p className="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase">Tomorrow</p>
-              <p className="text-sm font-bold text-neutral-900 dark:text-white mt-1">ABA Session</p>
-              <p className="text-xs text-neutral-500">09:00 AM - 10:00 AM</p>
+          
+          {eventsLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-neutral-300" />
             </div>
-            <button className="w-full py-2 text-sm font-bold text-primary-600 dark:text-primary-400 hover:underline">
-              View full calendar
-            </button>
-          </div>
+          ) : upcomingEvents.length > 0 ? (
+            <div className="space-y-3">
+              {upcomingEvents.map((evt: any) => {
+                const startDate = parseDate(evt.startTime);
+                const isToday = startDate.toDateString() === new Date().toDateString();
+                
+                return (
+                  <div key={evt.id} className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-900/50">
+                    <p className="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase">
+                      {isToday ? "Today" : startDate.toLocaleDateString('en-US', { weekday: 'long' })}
+                    </p>
+                    <p className="text-sm font-bold text-neutral-900 dark:text-white mt-1">{evt.type}</p>
+                    <p className="text-xs text-neutral-500">
+                      {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {evt.duration} min
+                    </p>
+                  </div>
+                );
+              })}
+              <button className="w-full py-2 text-sm font-bold text-primary-600 dark:text-primary-400 hover:underline">
+                View full calendar
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-sm text-neutral-500 italic">No upcoming sessions found.</p>
+            </div>
+          )}
         </div>
 
       </div>
