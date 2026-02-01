@@ -10,6 +10,7 @@ import {
   CreditCard, 
   BarChart2, 
   Settings, 
+  Briefcase,
   X
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -21,15 +22,16 @@ interface MobileSidebarProps {
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Calendar", href: "/calendar", icon: Calendar },
-  { name: "Clients", href: "/clients", icon: Users },
-  { name: "Team", href: "/team", icon: UserCircle },
+  { name: "Calendar", href: "/calendar/", icon: Calendar },
+  { name: "Clients", href: "/clients/", icon: Users },
+  { name: "Team", href: "/team/", icon: UserCircle },
 ];
 
 const adminItems = [
-  { name: "Billing", href: "/billing", icon: CreditCard },
-  { name: "Analytics", href: "/analytics", icon: BarChart2 },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Billing", href: "/billing/", icon: CreditCard },
+  { name: "Analytics", href: "/analytics/", icon: BarChart2 },
+  { name: "Services", href: "/services/", icon: Briefcase },
+  { name: "Settings", href: "/settings/", icon: Settings },
 ];
 
 export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {

@@ -125,15 +125,30 @@ export default function ClientCard({ client }: ClientCardProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 hover:shadow-md transition-all group flex flex-col h-full">
+    <div className={clsx(
+      "bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 hover:shadow-md transition-all group flex flex-col h-full",
+      client.isArchived && "opacity-60"
+    )}>
       {/* Top Section */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center font-bold text-lg border-2 border-white dark:border-neutral-800 shadow-sm">
+          <div className={clsx(
+            "w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 border-white dark:border-neutral-800 shadow-sm",
+            client.isArchived
+              ? "bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400"
+              : "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+          )}>
             {initials}
           </div>
           <div>
-            <h3 className="font-bold text-neutral-900 dark:text-white leading-tight">{client.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-neutral-900 dark:text-white leading-tight">{client.name}</h3>
+              {client.isArchived && (
+                <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded">
+                  Archived
+                </span>
+              )}
+            </div>
             <p className="text-xs text-neutral-500">
               {age !== null ? `Age: ${age} years` : "Age: N/A"}
               {client.birthDate && ` • Born: ${new Date(client.birthDate).toLocaleDateString('ro-RO', { day: '2-digit', month: 'short', year: 'numeric' })}`}

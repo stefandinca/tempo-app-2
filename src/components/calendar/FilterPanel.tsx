@@ -1,6 +1,6 @@
 "use client";
 
-import { useClients, useTeamMembers } from "@/hooks/useCollections";
+import { useClients, useTeamMembers, useServices } from "@/hooks/useCollections";
 import { X, Search, Check } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
@@ -8,7 +8,7 @@ import { useState } from "react";
 export interface FilterState {
   therapists: string[]; // IDs
   clients: string[];    // IDs
-  eventTypes: string[]; // Strings (e.g. 'ABA Session')
+  eventTypes: string[]; // Service IDs
 }
 
 interface FilterPanelProps {
@@ -18,17 +18,10 @@ interface FilterPanelProps {
   onFilterChange: (newFilters: FilterState) => void;
 }
 
-const EVENT_TYPES = [
-  "ABA Session",
-  "Speech Therapy",
-  "Occupational Therapy", 
-  "Evaluation",
-  "Parent Meeting"
-];
-
 export default function FilterPanel({ isOpen, onClose, filters, onFilterChange }: FilterPanelProps) {
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
+  const { data: services } = useServices();
   const [clientSearch, setClientSearch] = useState("");
 
   const handleToggle = (category: keyof FilterState, value: string) => {
@@ -126,30 +119,30 @@ export default function FilterPanel({ isOpen, onClose, filters, onFilterChange }
             </div>
           </div>
 
-          {/* Event Types */}
+          {/* Service Types */}
           <div>
-            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">Event Types</h4>
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">Service Types</h4>
             <div className="space-y-2">
-              {EVENT_TYPES.map(type => (
-                <label 
-                  key={type} 
+              {services.map(service => (
+                <label
+                  key={service.id}
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-colors"
                 >
                   <div className={clsx(
                     "w-5 h-5 rounded border flex items-center justify-center transition-colors",
-                    filters.eventTypes.includes(type) 
-                      ? "bg-primary-500 border-primary-500 text-white" 
+                    filters.eventTypes.includes(service.id)
+                      ? "bg-primary-500 border-primary-500 text-white"
                       : "border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800"
                   )}>
-                    {filters.eventTypes.includes(type) && <Check className="w-3 h-3" />}
+                    {filters.eventTypes.includes(service.id) && <Check className="w-3 h-3" />}
                   </div>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="hidden"
-                    checked={filters.eventTypes.includes(type)}
-                    onChange={() => handleToggle('eventTypes', type)}
+                    checked={filters.eventTypes.includes(service.id)}
+                    onChange={() => handleToggle('eventTypes', service.id)}
                   />
-                  <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{type}</span>
+                  <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{service.label}</span>
                 </label>
               ))}
             </div>

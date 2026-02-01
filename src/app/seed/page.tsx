@@ -77,6 +77,21 @@ const CLIENTS = [
   { id: "zian2206", name: "Zian Matei Vlad", phone: "0736243611", birthDate: "2021-06-22", medicalInfo: "Alergie la vancomicina, tratament neuro", isArchived: false, progress: 0 },
 ];
 
+// Services/Event Types migrated from legacy SQL database
+const SERVICES = [
+  { id: "coordination", label: "Coordonare", isBillable: true, basePrice: 250.00, requiresTime: true },
+  { id: "day-off", label: "Zi libera", isBillable: false, basePrice: 0.00, requiresTime: false },
+  { id: "dezvoltare-personala", label: "Dezvoltare personala", isBillable: true, basePrice: 200.00, requiresTime: true },
+  { id: "evaluare", label: "Evaluare", isBillable: true, basePrice: 250.00, requiresTime: true },
+  { id: "gestiune-acte", label: "Gestiune acte administrative", isBillable: true, basePrice: 0.00, requiresTime: true },
+  { id: "group-therapy", label: "Terapie de grup", isBillable: true, basePrice: 150.00, requiresTime: true },
+  { id: "logopedie", label: "Logopedie", isBillable: true, basePrice: 195.00, requiresTime: true },
+  { id: "pauza-masa", label: "Pauza de masa", isBillable: false, basePrice: 0.00, requiresTime: false },
+  { id: "psihoterapie", label: "Psihoterapie", isBillable: true, basePrice: 250.00, requiresTime: true },
+  { id: "sedinta", label: "Sedinta", isBillable: false, basePrice: 200.00, requiresTime: false },
+  { id: "therapy", label: "Terapie", isBillable: true, basePrice: 195.00, requiresTime: true },
+];
+
 // Helper to get today at specific hour
 const getTodayAt = (hour: number, minute: number = 0) => {
   const d = new Date();
@@ -174,6 +189,13 @@ export default function SeedPage() {
         batch.set(ref, evt);
       });
 
+      // 4. Services (Event Types)
+      addToLog(`Preparing ${SERVICES.length} services...`);
+      SERVICES.forEach(service => {
+        const ref = doc(db, "services", service.id);
+        batch.set(ref, service);
+      });
+
       // Commit
       addToLog("Committing batch write to Firestore...");
       await batch.commit();
@@ -202,10 +224,11 @@ export default function SeedPage() {
 
         <div className="space-y-4">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            This will overwrite existing data in the following collections: 
-            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">team_members</code>, 
-            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">clients</code>, 
-            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">events</code>.
+            This will overwrite existing data in the following collections:
+            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">team_members</code>,
+            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">clients</code>,
+            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">events</code>,
+            <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">services</code>.
           </p>
 
           <button

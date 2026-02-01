@@ -1,38 +1,41 @@
 const path = require('path');
 
+const isProd = process.env.NODE_ENV === 'production';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable Static Export
-  output: 'export',
+  // Only enable Static Export and Base Path in Production
+  output: isProd ? 'export' : undefined,
+  basePath: isProd ? '/v2' : '',
+  trailingSlash: isProd,
   
-  // Set the base path for subdirectory hosting
-  basePath: '/v2',
-
-  // Ensure paths end with a slash (good for static hosting compatibility)
-  trailingSlash: true,
-  
-  // Disable server-side image optimization (requires Node.js server)
   images: {
     unoptimized: true,
   },
 
-  // Keep existing webpack config for Firebase/Undici fix
-  webpack: (config, { isServer }) => {
+  // Transpile firebase packages to ensure they are processed by Babel/SWC
+  transpilePackages: ['firebase', '@firebase/auth', '@firebase/firestore'],
+
+  webpack: (config) => {
+    // Force alias to the browser-compatible ESM build
     config.resolve.alias['@firebase/auth'] = path.join(
       __dirname,
       'node_modules/firebase/node_modules/@firebase/auth/dist/esm2017/index.js'
     );
 
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        undici: false,
-        net: false,
-        tls: false,
-        fs: false,
-        child_process: false,
-      };
-    }
+    // Apply fallbacks for Node.js modules globally
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      undici: false, // Explicitly disable undici
+      net: false,
+      tls: false,
+      fs: false,
+      child_process: false,
+      http: false,
+      https: false,
+      stream: false,
+      crypto: false,
+    };
 
     return config;
   },

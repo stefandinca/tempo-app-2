@@ -57,3 +57,7 @@ export function useClients() {
 export function useTeamMembers() {
   return useCollection<any>("team_members");
 }
+
+export function useServices() {
+  return useCollection<any>("services");
+}

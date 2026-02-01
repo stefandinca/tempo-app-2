@@ -1,6 +1,6 @@
 "use client";
 
-import { useTeamMembers } from "@/hooks/useCollections";
+import { useTeamMembers, useServices } from "@/hooks/useCollections";
 import { EventFormData } from "./types";
 import { clsx } from "clsx";
 import { Check } from "lucide-react";
@@ -10,14 +10,11 @@ interface StepTeamProps {
   updateData: (updates: Partial<EventFormData>) => void;
 }
 
-const EVENT_TYPES = [
-  "ABA Session", "Speech Therapy", "Occupational Therapy", "Evaluation", "Parent Meeting"
-];
-
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export default function StepTeam({ data, updateData }: StepTeamProps) {
   const { data: teamMembers } = useTeamMembers();
+  const { data: services } = useServices();
 
   const toggleTeamMember = (id: string) => {
     const current = data.selectedTeamMembers;
@@ -56,13 +53,17 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
           <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
             Service Type
           </label>
-          <select 
+          <select
             className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
             value={data.eventType}
             onChange={(e) => updateData({ eventType: e.target.value })}
           >
-            {EVENT_TYPES.map(type => (
-              <option key={type} value={type}>{type}</option>
+            <option value="">Select a service...</option>
+            {services.map(service => (
+              <option key={service.id} value={service.id}>
+                {service.label}
+                {service.isBillable && service.basePrice > 0 && ` (${service.basePrice} RON)`}
+              </option>
             ))}
           </select>
         </div>

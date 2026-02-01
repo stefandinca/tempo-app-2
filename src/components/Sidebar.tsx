@@ -2,29 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Users, 
-  UserCircle, 
-  CreditCard, 
-  BarChart2, 
-  Settings, 
-  Search 
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  UserCircle,
+  CreditCard,
+  BarChart2,
+  Settings,
+  Search,
+  Briefcase
 } from "lucide-react";
 import { clsx } from "clsx";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Calendar", href: "/calendar", icon: Calendar },
-  { name: "Clients", href: "/clients", icon: Users, badge: 48 },
-  { name: "Team", href: "/team", icon: UserCircle },
+  { name: "Calendar", href: "/calendar/", icon: Calendar },
+  { name: "Clients", href: "/clients/", icon: Users, badge: 48 },
+  { name: "Team", href: "/team/", icon: UserCircle },
 ];
 
 const adminItems = [
-  { name: "Billing", href: "/billing", icon: CreditCard },
-  { name: "Analytics", href: "/analytics", icon: BarChart2 },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Billing", href: "/billing/", icon: CreditCard },
+  { name: "Analytics", href: "/analytics/", icon: BarChart2 },
+  { name: "Services", href: "/services/", icon: Briefcase },
+  { name: "Settings", href: "/settings/", icon: Settings },
 ];
 
 export default function Sidebar() {

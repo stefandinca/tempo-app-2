@@ -1,7 +1,7 @@
 "use client";
 
 import { EventFormData, MOCK_PROGRAMS } from "./types";
-import { useClients, useTeamMembers } from "@/hooks/useCollections";
+import { useClients, useTeamMembers, useServices } from "@/hooks/useCollections";
 import { Calendar, Clock, User, BookOpen, Repeat } from "lucide-react";
 
 interface StepSummaryProps {
@@ -11,10 +11,12 @@ interface StepSummaryProps {
 export default function StepSummary({ data }: StepSummaryProps) {
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
+  const { data: services } = useServices();
 
   const selectedClients = clients.filter(c => data.selectedClients.includes(c.id));
   const selectedTeam = teamMembers.filter(t => data.selectedTeamMembers.includes(t.id));
   const selectedPrograms = MOCK_PROGRAMS.filter(p => data.selectedPrograms.includes(p.id));
+  const selectedService = services.find(s => s.id === data.eventType);
 
   return (
     <div className="space-y-6">
@@ -22,7 +24,14 @@ export default function StepSummary({ data }: StepSummaryProps) {
       {/* Event Header */}
       <div className="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-xl border border-primary-100 dark:border-primary-900/50">
         <h3 className="text-lg font-bold text-primary-900 dark:text-primary-100">{data.title || "Untitled Event"}</h3>
-        <p className="text-sm text-primary-700 dark:text-primary-300">{data.eventType}</p>
+        <p className="text-sm text-primary-700 dark:text-primary-300">
+          {selectedService?.label || "No service selected"}
+          {selectedService?.isBillable && selectedService?.basePrice > 0 && (
+            <span className="ml-2 text-xs bg-primary-100 dark:bg-primary-800 px-2 py-0.5 rounded-full">
+              {selectedService.basePrice} RON
+            </span>
+          )}
+        </p>
         
         <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300">

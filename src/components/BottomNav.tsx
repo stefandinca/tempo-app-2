@@ -28,10 +28,10 @@ export default function BottomNav() {
       </Link>
 
       <Link 
-        href="/calendar" 
+        href="/calendar/" 
         className={clsx(
           "flex flex-col items-center gap-1 p-2 min-w-[64px]",
-          pathname === "/calendar" ? "text-primary-500" : "text-neutral-400"
+          pathname === "/calendar/" ? "text-primary-500" : "text-neutral-400"
         )}
       >
         <Calendar className="w-5 h-5" />
@@ -44,10 +44,10 @@ export default function BottomNav() {
       </button>
 
       <Link 
-        href="/clients" 
+        href="/clients/" 
         className={clsx(
           "flex flex-col items-center gap-1 p-2 min-w-[64px]",
-          pathname === "/clients" ? "text-primary-500" : "text-neutral-400"
+          pathname === "/clients/" ? "text-primary-500" : "text-neutral-400"
         )}
       >
         <Users className="w-5 h-5" />
@@ -55,10 +55,10 @@ export default function BottomNav() {
       </Link>
 
       <Link 
-        href="/profile" 
+        href="/profile/" 
         className={clsx(
           "flex flex-col items-center gap-1 p-2 min-w-[64px]",
-          pathname === "/profile" ? "text-primary-500" : "text-neutral-400"
+          pathname === "/profile/" ? "text-primary-500" : "text-neutral-400"
         )}
       >
         <User className="w-5 h-5" />

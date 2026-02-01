@@ -118,7 +118,9 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
 
           {/* Phone Number */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Phone Number</label>
+            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
+              Phone Number <span className="text-neutral-400 font-normal">(optional)</span>
+            </label>
             <input
               type="tel"
               placeholder="e.g. 0721 234 567"
@@ -131,10 +133,11 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
           {/* Parent Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Parent Name</label>
-              <input 
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
+                Parent Name <span className="text-neutral-400 font-normal">(optional)</span>
+              </label>
+              <input
                 type="text"
-                required
                 placeholder="e.g. Robert Doe"
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
                 value={formData.parentName}
@@ -142,10 +145,11 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Parent Email</label>
-              <input 
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
+                Parent Email <span className="text-neutral-400 font-normal">(optional)</span>
+              </label>
+              <input
                 type="email"
-                required
                 placeholder="parent@example.com"
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
                 value={formData.parentEmail}

@@ -1,11 +1,21 @@
 Options -MultiViews
+DirectorySlash On
+DirectoryIndex index.html
+
 RewriteEngine On
 RewriteBase /v2/
 
-# Allow access to actual files and directories
-RewriteCond %{REQUEST_FILENAME} -f [OR]
+# Force trailing slash for directories (if not present)
+# RewriteCond %{REQUEST_URI} !(/$|\.) 
+# RewriteRule (.*) %{REQUEST_URI}/ [R=301,L] 
+
+# Serve existing files
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Serve existing directories (will look for index.html due to DirectoryIndex)
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Redirect everything else to index.html
+# Fallback to SPA root for everything else
 RewriteRule . /v2/index.html [L]

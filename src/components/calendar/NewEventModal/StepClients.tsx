@@ -15,9 +15,16 @@ export default function StepClients({ data, updateData }: StepClientsProps) {
   const { data: clients } = useClients();
   const [search, setSearch] = useState("");
 
-  const filteredClients = clients.filter(client => 
-    client.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Filter by search, then sort: active clients first, archived at bottom
+  const filteredClients = clients
+    .filter(client => client.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      // Archived clients go to the bottom
+      if (a.isArchived && !b.isArchived) return 1;
+      if (!a.isArchived && b.isArchived) return -1;
+      // Otherwise sort by name
+      return a.name.localeCompare(b.name);
+    });
 
   const toggleClient = (id: string) => {
     const current = data.selectedClients;
@@ -61,27 +68,41 @@ export default function StepClients({ data, updateData }: StepClientsProps) {
         ) : (
           filteredClients.map(client => {
             const isSelected = data.selectedClients.includes(client.id);
+            const isArchived = client.isArchived;
             return (
-              <div 
+              <div
                 key={client.id}
                 onClick={() => toggleClient(client.id)}
                 className={clsx(
                   "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all group",
                   isSelected
                     ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                    : "border-neutral-200 dark:border-neutral-800 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                    : "border-neutral-200 dark:border-neutral-800 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/50",
+                  isArchived && !isSelected && "opacity-50"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center font-semibold text-sm">
+                  <div className={clsx(
+                    "w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm",
+                    isArchived
+                      ? "bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400"
+                      : "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+                  )}>
                     {client.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                   </div>
                   <div>
-                    <p className="font-medium text-sm text-neutral-900 dark:text-white">{client.name}</p>
-                    <p className="text-xs text-neutral-500">Age: {client.age} • {client.medicalInfo || 'No notes'}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm text-neutral-900 dark:text-white">{client.name}</p>
+                      {isArchived && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 rounded">
+                          Archived
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-neutral-500">{client.medicalInfo || 'No notes'}</p>
                   </div>
                 </div>
-                
+
                 <div className={clsx(
                   "w-5 h-5 rounded border flex items-center justify-center transition-colors",
                   isSelected

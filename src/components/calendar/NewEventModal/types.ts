@@ -20,7 +20,7 @@ export interface EventFormData {
 export const INITIAL_DATA: EventFormData = {
   title: "",
   details: "",
-  eventType: "ABA Session",
+  eventType: "", // Will be selected from services collection
   selectedTeamMembers: [],
   date: new Date().toISOString().split('T')[0],
   startTime: "09:00",
