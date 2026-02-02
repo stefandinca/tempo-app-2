@@ -42,7 +42,7 @@ export default function NewEventModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success, error } = useToast();
   const { user } = useAuth();
-  const { getClient, teamMembers } = useData();
+  const { clients, teamMembers } = useData();
 
   // Reset form when modal opens with new initial data
   const resetForm = () => {
@@ -153,27 +153,31 @@ export default function NewEventModal({
       // Commit batch
       await batch.commit();
 
-      // Send notifications to assigned team members
+      // Send notifications to assigned team members (non-blocking)
       if (user && formData.selectedTeamMembers.length > 0) {
-        const clientName = formData.selectedClients[0]
-          ? getClient(formData.selectedClients[0])?.name
-          : undefined;
+        try {
+          const clientName = formData.selectedClients[0]
+            ? (clients.data || []).find((c: any) => c.id === formData.selectedClients[0])?.name
+            : undefined;
 
-        // Notify all team members (except the creator) and admins/coordinators
-        const adminIds = (teamMembers.data || [])
-          .filter((m: any) => m.role === "Admin" || m.role === "Coordinator")
-          .map((m: any) => m.id);
+          // Notify all team members (except the creator) and admins/coordinators
+          const adminIds = (teamMembers.data || [])
+            .filter((m: any) => m.role === "Admin" || m.role === "Coordinator")
+            .map((m: any) => m.id);
 
-        const allRecipients = Array.from(new Set([...formData.selectedTeamMembers, ...adminIds]));
+          const allRecipients = Array.from(new Set([...formData.selectedTeamMembers, ...adminIds]));
 
-        notifySessionCreated(allRecipients, {
-          eventId: "batch-created", // Multiple events, no single ID
-          eventTitle: formData.title || "Untitled Event",
-          eventType: formData.eventType,
-          startTime: `${datesToCreate[0]}T${formData.startTime}:00`,
-          clientName,
-          triggeredByUserId: user.uid
-        }).catch((err) => console.error("Failed to send notifications:", err));
+          notifySessionCreated(allRecipients, {
+            eventId: "batch-created",
+            eventTitle: formData.title || "Untitled Event",
+            eventType: formData.eventType,
+            startTime: `${datesToCreate[0]}T${formData.startTime}:00`,
+            clientName,
+            triggeredByUserId: user.uid
+          }).catch((err) => console.error("Failed to send notifications:", err));
+        } catch (notifErr) {
+          console.error("Error preparing notifications:", notifErr);
+        }
       }
 
       // Cleanup
