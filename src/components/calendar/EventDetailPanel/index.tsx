@@ -21,6 +21,11 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { useClients, useTeamMembers, usePrograms } from "@/hooks/useCollections";
 import ProgramScoreCounter, { ProgramScores } from "./ProgramScoreCounter";
+import {
+  notifySessionRescheduled,
+  notifySessionCancelled,
+  notifyAttendanceLogged
+} from "@/lib/notificationService";
 
 interface EventDetailPanelProps {
   event: any; // Firestore Event Document
@@ -45,6 +50,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const [programScores, setProgramScores] = useState<Record<string, ProgramScores>>({});
   const [isScoresExpanded, setIsScoresExpanded] = useState(true);
 
+  // Track original values for detecting changes
+  const [originalDate, setOriginalDate] = useState("");
+  const [originalTime, setOriginalTime] = useState("");
+  const [originalAttendance, setOriginalAttendance] = useState<string | null>(null);
+
   // Permission Logic
   const canEdit = 
     userRole === 'Admin' || 
@@ -58,12 +68,17 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   useEffect(() => {
     if (event) {
       setAttendance(event.attendance || null);
+      setOriginalAttendance(event.attendance || null);
       setNotes(event.details || "");
-      
+
       // Parse ISO string for inputs
       const d = new Date(event.startTime);
-      setDate(d.toISOString().split('T')[0]);
-      setTime(d.toTimeString().slice(0, 5));
+      const dateStr = d.toISOString().split('T')[0];
+      const timeStr = d.toTimeString().slice(0, 5);
+      setDate(dateStr);
+      setTime(timeStr);
+      setOriginalDate(dateStr);
+      setOriginalTime(timeStr);
 
       // Initialize program scores from event or create defaults
       const existingScores = event.programScores || {};
@@ -112,6 +127,44 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
         startTime: newStart.toISOString(),
         endTime: newEnd.toISOString()
       });
+
+      // Send notifications for changes
+      if (authUser) {
+        const clientName = client?.name;
+        const notificationContext = {
+          eventId: event.id,
+          eventTitle: event.title,
+          eventType: event.type,
+          startTime: newStart.toISOString(),
+          clientName,
+          triggeredByUserId: authUser.uid
+        };
+
+        // Get all admins/coordinators for notifications
+        const adminIds = (teamMembers || [])
+          .filter((m: any) => m.role === "Admin" || m.role === "Coordinator")
+          .map((m: any) => m.id);
+        const allRecipients = Array.from(new Set([...(event.teamMemberIds || []), ...adminIds]));
+
+        // Check if date/time changed (reschedule)
+        const wasRescheduled = date !== originalDate || time !== originalTime;
+        if (wasRescheduled) {
+          notifySessionRescheduled(allRecipients, {
+            ...notificationContext,
+            oldStartTime: event.startTime
+          }).catch((err) => console.error("Failed to send reschedule notification:", err));
+        }
+
+        // Check if attendance was just logged (changed from null to a value)
+        const attendanceJustLogged = !originalAttendance && attendance;
+        if (attendanceJustLogged) {
+          notifyAttendanceLogged(adminIds, {
+            ...notificationContext,
+            attendance: attendance!
+          }).catch((err) => console.error("Failed to send attendance notification:", err));
+        }
+      }
+
       success("Event updated successfully");
       setIsSubmitting(false);
       onClose();
@@ -128,9 +181,27 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       return;
     }
     if (!confirm("Are you sure you want to delete this event? This action cannot be undone.")) return;
-    
+
     setIsDeleting(true);
     try {
+      // Send cancellation notifications before deleting
+      if (authUser) {
+        const clientName = client?.name;
+        const adminIds = (teamMembers || [])
+          .filter((m: any) => m.role === "Admin" || m.role === "Coordinator")
+          .map((m: any) => m.id);
+        const allRecipients = Array.from(new Set([...(event.teamMemberIds || []), ...adminIds]));
+
+        notifySessionCancelled(allRecipients, {
+          eventId: event.id,
+          eventTitle: event.title,
+          eventType: event.type,
+          startTime: event.startTime,
+          clientName,
+          triggeredByUserId: authUser.uid
+        }).catch((err) => console.error("Failed to send cancellation notification:", err));
+      }
+
       await deleteDoc(doc(db, "events", event.id));
       success("Event deleted");
       setIsDeleting(false);

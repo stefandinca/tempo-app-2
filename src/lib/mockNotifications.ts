@@ -1,7 +1,7 @@
 import { Notification, NotificationCategory, NotificationType } from '@/types/notifications';
 
 // Feature flag for mock mode - set to false when Cloud Functions are ready
-export const USE_MOCK_NOTIFICATIONS = true;
+export const USE_MOCK_NOTIFICATIONS = false;
 
 interface MockTemplate {
   type: NotificationType;
