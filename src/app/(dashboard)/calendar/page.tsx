@@ -7,7 +7,8 @@ import MonthView from "@/components/calendar/MonthView";
 import DayView from "@/components/calendar/DayView";
 import FilterPanel, { FilterState } from "@/components/calendar/FilterPanel";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
-import { useEvents } from "@/hooks/useCollections";
+import { useData } from "@/context/DataContext";
+import { CalendarEventSkeleton } from "@/components/ui/Skeleton";
 import { Loader2 } from "lucide-react";
 import { useEventModal } from "@/context/EventModalContext";
 
@@ -29,19 +30,20 @@ export default function CalendarPage() {
     eventTypes: []
   });
 
-  // Data Fetching
-  const { data: events, loading } = useEvents();
+  // Data from shared context
+  const { events } = useData();
+  const loading = events.loading;
 
   // Filter Logic
   const filteredEvents = useMemo(() => {
-    if (!events) return [];
-    
-    return events.filter(event => {
+    if (!events.data) return [];
+
+    return events.data.filter(event => {
       // 1. Therapist Filter
       if (filters.therapists.length > 0 && !filters.therapists.includes(event.therapistId)) {
         return false;
       }
-      
+
       // 2. Client Filter
       if (filters.clients.length > 0 && !filters.clients.includes(event.clientId)) {
         return false;
@@ -54,7 +56,7 @@ export default function CalendarPage() {
 
       return true;
     });
-  }, [events, filters]);
+  }, [events.data, filters]);
 
   const activeFilterCount = filters.therapists.length + filters.clients.length + filters.eventTypes.length;
 

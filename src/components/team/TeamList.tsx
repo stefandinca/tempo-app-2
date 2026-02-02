@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTeamMembers } from "@/hooks/useCollections";
+import { useData } from "@/context/DataContext";
 import TeamMemberCard, { TeamMember } from "./TeamMemberCard";
+import { TeamMemberCardSkeleton } from "@/components/ui/Skeleton";
 import { Search, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -12,19 +13,30 @@ interface TeamListProps {
 }
 
 export default function TeamList({ onEdit, onAdd }: TeamListProps) {
-  const { data: teamMembers, loading } = useTeamMembers();
+  const { teamMembers } = useData();
+  const loading = teamMembers.loading;
   const [search, setSearch] = useState("");
   const { userRole } = useAuth();
 
-  const filteredMembers = teamMembers.filter(m => 
+  const filteredMembers = teamMembers.data.filter(m =>
     m.name.toLowerCase().includes(search.toLowerCase()) ||
     m.role.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      <div className="space-y-6">
+        {/* Skeleton Toolbar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="w-full sm:w-96 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+          <div className="w-32 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+        </div>
+        {/* Skeleton Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <TeamMemberCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }

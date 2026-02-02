@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  TrendingUp, 
+import {
+  TrendingUp,
   TrendingDown,
-  Users, 
-  CheckCircle, 
+  Users,
+  CheckCircle,
   CalendarCheck,
   ArrowRight,
   DollarSign,
@@ -14,35 +14,92 @@ import {
   CalendarPlus,
   Loader2
 } from "lucide-react";
-import { useEvents, useClients, useTeamMembers } from "@/hooks/useCollections";
+import { useData } from "@/context/DataContext";
+import { KPICardSkeleton } from "@/components/ui/Skeleton";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
 
 export default function Dashboard() {
-  const { data: events, loading: eventsLoading } = useEvents();
-  const { data: clients } = useClients();
-  const { data: team } = useTeamMembers();
+  const { events, clients, teamMembers } = useData();
+  const eventsLoading = events.loading || clients.loading || teamMembers.loading;
 
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   // Helper to resolve relationships
-  const getClient = (id: string) => clients.find(c => c.id === id) || { name: "Unknown Client" };
-  const getTherapist = (id: string) => team.find(t => t.id === id) || { name: "Unknown", initials: "?", color: "#ccc" };
+  const getClient = (id: string) => clients.data.find(c => c.id === id) || { name: "Unknown Client" };
+  const getTherapist = (id: string) => teamMembers.data.find(t => t.id === id) || { name: "Unknown", initials: "?", color: "#ccc" };
 
   // Filter today's events
   const today = new Date();
-  const todaysEvents = events.filter(evt => {
+  const todaysEvents = events.data.filter(evt => {
     const evtDate = new Date(evt.startTime);
-    return evtDate.getDate() === today.getDate() && 
-           evtDate.getMonth() === today.getMonth() && 
+    return evtDate.getDate() === today.getDate() &&
+           evtDate.getMonth() === today.getMonth() &&
            evtDate.getFullYear() === today.getFullYear();
   }).sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
   if (eventsLoading) {
     return (
-      <div className="flex h-full items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-      </div>
+      <main className="flex-1 p-4 lg:p-6 space-y-6">
+        {/* Skeleton KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <KPICardSkeleton key={i} />
+          ))}
+        </div>
+        {/* Skeleton Schedule */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+              <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
+                <div className="h-5 w-32 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+              </div>
+              <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 space-y-2">
+                        <div className="h-4 w-12 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                        <div className="h-3 w-10 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                      </div>
+                      <div className="w-3 h-3 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse mt-1.5" />
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-28 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                          <div className="h-5 w-16 bg-neutral-200 dark:bg-neutral-700 rounded-full animate-pulse" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse" />
+                          <div className="h-3 w-20 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Skeleton Activity */}
+          <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+            <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
+              <div className="h-5 w-28 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+              <div className="h-4 w-14 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+            </div>
+            <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="p-4 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                    <div className="h-3 w-16 bg-neutral-200 dark:bg-neutral-700 rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 
@@ -61,9 +118,9 @@ export default function Dashboard() {
           iconBg="bg-success-100 dark:bg-success-900/30"
           iconColor="text-success-600"
         />
-        <KpiCard 
-          title="Active Clients" 
-          value={clients.length.toString()} 
+        <KpiCard
+          title="Active Clients"
+          value={clients.data.length.toString()}
           trend="+3 this month" 
           icon={Users} 
           trendIcon={TrendingUp}

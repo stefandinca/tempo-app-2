@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useServices } from "@/hooks/useCollections";
+import { useData } from "@/context/DataContext";
 import ServiceCard, { Service } from "./ServiceCard";
+import { ServiceCardSkeleton } from "@/components/ui/Skeleton";
 import { Search, Plus, Loader2, Briefcase } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -12,8 +13,9 @@ interface ServiceListProps {
 }
 
 export default function ServiceList({ onAdd, onEdit }: ServiceListProps) {
-  const { data, loading } = useServices();
-  const services = data as Service[];
+  const { services: servicesState } = useData();
+  const loading = servicesState.loading;
+  const services = servicesState.data as Service[];
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "billable" | "non-billable">("all");
 
@@ -36,8 +38,30 @@ export default function ServiceList({ onAdd, onEdit }: ServiceListProps) {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Services</h1>
+            <p className="text-sm text-neutral-500 mt-1">
+              Manage service types and pricing for your therapy center
+            </p>
+          </div>
+        </div>
+        {/* Skeleton Toolbar */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="w-full sm:w-72 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+            <div className="w-56 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+          </div>
+          <div className="w-32 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+        </div>
+        {/* Skeleton Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ServiceCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }

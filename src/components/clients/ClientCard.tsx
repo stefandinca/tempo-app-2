@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { MoreVertical, User, Calendar, TrendingUp, Phone, Edit, Trash2, Archive, Target } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
-import { useTeamMembers, useEvents, useInterventionPlans } from "@/hooks/useCollections";
 import { useEventModal } from "@/context/EventModalContext";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
@@ -25,8 +24,30 @@ export interface Client {
   isArchived?: boolean;
 }
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  initials: string;
+  color: string;
+}
+
+export interface Event {
+  id: string;
+  clientId: string;
+  startTime: string;
+}
+
+export interface InterventionPlan {
+  id: string;
+  name: string;
+  status: string;
+}
+
 interface ClientCardProps {
   client: Client;
+  teamMembers: TeamMember[];
+  events: Event[];
+  activePlan: InterventionPlan | null;
 }
 
 // Helper to calculate age from birthDate
@@ -42,10 +63,7 @@ function calculateAge(birthDate: string | null | undefined): number | null {
   return age;
 }
 
-export default function ClientCard({ client }: ClientCardProps) {
-  const { data: teamMembers } = useTeamMembers();
-  const { data: events } = useEvents();
-  const { activePlan } = useInterventionPlans(client.id);
+export default function ClientCard({ client, teamMembers, events, activePlan }: ClientCardProps) {
   const { openModal } = useEventModal();
   const { success, error } = useToast();
 

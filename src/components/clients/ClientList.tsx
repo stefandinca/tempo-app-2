@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useClients } from "@/hooks/useCollections";
+import { useData } from "@/context/DataContext";
 import ClientCard, { Client } from "./ClientCard";
+import { ClientCardSkeleton } from "@/components/ui/Skeleton";
 import { Search, Plus, Filter, ArrowUpDown, Loader2, Users } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
@@ -12,14 +13,16 @@ interface ClientListProps {
 }
 
 export default function ClientList({ onAdd }: ClientListProps) {
-  const { data: clients, loading } = useClients();
+  // Use shared data context instead of individual hooks
+  const { clients, teamMembers, events, activePlans, activePlansLoading } = useData();
+  const loading = clients.loading || activePlansLoading;
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<'active' | 'archived' | 'all'>('active');
   const [sortBy, setSortBy] = useState<'name' | 'recent'>('name');
   const { userRole } = useAuth();
 
   const filteredClients = useMemo(() => {
-    let result = clients.filter(c => 
+    let result = clients.data.filter(c =>
       c.name.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -37,12 +40,28 @@ export default function ClientList({ onAdd }: ClientListProps) {
     }
 
     return result;
-  }, [clients, search, statusFilter, sortBy]);
+  }, [clients.data, search, statusFilter, sortBy]);
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      <div className="space-y-6">
+        {/* Skeleton Toolbar */}
+        <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+            <div className="w-full sm:w-80 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+            <div className="w-48 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto ml-auto">
+            <div className="w-36 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+            <div className="w-32 h-11 bg-neutral-100 dark:bg-neutral-800 rounded-xl animate-pulse" />
+          </div>
+        </div>
+        {/* Skeleton Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ClientCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -127,7 +146,13 @@ export default function ClientList({ onAdd }: ClientListProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-in fade-in duration-500">
           {filteredClients.map((client) => (
-            <ClientCard key={client.id} client={client} />
+            <ClientCard
+              key={client.id}
+              client={client}
+              teamMembers={teamMembers.data}
+              events={events.data}
+              activePlan={activePlans[client.id] || null}
+            />
           ))}
         </div>
       )}
