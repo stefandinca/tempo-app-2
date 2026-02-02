@@ -161,7 +161,9 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-neutral-900 dark:text-white leading-tight">{client.name}</h3>
+              <Link href={`/clients/profile?id=${client.id}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <h3 className="font-bold text-neutral-900 dark:text-white leading-tight">{client.name}</h3>
+              </Link>
               {client.isArchived && (
                 <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded">
                   Archived
@@ -224,7 +226,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
           <User className="w-4 h-4 text-neutral-400" />
           <div className="flex items-center gap-1.5">
             {therapist ? (
-              <>
+              <Link href="/team/" className="flex items-center gap-1.5 hover:text-primary-600 dark:hover:text-primary-400 transition-colors group/therapist">
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-bold"
                   style={{ backgroundColor: therapist.color }}
@@ -232,7 +234,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
                   {therapist.initials}
                 </div>
                 <span className="font-medium truncate">{therapist.name}</span>
-              </>
+              </Link>
             ) : (
               <span className="italic text-neutral-400">Unassigned</span>
             )}

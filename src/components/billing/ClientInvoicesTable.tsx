@@ -15,6 +15,7 @@ import {
   Save
 } from "lucide-react";
 import { clsx } from "clsx";
+import Link from "next/link";
 import { ClientInvoice } from "@/lib/billing";
 import { useSystemSettings } from "@/hooks/useCollections";
 import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
@@ -278,9 +279,13 @@ export default function ClientInvoicesTable({
                         </button>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-medium text-neutral-900 dark:text-white">
+                        <Link 
+                          href={`/clients/profile?id=${invoice.clientId}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                        >
                           {invoice.clientName}
-                        </span>
+                        </Link>
                       </td>
                       <td className="px-6 py-4 text-center text-neutral-700 dark:text-neutral-300">
                         {invoice.billableSessions}

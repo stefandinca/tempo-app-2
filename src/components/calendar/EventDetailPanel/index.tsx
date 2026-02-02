@@ -14,6 +14,7 @@ import {
   ChevronUp
 } from "lucide-react";
 import { clsx } from "clsx";
+import Link from "next/link";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
@@ -227,24 +228,33 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600">
                 <User className="w-4 h-4" />
               </div>
-              <div>
-                <p className="text-xs text-neutral-500">Client</p>
-                <p className="text-sm font-medium text-neutral-900 dark:text-white">{client?.name || "Unknown Client"}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                style={{ backgroundColor: therapist?.color || '#ccc' }}
-              >
-                {therapist?.initials || '?'}
-              </div>
-              <div>
-                <p className="text-xs text-neutral-500">Therapist</p>
-                <p className="text-sm font-medium text-neutral-900 dark:text-white">{therapist?.name || "Unknown Therapist"}</p>
-              </div>
-            </div>
-          </div>
+                          <div>
+                            <p className="text-xs text-neutral-500">Client</p>
+                            <Link 
+                              href={client ? `/clients/profile?id=${client.id}` : "#"} 
+                              className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                            >
+                              {client?.name || "Unknown Client"}
+                            </Link>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                            style={{ backgroundColor: therapist?.color || '#ccc' }}
+                          >
+                            {therapist?.initials || '?'}
+                          </div>
+                          <div>
+                            <p className="text-xs text-neutral-500">Therapist</p>
+                            <Link 
+                              href="/team/" 
+                              className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                            >
+                              {therapist?.name || "Unknown Therapist"}
+                            </Link>
+                          </div>
+                        </div>          </div>
 
           {/* Attendance Toggle */}
           <div>

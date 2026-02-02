@@ -3,13 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { 
-  Home, 
-  Calendar, 
-  BarChart2, 
-  FileText, 
+import {
+  Home,
+  Calendar,
+  BarChart2,
+  FileText,
   LogOut,
-  CreditCard
+  CreditCard,
+  Bell
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -49,12 +50,21 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
             </div>
             <span className="font-bold text-neutral-900 dark:text-white text-sm">Tempo Portal</span>
           </div>
-          <button 
-            onClick={handleSignOut}
-            className="p-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/parent/schedule/"
+              className="p-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors relative"
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-error-500 rounded-full" />
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="p-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -101,8 +111,8 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
               href={item.href}
               className={clsx(
                 "p-3 rounded-2xl transition-all group relative",
-                isActive 
-                  ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm" 
+                isActive
+                  ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm"
                   : "text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
               )}
             >
@@ -114,12 +124,24 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
           );
         })}
 
-        <button 
-          onClick={handleSignOut}
-          className="mt-auto p-3 text-neutral-400 hover:bg-error-50 dark:hover:bg-error-900/20 hover:text-error-600 rounded-2xl transition-all"
-        >
-          <LogOut className="w-6 h-6" />
-        </button>
+        <div className="mt-auto flex flex-col items-center gap-2">
+          <Link
+            href="/parent/schedule/"
+            className="p-3 text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white rounded-2xl transition-all group relative"
+          >
+            <Bell className="w-6 h-6" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-error-500 rounded-full" />
+            <span className="absolute left-full ml-4 px-2 py-1 bg-neutral-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+              Notifications
+            </span>
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="p-3 text-neutral-400 hover:bg-error-50 dark:hover:bg-error-900/20 hover:text-error-600 rounded-2xl transition-all"
+          >
+            <LogOut className="w-6 h-6" />
+          </button>
+        </div>
       </nav>
     </div>
   );

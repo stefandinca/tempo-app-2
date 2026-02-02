@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Users, Loader2, AlertCircle, Edit, Check, X, DollarSign, CheckCircle } from "lucide-react";
+import Link from "next/link";
 import { TeamPayout } from "@/lib/billing";
 import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
@@ -160,9 +161,12 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
                     className="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
                   >
                     <td className="px-6 py-4">
-                      <span className="font-medium text-neutral-900 dark:text-white">
+                      <Link 
+                        href="/team/"
+                        className="font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                      >
                         {payout.teamMemberName}
-                      </span>
+                      </Link>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="text-neutral-700 dark:text-neutral-300">

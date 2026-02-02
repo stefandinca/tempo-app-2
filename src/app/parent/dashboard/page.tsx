@@ -1,19 +1,17 @@
 "use client";
 
-import { 
-  Calendar, 
-  ChevronRight, 
-  ArrowUpRight,
+import {
+  Calendar,
+  ChevronRight,
   TrendingUp,
-  FileText,
   Clock,
-  CreditCard,
-  Loader2
+  CreditCard
 } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers, useClientInvoices } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
+import ParentAlerts from "@/components/notifications/ParentAlerts";
 import { useState, useMemo } from "react";
 import { clsx } from "clsx";
 
@@ -164,30 +162,8 @@ export default function ParentDashboard() {
         </div>
       </section>
 
-      {/* Recent Activity / Updates */}
-      <section className="px-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-neutral-900 dark:text-white">Recent Updates</h3>
-          <button className="text-sm font-bold text-primary-600">View All</button>
-        </div>
-        
-        <div className="space-y-3 pb-8">
-          {[1, 2].map((i) => (
-            <div key={i} className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-xl flex items-center justify-center text-neutral-400">
-                <FileText className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-neutral-900 dark:text-white">Monthly Report - Jan</p>
-                <p className="text-xs text-neutral-500">Shared on Feb 1, 2026</p>
-              </div>
-              <button className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg">
-                <ArrowUpRight className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Recent Alerts */}
+      <ParentAlerts clientName={client.name} />
 
       <ParentEventDetailPanel 
         event={selectedEvent}

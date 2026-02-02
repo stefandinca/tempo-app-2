@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { EventModalProvider } from "@/context/EventModalContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,9 +23,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <ToastProvider>
           <AuthProvider>
-            <EventModalProvider>
-              {children}
-            </EventModalProvider>
+            <NotificationProvider>
+              <EventModalProvider>
+                {children}
+              </EventModalProvider>
+            </NotificationProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

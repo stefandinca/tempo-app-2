@@ -6,6 +6,7 @@ import { useToast } from "@/context/ToastContext";
 import { User, Bell, Shield, Moon, LogOut, Check, CreditCard, Monitor, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import BillingConfigTab from "@/components/settings/BillingConfigTab";
+import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -15,7 +16,6 @@ export default function SettingsPage() {
   const { user, userData, userRole, signOut } = useAuth();
   const { success, error } = useToast();
   const [activeTab, setActiveTab] = useState("profile");
-  const [notifications, setNotifications] = useState(true);
   const [theme, setTheme] = useState("light");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -187,35 +187,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {activeTab === "notifications" && (
-            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div>
-                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Notifications</h3>
-                <p className="text-sm text-neutral-500">Manage how you receive updates.</p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
-                  <div>
-                    <p className="font-medium text-neutral-900 dark:text-white">Email Notifications</p>
-                    <p className="text-xs text-neutral-500">Receive daily summaries and alerts.</p>
-                  </div>
-                  <button 
-                    onClick={() => setNotifications(!notifications)}
-                    className={clsx(
-                      "w-12 h-6 rounded-full transition-colors relative",
-                      notifications ? "bg-primary-500" : "bg-neutral-300 dark:bg-neutral-700"
-                    )}
-                  >
-                    <div className={clsx(
-                      "absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm",
-                      notifications ? "translate-x-6" : "translate-x-0"
-                    )} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          {activeTab === "notifications" && <NotificationPreferences />}
 
           {activeTab === "appearance" && (
             <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

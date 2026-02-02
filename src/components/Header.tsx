@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { 
-  Search, 
-  RefreshCw, 
-  Sun, 
-  Moon, 
-  Bell, 
-  ChevronDown, 
+import {
+  Search,
+  RefreshCw,
+  Sun,
+  Moon,
+  ChevronDown,
   Menu,
   User,
   Settings,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useEventModal } from "@/context/EventModalContext";
+import { NotificationBell, NotificationDropdown } from "@/components/notifications";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -155,10 +155,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </button>
 
         {/* Notifications */}
-        <button className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors relative">
-          <Bell className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error-500 rounded-full"></span>
-        </button>
+        <div className="relative">
+          <NotificationBell />
+          <NotificationDropdown />
+        </div>
 
         {/* Profile Dropdown */}
         <div className="relative">

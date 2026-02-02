@@ -1,6 +1,7 @@
 "use client";
 
 import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
 import { useState } from "react";
 import { db } from "@/lib/firebase";
@@ -158,7 +159,10 @@ export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-4">Assigned Therapy Team</h3>
           {therapist ? (
-            <div className="flex items-center gap-4 p-3 border border-neutral-100 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors w-fit pr-8">
+            <Link 
+              href="/team/"
+              className="flex items-center gap-4 p-3 border border-neutral-100 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors w-fit pr-8 group"
+            >
               <div 
                 className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
                 style={{ backgroundColor: therapist.color }}
@@ -166,10 +170,10 @@ export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
                 {therapist.initials}
               </div>
               <div>
-                <p className="font-bold text-neutral-900 dark:text-white">{therapist.name}</p>
+                <p className="font-bold text-neutral-900 dark:text-white group-hover:text-primary-600 transition-colors">{therapist.name}</p>
                 <p className="text-sm text-primary-600 dark:text-primary-400 font-medium">{therapist.role}</p>
               </div>
-            </div>
+            </Link>
           ) : (
             <p className="text-sm text-neutral-500 italic">No therapist assigned yet.</p>
           )}

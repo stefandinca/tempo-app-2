@@ -14,6 +14,7 @@ import {
   CalendarPlus,
   Loader2
 } from "lucide-react";
+import Link from "next/link";
 import { useData } from "@/context/DataContext";
 import { KPICardSkeleton } from "@/components/ui/Skeleton";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
@@ -181,8 +182,10 @@ export default function Dashboard() {
                         time={startTime} 
                         endTime={endTime}
                         client={client.name}
+                        clientId={client.id}
                         type={evt.type}
                         therapist={therapist.name}
+                        therapistId={therapist.id}
                         initials={therapist.initials}
                         color={therapist.color}
                         status={evt.status}
@@ -269,7 +272,7 @@ function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendC
   );
 }
 
-function ScheduleItem({ time, endTime, client, type, therapist, initials, color, status, showActions, onClick }: any) {
+function ScheduleItem({ time, endTime, client, clientId, type, therapist, therapistId, initials, color, status, showActions, onClick }: any) {
   const statusColors: any = {
     'completed': 'bg-success-500',
     'in-progress': 'bg-warning-500',
@@ -296,21 +299,33 @@ function ScheduleItem({ time, endTime, client, type, therapist, initials, color,
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-medium text-neutral-900 dark:text-white truncate">{client}</h4>
+            <Link 
+              href={clientId ? `/clients/profile?id=${clientId}` : "#"}
+              onClick={(e) => e.stopPropagation()}
+              className="font-medium text-neutral-900 dark:text-white truncate hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            >
+              {client}
+            </Link>
             <span className="px-2 py-0.5 text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-full border border-neutral-200 dark:border-neutral-700">
               {type}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
-            <div 
-              className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-medium" 
-              style={{ backgroundColor: color ? color : '#4A90E2' }}
+            <Link 
+              href="/team/"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
-              <div className="w-full h-full rounded-full flex items-center justify-center" style={{ backgroundColor: color }}>
-                {initials}
+              <div 
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-medium" 
+                style={{ backgroundColor: color ? color : '#4A90E2' }}
+              >
+                <div className="w-full h-full rounded-full flex items-center justify-center" style={{ backgroundColor: color }}>
+                  {initials}
+                </div>
               </div>
-            </div>
-            <span>{therapist}</span>
+              <span>{therapist}</span>
+            </Link>
           </div>
 
           {showActions && (
@@ -342,7 +357,7 @@ function ScheduleItem({ time, endTime, client, type, therapist, initials, color,
   );
 }
 
-function ActivityItem({ user, action, target, time, icon: Icon, iconColor, iconBg }: any) {
+function ActivityItem({ user, action, target, time, icon: Icon, iconColor, iconBg, userHref, targetHref }: any) {
   return (
     <div className="p-4 flex items-start gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
       <div className={`w-8 h-8 ${iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
@@ -350,9 +365,9 @@ function ActivityItem({ user, action, target, time, icon: Icon, iconColor, iconB
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-neutral-900 dark:text-white">
-          <span className="font-medium">{user}</span>
+          <Link href={userHref || "/team/"} className="font-medium hover:text-primary-600 transition-colors">{user}</Link>
           <span className="text-neutral-500 dark:text-neutral-400"> {action} </span>
-          <span className="font-medium">{target}</span>
+          <Link href={targetHref || "/clients/"} className="font-medium hover:text-primary-600 transition-colors">{target}</Link>
         </p>
         <p className="text-xs text-neutral-400 mt-0.5">{time}</p>
       </div>

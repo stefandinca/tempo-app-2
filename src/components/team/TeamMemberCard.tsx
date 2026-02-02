@@ -2,6 +2,7 @@
 
 import { Edit, User, Mail, Calendar } from "lucide-react";
 import { clsx } from "clsx";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 export interface TeamMember {
@@ -48,7 +49,9 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
           {member.initials}
         </div>
         <div>
-          <h3 className="font-bold text-lg text-neutral-900 dark:text-white leading-tight">{member.name}</h3>
+          <Link href="/team/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <h3 className="font-bold text-lg text-neutral-900 dark:text-white leading-tight">{member.name}</h3>
+          </Link>
           <p className="text-sm text-primary-600 dark:text-primary-400 font-medium">{member.role}</p>
           <div className="flex items-center gap-1.5 mt-1 text-xs text-neutral-500">
             <span className={clsx(
