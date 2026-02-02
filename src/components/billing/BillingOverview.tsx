@@ -1,6 +1,6 @@
 "use client";
 
-import { DollarSign, Clock, CheckCircle, TrendingUp } from "lucide-react";
+import { DollarSign, Clock, CheckCircle, TrendingUp, Users } from "lucide-react";
 import { BillingSummary } from "@/lib/billing";
 import { clsx } from "clsx";
 
@@ -40,6 +40,13 @@ export default function BillingOverview({ summary, loading }: BillingOverviewPro
       icon: CheckCircle,
       color: "success",
       subtitle: `${summary.paidCount} invoice${summary.paidCount !== 1 ? "s" : ""}`
+    },
+    {
+      label: "Staff Costs",
+      value: summary.totalExpenses,
+      icon: Users,
+      color: "error",
+      subtitle: "Paid salaries & bonuses"
     }
   ];
 
@@ -55,11 +62,15 @@ export default function BillingOverview({ summary, loading }: BillingOverviewPro
     success: {
       bg: "bg-success-50 dark:bg-success-900/20",
       text: "text-success-600"
+    },
+    error: {
+      bg: "bg-error-50 dark:bg-error-900/20",
+      text: "text-error-600"
     }
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
       {cards.map((card) => {
         const Icon = card.icon;
         const colors = colorClasses[card.color];

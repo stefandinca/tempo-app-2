@@ -7,44 +7,36 @@ import {
   TrendingUp,
   FileText,
   Clock,
-  CreditCard
+  CreditCard,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
-import { useTeamMembers } from "@/hooks/useCollections";
+import { useTeamMembers, useClientInvoices } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { clsx } from "clsx";
 
 export default function ParentDashboard() {
-  const { data: client, sessions, services, loading, error } = usePortalData();
+  const { data: client, sessions, loading: portalLoading, error: portalError } = usePortalData();
   const { data: team } = useTeamMembers();
+  const { data: invoices, loading: invoicesLoading } = useClientInvoices(client?.id || "");
+  
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  const loading = portalLoading || invoicesLoading;
+  const error = portalError;
+
+  // Calculate Balance from Real Invoices
+  const displayBalance = useMemo(() => {
+    return invoices
+      .filter(inv => inv.status === 'issued' || inv.status === 'overdue')
+      .reduce((sum, inv) => sum + inv.total, 0);
+  }, [invoices]);
+
   if (loading) return <PortalLoading />;
   if (error || !client) return <PortalError message={error || "Could not load child data."} />;
-
-  // Helper to resolve services for pricing
-  const getService = (typeId: string) => (services || []).find(s => s.id === typeId);
-
-  // Dynamic Balance Calculation (Same logic as billing page)
-  const billableSessions = (sessions || []).filter(s => 
-    s.status === 'completed' && 
-    (s.attendance === 'present' || s.attendance === 'absent')
-  );
-
-  const calculatedTotal = billableSessions.reduce((acc, sess) => {
-    const service = getService(sess.type);
-    if (service?.isBillable) {
-      const hourlyRate = service.basePrice || 0;
-      const sessionCost = (sess.duration / 60) * hourlyRate;
-      return acc + sessionCost;
-    }
-    return acc;
-  }, 0);
-
-  const displayBalance = client.currentBalance !== undefined ? client.currentBalance : calculatedTotal;
 
   // Helper to parse dates
   const parseDate = (val: any) => {

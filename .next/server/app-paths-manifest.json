@@ -1,13 +1,8 @@
 {
-  "/(dashboard)/page": "app/(dashboard)/page.js",
+  "/not-found": "app/not-found.js",
   "/(dashboard)/clients/page": "app/(dashboard)/clients/page.js",
-  "/(dashboard)/calendar/page": "app/(dashboard)/calendar/page.js",
+  "/(dashboard)/clients/profile/page": "app/(dashboard)/clients/profile/page.js",
+  "/(dashboard)/page": "app/(dashboard)/page.js",
   "/(dashboard)/team/page": "app/(dashboard)/team/page.js",
-  "/(dashboard)/analytics/page": "app/(dashboard)/analytics/page.js",
-  "/(dashboard)/billing/page": "app/(dashboard)/billing/page.js",
-  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
-  "/(dashboard)/services/page": "app/(dashboard)/services/page.js",
-  "/parent/page": "app/parent/page.js",
-  "/parent/dashboard/page": "app/parent/dashboard/page.js",
-  "/parent/billing/page": "app/parent/billing/page.js"
+  "/(dashboard)/calendar/page": "app/(dashboard)/calendar/page.js"
 }

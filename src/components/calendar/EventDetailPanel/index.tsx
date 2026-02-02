@@ -17,6 +17,7 @@ import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { useClients, useTeamMembers, usePrograms } from "@/hooks/useCollections";
 import ProgramScoreCounter, { ProgramScores } from "./ProgramScoreCounter";
 
@@ -28,6 +29,7 @@ interface EventDetailPanelProps {
 
 export default function EventDetailPanel({ event, isOpen, onClose }: EventDetailPanelProps) {
   const { success, error } = useToast();
+  const { user: authUser, userRole } = useAuth();
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
   const { data: programs } = usePrograms();
@@ -35,10 +37,18 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   // Local state for editing
   const [attendance, setAttendance] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [isSaving, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [programScores, setProgramScores] = useState<Record<string, ProgramScores>>({});
   const [isScoresExpanded, setIsScoresExpanded] = useState(true);
+
+  // Permission Logic
+  const canEdit = 
+    userRole === 'Admin' || 
+    userRole === 'Coordinator' || 
+    (userRole === 'Therapist' && event?.therapistId === authUser?.uid);
 
   // Default scores for a new program
   const defaultScores: ProgramScores = { minus: 0, zero: 0, prompted: 0, plus: 0 };
@@ -48,6 +58,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
     if (event) {
       setAttendance(event.attendance || null);
       setNotes(event.details || "");
+      
+      // Parse ISO string for inputs
+      const d = new Date(event.startTime);
+      setDate(d.toISOString().split('T')[0]);
+      setTime(d.toTimeString().slice(0, 5));
 
       // Initialize program scores from event or create defaults
       const existingScores = event.programScores || {};
@@ -63,11 +78,12 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
   // Handle score changes
   const handleScoreChange = useCallback((programId: string, scores: ProgramScores) => {
+    if (!canEdit) return;
     setProgramScores(prev => ({
       ...prev,
       [programId]: scores
     }));
-  }, []);
+  }, [canEdit]);
 
   if (!event) return null;
 
@@ -76,14 +92,24 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const selectedPrograms = (programs || []).filter(p => event.programIds?.includes(p.id));
 
   const handleSave = async () => {
+    if (!canEdit) {
+      error("You do not have permission to edit this event.");
+      return;
+    }
     setIsSubmitting(true);
     try {
+      // Reconstruct start/end times based on new date/time input
+      const newStart = new Date(`${date}T${time}:00`);
+      const newEnd = new Date(newStart.getTime() + event.duration * 60000);
+
       const eventRef = doc(db, "events", event.id);
       await updateDoc(eventRef, {
         attendance,
         details: notes,
         programScores,
-        status: attendance ? "completed" : "upcoming"
+        status: attendance ? "completed" : "upcoming",
+        startTime: newStart.toISOString(),
+        endTime: newEnd.toISOString()
       });
       success("Event updated successfully");
       setIsSubmitting(false);
@@ -96,6 +122,10 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   };
 
   const handleDelete = async () => {
+    if (!canEdit) {
+      error("You do not have permission to delete this event.");
+      return;
+    }
     if (!confirm("Are you sure you want to delete this event? This action cannot be undone.")) return;
     
     setIsDeleting(true);
@@ -130,7 +160,12 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
         
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-neutral-200 dark:border-neutral-800">
-          <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">Session Details</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">Session Details</h3>
+            {!canEdit && (
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-neutral-100 text-neutral-500 rounded">Read Only</span>
+            )}
+          </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
             <X className="w-5 h-5 text-neutral-500" />
           </button>
@@ -154,17 +189,35 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
               <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">Date</p>
-              <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                <Calendar className="w-3.5 h-3.5" />
-                {new Date(event.startTime).toLocaleDateString()}
-              </div>
+              {canEdit ? (
+                <input 
+                  type="date" 
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-transparent border-none p-0 text-sm font-medium text-neutral-700 dark:text-neutral-300 focus:ring-0"
+                />
+              ) : (
+                <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  <Calendar className="w-3.5 h-3.5" />
+                  {new Date(event.startTime).toLocaleDateString()}
+                </div>
+              )}
             </div>
             <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
               <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">Time</p>
-              <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                <Clock className="w-3.5 h-3.5" />
-                {new Date(event.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
+              {canEdit ? (
+                <input 
+                  type="time" 
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="w-full bg-transparent border-none p-0 text-sm font-medium text-neutral-700 dark:text-neutral-300 focus:ring-0"
+                />
+              ) : (
+                <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  <Clock className="w-3.5 h-3.5" />
+                  {new Date(event.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              )}
             </div>
           </div>
 
@@ -198,9 +251,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
             <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Attendance</p>
             <div className="grid grid-cols-3 gap-2">
               <button 
-                onClick={() => setAttendance(attendance === 'present' ? null : 'present')}
+                onClick={() => canEdit && setAttendance(attendance === 'present' ? null : 'present')}
+                disabled={!canEdit}
                 className={clsx(
                   "py-2.5 rounded-lg text-xs font-bold transition-all border",
+                  !canEdit ? "opacity-50 cursor-not-allowed" : "",
                   attendance === 'present' 
                     ? "bg-success-500 border-success-600 text-white shadow-sm scale-[1.02]" 
                     : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50"
@@ -209,9 +264,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                 Present
               </button>
               <button 
-                onClick={() => setAttendance(attendance === 'absent' ? null : 'absent')}
+                onClick={() => canEdit && setAttendance(attendance === 'absent' ? null : 'absent')}
+                disabled={!canEdit}
                 className={clsx(
                   "py-2.5 rounded-lg text-xs font-bold transition-all border",
+                  !canEdit ? "opacity-50 cursor-not-allowed" : "",
                   attendance === 'absent' 
                     ? "bg-error-500 border-error-600 text-white shadow-sm scale-[1.02]" 
                     : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50"
@@ -220,9 +277,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                 Absent
               </button>
               <button 
-                onClick={() => setAttendance(attendance === 'excused' ? null : 'excused')}
+                onClick={() => canEdit && setAttendance(attendance === 'excused' ? null : 'excused')}
+                disabled={!canEdit}
                 className={clsx(
                   "py-2.5 rounded-lg text-xs font-bold transition-all border",
+                  !canEdit ? "opacity-50 cursor-not-allowed" : "",
                   attendance === 'excused' 
                     ? "bg-warning-500 border-warning-600 text-white shadow-sm scale-[1.02]" 
                     : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50"
@@ -270,6 +329,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                       programDescription={program.description}
                       scores={programScores[program.id] || defaultScores}
                       onChange={handleScoreChange}
+                      disabled={!canEdit}
                     />
                   ))}
                 </div>
@@ -289,38 +349,41 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           <div>
             <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Session Notes</p>
             <textarea 
-              className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-neutral-900 transition-all resize-none"
+              className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-neutral-900 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               rows={4}
               placeholder="Add clinical observations..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              disabled={!canEdit}
             />
           </div>
 
         </div>
 
         {/* Footer Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex gap-3">
-          <button 
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="p-3 border border-neutral-200 dark:border-neutral-700 rounded-xl text-error-500 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors disabled:opacity-50"
-          >
-            {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-          </button>
-          
-          <button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold py-3 transition-colors shadow-lg shadow-primary-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {isSaving ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
-            ) : (
-              <><Check className="w-5 h-5" /> Save Changes</>
-            )}
-          </button>
-        </div>
+        {canEdit && (
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex gap-3">
+            <button 
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="p-3 border border-neutral-200 dark:border-neutral-700 rounded-xl text-error-500 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+            </button>
+            
+            <button 
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold py-3 transition-colors shadow-lg shadow-primary-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isSaving ? (
+                <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
+              ) : (
+                <><Check className="w-5 h-5" /> Save Changes</>
+              )}
+            </button>
+          </div>
+        )}
 
       </div>
     </>

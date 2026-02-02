@@ -14,6 +14,8 @@ export interface TeamMember {
   sessions?: number; // Optional stat
   clients?: number;  // Optional stat
   isActive?: boolean;
+  baseSalary?: number;
+  defaultBonus?: number;
 }
 
 interface TeamMemberCardProps {

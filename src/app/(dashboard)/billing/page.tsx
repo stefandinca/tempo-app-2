@@ -12,7 +12,8 @@ import {
   useClients,
   useServices,
   useTeamMembers,
-  useInvoicesByMonth
+  useInvoicesByMonth,
+  usePayoutsByMonth
 } from "@/hooks/useCollections";
 import {
   aggregateClientInvoices,
@@ -37,11 +38,12 @@ export default function BillingPage() {
   // Fetch data
   const { data: events, loading: eventsLoading } = useEventsByMonth(year, month);
   const { data: existingInvoices, loading: invoicesLoading } = useInvoicesByMonth(year, month);
+  const { data: existingPayouts, loading: payoutsLoading } = usePayoutsByMonth(year, month);
   const { data: clients, loading: clientsLoading } = useClients();
   const { data: services, loading: servicesLoading } = useServices();
   const { data: teamMembers, loading: teamLoading } = useTeamMembers();
 
-  const loading = eventsLoading || clientsLoading || servicesLoading || teamLoading || invoicesLoading;
+  const loading = eventsLoading || clientsLoading || servicesLoading || teamLoading || invoicesLoading || payoutsLoading;
 
   // Calculate invoices and payouts
   const invoices = useMemo(() => {
@@ -51,12 +53,12 @@ export default function BillingPage() {
 
   const payouts = useMemo(() => {
     if (loading) return [];
-    return aggregateTeamPayouts(events, teamMembers);
-  }, [events, teamMembers, loading]);
+    return aggregateTeamPayouts(events, teamMembers, existingPayouts);
+  }, [events, teamMembers, existingPayouts, loading]);
 
   const summary = useMemo(() => {
-    return calculateBillingSummary(invoices);
-  }, [invoices]);
+    return calculateBillingSummary(invoices, payouts);
+  }, [invoices, payouts]);
 
   // Handlers
   const handleMonthChange = (newYear: number, newMonth: number) => {
@@ -196,7 +198,12 @@ export default function BillingPage() {
           />
         )}
         {activeTab === "payouts" && (
-          <TeamPayoutsTable payouts={payouts} loading={loading} />
+          <TeamPayoutsTable 
+            payouts={payouts} 
+            loading={loading} 
+            year={year}
+            month={month}
+          />
         )}
       </div>
     </div>

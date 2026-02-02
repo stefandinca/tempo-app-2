@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Toast, { ToastType, ToastProps } from "@/components/ui/Toast";
 
 interface ToastContextType {
@@ -15,6 +16,11 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastProps[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -35,17 +41,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
       {children}
       
-      {/* Toast Container - High Z-Index, Fixed Position */}
-      <div 
-        className="fixed top-0 right-0 p-4 z-[10000] flex flex-col gap-2 max-h-screen pointer-events-none"
-        style={{ marginTop: '4rem' }} // Push down by 64px (header height)
-      >
-        {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto animate-in slide-in-from-right-5 fade-in duration-300">
-            <Toast {...toast} />
-          </div>
-        ))}
-      </div>
+      {/* Portal Toast Container to Body to escape all stacking contexts */}
+      {mounted && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="fixed top-4 right-4 flex flex-col gap-2 max-h-screen pointer-events-none"
+          style={{ zIndex: 999999 }}
+        >
+          {toasts.map((toast) => (
+            <div key={toast.id} className="pointer-events-auto animate-in slide-in-from-right-full fade-in duration-300">
+              <Toast {...toast} />
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
     </ToastContext.Provider>
   );
 }

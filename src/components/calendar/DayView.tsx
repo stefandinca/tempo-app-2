@@ -17,13 +17,15 @@ interface Event {
 interface DayViewProps {
   currentDate: Date;
   events: Event[];
+  teamMembers: any[];
   onEventClick: (event: Event) => void;
   onSlotClick: (date: Date) => void;
 }
 
-export default function DayView({ 
-  currentDate, 
+export default function DayView({
+  currentDate,
   events,
+  teamMembers,
   onEventClick,
   onSlotClick
 }: DayViewProps) {
@@ -149,6 +151,9 @@ export default function DayView({
             {/* Events */}
             {dayEvents.map(event => {
               const style = getEventStyle(event);
+              const therapist = teamMembers.find(t => t.id === event.therapistId);
+              const color = therapist?.color || "#94a3b8";
+
               return (
                 <div
                   key={event.id}
@@ -156,19 +161,19 @@ export default function DayView({
                     e.stopPropagation();
                     onEventClick(event);
                   }}
-                  className={clsx(
-                    "absolute left-4 right-4 rounded-xl p-4 border-l-4 cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden",
-                    event.type.includes("ABA") ? "bg-primary-100 border-primary-500 text-primary-900 dark:bg-primary-900/50 dark:text-primary-100" :
-                    event.type.includes("Speech") ? "bg-purple-100 border-purple-500 text-purple-900 dark:bg-purple-900/50 dark:text-purple-100" :
-                    "bg-neutral-100 border-neutral-500 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
-                  )}
-                  style={style}
+                  className="absolute left-4 right-4 rounded-xl p-4 border-l-4 cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden"
+                  style={{
+                    ...style,
+                    backgroundColor: `${color}20`,
+                    borderLeftColor: color,
+                    color: "#1e293b" // Slate-800
+                  }}
                 >
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="font-bold text-lg">{event.title}</div>
                       <div className="opacity-80 mt-1">
-                        {new Date(event.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                        {new Date(event.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} -
                         {new Date(event.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                       </div>
                     </div>

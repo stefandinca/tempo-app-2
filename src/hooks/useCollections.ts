@@ -321,3 +321,40 @@ export function useInvoicesByMonth(year: number, month: number) {
 
   return { data, loading, error };
 }
+
+// Payouts by Month (Admin)
+export function usePayoutsByMonth(year: number, month: number) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Standardize month string YYYY-MM
+    const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+    const q = query(
+      collection(db, "payouts"),
+      where("month", "==", monthStr)
+    );
+
+    const unsubscribe = onSnapshot(q,
+      (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        setData(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching monthly payouts:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [year, month]);
+
+  return { data, loading, error };
+}

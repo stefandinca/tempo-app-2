@@ -31,18 +31,24 @@ export interface ClientInvoice {
 }
 
 export interface TeamPayout {
-  odId: string;
-  odName: string;
+  id?: string; // Payout document ID
+  teamMemberId: string;
+  teamMemberName: string;
   sessions: number;
   totalHours: number;
-  hourlyRate: number;
-  calculatedPayout: number;
+  baseSalary: number;
+  bonus: number;
+  deductions: number;
+  total: number;
+  status: "pending" | "paid";
+  paidAt?: string;
 }
 
 export interface BillingSummary {
   totalRevenue: number;
   pendingAmount: number;
   paidAmount: number;
+  totalExpenses: number;
   pendingCount: number;
   paidCount: number;
 }
@@ -78,14 +84,13 @@ export function aggregateClientInvoices(
   events: any[],
   clients: any[],
   services: any[],
-  existingInvoices: any[] = [] // Now passing real Firestore invoices
+  existingInvoices: any[] = []
 ): ClientInvoice[] {
   // Group events by clientId
   const clientEventsMap = new Map<string, any[]>();
 
   events.forEach(event => {
     if (!event.clientId) return;
-    // Only include sessions with attendance marked
     if (!event.attendance) return;
 
     const existing = clientEventsMap.get(event.clientId) || [];
@@ -93,7 +98,6 @@ export function aggregateClientInvoices(
     clientEventsMap.set(event.clientId, existing);
   });
 
-  // Build invoices
   const invoices: ClientInvoice[] = [];
 
   clientEventsMap.forEach((clientEvents, clientId) => {
@@ -112,8 +116,6 @@ export function aggregateClientInvoices(
 
       const duration = event.duration || 60;
       const attendance = event.attendance as "present" | "absent" | "excused" | null;
-
-      // Present and Absent are billable, Excused is not
       const isSessionBillable = attendance === "present" || attendance === "absent";
       const amount = isSessionBillable ? calculateSessionAmount(duration, basePrice) : 0;
 
@@ -143,7 +145,6 @@ export function aggregateClientInvoices(
     const discount = subtotal * discountRate;
     const total = subtotal - discount;
 
-    // Check for existing invoice
     const existingInvoice = existingInvoices.find(inv => inv.clientId === clientId);
     const status = existingInvoice ? (existingInvoice.status as any) : "pending";
 
@@ -163,9 +164,7 @@ export function aggregateClientInvoices(
     });
   });
 
-  // Sort by total descending
   invoices.sort((a, b) => b.total - a.total);
-
   return invoices;
 }
 
@@ -174,12 +173,16 @@ export function aggregateClientInvoices(
  */
 export function aggregateTeamPayouts(
   events: any[],
-  teamMembers: any[]
+  teamMembers: any[],
+  existingPayouts: any[] = []
 ): TeamPayout[] {
-  // Group events by odId
+  // Group events by therapist
   const memberEventsMap = new Map<string, any[]>();
 
   events.forEach(event => {
+    // Only count completed sessions for activity tracking
+    if (!event.attendance) return;
+    
     if (!event.odId && !event.therapistId) return;
     const odId = event.odId || event.therapistId;
 
@@ -188,51 +191,81 @@ export function aggregateTeamPayouts(
     memberEventsMap.set(odId, existing);
   });
 
-  // Build payouts
   const payouts: TeamPayout[] = [];
 
-  memberEventsMap.forEach((memberEvents, odId) => {
-    const member = teamMembers.find(m => m.id === odId);
-    if (!member) return;
-
+  // Iterate over ALL team members (not just those with events, as salary is fixed)
+  teamMembers.forEach(member => {
+    const memberEvents = memberEventsMap.get(member.id) || [];
+    
     let totalMinutes = 0;
     let sessionCount = 0;
 
     memberEvents.forEach(event => {
-      // Count all sessions (not just present - staff worked regardless)
       totalMinutes += event.duration || 60;
       sessionCount++;
     });
 
-    const hourlyRate = member.hourlyRate || 0;
     const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
-    const calculatedPayout = totalHours * hourlyRate;
 
-    payouts.push({
-      odId,
-      odName: member.name,
-      sessions: sessionCount,
-      totalHours,
-      hourlyRate,
-      calculatedPayout
-    });
+    // Check for existing payout record
+    const existingPayout = existingPayouts.find(p => p.teamMemberId === member.id);
+
+    if (existingPayout) {
+      // Use stored values
+      payouts.push({
+        id: existingPayout.id,
+        teamMemberId: member.id,
+        teamMemberName: member.name,
+        sessions: sessionCount,
+        totalHours,
+        baseSalary: existingPayout.baseAmount,
+        bonus: existingPayout.bonusAmount,
+        deductions: existingPayout.deductions || 0,
+        total: existingPayout.total,
+        status: existingPayout.status,
+        paidAt: existingPayout.paidAt
+      });
+    } else {
+      // Use defaults
+      const baseSalary = member.baseSalary || 0;
+      const bonus = member.defaultBonus || 0;
+      const deductions = 0;
+      const total = baseSalary + bonus - deductions;
+
+      // Only include if they have salary OR activity
+      if (total > 0 || sessionCount > 0) {
+        payouts.push({
+          teamMemberId: member.id,
+          teamMemberName: member.name,
+          sessions: sessionCount,
+          totalHours,
+          baseSalary,
+          bonus,
+          deductions,
+          total,
+          status: "pending"
+        });
+      }
+    }
   });
 
-  // Sort by payout descending
-  payouts.sort((a, b) => b.calculatedPayout - a.calculatedPayout);
-
+  payouts.sort((a, b) => b.total - a.total);
   return payouts;
 }
 
 /**
- * Calculate billing summary from invoices
+ * Calculate billing summary from invoices AND payouts
  */
-export function calculateBillingSummary(invoices: ClientInvoice[]): BillingSummary {
+export function calculateBillingSummary(
+  invoices: ClientInvoice[],
+  payouts: TeamPayout[] = []
+): BillingSummary {
   let totalRevenue = 0;
   let pendingAmount = 0;
   let paidAmount = 0;
   let pendingCount = 0;
   let paidCount = 0;
+  let totalExpenses = 0;
 
   invoices.forEach(invoice => {
     totalRevenue += invoice.total;
@@ -245,10 +278,17 @@ export function calculateBillingSummary(invoices: ClientInvoice[]): BillingSumma
     }
   });
 
+  payouts.forEach(payout => {
+    if (payout.status === 'paid') {
+      totalExpenses += payout.total;
+    }
+  });
+
   return {
     totalRevenue,
     pendingAmount,
     paidAmount,
+    totalExpenses,
     pendingCount,
     paidCount
   };

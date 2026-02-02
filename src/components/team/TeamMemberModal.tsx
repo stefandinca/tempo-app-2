@@ -26,7 +26,9 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
     email: "",
     role: ROLES[3],
     color: COLORS[0],
-    isActive: true
+    isActive: true,
+    baseSalary: "",
+    defaultBonus: ""
   });
 
   // Reset or populate form
@@ -38,7 +40,9 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           email: memberToEdit.email,
           role: memberToEdit.role,
           color: memberToEdit.color,
-          isActive: memberToEdit.isActive !== false
+          isActive: memberToEdit.isActive !== false,
+          baseSalary: (memberToEdit as any).baseSalary || "",
+          defaultBonus: (memberToEdit as any).defaultBonus || ""
         });
       } else {
         setFormData({
@@ -46,7 +50,9 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           email: "",
           role: ROLES[3],
           color: COLORS[Math.floor(Math.random() * COLORS.length)],
-          isActive: true
+          isActive: true,
+          baseSalary: "",
+          defaultBonus: ""
         });
       }
     }
@@ -66,6 +72,8 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
 
       const payload = {
         ...formData,
+        baseSalary: parseFloat(formData.baseSalary) || 0,
+        defaultBonus: parseFloat(formData.defaultBonus) || 0,
         initials
       };
 
@@ -140,6 +148,29 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
             >
               {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Base Salary (RON)</label>
+              <input 
+                type="number"
+                min="0"
+                className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
+                value={formData.baseSalary}
+                onChange={e => setFormData({...formData, baseSalary: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Monthly Bonus (RON)</label>
+              <input 
+                type="number"
+                min="0"
+                className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
+                value={formData.defaultBonus}
+                onChange={e => setFormData({...formData, defaultBonus: e.target.value})}
+              />
+            </div>
           </div>
 
           <div>

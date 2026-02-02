@@ -17,6 +17,7 @@ interface Event {
 interface MonthViewProps {
   currentDate: Date;
   events: Event[];
+  teamMembers: any[];
   onEventClick: (event: Event) => void;
   onSlotClick: (date: Date) => void;
 }
@@ -24,6 +25,7 @@ interface MonthViewProps {
 export default function MonthView({ 
   currentDate, 
   events,
+  teamMembers,
   onEventClick,
   onSlotClick
 }: MonthViewProps) {
@@ -103,23 +105,28 @@ export default function MonthView({
               </div>
 
               <div className="flex-1 space-y-1 overflow-hidden">
-                {visibleEvents.map(evt => (
-                  <div 
-                    key={evt.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEventClick(evt);
-                    }}
-                    className={clsx(
-                      "px-1.5 py-0.5 rounded text-[10px] font-medium truncate cursor-pointer transition-colors border-l-2",
-                      evt.type.includes("ABA") ? "bg-primary-50 text-primary-700 border-primary-500 dark:bg-primary-900/30 dark:text-primary-300" :
-                      evt.type.includes("Speech") ? "bg-purple-50 text-purple-700 border-purple-500 dark:bg-purple-900/30 dark:text-purple-300" :
-                      "bg-neutral-100 text-neutral-700 border-neutral-400 dark:bg-neutral-800 dark:text-neutral-300"
-                    )}
-                  >
-                    {new Date(evt.startTime).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})} {evt.title}
-                  </div>
-                ))}
+                {visibleEvents.map(evt => {
+                  const therapist = teamMembers.find(t => t.id === evt.therapistId);
+                  const color = therapist?.color || "#94a3b8"; // Default neutral if not found
+
+                  return (
+                    <div 
+                      key={evt.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEventClick(evt);
+                      }}
+                      className="px-1.5 py-0.5 rounded text-[10px] font-medium truncate cursor-pointer transition-colors border-l-2 hover:brightness-95"
+                      style={{
+                        backgroundColor: `${color}20`, // 12% opacity
+                        color: color,
+                        borderLeftColor: color
+                      }}
+                    >
+                      {new Date(evt.startTime).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})} {evt.title}
+                    </div>
+                  );
+                })}
                 {hiddenCount > 0 && (
                   <div className="text-[10px] text-neutral-500 px-1">
                     +{hiddenCount} more

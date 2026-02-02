@@ -31,8 +31,8 @@ export default function CalendarPage() {
   });
 
   // Data from shared context
-  const { events } = useData();
-  const loading = events.loading;
+  const { events, teamMembers } = useData();
+  const loading = events.loading || teamMembers.loading;
 
   // Filter Logic
   const filteredEvents = useMemo(() => {
@@ -113,6 +113,7 @@ export default function CalendarPage() {
           <WeekView 
             currentDate={currentDate}
             events={filteredEvents}
+            teamMembers={teamMembers.data}
             onEventClick={handleEventClick}
             onSlotClick={handleSlotClick}
           />
@@ -122,6 +123,7 @@ export default function CalendarPage() {
           <MonthView 
             currentDate={currentDate}
             events={filteredEvents}
+            teamMembers={teamMembers.data}
             onEventClick={handleEventClick}
             onSlotClick={handleMonthSlotClick}
           />
@@ -131,6 +133,7 @@ export default function CalendarPage() {
           <DayView 
             currentDate={currentDate}
             events={filteredEvents}
+            teamMembers={teamMembers.data}
             onEventClick={handleEventClick}
             onSlotClick={handleSlotClick}
           />

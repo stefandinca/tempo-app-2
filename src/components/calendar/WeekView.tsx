@@ -17,6 +17,7 @@ interface Event {
 interface WeekViewProps {
   currentDate: Date;
   events: Event[];
+  teamMembers: any[];
   onEventClick: (event: Event) => void;
   onSlotClick: (date: Date) => void;
 }
@@ -24,6 +25,7 @@ interface WeekViewProps {
 export default function WeekView({ 
   currentDate, 
   events,
+  teamMembers,
   onEventClick,
   onSlotClick
 }: WeekViewProps) {
@@ -196,6 +198,9 @@ export default function WeekView({
                   {/* Events */}
                   {dayEvents.map(event => {
                     const style = getEventStyle(event);
+                    const therapist = teamMembers.find(t => t.id === event.therapistId);
+                    const color = therapist?.color || "#94a3b8";
+
                     return (
                       <div
                         key={event.id}
@@ -203,13 +208,13 @@ export default function WeekView({
                           e.stopPropagation();
                           onEventClick(event);
                         }}
-                        className={clsx(
-                          "absolute left-1 right-1 rounded-md p-2 border-l-4 text-xs cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden",
-                          event.type.includes("ABA") ? "bg-primary-100 border-primary-500 text-primary-900 dark:bg-primary-900/50 dark:text-primary-100" :
-                          event.type.includes("Speech") ? "bg-purple-100 border-purple-500 text-purple-900 dark:bg-purple-900/50 dark:text-purple-100" :
-                          "bg-neutral-100 border-neutral-500 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
-                        )}
-                        style={style}
+                        className="absolute left-1 right-1 rounded-md p-2 border-l-4 text-xs cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden"
+                        style={{
+                          ...style,
+                          backgroundColor: `${color}20`,
+                          borderLeftColor: color,
+                          color: "#1e293b" // Slate-800
+                        }}
                       >
                         <div className="font-semibold truncate">{event.title}</div>
                         <div className="truncate opacity-80">

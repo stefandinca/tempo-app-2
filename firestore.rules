@@ -75,6 +75,12 @@ service cloud.firestore {
       allow create: if isAdmin();
       allow update: if isAdmin();
     }
+
+    // Team Payouts (New)
+    match /payouts/{payoutId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
     
     match /clients/{clientId}/evaluations/{evalId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);

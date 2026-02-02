@@ -9,6 +9,8 @@ import BillingConfigTab from "@/components/settings/BillingConfigTab";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+const COLORS = ["#4A90E2", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899", "#06B6D4", "#84CC16", "#F97316"];
+
 export default function SettingsPage() {
   const { user, userData, userRole, signOut } = useAuth();
   const { success, error } = useToast();
@@ -19,10 +21,12 @@ export default function SettingsPage() {
 
   // Profile Form State
   const [profileName, setProfileName] = useState("");
+  const [profileColor, setProfileColor] = useState(COLORS[0]);
 
   useEffect(() => {
     if (userData) {
       setProfileName(userData.name || "");
+      if (userData.color) setProfileColor(userData.color);
     }
   }, [userData]);
 
@@ -35,7 +39,8 @@ export default function SettingsPage() {
       // Update team_members collection (where AuthContext reads profile data)
       const userRef = doc(db, "team_members", user.uid);
       await updateDoc(userRef, {
-        name: profileName
+        name: profileName,
+        color: profileColor
       });
       success("Profile updated successfully");
     } catch (err: any) {
@@ -110,13 +115,33 @@ export default function SettingsPage() {
                 <p className="text-sm text-neutral-500">Update your personal details.</p>
               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  {userData?.initials || user?.email?.[0].toUpperCase() || "U"}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <div 
+                    className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-sm transition-all"
+                    style={{ backgroundColor: profileColor }}
+                  >
+                    {userData?.initials || user?.email?.[0].toUpperCase() || "U"}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-2">Avatar Color</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {COLORS.map(c => (
+                        <button
+                          key={c}
+                          onClick={() => setProfileColor(c)}
+                          className={clsx(
+                            "w-8 h-8 rounded-full transition-all flex items-center justify-center",
+                            profileColor === c ? "ring-2 ring-offset-2 ring-primary-500 scale-110" : "hover:scale-105 opacity-80 hover:opacity-100"
+                          )}
+                          style={{ backgroundColor: c }}
+                        >
+                          {profileColor === c && <Check className="w-4 h-4 text-white" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <button className="px-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors opacity-50 cursor-not-allowed" title="Not implemented yet">
-                  Change Avatar
-                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
