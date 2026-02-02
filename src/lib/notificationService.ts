@@ -33,7 +33,9 @@ export async function createNotification(params: CreateNotificationParams): Prom
     read: false
   };
 
+  console.log("[NotificationService] Creating notification:", notificationData);
   const docRef = await addDoc(collection(db, "notifications"), notificationData);
+  console.log("[NotificationService] Created notification with ID:", docRef.id);
   return docRef.id;
 }
 
@@ -43,7 +45,13 @@ export async function createNotification(params: CreateNotificationParams): Prom
 export async function createNotificationsBatch(
   notifications: CreateNotificationParams[]
 ): Promise<void> {
-  if (notifications.length === 0) return;
+  if (notifications.length === 0) {
+    console.log("[NotificationService] No notifications to create (empty array)");
+    return;
+  }
+
+  console.log("[NotificationService] Creating batch of", notifications.length, "notifications");
+  console.log("[NotificationService] Recipients:", notifications.map(n => n.recipientId));
 
   const batch = writeBatch(db);
 
@@ -57,6 +65,7 @@ export async function createNotificationsBatch(
   });
 
   await batch.commit();
+  console.log("[NotificationService] Batch committed successfully");
 }
 
 // ============================================

@@ -81,6 +81,18 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow write: if isAdmin();
     }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      // Any authenticated user can create notifications (for other users)
+      allow create: if isSignedIn();
+      // Users can update their own notifications (mark as read)
+      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      // Users can delete their own notifications
+      allow delete: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+    }
     
     match /clients/{clientId}/evaluations/{evalId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
