@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { X, Loader2, Check } from "lucide-react";
 import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
-import { doc, setDoc, updateDoc, collection } from "firebase/firestore";
+import { doc, setDoc, updateDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { TeamMember } from "./TeamMemberCard";
+import { createNotificationsBatch } from "@/lib/notificationService";
 
 interface TeamMemberModalProps {
   isOpen: boolean;
@@ -19,6 +21,7 @@ const COLORS = ["#4A90E2", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899", "#06B6D4"
 
 export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamMemberModalProps) {
   const { success, error } = useToast();
+  const { user: authUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -77,16 +80,59 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         initials
       };
 
+      let memberId = memberToEdit?.id;
+
       if (memberToEdit) {
         // Update
         await updateDoc(doc(db, "team_members", memberToEdit.id), payload);
         success("Team member updated");
+
+        // Notify admins if role changed
+        if (memberToEdit.role !== formData.role && authUser) {
+          const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
+          const adminSnaps = await getDocs(adminQuery);
+          const notifications = adminSnaps.docs
+            .filter(d => d.id !== authUser.uid)
+            .map(d => ({
+              recipientId: d.id,
+              recipientRole: d.data().role.toLowerCase() as any,
+              type: "system_alert" as any,
+              category: "team" as any,
+              title: "Team Role Updated",
+              message: `${formData.name}'s role was changed from ${memberToEdit.role} to ${formData.role}`,
+              sourceType: "team" as any,
+              sourceId: memberToEdit.id,
+              triggeredBy: authUser.uid
+            }));
+          await createNotificationsBatch(notifications);
+        }
       } else {
-        // Create (use email as ID or auto-id? Auto-id is safer, but linking to Auth requires ID mapping. 
-        // For now, let's use auto-id)
+        // Create
         const newRef = doc(collection(db, "team_members"));
+        memberId = newRef.id;
         await setDoc(newRef, payload);
         success("Team member added");
+
+        // Notify admins about new team member
+        if (authUser) {
+          const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
+          const adminSnaps = await getDocs(adminQuery);
+          const notifications = adminSnaps.docs
+            .filter(d => d.id !== authUser.uid)
+            .map(d => ({
+              recipientId: d.id,
+              recipientRole: d.data().role.toLowerCase() as any,
+              type: "team_member_added" as any,
+              category: "team" as any,
+              title: "New Team Member",
+              message: `${formData.name} joined the team as ${formData.role}`,
+              sourceType: "team" as any,
+              sourceId: memberId,
+              triggeredBy: authUser.uid,
+              actions: [{ label: "View Team", type: "navigate" as const, route: "/team" }]
+            }));
+          await createNotificationsBatch(notifications);
+        }
       }
       
       onClose();

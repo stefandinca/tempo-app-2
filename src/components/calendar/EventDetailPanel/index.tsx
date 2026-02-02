@@ -155,9 +155,9 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           }).catch((err) => console.error("Failed to send reschedule notification:", err));
         }
 
-        // Check if attendance was just logged (changed from null to a value)
-        const attendanceJustLogged = !originalAttendance && attendance;
-        if (attendanceJustLogged) {
+        // Check if attendance was just logged or changed (and is not null)
+        const attendanceChanged = originalAttendance !== attendance && attendance !== null;
+        if (attendanceChanged) {
           notifyAttendanceLogged(adminIds, {
             ...notificationContext,
             attendance: attendance!

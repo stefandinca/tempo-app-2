@@ -21,13 +21,16 @@ import {
   calculateBillingSummary
 } from "@/lib/billing";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
+import { createNotificationsBatch } from "@/lib/notificationService";
 
 type Tab = "invoices" | "payouts";
 
 export default function BillingPage() {
   const { success, error } = useToast();
+  const { user: authUser } = useAuth();
   
   // Current month state
   const now = new Date();
@@ -90,6 +93,30 @@ export default function BillingPage() {
 
       await Promise.all(updates);
       success("Invoice marked as paid.");
+
+      // Notify admins
+      if (authUser) {
+        const clientSnap = await getDoc(doc(db, "clients", clientId));
+        const clientName = clientSnap.exists() ? clientSnap.data().name : "Unknown Client";
+        const total = snapshot.docs.reduce((sum, d) => sum + (d.data().total || 0), 0);
+
+        const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
+        const adminSnaps = await getDocs(adminQuery);
+        const notifications = adminSnaps.docs
+          .filter(d => d.id !== authUser.uid)
+          .map(d => ({
+            recipientId: d.id,
+            recipientRole: d.data().role.toLowerCase() as any,
+            type: "system_alert" as any, // Or a more specific type if added to enum
+            category: "billing" as any,
+            title: "Payment Received",
+            message: `Invoice for ${clientName} was marked as PAID (${total.toFixed(2)} RON)`,
+            sourceType: "billing" as any,
+            sourceId: clientId,
+            triggeredBy: authUser.uid
+          }));
+        await createNotificationsBatch(notifications);
+      }
 
     } catch (err) {
       console.error(err);

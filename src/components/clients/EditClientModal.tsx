@@ -5,7 +5,9 @@ import { X, Loader2, UserPlus, Check, Save } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { useTeamMembers } from "@/hooks/useCollections";
+import { notifyClientAssigned } from "@/lib/notificationService";
 import { clsx } from "clsx";
 
 interface EditClientModalProps {
@@ -16,6 +18,7 @@ interface EditClientModalProps {
 
 export default function EditClientModal({ isOpen, onClose, client }: EditClientModalProps) {
   const { success, error } = useToast();
+  const { user: authUser } = useAuth();
   const { data: teamMembers } = useTeamMembers();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,6 +65,16 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
 
       await updateDoc(clientRef, payload);
       success("Profile updated successfully");
+
+      // Send notification if therapist changed
+      if (formData.assignedTherapistId && formData.assignedTherapistId !== client.assignedTherapistId && authUser) {
+        notifyClientAssigned(formData.assignedTherapistId, {
+          clientId: client.id,
+          clientName: formData.name,
+          triggeredByUserId: authUser.uid
+        }).catch(err => console.error("Failed to send assignment notification:", err));
+      }
+
       onClose();
     } catch (err) {
       console.error(err);

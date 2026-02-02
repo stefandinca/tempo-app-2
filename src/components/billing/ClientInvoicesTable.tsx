@@ -21,7 +21,9 @@ import { useSystemSettings } from "@/hooks/useCollections";
 import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
 import { useToast } from "@/context/ToastContext";
 import { db } from "@/lib/firebase";
-import { doc, runTransaction, serverTimestamp, collection } from "firebase/firestore";
+import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where } from "firebase/firestore";
+import { useAuth } from "@/context/AuthContext";
+import { createNotificationsBatch } from "@/lib/notificationService";
 
 interface ClientInvoicesTableProps {
   invoices: ClientInvoice[];
@@ -38,6 +40,7 @@ export default function ClientInvoicesTable({
 }: ClientInvoicesTableProps) {
   const { data: settings } = useSystemSettings();
   const { success, error } = useToast();
+  const { user: authUser } = useAuth();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   
   // Dropdown Logic
@@ -163,21 +166,42 @@ export default function ClientInvoicesTable({
           "invoicing.currentNumber": nextNumber
         });
 
-        return snapshot;
+        return { snapshot, invoiceId: newInvoiceRef.id };
       });
 
-      success(`Invoice #${invoiceData.series}-${invoiceData.number} generated and saved.`);
+      success(`Invoice #${invoiceData.snapshot.series}-${invoiceData.snapshot.number} generated and saved.`);
+
+      // Notify admins
+      if (authUser) {
+        const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
+        const adminSnaps = await getDocs(adminQuery);
+        const notifications = adminSnaps.docs
+          .filter(d => d.id !== authUser.uid)
+          .map(d => ({
+            recipientId: d.id,
+            recipientRole: d.data().role.toLowerCase() as any,
+            type: "billing_generated" as any,
+            category: "billing" as any,
+            title: "Invoice Generated",
+            message: `New invoice issued for ${invoice.clientName} (${invoice.total.toFixed(2)} RON)`,
+            sourceType: "billing" as any,
+            sourceId: invoiceData.invoiceId,
+            triggeredBy: authUser.uid,
+            actions: [{ label: "View Billing", type: "navigate" as const, route: "/billing" }]
+          }));
+        await createNotificationsBatch(notifications);
+      }
 
       const pdfBlob = generateInvoicePDF({
-        ...invoiceData,
-        date: new Date(invoiceData.date).toLocaleDateString("ro-RO"),
-        dueDate: new Date(invoiceData.dueDate).toLocaleDateString("ro-RO")
+        ...invoiceData.snapshot,
+        date: new Date(invoiceData.snapshot.date).toLocaleDateString("ro-RO"),
+        dueDate: new Date(invoiceData.snapshot.dueDate).toLocaleDateString("ro-RO")
       });
       
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Invoice_${invoice.clientName}_${invoiceData.series}${invoiceData.number}.pdf`;
+      link.download = `Invoice_${invoice.clientName}_${invoiceData.snapshot.series}${invoiceData.snapshot.number}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

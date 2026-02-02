@@ -5,7 +5,9 @@ import { X, Loader2, UserPlus, Check } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { useTeamMembers } from "@/hooks/useCollections";
+import { notifyClientAssigned } from "@/lib/notificationService";
 import { clsx } from "clsx";
 
 interface AddClientModalProps {
@@ -15,6 +17,7 @@ interface AddClientModalProps {
 
 export default function AddClientModal({ isOpen, onClose }: AddClientModalProps) {
   const { success, error } = useToast();
+  const { user: authUser } = useAuth();
   const { data: teamMembers } = useTeamMembers();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,8 +49,18 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
         createdAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "clients"), payload);
+      const docRef = await addDoc(collection(db, "clients"), payload);
       success("Client added successfully");
+
+      // Send notification to therapist if assigned
+      if (formData.assignedTherapistId && authUser) {
+        notifyClientAssigned(formData.assignedTherapistId, {
+          clientId: docRef.id,
+          clientName: formData.name,
+          triggeredByUserId: authUser.uid
+        }).catch(err => console.error("Failed to send assignment notification:", err));
+      }
+
       setFormData({
         name: "",
         birthDate: "",
