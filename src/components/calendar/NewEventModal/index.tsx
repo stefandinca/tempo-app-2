@@ -157,11 +157,11 @@ export default function NewEventModal({
       if (user && formData.selectedTeamMembers.length > 0) {
         try {
           const clientName = formData.selectedClients[0]
-            ? (clients.data || []).find((c: any) => c.id === formData.selectedClients[0])?.name
+            ? (clients?.data || []).find((c: any) => c.id === formData.selectedClients[0])?.name
             : undefined;
 
           // Notify all team members (except the creator) and admins/coordinators
-          const adminIds = (teamMembers.data || [])
+          const adminIds = (teamMembers?.data || [])
             .filter((m: any) => m.role === "Admin" || m.role === "Coordinator")
             .map((m: any) => m.id);
 
