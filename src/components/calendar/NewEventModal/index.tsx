@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { X, ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, writeBatch, doc } from "firebase/firestore";
 import { EventFormData, INITIAL_DATA } from "./types";
 import StepTeam from "./StepTeam";
 import StepClients from "./StepClients";
@@ -75,46 +75,25 @@ export default function NewEventModal({
     }
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      // 1. Construct Event Object for Firestore
-      const eventPayload = {
-        title: formData.title || "Untitled Event",
-        type: formData.eventType,
-        // Calculate start/end ISO strings
-        startTime: `${formData.date}T${formData.startTime}:00`,
-        endTime: calculateEndTime(formData.date, formData.startTime, formData.duration),
-        duration: formData.duration,
-        
-        // Relationships
-        therapistId: formData.selectedTeamMembers[0] || null, // Primary therapist
-        clientId: formData.selectedClients[0] || null, // Primary client
-        
-        // Arrays for multi-select support (future proofing schema)
-        teamMemberIds: formData.selectedTeamMembers,
-        clientIds: formData.selectedClients,
-        programIds: formData.selectedPrograms,
-        
-        details: formData.details,
-        status: "upcoming",
-        attendance: null,
-      };
+  // Helper to generate dates for recurring events
+  const generateRecurringDates = (start: string, end: string, days: number[]) => {
+    const dates: string[] = [];
+    const curr = new Date(start);
+    const endDate = new Date(end);
+    
+    // Safety break: if end date is invalid or before start, return just start
+    if (isNaN(endDate.getTime()) || endDate < curr) return [start]; 
 
-      // 2. Save to Firestore
-      await addDoc(collection(db, "events"), eventPayload);
-
-      // 3. Cleanup
-      setIsSubmitting(false);
-      onEventCreated();
-      onClose();
-      success("Event created successfully");
-      
-    } catch (err) {
-      console.error("Error creating event:", err);
-      setIsSubmitting(false);
-      error("Failed to create event");
+    // Safety limit: Max 100 events to prevent infinite loops or massive writes
+    let count = 0;
+    while (curr <= endDate && count < 100) {
+      if (days.includes(curr.getDay())) {
+        dates.push(curr.toISOString().split('T')[0]);
+      }
+      curr.setDate(curr.getDate() + 1);
+      count++;
     }
+    return dates;
   };
 
   // Helper to calculate end time ISO string
@@ -122,6 +101,64 @@ export default function NewEventModal({
     const start = new Date(`${date}T${time}:00`);
     const end = new Date(start.getTime() + duration * 60000);
     return end.toISOString();
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const batch = writeBatch(db);
+      
+      // Determine dates to create
+      const datesToCreate = (formData.isRecurring && formData.recurrenceEndDate && formData.recurrenceDays.length > 0)
+        ? generateRecurringDates(formData.date, formData.recurrenceEndDate, formData.recurrenceDays)
+        : [formData.date];
+
+      // Generate Group ID if recurring
+      const recurringGroupId = formData.isRecurring && datesToCreate.length > 1
+        ? Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+        : null;
+
+      // Base payload shared by all events
+      const basePayload = {
+        title: formData.title || "Untitled Event",
+        type: formData.eventType,
+        duration: formData.duration,
+        therapistId: formData.selectedTeamMembers[0] || null,
+        clientId: formData.selectedClients[0] || null,
+        teamMemberIds: formData.selectedTeamMembers,
+        clientIds: formData.selectedClients,
+        programIds: formData.selectedPrograms,
+        details: formData.details,
+        status: "upcoming",
+        attendance: null,
+        recurringGroupId,
+        createdAt: new Date().toISOString()
+      };
+
+      // Create documents in batch
+      datesToCreate.forEach(dateStr => {
+        const ref = doc(collection(db, "events"));
+        batch.set(ref, {
+          ...basePayload,
+          startTime: `${dateStr}T${formData.startTime}:00`,
+          endTime: calculateEndTime(dateStr, formData.startTime, formData.duration),
+        });
+      });
+
+      // Commit batch
+      await batch.commit();
+
+      // Cleanup
+      setIsSubmitting(false);
+      onEventCreated();
+      onClose();
+      success(`Successfully created ${datesToCreate.length} event(s)`);
+      
+    } catch (err) {
+      console.error("Error creating event:", err);
+      setIsSubmitting(false);
+      error("Failed to create event");
+    }
   };
 
   if (!isOpen) return null;

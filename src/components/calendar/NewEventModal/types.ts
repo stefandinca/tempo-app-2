@@ -9,6 +9,7 @@ export interface EventFormData {
   duration: number; // minutes
   isRecurring: boolean;
   recurrenceDays: number[]; // 0-6 (Sun-Sat)
+  recurrenceEndDate: string; // YYYY-MM-DD
 
   // Step 2: Clients
   selectedClients: string[]; // IDs
@@ -27,6 +28,7 @@ export const INITIAL_DATA: EventFormData = {
   duration: 60,
   isRecurring: false,
   recurrenceDays: [],
+  recurrenceEndDate: "",
   selectedClients: [],
   selectedPrograms: []
 };

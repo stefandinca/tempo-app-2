@@ -8,6 +8,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 export function usePortalData() {
   const [data, setData] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +29,7 @@ export function usePortalData() {
     );
 
     let unsubscribeSessions: (() => void) | null = null;
+    let unsubscribeServices: (() => void) | null = null;
 
     const unsubscribeClient = onSnapshot(clientQuery, (snapshot) => {
       if (snapshot.empty) {
@@ -53,11 +55,17 @@ export function usePortalData() {
       unsubscribeSessions = onSnapshot(sessionsQuery, (sessSnap) => {
         const sessItems: any[] = [];
         sessSnap.forEach(doc => sessItems.push({ id: doc.id, ...doc.data() }));
-        console.log(`Loaded ${sessItems.length} sessions for client ${clientId}`);
         setSessions(sessItems);
-        setLoading(false);
       }, (err) => {
         console.error("Sessions fetch error:", err);
+      });
+
+      // 3. Fetch Services (for prices)
+      if (unsubscribeServices) unsubscribeServices();
+      unsubscribeServices = onSnapshot(collection(db, "services"), (servSnap) => {
+        const servItems: any[] = [];
+        servSnap.forEach(doc => servItems.push({ id: doc.id, ...doc.data() }));
+        setServices(servItems);
         setLoading(false);
       });
 
@@ -70,10 +78,11 @@ export function usePortalData() {
     return () => {
       unsubscribeClient();
       if (unsubscribeSessions) unsubscribeSessions();
+      if (unsubscribeServices) unsubscribeServices();
     };
   }, []);
 
-  return { data, sessions, loading, error };
+  return { data, sessions, services, loading, error };
 }
 
 export function PortalLoading() {

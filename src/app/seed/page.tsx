@@ -85,6 +85,7 @@ const CLIENTS = [
     medicalInfo: "No allergies. Test user.", 
     isArchived: false, 
     progress: 68, 
+    currentBalance: 450.00,
     programIds: ["prog_1", "prog_2", "prog_3"],
     clientCode: "DEMO123" 
   },

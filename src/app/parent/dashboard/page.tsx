@@ -6,16 +6,18 @@ import {
   ArrowUpRight,
   TrendingUp,
   FileText,
-  Clock
+  Clock,
+  CreditCard
 } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
 import { useState } from "react";
+import { clsx } from "clsx";
 
 export default function ParentDashboard() {
-  const { data: client, sessions, loading, error } = usePortalData();
+  const { data: client, sessions, services, loading, error } = usePortalData();
   const { data: team } = useTeamMembers();
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -23,7 +25,28 @@ export default function ParentDashboard() {
   if (loading) return <PortalLoading />;
   if (error || !client) return <PortalError message={error || "Could not load child data."} />;
 
-  // Helper to parse dates (handles ISO strings or Firestore Timestamps)
+  // Helper to resolve services for pricing
+  const getService = (typeId: string) => (services || []).find(s => s.id === typeId);
+
+  // Dynamic Balance Calculation (Same logic as billing page)
+  const billableSessions = (sessions || []).filter(s => 
+    s.status === 'completed' && 
+    (s.attendance === 'present' || s.attendance === 'absent')
+  );
+
+  const calculatedTotal = billableSessions.reduce((acc, sess) => {
+    const service = getService(sess.type);
+    if (service?.isBillable) {
+      const hourlyRate = service.basePrice || 0;
+      const sessionCost = (sess.duration / 60) * hourlyRate;
+      return acc + sessionCost;
+    }
+    return acc;
+  }, 0);
+
+  const displayBalance = client.currentBalance !== undefined ? client.currentBalance : calculatedTotal;
+
+  // Helper to parse dates
   const parseDate = (val: any) => {
     if (!val) return new Date(0);
     if (val.seconds) return new Date(val.seconds * 1000);
@@ -32,7 +55,7 @@ export default function ParentDashboard() {
 
   // Logic: Find next upcoming session
   const now = new Date();
-  const upcomingSessions = sessions
+  const upcomingSessions = (sessions || [])
     .filter(s => parseDate(s.startTime) >= now)
     .sort((a, b) => parseDate(a.startTime).getTime() - parseDate(b.startTime).getTime());
     
@@ -40,18 +63,17 @@ export default function ParentDashboard() {
   
   const getTherapist = (id: string) => {
     const found = (team || []).find(t => t.id === id);
-    if (!found && id) console.log(`Therapist with ID ${id} not found in team list of ${team?.length || 0} members`);
     return found;
   };
   const nextTherapist = nextSession ? getTherapist(nextSession.therapistId) : null;
 
   // Stats
   const currentMonth = new Date().getMonth();
-  const sessionsThisMonth = sessions.filter(s => parseDate(s.startTime).getMonth() === currentMonth);
+  const sessionsThisMonth = (sessions || []).filter(s => parseDate(s.startTime).getMonth() === currentMonth);
   const completedThisMonth = sessionsThisMonth.filter(s => s.status === 'completed');
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
       
       {/* Welcome Section */}
       <section className="px-4 py-6">
@@ -103,6 +125,35 @@ export default function ParentDashboard() {
 
       {/* Stats Grid */}
       <section className="px-4 grid grid-cols-2 gap-4">
+        {/* Balance Card - Highly visible if due */}
+        <Link 
+          href="/parent/billing/"
+          className={clsx(
+            "col-span-2 p-5 rounded-3xl border transition-all shadow-sm flex items-center justify-between group",
+            displayBalance > 0 
+              ? "bg-warning-50 border-warning-100 dark:bg-warning-900/10 dark:border-warning-900/30" 
+              : "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+          )}
+        >
+          <div className="flex items-center gap-4">
+            <div className={clsx(
+              "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors",
+              displayBalance > 0 ? "bg-warning-100 text-warning-600" : "bg-neutral-100 text-neutral-400"
+            )}>
+              <CreditCard className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-neutral-500 text-xs font-medium uppercase tracking-widest">Balance Due</p>
+              <h3 className="text-2xl font-black text-neutral-900 dark:text-white">
+                {displayBalance.toFixed(2)} RON
+              </h3>
+            </div>
+          </div>
+          <div className="p-2 bg-white dark:bg-neutral-800 rounded-xl shadow-sm group-hover:translate-x-1 transition-transform">
+            <ChevronRight className="w-5 h-5 text-neutral-400" />
+          </div>
+        </Link>
+
         <div className="bg-white dark:bg-neutral-900 p-5 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="w-10 h-10 bg-success-50 dark:bg-success-900/20 rounded-xl flex items-center justify-center text-success-600 mb-3">
             <TrendingUp className="w-5 h-5" />
@@ -143,16 +194,15 @@ export default function ParentDashboard() {
               </button>
             </div>
           ))}
-                </div>
-              </section>
-        
-              <ParentEventDetailPanel 
-                event={selectedEvent}
-                isOpen={isDetailOpen}
-                onClose={() => setIsDetailOpen(false)}
-              />
-        
-            </div>
-          );
-        }
-        
+        </div>
+      </section>
+
+      <ParentEventDetailPanel 
+        event={selectedEvent}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+      />
+
+    </div>
+  );
+}

@@ -8,7 +8,8 @@ import {
   Calendar, 
   BarChart2, 
   FileText, 
-  LogOut
+  LogOut,
+  CreditCard
 } from "lucide-react";
 import { clsx } from "clsx";
 
@@ -20,6 +21,7 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
     { name: "Home", href: `/parent/dashboard/`, icon: Home },
     { name: "Schedule", href: `/parent/schedule/`, icon: Calendar },
     { name: "Progress", href: `/parent/progress/`, icon: BarChart2 },
+    { name: "Billing", href: `/parent/billing/`, icon: CreditCard },
     { name: "Docs", href: `/parent/docs/`, icon: FileText },
   ];
 

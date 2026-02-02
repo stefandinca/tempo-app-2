@@ -127,22 +127,37 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
         </div>
         
         {data.isRecurring && (
-          <div className="flex gap-2 mt-2 animate-in slide-in-from-top-2">
-            {DAYS.map((day, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => toggleRecurrenceDay(i)}
-                className={clsx(
-                  "w-8 h-8 rounded-full text-xs font-medium transition-colors",
-                  data.recurrenceDays.includes(i)
-                    ? "bg-primary-500 text-white"
-                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                )}
-              >
-                {day}
-              </button>
-            ))}
+          <div className="mt-3 space-y-3 animate-in slide-in-from-top-2">
+            <div className="flex gap-2">
+              {DAYS.map((day, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => toggleRecurrenceDay(i)}
+                  className={clsx(
+                    "w-8 h-8 rounded-full text-xs font-medium transition-colors",
+                    data.recurrenceDays.includes(i)
+                      ? "bg-primary-500 text-white"
+                      : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                  )}
+                >
+                  {day}
+                </button>
+              ))}
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium mb-1.5 text-neutral-500">
+                Repeat until
+              </label>
+              <input 
+                type="date"
+                min={data.date} // Cannot end before start date
+                className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
+                value={data.recurrenceEndDate}
+                onChange={(e) => updateData({ recurrenceEndDate: e.target.value })}
+              />
+            </div>
           </div>
         )}
       </div>

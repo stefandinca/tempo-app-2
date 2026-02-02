@@ -15,7 +15,7 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return hasRole('Admin');
+      return hasRole('Admin') || hasRole('admin');
     }
     
     function isCoordinator() {
@@ -56,9 +56,24 @@ service cloud.firestore {
       allow read: if true; // Allow public read for portal consistency if needed
       allow write: if isAdmin();
     }
+    
     match /programs/{programId} {
       allow read: if true; // Allow public read for portal consistency
       allow write: if isAdmin();
+    }
+    
+    // System Settings (New)
+    match /system_settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Invoices (New)
+    match /invoices/{invoiceId} {
+      // TODO: Harden this with proper Parent Auth (Claims)
+      allow read: if true; 
+      allow create: if isAdmin();
+      allow update: if isAdmin();
     }
     
     match /clients/{clientId}/evaluations/{evalId} {

@@ -179,3 +179,22 @@ Team Review: Billing System
   5. Client invoice table — Expandable rows with session breakdown
   6. Team payouts tab — Calculate based on hourlyRate
   7. Invoice actions — Mark as paid, generate PDF (Phase 2)
+
+  ---
+  Progress Update (Feb 2, 2026)
+
+  ✅ Settings Integration Complete
+  - Added "Billing Config" tab to Settings page (Admin only).
+  - Configurable: Clinic Identity (Name, Address, CUI, IBAN) and Invoice Parameters (Series, Number, Due Date).
+  - Persistence: Saves to `system_settings/config` in Firestore.
+
+  ✅ PDF Invoice Generation Complete
+  - Implemented client-side PDF generation using `jspdf` + `jspdf-autotable`.
+  - Added "Generate Invoice" action to Client Invoice table row menu.
+  - Generates professional PDF with clinic header, client details, and itemized session table.
+  - Status: Generates and downloads locally.
+
+  🚧 Next Steps
+  - Upload generated PDFs to Firebase Storage.
+  - Save `invoice` document to Firestore for Parent Portal access.
+  - Batch generation for all invoices in a month.

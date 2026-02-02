@@ -1,24 +1,67 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { User, Bell, Shield, Moon, LogOut, Check } from "lucide-react";
+import { User, Bell, Shield, Moon, LogOut, Check, CreditCard, Monitor, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
+import BillingConfigTab from "@/components/settings/BillingConfigTab";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export default function SettingsPage() {
-  const { user, signOut } = useAuth();
-  const { success } = useToast();
+  const { user, userData, userRole, signOut } = useAuth();
+  const { success, error } = useToast();
   const [activeTab, setActiveTab] = useState("profile");
   const [notifications, setNotifications] = useState(true);
   const [theme, setTheme] = useState("light");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    success("Settings saved successfully");
+  // Profile Form State
+  const [profileName, setProfileName] = useState("");
+
+  useEffect(() => {
+    if (userData) {
+      setProfileName(userData.name || "");
+    }
+  }, [userData]);
+
+  const isAdmin = userRole?.toLowerCase() === "admin";
+
+  const handleProfileSave = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      // Update team_members collection (where AuthContext reads profile data)
+      const userRef = doc(db, "team_members", user.uid);
+      await updateDoc(userRef, {
+        name: profileName
+      });
+      success("Profile updated successfully");
+    } catch (err: any) {
+      console.error(err);
+      error("Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
+  const menuItems = [
+    { id: "profile", label: "Profile", icon: User },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "security", label: "Security", icon: Shield },
+    { id: "appearance", label: "Appearance", icon: Moon },
+  ];
+
+  if (isAdmin) {
+    menuItems.push(
+      { id: "billing", label: "Billing Config", icon: CreditCard },
+      { id: "system", label: "System", icon: Monitor }
+    );
+  }
+
   return (
-    <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
+    <div className="flex-1 p-6 max-w-5xl mx-auto w-full">
       
       {/* Header */}
       <div className="mb-8">
@@ -30,12 +73,7 @@ export default function SettingsPage() {
         
         {/* Sidebar Nav */}
         <nav className="space-y-1">
-          {[
-            { id: "profile", label: "Profile", icon: User },
-            { id: "notifications", label: "Notifications", icon: Bell },
-            { id: "security", label: "Security", icon: Shield },
-            { id: "appearance", label: "Appearance", icon: Moon },
-          ].map((item) => (
+          {menuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
@@ -74,9 +112,9 @@ export default function SettingsPage() {
               
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  {user?.email?.[0].toUpperCase() || "U"}
+                  {userData?.initials || user?.email?.[0].toUpperCase() || "U"}
                 </div>
-                <button className="px-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+                <button className="px-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors opacity-50 cursor-not-allowed" title="Not implemented yet">
                   Change Avatar
                 </button>
               </div>
@@ -86,7 +124,8 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Full Name</label>
                   <input 
                     type="text" 
-                    defaultValue="Dr. Maria Garcia" 
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
                     className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
                   />
                 </div>
@@ -99,13 +138,24 @@ export default function SettingsPage() {
                     className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-500 cursor-not-allowed"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Role</label>
+                  <input 
+                    type="text" 
+                    value={userRole || "User"} 
+                    disabled
+                    className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg text-neutral-500 cursor-not-allowed"
+                  />
+                </div>
               </div>
 
               <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 flex justify-end">
                 <button 
-                  onClick={handleSave}
-                  className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-bold transition-all shadow-lg shadow-primary-500/20"
+                  onClick={handleProfileSave}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-bold transition-all shadow-lg shadow-primary-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
+                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                   Save Changes
                 </button>
               </div>
@@ -165,6 +215,20 @@ export default function SettingsPage() {
                     {theme === t && <Check className="w-4 h-4 text-primary-500 mx-auto mt-2" />}
                   </button>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "billing" && isAdmin && <BillingConfigTab />}
+          
+          {activeTab === "system" && isAdmin && (
+            <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">System Settings</h3>
+                <p className="text-sm text-neutral-500">Advanced system configuration.</p>
+              </div>
+              <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl text-center text-neutral-500">
+                System health metrics and feature flags will appear here.
               </div>
             </div>
           )}

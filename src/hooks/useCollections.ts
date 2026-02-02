@@ -211,3 +211,113 @@ export function useInterventionPlans(clientId: string) {
 
   return { data, loading, error, activePlan, getActivePlanForDate };
 }
+
+// System Settings (Singleton)
+export function useSystemSettings() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, "system_settings", "config"), 
+      (doc) => {
+        if (doc.exists()) {
+          setData(doc.data());
+        } else {
+          setData(null);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching system settings:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  return { data, loading, error };
+}
+
+// Invoices for a specific client
+export function useClientInvoices(clientId: string) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!clientId) {
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, "invoices"),
+      where("clientId", "==", clientId),
+      orderBy("date", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q,
+      (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        setData(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching client invoices:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [clientId]);
+
+  return { data, loading, error };
+}
+
+// Invoices by Month (Admin)
+export function useInvoicesByMonth(year: number, month: number) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Calculate month bounds matching the invoice 'date' string (YYYY-MM-DD)
+    // We'll filter by string comparison which works for ISO dates
+    const startStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const endStr = `${year}-${String(month + 1).padStart(2, '0')}-31`;
+
+    const q = query(
+      collection(db, "invoices"),
+      where("date", ">=", startStr),
+      where("date", "<=", endStr),
+      orderBy("date", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q,
+      (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        setData(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching monthly invoices:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [year, month]);
+
+  return { data, loading, error };
+}

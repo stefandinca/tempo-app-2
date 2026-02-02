@@ -17,6 +17,7 @@ export interface BillingLineItem {
 
 export interface ClientInvoice {
   clientId: string;
+  invoiceId?: string; // If generated
   clientName: string;
   sessions: number;
   billableSessions: number;
@@ -26,7 +27,7 @@ export interface ClientInvoice {
   subtotal: number;
   discount: number;
   total: number;
-  status: "pending" | "paid" | "overdue";
+  status: "pending" | "issued" | "paid" | "overdue";
 }
 
 export interface TeamPayout {
@@ -77,7 +78,7 @@ export function aggregateClientInvoices(
   events: any[],
   clients: any[],
   services: any[],
-  paidClientIds: Set<string> = new Set()
+  existingInvoices: any[] = [] // Now passing real Firestore invoices
 ): ClientInvoice[] {
   // Group events by clientId
   const clientEventsMap = new Map<string, any[]>();
@@ -142,8 +143,13 @@ export function aggregateClientInvoices(
     const discount = subtotal * discountRate;
     const total = subtotal - discount;
 
+    // Check for existing invoice
+    const existingInvoice = existingInvoices.find(inv => inv.clientId === clientId);
+    const status = existingInvoice ? (existingInvoice.status as any) : "pending";
+
     invoices.push({
       clientId,
+      invoiceId: existingInvoice?.id,
       clientName: client.name,
       sessions: lineItems.length,
       billableSessions: billableItems.length,
@@ -153,7 +159,7 @@ export function aggregateClientInvoices(
       subtotal,
       discount,
       total,
-      status: paidClientIds.has(clientId) ? "paid" : "pending"
+      status
     });
   });
 

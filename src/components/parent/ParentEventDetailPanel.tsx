@@ -8,10 +8,12 @@ import {
   BookOpen, 
   CheckCircle2, 
   AlertCircle,
-  FileText
+  FileText,
+  Circle
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useTeamMembers, usePrograms } from "@/hooks/useCollections";
+import ProgramScoreCounter, { ProgramScores } from "../calendar/EventDetailPanel/ProgramScoreCounter";
 
 interface ParentEventDetailPanelProps {
   event: any;
@@ -27,6 +29,10 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
 
   const therapist = (team || []).find(t => t.id === event.therapistId);
   const selectedPrograms = (programs || []).filter(p => event.programIds?.includes(p.id));
+
+  // Extract scores or use defaults
+  const programScores = event.programScores || {};
+  const defaultScores: ProgramScores = { minus: 0, zero: 0, prompted: 0, plus: 0 };
 
   const parseDate = (val: any) => {
     if (!val) return new Date(0);
@@ -128,39 +134,26 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
           {/* Programs & Scores */}
           <div>
             <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Programs & Progress</p>
-            <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-100 dark:border-neutral-800">
-              {selectedPrograms.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedPrograms.map(p => (
-                    <div key={p.id} className="space-y-2">
-                      <div className="flex items-start gap-3">
-                        <BookOpen className="w-4 h-4 text-primary-500 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-bold text-neutral-900 dark:text-white">{p.title}</p>
-                          <p className="text-xs text-neutral-500 line-clamp-1">{p.description}</p>
-                        </div>
-                      </div>
-                      
-                      {/* Placeholder for scores display logic if available in event document */}
-                      {event.programScores?.[p.id] && (
-                        <div className="ml-7 flex gap-2">
-                           {Object.entries(event.programScores[p.id]).map(([scoreType, count]: [string, any]) => (
-                             <span key={scoreType} className="text-[10px] font-bold px-2 py-0.5 bg-white dark:bg-neutral-700 rounded border border-neutral-200 dark:border-neutral-600">
-                               {scoreType}: {count}
-                             </span>
-                           ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <BookOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-                  <p className="text-sm text-neutral-500 italic">No specific programs tracked.</p>
-                </div>
-              )}
-            </div>
+            {selectedPrograms.length > 0 ? (
+              <div className="space-y-3">
+                {selectedPrograms.map(p => (
+                  <ProgramScoreCounter
+                    key={p.id}
+                    programId={p.id}
+                    programTitle={p.title}
+                    programDescription={p.description}
+                    scores={programScores[p.id] || defaultScores}
+                    onChange={() => {}} // No-op for read-only
+                    disabled={true}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-100 dark:border-neutral-800 text-center">
+                <BookOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
+                <p className="text-sm text-neutral-500 italic">No specific programs tracked.</p>
+              </div>
+            )}
           </div>
 
           {/* Session Notes */}
@@ -194,13 +187,5 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
 
       </div>
     </>
-  );
-}
-
-function Circle({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-    </svg>
   );
 }
