@@ -108,17 +108,7 @@ export default function Dashboard() {
     <main className="flex-1 p-4 lg:p-6 space-y-6">
       
       {/* KPI Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard 
-          title="Today's Revenue" 
-          value="$2,450" 
-          trend="+12% vs yesterday" 
-          icon={DollarSign} 
-          trendIcon={TrendingUp}
-          trendColor="text-success-600"
-          iconBg="bg-success-100 dark:bg-success-900/30"
-          iconColor="text-success-600"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <KpiCard
           title="Active Clients"
           value={clients.data.length.toString()}

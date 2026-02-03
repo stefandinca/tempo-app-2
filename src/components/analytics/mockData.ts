@@ -26,3 +26,20 @@ export const KPI_DATA = [
   { label: 'Revenue (YTD)', value: '$142k', change: '+8%', trend: 'up' },
   { label: 'Active Clients', value: '48', change: '+2', trend: 'up' },
 ];
+
+export const THERAPIST_UTILIZATION_DATA = [
+  { name: 'Dr. Smith', billable: 32, capacity: 40 },
+  { name: 'Sarah J.', billable: 38, capacity: 40 },
+  { name: 'Mike R.', billable: 20, capacity: 35 },
+  { name: 'Elena B.', billable: 25, capacity: 30 },
+  { name: 'David L.', billable: 15, capacity: 20 },
+];
+
+export const GLOBAL_GOAL_DATA = [
+  { month: 'Jan', rate: 65 },
+  { month: 'Feb', rate: 68 },
+  { month: 'Mar', rate: 72 },
+  { month: 'Apr', rate: 70 },
+  { month: 'May', rate: 75 },
+  { month: 'Jun', rate: 78 },
+];

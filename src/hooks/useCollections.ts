@@ -56,8 +56,21 @@ export function useClients() {
   return useCollection<any>("clients");
 }
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  initials: string;
+  role: string;
+  color: string;
+  email: string;
+  sessions?: number;
+  clients?: number;
+  isActive?: boolean;
+  weeklyCapacity?: number; // Added for utilization analytics
+}
+
 export function useTeamMembers() {
-  return useCollection<any>("team_members");
+  return useCollection<TeamMember>("team_members");
 }
 
 export function useServices() {

@@ -1,15 +1,18 @@
 "use client";
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { SESSION_DATA } from './mockData';
 
-export default function SessionVolumeChart() {
+interface SessionVolumeChartProps {
+  data: { name: string; sessions: number }[];
+}
+
+export default function SessionVolumeChart({ data }: SessionVolumeChartProps) {
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
-      <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-6">Session Volume (6 Months)</h3>
+      <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-6">Session Volume (Current Month)</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={SESSION_DATA}>
+          <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
             <XAxis 
               dataKey="name" 
