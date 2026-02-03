@@ -22,7 +22,7 @@ import {
   startAfter,
   getDocs
 } from "firebase/firestore";
-import { getToken } from "firebase/messaging";
+import { getToken, onMessage } from "firebase/messaging";
 import { db, messaging } from "@/lib/firebase";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { Notification as NotificationData, NotificationCategory } from "@/types/notifications";
@@ -151,6 +151,24 @@ export function NotificationProvider({
       }
     }
   }, [user, requestPushPermission]); // Add user as dependency so it retries on login
+
+  // Handle Foreground Messages
+  useEffect(() => {
+    if (!messaging) return;
+
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log("[NotificationContext] Foreground message received:", payload);
+      // Trigger a browser notification if permitted
+      if (Notification.permission === 'granted') {
+         new Notification(payload.notification?.title || "New Message", {
+            body: payload.notification?.body,
+            icon: '/icons/icon-192.svg'
+         });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Real-time listener for notifications
   useEffect(() => {

@@ -30,14 +30,26 @@ export const sendPushNotification = functions.firestore
       return null;
     }
 
+    const timestamp = new Date().toLocaleTimeString();
+    
     const payload = {
       notification: {
         title: notification.title || "New Notification",
-        body: notification.message || "You have a new update in TempoApp",
+        // Append timestamp to ensure uniqueness during testing
+        body: (notification.message || "You have a new update") + ` [${timestamp}]`,
       },
       data: {
-        url: notification.actions?.[0]?.route || "/parent/dashboard", // Deep link
-        notificationId: context.params.notificationId
+        url: notification.actions?.[0]?.route || "/parent/dashboard",
+        notificationId: context.params.notificationId,
+        timestamp: Date.now().toString()
+      },
+      // Android specific options to prevent collapsing
+      android: {
+        priority: 'high' as const,
+        notification: {
+            tag: context.params.notificationId, // Unique tag per notification ID
+            visibility: 'public' as const
+        }
       },
       token: fcmToken
     };

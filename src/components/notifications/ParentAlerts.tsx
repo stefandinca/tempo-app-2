@@ -18,7 +18,14 @@ interface ParentAlertsProps {
   clientName?: string;
 }
 
-// ... existing code ...
+const categoryIcons = {
+  schedule: Calendar,
+  attendance: CheckCircle,
+  billing: CreditCard,
+  client: FileText,
+  team: FileText,
+  system: Bell
+};
 
 export default function ParentAlerts({ clientName }: ParentAlertsProps) {
   const { notifications, loading, markAsRead, requestPushPermission, pushPermissionStatus, pushError } = useNotifications();
