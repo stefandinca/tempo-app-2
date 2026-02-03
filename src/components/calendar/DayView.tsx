@@ -2,6 +2,7 @@
 
 import { useMemo, useEffect, useState } from "react";
 import { clsx } from "clsx";
+import { calculateEventColumns, getEventsForDay, type CalendarEvent, type EventWithPosition } from "@/lib/calendarUtils";
 
 interface Event {
   id: string;
@@ -40,8 +41,8 @@ export default function DayView({
   // Generate time slots (7 AM to 8 PM)
   const hours = Array.from({ length: 14 }, (_, i) => i + 7);
 
-  // Helper to position events (Same as WeekView)
-  const getEventStyle = (event: Event) => {
+  // Helper to calculate vertical position (top and height)
+  const getEventVerticalStyle = (event: Event) => {
     const start = new Date(event.startTime);
     const end = new Date(event.endTime);
     const startHour = start.getHours();
@@ -54,6 +55,19 @@ export default function DayView({
     return { top: `${top}px`, height: `${height}px` };
   };
 
+  // Helper to calculate horizontal position (left and width) for overlapping events
+  const getEventHorizontalStyle = (event: EventWithPosition) => {
+    const { column, totalColumns } = event;
+    const widthPercent = 100 / totalColumns;
+    const leftPercent = column * widthPercent;
+    const gap = 8; // pixels gap between columns (larger for day view)
+
+    return {
+      left: `calc(${leftPercent}% + ${gap}px)`,
+      width: `calc(${widthPercent}% - ${gap * 2}px)`,
+    };
+  };
+
   const isToday = (date: Date) => {
     const today = new Date();
     return date.getDate() === today.getDate() &&
@@ -61,13 +75,10 @@ export default function DayView({
            date.getFullYear() === today.getFullYear();
   };
 
-  const dayEvents = useMemo(() => {
-    return events.filter(evt => {
-      const evtDate = new Date(evt.startTime);
-      return evtDate.getDate() === currentDate.getDate() &&
-             evtDate.getMonth() === currentDate.getMonth() &&
-             evtDate.getFullYear() === currentDate.getFullYear();
-    });
+  // Filter events for the current day and calculate column positions
+  const positionedEvents = useMemo(() => {
+    const dayEvents = getEventsForDay(events as CalendarEvent[], currentDate);
+    return calculateEventColumns(dayEvents);
   }, [currentDate, events]);
 
   // Calculate current time indicator position
@@ -149,8 +160,9 @@ export default function DayView({
             ))}
 
             {/* Events */}
-            {dayEvents.map(event => {
-              const style = getEventStyle(event);
+            {positionedEvents.map(event => {
+              const verticalStyle = getEventVerticalStyle(event);
+              const horizontalStyle = getEventHorizontalStyle(event);
               const therapist = teamMembers.find(t => t.id === event.therapistId);
               const color = therapist?.color || "#94a3b8";
 
@@ -161,23 +173,18 @@ export default function DayView({
                     e.stopPropagation();
                     onEventClick(event);
                   }}
-                  className="absolute left-4 right-4 rounded-xl p-4 border-l-4 cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden"
+                  className="absolute rounded-lg p-2 border-l-4 cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden"
                   style={{
-                    ...style,
+                    ...verticalStyle,
+                    ...horizontalStyle,
                     backgroundColor: `${color}20`,
                     borderLeftColor: color,
                     color: "#1e293b" // Slate-800
                   }}
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-bold text-lg">{event.title}</div>
-                      <div className="opacity-80 mt-1">
-                        {new Date(event.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} -
-                        {new Date(event.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                      </div>
-                    </div>
-                    {/* Could add therapist avatar here if needed */}
+                  <div className="font-semibold text-sm truncate">{event.title}</div>
+                  <div className="text-xs opacity-80 truncate">
+                    {new Date(event.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(event.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                   </div>
                 </div>
               );

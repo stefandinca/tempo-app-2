@@ -32,24 +32,18 @@ export const sendPushNotification = functions.firestore
 
     const timestamp = new Date().toLocaleTimeString();
     
+    // Switch to Data-Only message to prevent duplicate notifications
+    // (Browser won't auto-display, forcing Service Worker to handle it)
     const payload = {
-      notification: {
-        title: notification.title || "New Notification",
-        // Append timestamp to ensure uniqueness during testing
-        body: (notification.message || "You have a new update") + ` [${timestamp}]`,
-      },
       data: {
+        title: notification.title || "New Notification",
+        body: (notification.message || "You have a new update") + ` [${timestamp}]`,
         url: notification.actions?.[0]?.route || "/parent/dashboard",
         notificationId: context.params.notificationId,
         timestamp: Date.now().toString()
       },
-      // Android specific options to prevent collapsing
       android: {
-        priority: 'high' as const,
-        notification: {
-            tag: context.params.notificationId, // Unique tag per notification ID
-            visibility: 'public' as const
-        }
+        priority: 'high' as const
       },
       token: fcmToken
     };

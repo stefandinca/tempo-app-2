@@ -25,16 +25,19 @@ const getBaseUrl = () => {
 messaging.onBackgroundMessage(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   
-  const notificationTitle = payload.notification.title;
+  // Data-only message structure
+  const data = payload.data || {};
+  const notificationTitle = data.title || "New Notification";
   const baseUrl = getBaseUrl();
   
   const notificationOptions = {
-    body: payload.notification.body,
+    body: data.body || "You have a new update",
     // Use absolute path for icon including /v2 if present
     icon: `${baseUrl}/icons/icon-192.svg`,
     // Optional: Small badge for status bar (needs to be monochrome/transparent ideally)
     badge: `${baseUrl}/icons/icon-192.svg`, 
-    data: payload.data // Pass the data (url) to the click handler
+    data: data, // Pass the entire data object
+    tag: data.notificationId // Restore unique tag behavior
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);

@@ -160,8 +160,10 @@ export function NotificationProvider({
       console.log("[NotificationContext] Foreground message received:", payload);
       // Trigger a browser notification if permitted
       if (Notification.permission === 'granted') {
-         new Notification(payload.notification?.title || "New Message", {
-            body: payload.notification?.body,
+         // Handle data-only payload
+         const data = payload.data || {};
+         new Notification(data.title || payload.notification?.title || "New Message", {
+            body: data.body || payload.notification?.body,
             icon: '/icons/icon-192.svg'
          });
       }

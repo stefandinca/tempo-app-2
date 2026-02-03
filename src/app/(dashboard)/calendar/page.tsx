@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import CalendarToolbar from "@/components/calendar/CalendarToolbar";
 import WeekView from "@/components/calendar/WeekView";
 import MonthView from "@/components/calendar/MonthView";
@@ -11,18 +11,20 @@ import { useData } from "@/context/DataContext";
 import { CalendarEventSkeleton } from "@/components/ui/Skeleton";
 import { Loader2 } from "lucide-react";
 import { useEventModal } from "@/context/EventModalContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CalendarPage() {
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('week');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   // Selected Event state for Detail Panel
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  
+
   const { openModal } = useEventModal();
-  
+  const { user } = useAuth();
+
   // Filter State
   const [filters, setFilters] = useState<FilterState>({
     therapists: [],
@@ -30,9 +32,32 @@ export default function CalendarPage() {
     eventTypes: []
   });
 
+  // Track if we've initialized the default filter
+  const hasInitializedFilter = useRef(false);
+
   // Data from shared context
   const { events, teamMembers } = useData();
   const loading = events.loading || teamMembers.loading;
+
+  // Set default filter to show only current user's events (if they have any)
+  useEffect(() => {
+    if (hasInitializedFilter.current) return;
+    if (!user || !events.data || events.loading) return;
+
+    // Check if current user has any assigned events
+    const userEvents = events.data.filter(event => event.therapistId === user.uid);
+
+    if (userEvents.length > 0) {
+      // User has events, filter to show only their events by default
+      setFilters(prev => ({
+        ...prev,
+        therapists: [user.uid]
+      }));
+    }
+    // If user has no events, leave filters empty to show all events
+
+    hasInitializedFilter.current = true;
+  }, [user, events.data, events.loading]);
 
   // Filter Logic
   const filteredEvents = useMemo(() => {

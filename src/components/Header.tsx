@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useEventModal } from "@/context/EventModalContext";
+import { useCommandPalette } from "@/context/CommandPaletteContext";
 import { NotificationBell, NotificationDropdown } from "@/components/notifications";
 
 interface HeaderProps {
@@ -38,6 +39,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { openModal } = useEventModal();
+  const { open: openCommandPalette } = useCommandPalette();
   
   const [currentDate, setCurrentDate] = useState("");
 
@@ -131,7 +133,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
         )}
 
         {/* Search */}
-        <button className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+        <button
+          onClick={openCommandPalette}
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+        >
           <Search className="w-4 h-4" />
           <span>Search...</span>
           <kbd className="px-1.5 py-0.5 text-xs bg-white dark:bg-neutral-600 rounded shadow-sm">⌘K</kbd>

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
+import { useCommandPalette } from "@/context/CommandPaletteContext";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -33,6 +34,7 @@ const adminItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { userRole } = useAuth();
+  const { open: openCommandPalette } = useCommandPalette();
 
   // Don't show regular sidebar for parents (they use a different shell or portal view)
   if (userRole === 'Parent') return null;
@@ -110,7 +112,10 @@ export default function Sidebar() {
 
       {/* Search Hint */}
       <div className="absolute bottom-6 left-4 right-4">
-        <button className="w-full flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+        <button
+          onClick={openCommandPalette}
+          className="w-full flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+        >
           <Search className="w-4 h-4" />
           <span>Search...</span>
           <kbd className="ml-auto px-1.5 py-0.5 text-xs bg-white dark:bg-neutral-600 rounded shadow-sm border border-neutral-200 dark:border-neutral-700">

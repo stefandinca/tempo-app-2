@@ -11,7 +11,10 @@ import {
   Trash2,
   Loader2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Plus,
+  Minus,
+  Search
 } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
@@ -52,17 +55,24 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const [isDeleting, setIsDeleting] = useState(false);
   const [programScores, setProgramScores] = useState<Record<string, ProgramScores>>({});
   const [isScoresExpanded, setIsScoresExpanded] = useState(true);
+  const [selectedProgramIds, setSelectedProgramIds] = useState<string[]>([]);
+  const [isProgramSelectorOpen, setIsProgramSelectorOpen] = useState(false);
+  const [isRemoveModeActive, setIsRemoveModeActive] = useState(false);
+  const [programSearch, setProgramSearch] = useState("");
 
   // Track original values for detecting changes
   const [originalDate, setOriginalDate] = useState("");
   const [originalTime, setOriginalTime] = useState("");
   const [originalAttendance, setOriginalAttendance] = useState<string | null>(null);
 
-  // Permission Logic
-  const canEdit = 
-    userRole === 'Admin' || 
-    userRole === 'Coordinator' || 
-    (userRole === 'Therapist' && event?.therapistId === authUser?.uid);
+  // Permission Logic - Therapists can edit events they're assigned to (check teamMemberIds)
+  const canEdit =
+    userRole === 'Admin' ||
+    userRole === 'Coordinator' ||
+    (userRole === 'Therapist' && (
+      event?.therapistId === authUser?.uid ||
+      (event?.teamMemberIds || []).includes(authUser?.uid)
+    ));
 
   // Default scores for a new program
   const defaultScores: ProgramScores = { minus: 0, zero: 0, prompted: 0, plus: 0 };
@@ -83,6 +93,9 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       setOriginalDate(dateStr);
       setOriginalTime(timeStr);
 
+      // Sync selected programs
+      setSelectedProgramIds(event.programIds || []);
+
       // Initialize program scores from event or create defaults
       const existingScores = event.programScores || {};
       const initialScores: Record<string, ProgramScores> = {};
@@ -92,6 +105,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       });
 
       setProgramScores(initialScores);
+
+      // Reset program selector state
+      setIsProgramSelectorOpen(false);
+      setIsRemoveModeActive(false);
+      setProgramSearch("");
     }
   }, [event]);
 
@@ -104,11 +122,42 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
     }));
   }, [canEdit]);
 
+  // Toggle program selection
+  const toggleProgram = useCallback((programId: string) => {
+    if (!canEdit) return;
+    setSelectedProgramIds(prev => {
+      const isSelected = prev.includes(programId);
+      if (isSelected) {
+        // Remove program and its scores
+        setProgramScores(currentScores => {
+          const newScores = { ...currentScores };
+          delete newScores[programId];
+          return newScores;
+        });
+        return prev.filter(id => id !== programId);
+      } else {
+        // Add program with default scores
+        setProgramScores(currentScores => ({
+          ...currentScores,
+          [programId]: { ...defaultScores }
+        }));
+        return [...prev, programId];
+      }
+    });
+  }, [canEdit, defaultScores]);
+
   if (!event) return null;
 
   const client = (clients || []).find(c => c.id === event.clientId);
   const therapist = (teamMembers || []).find(t => t.id === event.therapistId);
-  const selectedPrograms = (programs || []).filter(p => event.programIds?.includes(p.id));
+  const selectedPrograms = (programs || []).filter(p => selectedProgramIds.includes(p.id));
+
+  // Filter programs for the selector (exclude already selected)
+  const availablePrograms = (programs || []).filter(p =>
+    !selectedProgramIds.includes(p.id) &&
+    (p.title.toLowerCase().includes(programSearch.toLowerCase()) ||
+     (p.description || "").toLowerCase().includes(programSearch.toLowerCase()))
+  );
 
   const handleSave = async () => {
     if (!canEdit) {
@@ -125,6 +174,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       await updateDoc(eventRef, {
         attendance,
         details: notes,
+        programIds: selectedProgramIds,
         programScores,
         status: attendance ? "completed" : "upcoming",
         startTime: newStart.toISOString(),
@@ -447,15 +497,27 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               isScoresExpanded && (
                 <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
                   {selectedPrograms.map(program => (
-                    <ProgramScoreCounter
-                      key={program.id}
-                      programId={program.id}
-                      programTitle={program.title}
-                      programDescription={program.description}
-                      scores={programScores[program.id] || defaultScores}
-                      onChange={handleScoreChange}
-                      disabled={!canEdit}
-                    />
+                    <div key={program.id} className="relative">
+                      <ProgramScoreCounter
+                        programId={program.id}
+                        programTitle={program.title}
+                        programDescription={program.description}
+                        scores={programScores[program.id] || defaultScores}
+                        onChange={handleScoreChange}
+                        disabled={!canEdit}
+                      />
+                      {/* Remove program button - only visible in remove mode */}
+                      {isRemoveModeActive && (
+                        <button
+                          type="button"
+                          onClick={() => toggleProgram(program.id)}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-error-500 text-white rounded-full flex items-center justify-center shadow-sm hover:bg-error-600 transition-colors animate-in zoom-in duration-150"
+                          title="Remove program"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )
@@ -464,8 +526,94 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                 <div className="text-center py-4">
                   <BookOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
                   <p className="text-sm text-neutral-500 italic">No programs assigned to this session.</p>
-                  <p className="text-xs text-neutral-400 mt-1">Add programs when creating the event.</p>
                 </div>
+              </div>
+            )}
+
+            {/* Add/Remove Program Buttons & Selector */}
+            {canEdit && (
+              <div className="mt-3">
+                {isProgramSelectorOpen ? (
+                  <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 border border-neutral-200 dark:border-neutral-700 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="relative mb-2">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                      <input
+                        type="text"
+                        placeholder="Search programs..."
+                        className="w-full pl-8 pr-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        value={programSearch}
+                        onChange={(e) => setProgramSearch(e.target.value)}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {availablePrograms.length === 0 ? (
+                        <p className="text-xs text-neutral-500 text-center py-3">
+                          {programSearch ? "No matching programs" : "All programs assigned"}
+                        </p>
+                      ) : (
+                        availablePrograms.map(program => (
+                          <button
+                            key={program.id}
+                            type="button"
+                            onClick={() => {
+                              toggleProgram(program.id);
+                              setProgramSearch("");
+                            }}
+                            className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-white dark:hover:bg-neutral-900 transition-colors text-left"
+                          >
+                            <div className="w-5 h-5 rounded border border-neutral-300 dark:border-neutral-600 flex items-center justify-center flex-shrink-0">
+                              <Plus className="w-3 h-3 text-neutral-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">{program.title}</p>
+                              <p className="text-xs text-neutral-500 truncate">{program.description}</p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProgramSelectorOpen(false);
+                        setProgramSearch("");
+                      }}
+                      className="w-full mt-2 py-1.5 text-xs text-neutral-500 hover:text-neutral-700 transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProgramSelectorOpen(true);
+                        setIsRemoveModeActive(false);
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl text-sm text-neutral-500 hover:text-primary-600 hover:border-primary-400 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add
+                    </button>
+                    {selectedPrograms.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setIsRemoveModeActive(!isRemoveModeActive)}
+                        className={clsx(
+                          "flex-1 flex items-center justify-center gap-2 py-2.5 border rounded-xl text-sm transition-colors",
+                          isRemoveModeActive
+                            ? "border-error-400 bg-error-50 dark:bg-error-900/20 text-error-600"
+                            : "border-dashed border-neutral-300 dark:border-neutral-700 text-neutral-500 hover:text-error-600 hover:border-error-400"
+                        )}
+                      >
+                        <Minus className="w-4 h-4" />
+                        {isRemoveModeActive ? "Done" : "Remove"}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

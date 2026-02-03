@@ -2,6 +2,7 @@
 
 import { useMemo, useEffect, useState } from "react";
 import { clsx } from "clsx";
+import { calculateEventColumns, getEventsForDay, type CalendarEvent, type EventWithPosition } from "@/lib/calendarUtils";
 
 interface Event {
   id: string;
@@ -57,11 +58,11 @@ export default function WeekView({
   // Generate time slots (7 AM to 8 PM)
   const hours = Array.from({ length: 14 }, (_, i) => i + 7);
 
-  // Helper to position events
-  const getEventStyle = (event: Event) => {
+  // Helper to calculate vertical position (top and height)
+  const getEventVerticalStyle = (event: Event) => {
     const start = new Date(event.startTime);
     const end = new Date(event.endTime);
-    
+
     // Calculate top offset (minutes from 7 AM)
     const startHour = start.getHours();
     const startMin = start.getMinutes();
@@ -75,6 +76,19 @@ export default function WeekView({
     return {
       top: `${top}px`,
       height: `${height}px`,
+    };
+  };
+
+  // Helper to calculate horizontal position (left and width) for overlapping events
+  const getEventHorizontalStyle = (event: EventWithPosition) => {
+    const { column, totalColumns } = event;
+    const widthPercent = 100 / totalColumns;
+    const leftPercent = column * widthPercent;
+    const gap = 2; // pixels gap between columns
+
+    return {
+      left: `calc(${leftPercent}% + ${gap}px)`,
+      width: `calc(${widthPercent}% - ${gap * 2}px)`,
     };
   };
 
@@ -153,19 +167,15 @@ export default function WeekView({
 
             {/* Vertical Lines & Events */}
             {weekDays.map((day) => {
-              // Filter events for this day
-              const dayEvents = events.filter(evt => {
-                const evtDate = new Date(evt.startTime);
-                return evtDate.getDate() === day.getDate() &&
-                       evtDate.getMonth() === day.getMonth() &&
-                       evtDate.getFullYear() === day.getFullYear();
-              });
+              // Filter events for this day and calculate column positions
+              const dayEvents = getEventsForDay(events as CalendarEvent[], day);
+              const positionedEvents = calculateEventColumns(dayEvents);
 
               const isDayToday = isToday(day);
 
               return (
-                <div 
-                  key={day.toISOString()} 
+                <div
+                  key={day.toISOString()}
                   className={clsx(
                     "flex-1 relative border-r border-neutral-200 dark:border-neutral-800 last:border-r-0",
                     isDayToday ? "bg-primary-50/20 dark:bg-primary-900/5" : ""
@@ -173,8 +183,8 @@ export default function WeekView({
                 >
                   {/* Clickable Slots (background) */}
                   {hours.map((hour, i) => (
-                    <div 
-                      key={hour} 
+                    <div
+                      key={hour}
                       className="absolute w-full h-[60px] hover:bg-primary-50/50 dark:hover:bg-primary-900/10 cursor-pointer z-0"
                       style={{ top: i * 60 }}
                       onClick={() => {
@@ -187,7 +197,7 @@ export default function WeekView({
 
                   {/* Current Time Indicator (Only for Today's column) */}
                   {isDayToday && currentTimePosition !== null && (
-                    <div 
+                    <div
                       className="absolute left-0 right-0 h-0.5 bg-error-500 z-20 pointer-events-none"
                       style={{ top: currentTimePosition }}
                     >
@@ -196,8 +206,9 @@ export default function WeekView({
                   )}
 
                   {/* Events */}
-                  {dayEvents.map(event => {
-                    const style = getEventStyle(event);
+                  {positionedEvents.map(event => {
+                    const verticalStyle = getEventVerticalStyle(event);
+                    const horizontalStyle = getEventHorizontalStyle(event);
                     const therapist = teamMembers.find(t => t.id === event.therapistId);
                     const color = therapist?.color || "#94a3b8";
 
@@ -208,9 +219,10 @@ export default function WeekView({
                           e.stopPropagation();
                           onEventClick(event);
                         }}
-                        className="absolute left-1 right-1 rounded-md p-2 border-l-4 text-xs cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden"
+                        className="absolute rounded-md p-1.5 border-l-4 text-xs cursor-pointer hover:brightness-95 transition-all z-10 shadow-sm overflow-hidden"
                         style={{
-                          ...style,
+                          ...verticalStyle,
+                          ...horizontalStyle,
                           backgroundColor: `${color}20`,
                           borderLeftColor: color,
                           color: "#1e293b" // Slate-800
