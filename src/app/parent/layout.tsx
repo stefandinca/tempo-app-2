@@ -9,12 +9,17 @@ import {
   BarChart2,
   FileText,
   LogOut,
-  CreditCard,
-  Bell
+  CreditCard
 } from "lucide-react";
 import { clsx } from "clsx";
+import { signOut as firebaseSignOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { ParentAuthProvider } from "@/context/ParentAuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+import ParentNotificationBell from "@/components/notifications/ParentNotificationBell";
+import ParentNotificationDropdown from "@/components/notifications/ParentNotificationDropdown";
 
-export default function ParentLayout({ children }: { children: React.ReactNode }) {
+function ParentLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -26,21 +31,31 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
     { name: "Docs", href: `/parent/docs/`, icon: FileText },
   ];
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    // Clear local storage
     localStorage.removeItem("parent_client_code");
     localStorage.removeItem("parent_client_id");
     localStorage.removeItem("parent_client_name");
+    localStorage.removeItem("parent_uid");
+
+    // Sign out from Firebase
+    try {
+      await firebaseSignOut(auth);
+    } catch (err) {
+      console.error("Error signing out:", err);
+    }
+
     router.push("/parent/");
   };
 
   // If we are on the landing page, just show children without the portal shell
   const isLandingPage = pathname === "/parent" || pathname === "/parent/" || pathname.endsWith("/parent") || pathname.endsWith("/parent/");
-  
+
   if (isLandingPage) return <>{children}</>;
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-20 lg:pb-0 lg:pl-20 font-sans">
-      
+
       {/* Mobile Top Header */}
       <header className="sticky top-0 z-30 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 px-4 py-3 lg:hidden">
         <div className="flex items-center justify-between">
@@ -50,14 +65,9 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
             </div>
             <span className="font-bold text-neutral-900 dark:text-white text-sm">Tempo Portal</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Link
-              href="/parent/schedule/"
-              className="p-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors relative"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-error-500 rounded-full" />
-            </Link>
+          <div className="flex items-center gap-1 relative">
+            <ParentNotificationBell />
+            <ParentNotificationDropdown />
             <button
               onClick={handleSignOut}
               className="p-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
@@ -84,8 +94,8 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
                 href={item.href}
                 className={clsx(
                   "flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all",
-                  isActive 
-                    ? "text-primary-600 dark:text-primary-400" 
+                  isActive
+                    ? "text-primary-600 dark:text-primary-400"
                     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                 )}
               >
@@ -102,7 +112,7 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
         <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center mb-4">
           <span className="text-white font-bold text-xl">T</span>
         </div>
-        
+
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -124,17 +134,9 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
           );
         })}
 
-        <div className="mt-auto flex flex-col items-center gap-2">
-          <Link
-            href="/parent/schedule/"
-            className="p-3 text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white rounded-2xl transition-all group relative"
-          >
-            <Bell className="w-6 h-6" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-error-500 rounded-full" />
-            <span className="absolute left-full ml-4 px-2 py-1 bg-neutral-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-              Notifications
-            </span>
-          </Link>
+        <div className="mt-auto flex flex-col items-center gap-2 relative">
+          <ParentNotificationBell desktop />
+          <ParentNotificationDropdown desktop />
           <button
             onClick={handleSignOut}
             className="p-3 text-neutral-400 hover:bg-error-50 dark:hover:bg-error-900/20 hover:text-error-600 rounded-2xl transition-all"
@@ -144,5 +146,15 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
         </div>
       </nav>
     </div>
+  );
+}
+
+export default function ParentLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ParentAuthProvider>
+      <NotificationProvider>
+        <ParentLayoutContent>{children}</ParentLayoutContent>
+      </NotificationProvider>
+    </ParentAuthProvider>
   );
 }

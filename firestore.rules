@@ -39,9 +39,17 @@ service cloud.firestore {
     }
 
     match /clients/{clientId} {
-      allow list: if true; 
+      allow list: if true;
       allow get: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
-      allow create, update: if isAdmin() || isCoordinator();
+      allow create: if isAdmin() || isCoordinator();
+      // Allow admins/coordinators full update, or anonymous users to only add their UID to parentUids
+      allow update: if isAdmin() || isCoordinator() || (
+        isSignedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['parentUids']) &&
+        request.resource.data.parentUids.hasAny([request.auth.uid]) &&
+        // Either parentUids didn't exist before, or new array contains all previous values (only additions allowed)
+        (!('parentUids' in resource.data) || request.resource.data.parentUids.hasAll(resource.data.parentUids))
+      );
       allow delete: if isAdmin();
     }
 

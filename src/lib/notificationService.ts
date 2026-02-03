@@ -1,4 +1,4 @@
-import { collection, addDoc, Timestamp, writeBatch, doc } from "firebase/firestore";
+import { collection, addDoc, Timestamp, writeBatch, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
   Notification,
@@ -305,4 +305,283 @@ export async function notifyClientAssigned(
       }
     ]
   });
+}
+
+// ============================================
+// Parent-specific notification creators
+// ============================================
+
+/**
+ * Get parent UIDs from client document
+ */
+export async function getParentUids(clientId: string): Promise<string[]> {
+  try {
+    const clientDoc = await getDoc(doc(db, "clients", clientId));
+    if (!clientDoc.exists()) {
+      console.log("[NotificationService] Client not found:", clientId);
+      return [];
+    }
+    const parentUids = clientDoc.data()?.parentUids || [];
+    console.log("[NotificationService] Found parent UIDs for client", clientId, ":", parentUids);
+    return parentUids;
+  } catch (err) {
+    console.error("[NotificationService] Error getting parent UIDs:", err);
+    return [];
+  }
+}
+
+interface ParentNotificationContext {
+  eventId: string;
+  eventTitle: string;
+  eventType: string;
+  startTime: string;
+  therapistName?: string;
+  triggeredByUserId: string;
+}
+
+/**
+ * Notify parents when a new session is created for their child
+ */
+export async function notifyParentSessionCreated(
+  clientId: string,
+  context: ParentNotificationContext
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) {
+    console.log("[NotificationService] No parent UIDs found for client:", clientId);
+    return;
+  }
+
+  const startDate = new Date(context.startTime);
+  const dateStr = startDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric"
+  });
+  const timeStr = startDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    type: "schedule_created" as NotificationType,
+    category: "schedule" as NotificationCategory,
+    title: "New Session Scheduled",
+    message: `${context.eventType} session${context.therapistName ? ` with ${context.therapistName}` : ""} on ${dateStr} at ${timeStr}`,
+    sourceType: "event" as NotificationSourceType,
+    sourceId: context.eventId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Schedule",
+        type: "navigate" as const,
+        route: "/parent/schedule/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent session created notifications to", parentUids.length, "parents");
+}
+
+/**
+ * Notify parents when a session is rescheduled
+ */
+export async function notifyParentSessionRescheduled(
+  clientId: string,
+  context: ParentNotificationContext & { oldStartTime: string }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) return;
+
+  const newDate = new Date(context.startTime);
+  const newTimeStr = newDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+  const newDateStr = newDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric"
+  });
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    type: "schedule_updated" as NotificationType,
+    category: "schedule" as NotificationCategory,
+    title: "Session Rescheduled",
+    message: `${context.eventType} session moved to ${newDateStr} at ${newTimeStr}`,
+    sourceType: "event" as NotificationSourceType,
+    sourceId: context.eventId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Schedule",
+        type: "navigate" as const,
+        route: "/parent/schedule/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent session rescheduled notifications to", parentUids.length, "parents");
+}
+
+/**
+ * Notify parents when a session is cancelled
+ */
+export async function notifyParentSessionCancelled(
+  clientId: string,
+  context: ParentNotificationContext
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) return;
+
+  const startDate = new Date(context.startTime);
+  const dateStr = startDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric"
+  });
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    type: "schedule_cancelled" as NotificationType,
+    category: "schedule" as NotificationCategory,
+    title: "Session Cancelled",
+    message: `${context.eventType} session on ${dateStr} has been cancelled`,
+    sourceType: "event" as NotificationSourceType,
+    sourceId: context.eventId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Schedule",
+        type: "navigate" as const,
+        route: "/parent/schedule/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent session cancelled notifications to", parentUids.length, "parents");
+}
+
+/**
+ * Notify parents when attendance is logged for their child's session
+ */
+export async function notifyParentAttendanceLogged(
+  clientId: string,
+  context: ParentNotificationContext & { attendance: string }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) return;
+
+  const startDate = new Date(context.startTime);
+  const dateStr = startDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric"
+  });
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    type: "attendance_logged" as NotificationType,
+    category: "attendance" as NotificationCategory,
+    title: "Session Complete",
+    message: `${context.eventType} session on ${dateStr} - Attendance: ${context.attendance}`,
+    sourceType: "event" as NotificationSourceType,
+    sourceId: context.eventId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Progress",
+        type: "navigate" as const,
+        route: "/parent/progress/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent attendance notifications to", parentUids.length, "parents");
+}
+
+/**
+ * Notify parents when an invoice is generated for their child
+ */
+export async function notifyParentInvoiceGenerated(
+  clientId: string,
+  context: {
+    amount: number;
+    period: string;
+    invoiceId: string;
+    triggeredByUserId: string;
+  }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) return;
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    type: "billing_generated" as NotificationType,
+    category: "billing" as NotificationCategory,
+    title: "Invoice Ready",
+    message: `Your ${context.period} invoice is ready (${context.amount.toFixed(2)} RON)`,
+    sourceType: "billing" as NotificationSourceType,
+    sourceId: context.invoiceId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Invoice",
+        type: "navigate" as const,
+        route: "/parent/billing/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent invoice notifications to", parentUids.length, "parents");
+}
+
+/**
+ * Notify parents when a report is generated for their child (Future Feature)
+ * Call this when progress reports, evaluations, or other documents are ready for parents
+ */
+export async function notifyParentReportGenerated(
+  clientId: string,
+  context: {
+    reportType: string; // e.g., "Progress Report", "Evaluation", "Treatment Summary"
+    reportTitle: string;
+    reportId: string;
+    triggeredByUserId: string;
+  }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) return;
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    type: "report_ready" as NotificationType,
+    category: "client" as NotificationCategory,
+    title: `${context.reportType} Ready`,
+    message: `${context.reportTitle} is now available for viewing`,
+    sourceType: "client" as NotificationSourceType,
+    sourceId: context.reportId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Report",
+        type: "navigate" as const,
+        route: "/parent/docs/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent report notifications to", parentUids.length, "parents");
 }

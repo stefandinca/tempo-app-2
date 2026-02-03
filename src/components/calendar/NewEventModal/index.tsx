@@ -13,7 +13,7 @@ import StepSummary from "./StepSummary";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
-import { notifySessionCreated } from "@/lib/notificationService";
+import { notifySessionCreated, notifyParentSessionCreated } from "@/lib/notificationService";
 
 interface NewEventModalProps {
   isOpen: boolean;
@@ -175,6 +175,22 @@ export default function NewEventModal({
             clientName,
             triggeredByUserId: user.uid
           }).catch((err) => console.error("Failed to send notifications:", err));
+
+          // Also notify parents if a client is associated
+          if (formData.selectedClients[0]) {
+            const therapistName = formData.selectedTeamMembers[0]
+              ? (teamMembers?.data || []).find((t: any) => t.id === formData.selectedTeamMembers[0])?.name
+              : undefined;
+
+            notifyParentSessionCreated(formData.selectedClients[0], {
+              eventId: "batch-created",
+              eventTitle: formData.title || "Untitled Event",
+              eventType: formData.eventType,
+              startTime: `${datesToCreate[0]}T${formData.startTime}:00`,
+              therapistName,
+              triggeredByUserId: user.uid
+            }).catch((err) => console.error("Failed to send parent notifications:", err));
+          }
         } catch (notifErr) {
           console.error("Error preparing notifications:", notifErr);
         }

@@ -10,54 +10,12 @@ import {
   ChevronRight,
   Bell
 } from "lucide-react";
-import { Notification, CATEGORY_META, formatRelativeTime } from "@/types/notifications";
+import { CATEGORY_META, formatRelativeTime } from "@/types/notifications";
+import { useNotifications } from "@/context/NotificationContext";
 
 interface ParentAlertsProps {
   clientName?: string;
 }
-
-// Parent-appropriate mock alerts (in production, these would come from a parent-specific notification context)
-const parentAlertsMock: Notification[] = [
-  {
-    id: "parent-1",
-    recipientId: "parent",
-    recipientRole: "parent",
-    type: "schedule_updated",
-    category: "schedule",
-    title: "Schedule Change",
-    message: "Tomorrow's session has been moved to 10:30 AM",
-    createdAt: new Date().toISOString(),
-    read: false,
-    sourceType: "event",
-    actions: [{ label: "View Schedule", type: "navigate", route: "/parent/schedule/" }]
-  },
-  {
-    id: "parent-2",
-    recipientId: "parent",
-    recipientRole: "parent",
-    type: "attendance_logged",
-    category: "attendance",
-    title: "Session Summary",
-    message: "Great session today! Attendance: Present, Progress: Excellent",
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    read: false,
-    sourceType: "event",
-    actions: [{ label: "View Progress", type: "navigate", route: "/parent/progress/" }]
-  },
-  {
-    id: "parent-3",
-    recipientId: "parent",
-    recipientRole: "parent",
-    type: "billing_generated",
-    category: "billing",
-    title: "Invoice Ready",
-    message: "Your February invoice is now available",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    read: true,
-    sourceType: "billing",
-    actions: [{ label: "View Invoice", type: "navigate", route: "/parent/billing/" }]
-  }
-];
 
 const categoryIcons = {
   schedule: Calendar,
@@ -69,12 +27,60 @@ const categoryIcons = {
 };
 
 export default function ParentAlerts({ clientName }: ParentAlertsProps) {
+  const { notifications, loading, markAsRead } = useNotifications();
+
   // Show max 3 alerts
-  const alerts = useMemo(() => parentAlertsMock.slice(0, 3), []);
+  const alerts = useMemo(() => notifications.slice(0, 3), [notifications]);
+
+  if (loading) {
+    return (
+      <section className="px-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
+        </div>
+        <div className="space-y-3 pb-8">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 animate-pulse"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-700 rounded-xl" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4" />
+                  <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   if (alerts.length === 0) {
-    return null;
+    return (
+      <section className="px-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
+        </div>
+        <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-center">
+          <Bell className="w-10 h-10 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">No notifications yet</p>
+          <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
+            You&apos;ll see updates about schedules and billing here
+          </p>
+        </div>
+      </section>
+    );
   }
+
+  const handleAlertClick = async (alertId: string) => {
+    const alert = alerts.find(a => a.id === alertId);
+    if (alert && !alert.read) {
+      await markAsRead(alertId);
+    }
+  };
 
   return (
     <section className="px-4 space-y-4">
@@ -98,7 +104,15 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
             <Link
               key={alert.id}
               href={actionRoute}
-              className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex items-start gap-4 hover:border-primary-200 dark:hover:border-primary-800 transition-colors group"
+              onClick={() => handleAlertClick(alert.id)}
+              className={`
+                bg-white dark:bg-neutral-900 p-4 rounded-2xl border shadow-sm flex items-start gap-4
+                hover:border-primary-200 dark:hover:border-primary-800 transition-colors group
+                ${!alert.read
+                  ? "border-primary-200 dark:border-primary-800/50 bg-primary-50/30 dark:bg-primary-900/10"
+                  : "border-neutral-200 dark:border-neutral-800"
+                }
+              `}
             >
               <div
                 className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.bgColor}`}

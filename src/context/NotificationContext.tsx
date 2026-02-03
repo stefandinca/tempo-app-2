@@ -22,7 +22,7 @@ import {
   getDocs
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { useAuth } from "./AuthContext";
+import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { Notification, NotificationCategory } from "@/types/notifications";
 import {
   generateMockNotifications,
@@ -63,7 +63,7 @@ export function NotificationProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuth();
+  const { user } = useAnyAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

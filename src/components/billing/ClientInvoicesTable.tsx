@@ -23,7 +23,7 @@ import { useToast } from "@/context/ToastContext";
 import { db } from "@/lib/firebase";
 import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
-import { createNotificationsBatch } from "@/lib/notificationService";
+import { createNotificationsBatch, notifyParentInvoiceGenerated } from "@/lib/notificationService";
 
 interface ClientInvoicesTableProps {
   invoices: ClientInvoice[];
@@ -190,6 +190,15 @@ export default function ClientInvoicesTable({
             actions: [{ label: "View Billing", type: "navigate" as const, route: "/billing" }]
           }));
         await createNotificationsBatch(notifications);
+
+        // Also notify parents
+        const periodStr = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
+        notifyParentInvoiceGenerated(invoice.clientId, {
+          amount: invoice.total,
+          period: periodStr,
+          invoiceId: invoiceData.invoiceId,
+          triggeredByUserId: authUser.uid
+        }).catch(err => console.error("Failed to notify parents about invoice:", err));
       }
 
       const pdfBlob = generateInvoicePDF({

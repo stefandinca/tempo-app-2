@@ -46,7 +46,7 @@ export default function NotificationsPage() {
   return (
     <div className="flex-1 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-neutral-50/80 dark:bg-neutral-950/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800">
+      <div className="sticky top-16 z-10 bg-neutral-50/80 dark:bg-neutral-950/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800">
         <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button

@@ -4,8 +4,9 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, KeyRound, ChevronRight } from "lucide-react";
-import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase";
+import { collection, query, where, getDocs, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { signInAnonymously } from "firebase/auth";
 
 function ParentLoginContent() {
   const [code, setCode] = useState("");
@@ -49,12 +50,23 @@ function ParentLoginContent() {
       // Found the client
       const clientDoc = querySnapshot.docs[0];
       const clientData = clientDoc.data();
-      
-      // Store session
+
+      // Sign in anonymously to Firebase Auth
+      const userCredential = await signInAnonymously(auth);
+      const anonymousUid = userCredential.user.uid;
+
+      // Link anonymous UID to client document for notifications
+      await updateDoc(doc(db, "clients", clientDoc.id), {
+        parentUids: arrayUnion(anonymousUid)
+      });
+
+      // Store session including the anonymous UID
       localStorage.setItem("parent_client_code", code.toUpperCase());
       localStorage.setItem("parent_client_id", clientDoc.id);
       localStorage.setItem("parent_client_name", clientData.name);
+      localStorage.setItem("parent_uid", anonymousUid);
 
+      console.log("[ParentLogin] Successfully authenticated with UID:", anonymousUid);
       router.push(`/parent/dashboard/`);
     } catch (err: any) {
       console.error("Verification error:", err);

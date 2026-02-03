@@ -24,7 +24,7 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
-import { createNotificationsBatch } from "@/lib/notificationService";
+import { createNotificationsBatch, getParentUids } from "@/lib/notificationService";
 
 type Tab = "invoices" | "payouts";
 
@@ -116,6 +116,24 @@ export default function BillingPage() {
             triggeredBy: authUser.uid
           }));
         await createNotificationsBatch(notifications);
+
+        // Also notify parents that their payment was confirmed
+        const parentUids = await getParentUids(clientId);
+        if (parentUids.length > 0) {
+          const parentNotifications = parentUids.map(uid => ({
+            recipientId: uid,
+            recipientRole: "parent" as any,
+            type: "system_alert" as any,
+            category: "billing" as any,
+            title: "Payment Confirmed",
+            message: `Your payment of ${total.toFixed(2)} RON has been confirmed. Thank you!`,
+            sourceType: "billing" as any,
+            sourceId: clientId,
+            triggeredBy: authUser.uid,
+            actions: [{ label: "View Billing", type: "navigate" as const, route: "/parent/billing/" }]
+          }));
+          await createNotificationsBatch(parentNotifications);
+        }
       }
 
     } catch (err) {

@@ -24,7 +24,10 @@ import ProgramScoreCounter, { ProgramScores } from "./ProgramScoreCounter";
 import {
   notifySessionRescheduled,
   notifySessionCancelled,
-  notifyAttendanceLogged
+  notifyAttendanceLogged,
+  notifyParentSessionRescheduled,
+  notifyParentSessionCancelled,
+  notifyParentAttendanceLogged
 } from "@/lib/notificationService";
 
 interface EventDetailPanelProps {
@@ -153,6 +156,20 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
             ...notificationContext,
             oldStartTime: event.startTime
           }).catch((err) => console.error("Failed to send reschedule notification:", err));
+
+          // Also notify parents
+          if (event.clientId) {
+            const therapistName = therapist?.name;
+            notifyParentSessionRescheduled(event.clientId, {
+              eventId: event.id,
+              eventTitle: event.title,
+              eventType: event.type,
+              startTime: newStart.toISOString(),
+              therapistName,
+              triggeredByUserId: authUser.uid,
+              oldStartTime: event.startTime
+            }).catch((err) => console.error("Failed to send parent reschedule notification:", err));
+          }
         }
 
         // Check if attendance was just logged or changed (and is not null)
@@ -162,6 +179,20 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
             ...notificationContext,
             attendance: attendance!
           }).catch((err) => console.error("Failed to send attendance notification:", err));
+
+          // Also notify parents
+          if (event.clientId) {
+            const therapistName = therapist?.name;
+            notifyParentAttendanceLogged(event.clientId, {
+              eventId: event.id,
+              eventTitle: event.title,
+              eventType: event.type,
+              startTime: newStart.toISOString(),
+              therapistName,
+              triggeredByUserId: authUser.uid,
+              attendance: attendance!
+            }).catch((err) => console.error("Failed to send parent attendance notification:", err));
+          }
         }
       }
 
@@ -200,6 +231,19 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           clientName,
           triggeredByUserId: authUser.uid
         }).catch((err) => console.error("Failed to send cancellation notification:", err));
+
+        // Also notify parents
+        if (event.clientId) {
+          const therapistName = therapist?.name;
+          notifyParentSessionCancelled(event.clientId, {
+            eventId: event.id,
+            eventTitle: event.title,
+            eventType: event.type,
+            startTime: event.startTime,
+            therapistName,
+            triggeredByUserId: authUser.uid
+          }).catch((err) => console.error("Failed to send parent cancellation notification:", err));
+        }
       }
 
       await deleteDoc(doc(db, "events", event.id));
