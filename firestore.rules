@@ -122,6 +122,19 @@ service cloud.firestore {
       allow write: if isAdmin() || isCoordinator();
     }
 
+    // Client Documents (for document management feature)
+    match /clients/{clientId}/documents/{documentId} {
+      // Staff can read all documents
+      // Parents can only read documents where sharedWithParent == true
+      allow read: if isAdmin() || isCoordinator() || isTherapist() ||
+                    (isParent(clientId) && resource.data.sharedWithParent == true);
+
+      // Only staff can create, update, delete documents
+      allow create: if isAdmin() || isCoordinator() || isTherapist();
+      allow update: if isAdmin() || isCoordinator() || isTherapist();
+      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
         // FCM Tokens
 
         match /fcm_tokens/{userId} {

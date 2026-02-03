@@ -34,7 +34,7 @@ export default function MessagesPage() {
   const activeThread = threads.find(t => t.id === activeThreadId) || null;
 
   return (
-    <div className="flex-1 flex overflow-hidden h-[calc(100vh-64px)] lg:h-full relative">
+    <div className="flex-1 flex overflow-hidden h-[calc(100dvh-64px)] lg:h-[calc(100vh-64px)] relative">
       
       {/* Sidebar - Hidden on mobile if a thread is active */}
       <div className={clsx(

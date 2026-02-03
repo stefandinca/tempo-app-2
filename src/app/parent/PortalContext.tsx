@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase";
+import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { Loader2, AlertCircle } from "lucide-react";
 
 export function usePortalData() {
@@ -12,8 +13,63 @@ export function usePortalData() {
   const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
 
+  // First, restore Firebase auth state
   useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is already signed in
+        console.log("[PortalContext] Auth restored, UID:", user.uid);
+        setAuthReady(true);
+      } else {
+        // No user signed in - check if we have stored credentials
+        const storedUid = typeof window !== 'undefined' ? localStorage.getItem("parent_uid") : null;
+        const storedCode = typeof window !== 'undefined' ? localStorage.getItem("parent_client_code") : null;
+
+        if (storedCode) {
+          // We have a stored session, sign in anonymously again
+          try {
+            console.log("[PortalContext] Re-establishing anonymous auth...");
+            const userCredential = await signInAnonymously(auth);
+            const newUid = userCredential.user.uid;
+            console.log("[PortalContext] New anonymous UID:", newUid);
+
+            // Add the new UID to the client's parentUids array
+            const storedClientId = localStorage.getItem("parent_client_id");
+            if (storedClientId) {
+              try {
+                await updateDoc(doc(db, "clients", storedClientId), {
+                  parentUids: arrayUnion(newUid)
+                });
+                console.log("[PortalContext] Added new UID to parentUids");
+              } catch (updateErr) {
+                console.error("[PortalContext] Failed to update parentUids:", updateErr);
+                // Continue anyway - the UID might already be there from previous session
+              }
+            }
+
+            localStorage.setItem("parent_uid", newUid);
+            setAuthReady(true);
+          } catch (err) {
+            console.error("[PortalContext] Failed to restore auth:", err);
+            setError("Authentication failed. Please log in again.");
+            setLoading(false);
+          }
+        } else {
+          // No stored session
+          setAuthReady(true);
+        }
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  // Then fetch data once auth is ready
+  useEffect(() => {
+    if (!authReady) return;
+
     // Get code from localStorage
     const clientCode = typeof window !== 'undefined' ? localStorage.getItem("parent_client_code") : null;
 
@@ -91,7 +147,7 @@ export function usePortalData() {
       if (unsubscribeServices) unsubscribeServices();
       if (unsubscribePrograms) unsubscribePrograms();
     };
-  }, []);
+  }, [authReady]);
 
   return { data, sessions, services, programs, loading, error };
 }
