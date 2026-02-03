@@ -16,11 +16,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useData } from "@/context/DataContext";
+import { useAuth } from "@/context/AuthContext";
 import { KPICardSkeleton } from "@/components/ui/Skeleton";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
 
 export default function Dashboard() {
   const { events, clients, teamMembers } = useData();
+  const { user, userRole } = useAuth();
   const eventsLoading = events.loading || clients.loading || teamMembers.loading;
 
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -32,12 +34,19 @@ export default function Dashboard() {
 
   // Filter today's events
   const today = new Date();
-  const todaysEvents = events.data.filter(evt => {
+  let todaysEvents = events.data.filter(evt => {
     const evtDate = new Date(evt.startTime);
     return evtDate.getDate() === today.getDate() &&
            evtDate.getMonth() === today.getMonth() &&
            evtDate.getFullYear() === today.getFullYear();
-  }).sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+  });
+
+  // Filter by therapist if user has Therapist role
+  if (userRole === 'Therapist' && user) {
+    todaysEvents = todaysEvents.filter(evt => evt.therapistId === user.uid);
+  }
+
+  todaysEvents.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
   if (eventsLoading) {
     return (
