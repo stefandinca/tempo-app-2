@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X, ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
@@ -45,7 +45,7 @@ export default function NewEventModal({
   const { clients, teamMembers } = useData();
 
   // Reset form when modal opens with new initial data
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setCurrentStep(0);
     setFormData({
       ...INITIAL_DATA,
@@ -53,14 +53,14 @@ export default function NewEventModal({
       date: initialDate ? initialDate.toISOString().split('T')[0] : INITIAL_DATA.date,
       startTime: initialTime || INITIAL_DATA.startTime
     });
-  };
+  }, [initialClientId, initialDate, initialTime]);
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       resetForm();
     }
-  }, [isOpen, initialClientId, initialDate, initialTime]);
+  }, [isOpen, resetForm]);
 
   const updateData = (updates: Partial<EventFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));

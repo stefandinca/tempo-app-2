@@ -11,9 +11,11 @@ import {
   BarChart2, 
   Settings, 
   Briefcase,
+  MessageSquare,
   X
 } from "lucide-react";
 import { clsx } from "clsx";
+import { useNotifications } from "@/context/NotificationContext";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -23,6 +25,7 @@ interface MobileSidebarProps {
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Calendar", href: "/calendar/", icon: Calendar },
+  { name: "Messages", href: "/messages/", icon: MessageSquare },
   { name: "Clients", href: "/clients/", icon: Users },
   { name: "Team", href: "/team/", icon: UserCircle },
 ];
@@ -36,6 +39,7 @@ const adminItems = [
 
 export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const pathname = usePathname();
+  const { unreadMessageCount } = useNotifications();
 
   return (
     <>
@@ -72,6 +76,13 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
         <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-4rem)]">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
+            
+            // Determine badge content
+            let badgeContent = null;
+            if (item.name === "Messages" && unreadMessageCount > 0) {
+              badgeContent = unreadMessageCount;
+            }
+
             return (
               <Link
                 key={item.name}
@@ -86,6 +97,11 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.name}</span>
+                {badgeContent && (
+                  <span className="ml-auto px-2 py-0.5 text-xs bg-error-100 dark:bg-error-900 text-error-600 dark:text-error-400 font-bold rounded-full">
+                    {badgeContent}
+                  </span>
+                )}
               </Link>
             );
           })}

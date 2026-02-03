@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   X,
   Calendar,
@@ -75,7 +75,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
     ));
 
   // Default scores for a new program
-  const defaultScores: ProgramScores = { minus: 0, zero: 0, prompted: 0, plus: 0 };
+  const defaultScores: ProgramScores = useMemo(() => ({ minus: 0, zero: 0, prompted: 0, plus: 0 }), []);
 
   // Sync state when event changes
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       setIsRemoveModeActive(false);
       setProgramSearch("");
     }
-  }, [event]);
+  }, [event, defaultScores]);
 
   // Handle score changes
   const handleScoreChange = useCallback((programId: string, scores: ProgramScores) => {

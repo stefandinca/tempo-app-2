@@ -42,6 +42,7 @@ export function useCollection<T = DocumentData>(
     );
 
     return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionName]); // Constraints omitted from dependency array to avoid loops, pass stable arrays if needed
 
   return { data, loading, error };

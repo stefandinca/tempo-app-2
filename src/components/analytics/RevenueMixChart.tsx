@@ -27,7 +27,7 @@ export default function RevenueMixChart({ data }: RevenueMixChartProps) {
               ))}
             </Pie>
             <Tooltip 
-              formatter={(value: number) => `$${value.toLocaleString()}`}
+              formatter={(value: any) => `$${value?.toLocaleString()}`}
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
             />
             <Legend verticalAlign="bottom" height={36} iconType="circle" />

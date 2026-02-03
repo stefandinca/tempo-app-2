@@ -11,15 +11,18 @@ import {
   BarChart2,
   Settings,
   Search,
-  Briefcase
+  Briefcase,
+  MessageSquare
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
+import { useNotifications } from "@/context/NotificationContext";
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Calendar", href: "/calendar/", icon: Calendar },
+  { name: "Messages", href: "/messages/", icon: MessageSquare },
   { name: "Clients", href: "/clients/", icon: Users, badge: 48 },
   { name: "Team", href: "/team/", icon: UserCircle },
 ];
@@ -35,6 +38,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { userRole } = useAuth();
   const { open: openCommandPalette } = useCommandPalette();
+  const { unreadMessageCount } = useNotifications();
 
   // Don't show regular sidebar for parents (they use a different shell or portal view)
   if (userRole === 'Parent') return null;
@@ -51,11 +55,20 @@ export default function Sidebar() {
           <p className="text-xs text-neutral-500">Therapy Management</p>
         </div>
       </div>
-
+      
       {/* Navigation */}
       <nav className="p-4 space-y-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          
+          // Determine badge content
+          let badgeContent = null;
+          if (item.name === "Messages" && unreadMessageCount > 0) {
+            badgeContent = unreadMessageCount;
+          } else if (item.badge) {
+            badgeContent = item.badge; // Static badge from config (e.g. Clients)
+          }
+
           return (
             <Link
               key={item.name}
@@ -69,9 +82,14 @@ export default function Sidebar() {
             >
               <item.icon className="w-5 h-5" />
               <span>{item.name}</span>
-              {item.badge && (
-                <span className="ml-auto px-2 py-0.5 text-xs bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-full">
-                  {item.badge}
+              {badgeContent && (
+                <span className={clsx(
+                  "ml-auto px-2 py-0.5 text-xs rounded-full",
+                  item.name === "Messages" 
+                    ? "bg-error-100 dark:bg-error-900 text-error-600 dark:text-error-400 font-bold"
+                    : "bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400"
+                )}>
+                  {badgeContent}
                 </span>
               )}
             </Link>

@@ -41,6 +41,7 @@ export interface GroupedNotifications {
 interface NotificationContextType {
   notifications: NotificationData[];
   unreadCount: number;
+  unreadMessageCount: number; // New: Chat messages
   loading: boolean;
   error: string | null;
   markAsRead: (id: string) => Promise<void>;
@@ -68,8 +69,9 @@ export function NotificationProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAnyAuth();
+  const { user, role } = useAnyAuth();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0); // New State
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pushError, setPushError] = useState<string | null>(null);
@@ -172,6 +174,36 @@ export function NotificationProvider({
     return () => unsubscribe();
   }, []);
 
+  // Real-time listener for Chat Threads (Unread Messages)
+  useEffect(() => {
+    if (!user) {
+      setUnreadMessageCount(0);
+      return;
+    }
+
+    // Listen to threads where user is a participant
+    // Note: We don't need the full message history, just the threads to check 'lastMessage.readBy'
+    const q = query(
+      collection(db, "threads"),
+      where("participants", "array-contains", user.uid)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let count = 0;
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.lastMessage && !data.lastMessage.readBy.includes(user.uid)) {
+          count++;
+        }
+      });
+      setUnreadMessageCount(count);
+    }, (error) => {
+      console.error("Error listening to threads:", error);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
   // Real-time listener for notifications
   useEffect(() => {
     if (!user) {
@@ -202,13 +234,18 @@ export function NotificationProvider({
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const notifs = snapshot.docs.map((doc) => ({
+        let notifs = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           createdAt:
             doc.data().createdAt?.toDate?.()?.toISOString() ||
             doc.data().createdAt
         })) as NotificationData[];
+
+        // Filter based on role
+        if (role !== 'Admin') {
+          notifs = notifs.filter(n => n.category !== 'billing');
+        }
 
         setNotifications(notifs);
         setLoading(false);
@@ -224,7 +261,7 @@ export function NotificationProvider({
     );
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, role]);
 
   // Computed unread count
   const unreadCount = useMemo(
@@ -340,21 +377,26 @@ export function NotificationProvider({
     );
 
     const snapshot = await getDocs(q);
-    const newNotifs = snapshot.docs.map((doc) => ({
+    let newNotifs = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt:
         doc.data().createdAt?.toDate?.()?.toISOString() || doc.data().createdAt
     })) as NotificationData[];
 
+    if (role !== 'Admin') {
+      newNotifs = newNotifs.filter(n => n.category !== 'billing');
+    }
+
     setNotifications((prev) => [...prev, ...newNotifs]);
     setHasMore(snapshot.docs.length === PAGE_SIZE);
     setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
-  }, [user, lastDoc, hasMore]);
+  }, [user, lastDoc, hasMore, role]);
 
   const value: NotificationContextType = {
     notifications,
     unreadCount,
+    unreadMessageCount,
     loading,
     error,
     markAsRead,

@@ -21,7 +21,8 @@ import {
   Briefcase,
   Plus,
   ArrowRight,
-  Command
+  Command,
+  MessageSquare
 } from "lucide-react";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
 import { useEventModal } from "@/context/EventModalContext";
@@ -70,6 +71,15 @@ export default function CommandPalette() {
   // Define all commands
   const allCommands: CommandItem[] = useMemo(() => {
     const actions: CommandItem[] = [
+      {
+        id: "send-message",
+        label: "Send Message",
+        description: "Chat with a team member",
+        icon: <MessageSquare className="w-4 h-4" />,
+        category: "action",
+        shortcut: "M",
+        action: () => navigateTo("/messages", "new-message")
+      },
       {
         id: "new-event",
         label: "New Event",
@@ -344,7 +354,7 @@ export default function CommandPalette() {
             {filteredCommands.length === 0 ? (
               <div className="px-4 py-8 text-center text-neutral-500">
                 <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No results found for "{query}"</p>
+                <p>No results found for &quot;{query}&quot;</p>
               </div>
             ) : (
               categoryOrder.map(category => {

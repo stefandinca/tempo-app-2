@@ -122,9 +122,108 @@ service cloud.firestore {
       allow write: if isAdmin() || isCoordinator();
     }
 
-    // FCM Tokens
-    match /fcm_tokens/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
-    }
-  }
-}
+        // FCM Tokens
+
+        match /fcm_tokens/{userId} {
+
+          allow read, write: if isSignedIn() && request.auth.uid == userId;
+
+        }
+
+    
+
+            // Messaging System (New)
+
+    
+
+            match /threads/{threadId} {
+
+    
+
+              // Allow get/read if:
+
+    
+
+              // 1. The document exists and the user is a participant.
+
+    
+
+              // 2. The document DOES NOT exist (resource == null) but the threadId implies the user is a participant (deterministic ID check).
+
+    
+
+              allow get: if isSignedIn() && (
+
+    
+
+                (resource != null && request.auth.uid in resource.data.participants) ||
+
+    
+
+                (resource == null && (
+
+    
+
+                   threadId.split("_")[0] == request.auth.uid || 
+
+    
+
+                   (threadId.split("_").size() > 1 && threadId.split("_")[1] == request.auth.uid)
+
+    
+
+                ))
+
+    
+
+              );
+
+    
+
+              allow list: if isSignedIn() && request.auth.uid in resource.data.participants;
+
+    
+
+              
+
+    
+
+              allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
+
+    
+
+              allow update: if isSignedIn() && request.auth.uid in resource.data.participants;
+
+    
+
+              
+
+    
+
+              match /messages/{messageId} {
+
+    
+
+                allow read: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants;
+
+    
+
+                allow create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants;
+
+    
+
+              }
+
+    
+
+            }
+
+    
+
+          }
+
+    
+
+        }
+
+    

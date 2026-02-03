@@ -9,12 +9,13 @@ interface AnyAuthResult {
   isParent: boolean;
   isStaff: boolean;
   loading: boolean;
+  role: string | null;
 }
 
 /**
  * Universal auth hook that works for both staff and parents.
  * Checks AuthContext first (staff), then falls back to ParentAuthContext (parents).
- * Returns { user, isParent, isStaff, loading } for NotificationContext and other consumers.
+ * Returns { user, isParent, isStaff, loading, role } for NotificationContext and other consumers.
  */
 export function useAnyAuth(): AnyAuthResult {
   // Try staff auth first
@@ -29,7 +30,8 @@ export function useAnyAuth(): AnyAuthResult {
       user: staffAuth.user,
       isParent: false,
       isStaff: true,
-      loading: false
+      loading: false,
+      role: staffAuth.userRole
     };
   }
 
@@ -39,7 +41,8 @@ export function useAnyAuth(): AnyAuthResult {
       user: parentAuth.user,
       isParent: true,
       isStaff: false,
-      loading: false
+      loading: false,
+      role: 'Parent'
     };
   }
 
@@ -50,6 +53,7 @@ export function useAnyAuth(): AnyAuthResult {
     user: null,
     isParent: false,
     isStaff: false,
-    loading: isLoading
+    loading: isLoading,
+    role: null
   };
 }
