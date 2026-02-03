@@ -9,13 +9,14 @@ export function usePortalData() {
   const [data, setData] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
+  const [programs, setPrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Get code from localStorage
     const clientCode = typeof window !== 'undefined' ? localStorage.getItem("parent_client_code") : null;
-    
+
     if (!clientCode) {
       setError("No client code found. Please log in.");
       setLoading(false);
@@ -30,6 +31,7 @@ export function usePortalData() {
 
     let unsubscribeSessions: (() => void) | null = null;
     let unsubscribeServices: (() => void) | null = null;
+    let unsubscribePrograms: (() => void) | null = null;
 
     const unsubscribeClient = onSnapshot(clientQuery, (snapshot) => {
       if (snapshot.empty) {
@@ -37,7 +39,7 @@ export function usePortalData() {
         setLoading(false);
         return;
       }
-      
+
       const clientDoc = snapshot.docs[0];
       const clientId = clientDoc.id;
       const clientInfo = { id: clientId, ...clientDoc.data() };
@@ -45,7 +47,7 @@ export function usePortalData() {
 
       // 2. Fetch Client Sessions (Real-time)
       if (unsubscribeSessions) unsubscribeSessions();
-      
+
       const sessionsQuery = query(
         collection(db, "events"),
         where("clientId", "==", clientId),
@@ -66,6 +68,14 @@ export function usePortalData() {
         const servItems: any[] = [];
         servSnap.forEach(doc => servItems.push({ id: doc.id, ...doc.data() }));
         setServices(servItems);
+      });
+
+      // 4. Fetch Programs (for progress tracking)
+      if (unsubscribePrograms) unsubscribePrograms();
+      unsubscribePrograms = onSnapshot(collection(db, "programs"), (progSnap) => {
+        const progItems: any[] = [];
+        progSnap.forEach(doc => progItems.push({ id: doc.id, ...doc.data() }));
+        setPrograms(progItems);
         setLoading(false);
       });
 
@@ -79,10 +89,11 @@ export function usePortalData() {
       unsubscribeClient();
       if (unsubscribeSessions) unsubscribeSessions();
       if (unsubscribeServices) unsubscribeServices();
+      if (unsubscribePrograms) unsubscribePrograms();
     };
   }, []);
 
-  return { data, sessions, services, loading, error };
+  return { data, sessions, services, programs, loading, error };
 }
 
 export function PortalLoading() {
