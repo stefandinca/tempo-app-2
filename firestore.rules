@@ -27,7 +27,13 @@ service cloud.firestore {
     }
     
     function isParent(clientId) {
-      return isSignedIn() && request.auth.uid == clientId;
+      // Check if the user is in the parentUids list of the target client
+      // We use get() because this helper is used across different collections (events, plans, etc.)
+      let clientDoc = get(/databases/$(database)/documents/clients/$(clientId));
+      return isSignedIn() && (
+        request.auth.uid == clientId || 
+        (clientDoc != null && 'parentUids' in clientDoc.data && clientDoc.data.parentUids.hasAny([request.auth.uid]))
+      );
     }
 
     // --- Collections ---
@@ -47,8 +53,12 @@ service cloud.firestore {
         isSignedIn() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['parentUids']) &&
         request.resource.data.parentUids.hasAny([request.auth.uid]) &&
-        // Either parentUids didn't exist before, or new array contains all previous values (only additions allowed)
-        (!('parentUids' in resource.data) || request.resource.data.parentUids.hasAll(resource.data.parentUids))
+        // Robust check: Allow update if field is missing, null, or if we are strictly appending
+        (
+          !('parentUids' in resource.data) || 
+          resource.data.parentUids == null ||
+          request.resource.data.parentUids.hasAll(resource.data.parentUids)
+        )
       );
       allow delete: if isAdmin();
     }
@@ -110,6 +120,11 @@ service cloud.firestore {
     match /clients/{clientId}/interventionPlans/{planId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow write: if isAdmin() || isCoordinator();
+    }
+
+    // FCM Tokens
+    match /fcm_tokens/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
   }
 }

@@ -377,7 +377,7 @@ export async function notifyParentSessionCreated(
       {
         label: "View Schedule",
         type: "navigate" as const,
-        route: "/parent/schedule/"
+        route: "/parent/calendar/"
       }
     ]
   }));
@@ -421,7 +421,7 @@ export async function notifyParentSessionRescheduled(
       {
         label: "View Schedule",
         type: "navigate" as const,
-        route: "/parent/schedule/"
+        route: "/parent/calendar/"
       }
     ]
   }));
@@ -461,7 +461,7 @@ export async function notifyParentSessionCancelled(
       {
         label: "View Schedule",
         type: "navigate" as const,
-        route: "/parent/schedule/"
+        route: "/parent/calendar/"
       }
     ]
   }));

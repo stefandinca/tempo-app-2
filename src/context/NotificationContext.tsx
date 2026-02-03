@@ -17,27 +17,29 @@ import {
   onSnapshot,
   doc,
   updateDoc,
+  setDoc,
   Timestamp,
   startAfter,
   getDocs
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getToken } from "firebase/messaging";
+import { db, messaging } from "@/lib/firebase";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
-import { Notification, NotificationCategory } from "@/types/notifications";
+import { Notification as NotificationData, NotificationCategory } from "@/types/notifications";
 import {
   generateMockNotifications,
   USE_MOCK_NOTIFICATIONS
 } from "@/lib/mockNotifications";
 
 export interface GroupedNotifications {
-  today: Notification[];
-  yesterday: Notification[];
-  thisWeek: Notification[];
-  older: Notification[];
+  today: NotificationData[];
+  yesterday: NotificationData[];
+  thisWeek: NotificationData[];
+  older: NotificationData[];
 }
 
 interface NotificationContextType {
-  notifications: Notification[];
+  notifications: NotificationData[];
   unreadCount: number;
   loading: boolean;
   error: string | null;
@@ -47,9 +49,12 @@ interface NotificationContextType {
   hasMore: boolean;
   isDropdownOpen: boolean;
   setDropdownOpen: (open: boolean) => void;
-  filterByCategory: (category: NotificationCategory | 'all' | 'unread') => Notification[];
-  getGroupedNotifications: (filtered?: Notification[]) => GroupedNotifications;
+  filterByCategory: (category: NotificationCategory | 'all' | 'unread') => NotificationData[];
+  getGroupedNotifications: (filtered?: NotificationData[]) => GroupedNotifications;
   getCategoryCount: (category: NotificationCategory | 'all' | 'unread') => number;
+  requestPushPermission: () => Promise<void>;
+  pushPermissionStatus: NotificationPermission;
+  pushError: string | null;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -64,12 +69,88 @@ export function NotificationProvider({
   children: React.ReactNode;
 }) {
   const { user } = useAnyAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pushError, setPushError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [pushPermissionStatus, setPushPermissionStatus] = useState<NotificationPermission>('default');
+
+  const requestPushPermission = useCallback(async () => {
+    setPushError(null);
+    if (!messaging || !user) {
+       const msg = `Messaging/User missing. Msg: ${!!messaging}, User: ${!!user}`;
+       console.log(msg);
+       setPushError(msg);
+       return;
+    }
+
+    try {
+      console.log("[NotificationContext] Requesting permission...");
+      const permission = await Notification.requestPermission();
+      console.log("[NotificationContext] Permission result:", permission);
+      setPushPermissionStatus(permission);
+
+      if (permission === 'granted') {
+        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+        if (!vapidKey) {
+            throw new Error("Missing NEXT_PUBLIC_FIREBASE_VAPID_KEY");
+        }
+        
+        console.log("[NotificationContext] Registering service worker manually...");
+        // Handle basePath for production
+        const basePath = window.location.pathname.startsWith('/v2') ? '/v2' : '';
+        const swUrl = `${basePath}/firebase-messaging-sw.js`;
+        
+        const registration = await navigator.serviceWorker.register(swUrl, {
+          scope: `${basePath}/`
+        });
+        console.log("[NotificationContext] Service worker registered with scope:", registration.scope);
+
+        console.log("[NotificationContext] Getting token...");
+        const token = await getToken(messaging, {
+          vapidKey: vapidKey,
+          serviceWorkerRegistration: registration
+        });
+        
+        console.log("[NotificationContext] Token retrieved:", token ? "Yes (hidden)" : "No");
+        
+        if (token) {
+          // Save token to firestore
+          console.log("[NotificationContext] Saving token to Firestore for user:", user.uid);
+          await setDoc(doc(db, 'fcm_tokens', user.uid), {
+             token,
+             userId: user.uid,
+             updatedAt: Timestamp.now(),
+             platform: 'web',
+             userAgent: navigator.userAgent
+          }, { merge: true });
+          
+          console.log('FCM Token generated and saved');
+          setPushError(null); // Success
+        } else {
+            setPushError("No token received from FCM");
+        }
+      }
+    } catch (err: any) {
+      console.error('An error occurred while retrieving token. ', err);
+      setPushError(err.message || "Unknown error getting token");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      console.log("[NotificationContext] Initial permission status:", Notification.permission);
+      setPushPermissionStatus(Notification.permission);
+      
+      // If already granted, ensure we have the token
+      if (Notification.permission === 'granted' && user) {
+         requestPushPermission();
+      }
+    }
+  }, [user, requestPushPermission]); // Add user as dependency so it retries on login
 
   // Real-time listener for notifications
   useEffect(() => {
@@ -107,7 +188,7 @@ export function NotificationProvider({
           createdAt:
             doc.data().createdAt?.toDate?.()?.toISOString() ||
             doc.data().createdAt
-        })) as Notification[];
+        })) as NotificationData[];
 
         setNotifications(notifs);
         setLoading(false);
@@ -174,7 +255,7 @@ export function NotificationProvider({
 
   // Filter by category
   const filterByCategory = useCallback(
-    (category: NotificationCategory | 'all' | 'unread'): Notification[] => {
+    (category: NotificationCategory | 'all' | 'unread'): NotificationData[] => {
       if (category === 'all') return notifications;
       if (category === 'unread') return notifications.filter((n) => !n.read);
       return notifications.filter((n) => n.category === category);
@@ -194,7 +275,7 @@ export function NotificationProvider({
 
   // Get grouped notifications by date
   const getGroupedNotifications = useCallback(
-    (filtered?: Notification[]): GroupedNotifications => {
+    (filtered?: NotificationData[]): GroupedNotifications => {
       const notifs = filtered || notifications;
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -244,7 +325,7 @@ export function NotificationProvider({
       ...doc.data(),
       createdAt:
         doc.data().createdAt?.toDate?.()?.toISOString() || doc.data().createdAt
-    })) as Notification[];
+    })) as NotificationData[];
 
     setNotifications((prev) => [...prev, ...newNotifs]);
     setHasMore(snapshot.docs.length === PAGE_SIZE);
@@ -264,7 +345,10 @@ export function NotificationProvider({
     setDropdownOpen,
     filterByCategory,
     getGroupedNotifications,
-    getCategoryCount
+    getCategoryCount,
+    requestPushPermission,
+    pushPermissionStatus,
+    pushError
   };
 
   return (

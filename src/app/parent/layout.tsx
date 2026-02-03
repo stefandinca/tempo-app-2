@@ -25,7 +25,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { name: "Home", href: `/parent/dashboard/`, icon: Home },
-    { name: "Schedule", href: `/parent/schedule/`, icon: Calendar },
+    { name: "Schedule", href: `/parent/calendar/`, icon: Calendar },
     { name: "Progress", href: `/parent/progress/`, icon: BarChart2 },
     { name: "Billing", href: `/parent/billing/`, icon: CreditCard },
     { name: "Docs", href: `/parent/docs/`, icon: FileText },

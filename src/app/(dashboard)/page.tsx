@@ -158,7 +158,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
-              <h3 className="font-semibold text-neutral-900 dark:text-white">Today's Schedule</h3>
+              <h3 className="font-semibold text-neutral-900 dark:text-white">Today&apos;s Schedule</h3>
               <button className="text-sm text-primary-600 dark:text-primary-400 font-medium flex items-center gap-1 hover:underline">
                 View All <ArrowRight className="w-4 h-4" />
               </button>

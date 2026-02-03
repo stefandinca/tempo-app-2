@@ -12,51 +12,44 @@ import {
 } from "lucide-react";
 import { CATEGORY_META, formatRelativeTime } from "@/types/notifications";
 import { useNotifications } from "@/context/NotificationContext";
+import { useAnyAuth } from "@/hooks/useAnyAuth";
 
 interface ParentAlertsProps {
   clientName?: string;
 }
 
-const categoryIcons = {
-  schedule: Calendar,
-  attendance: CheckCircle,
-  billing: CreditCard,
-  client: FileText,
-  team: FileText,
-  system: Bell
-};
+// ... existing code ...
 
 export default function ParentAlerts({ clientName }: ParentAlertsProps) {
-  const { notifications, loading, markAsRead } = useNotifications();
+  const { notifications, loading, markAsRead, requestPushPermission, pushPermissionStatus, pushError } = useNotifications();
+  const { user } = useAnyAuth();
 
   // Show max 3 alerts
   const alerts = useMemo(() => notifications.slice(0, 3), [notifications]);
+  
+// ... existing code ...
 
-  if (loading) {
-    return (
-      <section className="px-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
+  const debugBox = (
+    <div className="bg-primary-50 dark:bg-primary-900/10 p-4 rounded-2xl border border-primary-100 dark:border-primary-800 flex items-center justify-between mb-4">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600">
+          <Bell className="w-5 h-5" />
         </div>
-        <div className="space-y-3 pb-8">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 animate-pulse"
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-700 rounded-xl" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4" />
-                  <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full" />
-                </div>
-              </div>
-            </div>
-          ))}
+        <div>
+          <p className="text-sm font-bold text-neutral-900 dark:text-white">Debug: Push Status</p>
+          <p className="text-xs text-neutral-500">Status: {pushPermissionStatus}</p>
+          <p className="text-[10px] font-mono text-neutral-400">ID: {user?.uid?.slice(0, 8)}...</p>
+          {pushError && <p className="text-xs text-error-500 font-bold mt-1">Err: {pushError}</p>}
         </div>
-      </section>
-    );
-  }
+      </div>
+      <button 
+        onClick={requestPushPermission}
+        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl transition-colors"
+      >
+        {pushPermissionStatus === 'granted' ? 'Refresh Token' : 'Enable'}
+      </button>
+    </div>
+  );
 
   if (alerts.length === 0) {
     return (
@@ -64,6 +57,7 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
         </div>
+        {debugBox}
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-center">
           <Bell className="w-10 h-10 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
           <p className="text-sm text-neutral-500 dark:text-neutral-400">No notifications yet</p>
@@ -87,18 +81,20 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
         <Link
-          href="/parent/schedule/"
+          href="/parent/calendar/"
           className="text-sm font-bold text-primary-600 hover:text-primary-700 dark:hover:text-primary-400"
         >
           View All
         </Link>
       </div>
 
+      {debugBox}
+
       <div className="space-y-3 pb-8">
         {alerts.map((alert) => {
           const Icon = categoryIcons[alert.category] || Bell;
           const meta = CATEGORY_META[alert.category];
-          const actionRoute = alert.actions?.[0]?.route || "/parent/schedule/";
+          const actionRoute = alert.actions?.[0]?.route || "/parent/calendar/";
 
           return (
             <Link
