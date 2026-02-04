@@ -1,13 +1,15 @@
 "use client";
 
-import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2, FileText } from "lucide-react";
+import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2, FileText, ClipboardCheck, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
+import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { clsx } from "clsx";
+import EvaluationRadarChart from "@/components/evaluations/EvaluationRadarChart";
 
 interface ClientOverviewTabProps {
   client: any;
@@ -18,6 +20,7 @@ interface ClientOverviewTabProps {
 export default function ClientOverviewTab({ client, pendingAction, onActionHandled }: ClientOverviewTabProps) {
   const { data: teamMembers } = useTeamMembers();
   const { data: events, loading: eventsLoading } = useClientEvents(client.id);
+  const { evaluations, loading: evaluationsLoading } = useClientEvaluations(client.id);
   const { success, error: toastError } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -369,6 +372,83 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
             )}
             {isGeneratingReport ? "Generating..." : "Generate Report"}
           </button>
+        </div>
+
+        {/* Latest Evaluation */}
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
+          <h3 className="font-bold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
+            <ClipboardCheck className="w-5 h-5 text-primary-500" />
+            Latest Evaluation
+          </h3>
+
+          {evaluationsLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-neutral-300" />
+            </div>
+          ) : evaluations.length > 0 ? (
+            (() => {
+              const latestEval = evaluations.find(e => e.status === "completed") || evaluations[0];
+              const previousEval = evaluations.find((e, i) => i > 0 && e.status === "completed");
+
+              return (
+                <div className="space-y-4">
+                  {/* Radar Chart */}
+                  <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-2">
+                    <EvaluationRadarChart
+                      evaluation={latestEval}
+                      previousEvaluation={previousEval}
+                      size="sm"
+                      showLegend={false}
+                    />
+                  </div>
+
+                  {/* Score & Info */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-neutral-500">{latestEval.type}</p>
+                      <p className="text-xs text-neutral-400">
+                        {new Date(latestEval.completedAt || latestEval.updatedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className={clsx(
+                        "text-2xl font-bold",
+                        latestEval.overallPercentage >= 70
+                          ? "text-success-600"
+                          : latestEval.overallPercentage >= 40
+                          ? "text-warning-600"
+                          : "text-error-600"
+                      )}>
+                        {latestEval.overallPercentage}%
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        {latestEval.status === "completed" ? "Completed" : "In Progress"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/clients/profile?id=${client.id}&tab=evaluations`}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all"
+                  >
+                    View All Evaluations
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              );
+            })()
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-sm text-neutral-500 mb-4">No evaluations yet</p>
+              <Link
+                href={`/clients/profile?id=${client.id}&tab=evaluations`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold transition-colors"
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                Start Evaluation
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Upcoming Schedule */}

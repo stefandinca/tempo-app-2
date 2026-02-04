@@ -1,0 +1,235 @@
+{
+  "A - Cooperare si Atentie": [
+    { "id": "A1", "text": "Se așează pe scaun când i se cere" },
+    { "id": "A2", "text": "Menține contactul vizual când este solicitat" },
+    { "id": "A3", "text": "Răspunde la numele său" },
+    { "id": "A4", "text": "Urmează instrucțiuni simple (ex: 'vino aici')" },
+    { "id": "A5", "text": "Acceptă activități dirijate de adult" },
+    { "id": "A6", "text": "Cooperează în activități de grup" },
+    { "id": "A7", "text": "Așteaptă rândul în activități" },
+    { "id": "A8", "text": "Finalizează sarcini simple" },
+    { "id": "A9", "text": "Lucrează independent 5 minute" },
+    { "id": "A10", "text": "Acceptă feedback și corecții" }
+  ],
+
+  "B - Comportament Vizual": [
+    { "id": "B1", "text": "Urmărește obiecte în mișcare" },
+    { "id": "B2", "text": "Fixează privirea pe imagini" },
+    { "id": "B3", "text": "Identifică obiecte în mediu" },
+    { "id": "B4", "text": "Potrivește obiecte identice" },
+    { "id": "B5", "text": "Potrivește imagini cu obiecte" },
+    { "id": "B6", "text": "Identifică diferențe între imagini" },
+    { "id": "B7", "text": "Potrivește culori" },
+    { "id": "B8", "text": "Potrivește forme" },
+    { "id": "B9", "text": "Sortează obiecte după caracteristici" },
+    { "id": "B10", "text": "Completează puzzle-uri simple" }
+  ],
+
+  "C - Imitatie Motorie": [
+    { "id": "C1", "text": "Imită acțiuni simple (bate din palme)" },
+    { "id": "C2", "text": "Imită mișcări ale brațelor" },
+    { "id": "C3", "text": "Imită mișcări faciale" },
+    { "id": "C4", "text": "Imită gesturi cu obiecte" },
+    { "id": "C5", "text": "Imită secvențe de 2 mișcări" },
+    { "id": "C6", "text": "Imită mișcări fine (ex: degetele)" },
+    { "id": "C7", "text": "Imită mișcări grosiere (sărituri)" },
+    { "id": "C8", "text": "Imită acțiuni cu jucării" },
+    { "id": "C9", "text": "Imită secvențe complexe" },
+    { "id": "C10", "text": "Imită în activități de grup" }
+  ],
+
+  "D - Vorbire si Limbaj Receptiv": [
+    { "id": "D1", "text": "Răspunde la numele său" },
+    { "id": "D2", "text": "Identifică 5 obiecte familiare" },
+    { "id": "D3", "text": "Identifică 10 imagini" },
+    { "id": "D4", "text": "Urmează comenzi simple (dă-mi)" },
+    { "id": "D5", "text": "Identifică părți ale corpului" },
+    { "id": "D6", "text": "Înțelege prepoziții (în, pe, sub)" },
+    { "id": "D7", "text": "Identifică acțiuni în imagini" },
+    { "id": "D8", "text": "Urmează instrucțiuni în 2 pași" },
+    { "id": "D9", "text": "Înțelege concepte de mărime" },
+    { "id": "D10", "text": "Înțelege întrebări 'ce', 'cine', 'unde'" }
+  ],
+
+  "E - Cereri (Mand)": [
+    { "id": "E1", "text": "Cere obiecte preferate (gestual/verbal)" },
+    { "id": "E2", "text": "Cere ajutor când are nevoie" },
+    { "id": "E3", "text": "Cere acțiuni (deschide, dă-mi)" },
+    { "id": "E4", "text": "Cere informații ('Ce este?')" },
+    { "id": "E5", "text": "Cere absența (dispariția) obiectelor" },
+    { "id": "E6", "text": "Cere permisiune" },
+    { "id": "E7", "text": "Cere atenție" },
+    { "id": "E8", "text": "Cere pauză sau terminare" },
+    { "id": "E9", "text": "Cere schimbare de activitate" },
+    { "id": "E10", "text": "Negociază și cere alternative" }
+  ],
+
+  "F - Denumire (Tact)": [
+    { "id": "F1", "text": "Denumește 5 obiecte" },
+    { "id": "F2", "text": "Denumește 10 imagini" },
+    { "id": "F3", "text": "Denumește acțiuni" },
+    { "id": "F4", "text": "Denumește culori" },
+    { "id": "F5", "text": "Denumește forme" },
+    { "id": "F6", "text": "Denumește părți ale corpului" },
+    { "id": "F7", "text": "Denumește emoții în imagini" },
+    { "id": "F8", "text": "Denumește locații" },
+    { "id": "F9", "text": "Denumește caracteristici (mare/mic)" },
+    { "id": "F10", "text": "Denumește categorii de obiecte" }
+  ],
+
+  "G - Limbaj Intraverbal": [
+    { "id": "G1", "text": "Completează cântece familiare" },
+    { "id": "G2", "text": "Completează fraze simple" },
+    { "id": "G3", "text": "Răspunde la întrebări simple despre sine" },
+    { "id": "G4", "text": "Răspunde la întrebări despre activități" },
+    { "id": "G5", "text": "Denumește obiecte dintr-o categorie" },
+    { "id": "G6", "text": "Răspunde la întrebări 'ce', 'unde', 'cine'" },
+    { "id": "G7", "text": "Descrie caracteristici ale obiectelor" },
+    { "id": "G8", "text": "Relatează experiențe personale" },
+    { "id": "G9", "text": "Conversație reciprocă simplă" },
+    { "id": "G10", "text": "Utilizează pronumele corect" }
+  ],
+
+  "H - Conversatie Spontana": [
+    { "id": "H1", "text": "Inițiază salutări" },
+    { "id": "H2", "text": "Comentează despre mediul înconjurător" },
+    { "id": "H3", "text": "Împărtășește informații despre sine" },
+    { "id": "H4", "text": "Pune întrebări pentru informații" },
+    { "id": "H5", "text": "Menține conversație 2-3 schimburi" },
+    { "id": "H6", "text": "Răspunde adecvat la comentarii" },
+    { "id": "H7", "text": "Schimbă subiecte în mod adecvat" },
+    { "id": "H8", "text": "Folosește limbaj politicos" },
+    { "id": "H9", "text": "Conversație în grup" },
+    { "id": "H10", "text": "Ajustează vorbirea după context" }
+  ],
+
+  "I - Sintaxa si Gramatica": [
+    { "id": "I1", "text": "Utilizează cuvinte simple" },
+    { "id": "I2", "text": "Combină 2 cuvinte" },
+    { "id": "I3", "text": "Folosește propoziții de 3-4 cuvinte" },
+    { "id": "I4", "text": "Folosește plural regulat" },
+    { "id": "I5", "text": "Folosește verbe la trecut" },
+    { "id": "I6", "text": "Folosește prepoziții" },
+    { "id": "I7", "text": "Folosește pronume (eu, tu, el)" },
+    { "id": "I8", "text": "Folosește propoziții complexe" },
+    { "id": "I9", "text": "Folosește conjuncții (și, dar)" },
+    { "id": "I10", "text": "Structuri gramaticale corecte" }
+  ],
+
+  "J - Joc si Timp Liber": [
+    { "id": "J1", "text": "Explorează jucării independent" },
+    { "id": "J2", "text": "Joacă funcțional cu jucării" },
+    { "id": "J3", "text": "Joc imaginar simplu" },
+    { "id": "J4", "text": "Joc paralel cu colegii" },
+    { "id": "J5", "text": "Joc asociativ (alături de alții)" },
+    { "id": "J6", "text": "Joc cooperativ simplu" },
+    { "id": "J7", "text": "Joc de rol" },
+    { "id": "J8", "text": "Joc creativ" },
+    { "id": "J9", "text": "Participă la jocuri cu reguli" },
+    { "id": "J10", "text": "Organizează activități de joc" }
+  ],
+
+  "K - Interactiuni Sociale": [
+    { "id": "K1", "text": "Răspunde la salutări" },
+    { "id": "K2", "text": "Imită comportamente sociale" },
+    { "id": "K3", "text": "Inițiază interacțiuni cu adulții" },
+    { "id": "K4", "text": "Inițiază interacțiuni cu copiii" },
+    { "id": "K5", "text": "Împarte jucării/obiecte" },
+    { "id": "K6", "text": "Așteaptă rândul" },
+    { "id": "K7", "text": "Arată empatie față de alții" },
+    { "id": "K8", "text": "Respectă spațiul personal" },
+    { "id": "K9", "text": "Rezolvă conflicte simplu" },
+    { "id": "K10", "text": "Menține prietenii" }
+  ],
+
+  "L - Comportamente Adaptive": [
+    { "id": "L1", "text": "Acceptă tranziții între activități" },
+    { "id": "L2", "text": "Tolerează schimbări în rutină" },
+    { "id": "L3", "text": "Acceptă 'nu' fără criză majoră" },
+    { "id": "L4", "text": "Comunică frustrarea adecvat" },
+    { "id": "L5", "text": "Urmează reguli în diferite contexte" },
+    { "id": "L6", "text": "Auto-calmează după supărare" },
+    { "id": "L7", "text": "Solicită ajutor când este necesar" },
+    { "id": "L8", "text": "Demonstrează flexibilitate cognitivă" },
+    { "id": "L9", "text": "Gestionează medii noi" },
+    { "id": "L10", "text": "Generalizează competențe în contexte noi" }
+  ],
+
+  "M - Abilitati Motorii Grosiere": [
+    { "id": "M1", "text": "Merge independent" },
+    { "id": "M2", "text": "Aleargă" },
+    { "id": "M3", "text": "Sare cu picioarele împreună" },
+    { "id": "M4", "text": "Urcă scări alternând picioarele" },
+    { "id": "M5", "text": "Șterge mingea" },
+    { "id": "M6", "text": "Prinde mingea" },
+    { "id": "M7", "text": "Pedalează pe triciclă/bicicletă" },
+    { "id": "M8", "text": "Echilibru pe un picior" },
+    { "id": "M9", "text": "Saltă" },
+    { "id": "M10", "text": "Participă la activități sportive" }
+  ],
+
+  "N - Abilitati Motorii Fine": [
+    { "id": "N1", "text": "Apucă obiecte mici" },
+    { "id": "N2", "text": "Prindere peniță (pencil grasp)" },
+    { "id": "N3", "text": "Desenează linii" },
+    { "id": "N4", "text": "Copiază cercuri" },
+    { "id": "N5", "text": "Foarfece - taie hârtie" },
+    { "id": "N6", "text": "Îmbină piese de construcție" },
+    { "id": "N7", "text": "Înșiră mărgele" },
+    { "id": "N8", "text": "Desenează forme complexe" },
+    { "id": "N9", "text": "Scrie litere" },
+    { "id": "N10", "text": "Activități manuale complexe" }
+  ],
+
+  "O - Autonomie Personala": [
+    { "id": "O1", "text": "Bea din pahar independent" },
+    { "id": "O2", "text": "Mănâncă cu lingura" },
+    { "id": "O3", "text": "Mănâncă cu furculița" },
+    { "id": "O4", "text": "Se spală pe mâini" },
+    { "id": "O5", "text": "Se șterge pe față" },
+    { "id": "O6", "text": "Se îmbracă parțial (haine simple)" },
+    { "id": "O7", "text": "Se dezbracă independent" },
+    { "id": "O8", "text": "Pune pantofii (fără șireturi)" },
+    { "id": "O9", "text": "Igiena toaletă (cu supravegheredosit" },
+    { "id": "O10", "text": "Rutină completă de îngrijire personală" }
+  ],
+
+  "P - Abilitati Matematice": [
+    { "id": "P1", "text": "Potrivește cantități (1:1)" },
+    { "id": "P2", "text": "Recunoaște numerele 1-5" },
+    { "id": "P3", "text": "Numără obiecte până la 5" },
+    { "id": "P4", "text": "Recunoaște numerele 1-10" },
+    { "id": "P5", "text": "Numără obiecte până la 10" },
+    { "id": "P6", "text": "Identifică 'mai mult' și 'mai puțin'" },
+    { "id": "P7", "text": "Rezolvă probleme simple de adunare" },
+    { "id": "P8", "text": "Rezolvă probleme simple de scădere" },
+    { "id": "P9", "text": "Recunoaște monede" },
+    { "id": "P10", "text": "Înțelege concepte de timp (ceas)" }
+  ],
+
+  "Q - Citire": [
+    { "id": "Q1", "text": "Recunoaște imagini în cărți" },
+    { "id": "Q2", "text": "Potrivește litere identice" },
+    { "id": "Q3", "text": "Identifică 5 litere" },
+    { "id": "Q4", "text": "Recunoaște numele propriu" },
+    { "id": "Q5", "text": "Identifică toate literele" },
+    { "id": "Q6", "text": "Citește cuvinte simple (CVC)" },
+    { "id": "Q7", "text": "Citește propoziții simple" },
+    { "id": "Q8", "text": "Înțelege textul citit" },
+    { "id": "Q9", "text": "Răspunde la întrebări despre text" },
+    { "id": "Q10", "text": "Citește paragrafe cu fluență" }
+  ],
+
+  "R - Scriere": [
+    { "id": "R1", "text": "Zgârie hârtia (scribbling)" },
+    { "id": "R2", "text": "Imită linii verticale/orizontale" },
+    { "id": "R3", "text": "Copiază cercuri și cruci" },
+    { "id": "R4", "text": "Trasează litere" },
+    { "id": "R5", "text": "Copiază litere" },
+    { "id": "R6", "text": "Scrie numele propriu" },
+    { "id": "R7", "text": "Scrie litere independent" },
+    { "id": "R8", "text": "Scrie cuvinte simple" },
+    { "id": "R9", "text": "Scrie propoziții simple" },
+    { "id": "R10", "text": "Scrie texte scurte" }
+  ]
+}

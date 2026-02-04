@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -9,19 +9,22 @@ import {
   BarChart2,
   FileText,
   LogOut,
-  CreditCard
+  CreditCard,
+  Loader2
 } from "lucide-react";
 import { clsx } from "clsx";
 import { signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { ParentAuthProvider } from "@/context/ParentAuthContext";
+import { ParentAuthProvider, useParentAuth } from "@/context/ParentAuthContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import ParentNotificationBell from "@/components/notifications/ParentNotificationBell";
 import ParentNotificationDropdown from "@/components/notifications/ParentNotificationDropdown";
 
+// Parent Portal Layout
 function ParentLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { isAuthenticated, loading } = useParentAuth();
 
   const navItems = [
     { name: "Home", href: `/parent/dashboard/`, icon: Home },
@@ -51,7 +54,35 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
   // If we are on the landing page, just show children without the portal shell
   const isLandingPage = pathname === "/parent" || pathname === "/parent/" || pathname.endsWith("/parent") || pathname.endsWith("/parent/");
 
+  // Redirect to login if not on landing page and not authenticated
+  useEffect(() => {
+    if (isLandingPage || loading) return;
+
+    if (!isAuthenticated) {
+      router.replace("/parent/");
+    }
+  }, [isAuthenticated, loading, isLandingPage, router]);
+
+  // Show landing page without auth check
   if (isLandingPage) return <>{children}</>;
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    );
+  }
+
+  // Don't render protected content if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-20 lg:pb-0 lg:pl-20 font-sans">

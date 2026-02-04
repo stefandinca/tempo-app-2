@@ -7,6 +7,7 @@ import { Loader2, KeyRound, ChevronRight } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
+import { useParentAuth } from "@/context/ParentAuthContext";
 
 function ParentLoginContent() {
   const [code, setCode] = useState("");
@@ -14,6 +15,16 @@ function ParentLoginContent() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated, loading: authLoading } = useParentAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (isAuthenticated) {
+      router.replace("/parent/dashboard/");
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   // Auto-fill code from URL if present
   useEffect(() => {
@@ -22,6 +33,24 @@ function ParentLoginContent() {
       setCode(urlCode.toUpperCase());
     }
   }, [searchParams]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    );
+  }
+
+  // Don't show login if already authenticated
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();

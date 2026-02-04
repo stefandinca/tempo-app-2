@@ -25,6 +25,9 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
   const [formData, setFormData] = useState({
     name: "",
     birthDate: "",
+    diagnosisDate: "",
+    primaryDiagnosis: "",
+    diagnosisLevel: "1",
     phone: "",
     parentName: "",
     parentEmail: "",
@@ -38,6 +41,9 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
       setFormData({
         name: client.name || "",
         birthDate: client.birthDate || "",
+        diagnosisDate: client.diagnosisDate || "",
+        primaryDiagnosis: client.primaryDiagnosis || "",
+        diagnosisLevel: client.diagnosisLevel?.toString() || "1",
         phone: client.phone || "",
         parentName: client.parentName || "",
         parentEmail: client.parentEmail || "",
@@ -56,6 +62,9 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
       const payload = {
         name: formData.name,
         birthDate: formData.birthDate || null,
+        diagnosisDate: formData.diagnosisDate || null,
+        primaryDiagnosis: formData.primaryDiagnosis,
+        diagnosisLevel: parseInt(formData.diagnosisLevel),
         phone: formData.phone,
         parentName: formData.parentName,
         parentEmail: formData.parentEmail,
@@ -131,6 +140,41 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
                 value={formData.birthDate}
                 onChange={e => setFormData({...formData, birthDate: e.target.value})}
               />
+            </div>
+          </div>
+
+          {/* Clinical Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Primary Diagnosis</label>
+              <input
+                type="text"
+                placeholder="e.g. Autism Spectrum Disorder"
+                className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                value={formData.primaryDiagnosis}
+                onChange={e => setFormData({...formData, primaryDiagnosis: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Diagnosis Date</label>
+              <input
+                type="date"
+                className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                value={formData.diagnosisDate}
+                onChange={e => setFormData({...formData, diagnosisDate: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Support Level (DSM-5)</label>
+              <select
+                className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                value={formData.diagnosisLevel}
+                onChange={e => setFormData({...formData, diagnosisLevel: e.target.value})}
+              >
+                <option value="1">Level 1 (Requiring Support)</option>
+                <option value="2">Level 2 (Substantial Support)</option>
+                <option value="3">Level 3 (Very Substantial Support)</option>
+              </select>
             </div>
           </div>
 

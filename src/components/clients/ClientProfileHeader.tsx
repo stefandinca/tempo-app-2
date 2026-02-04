@@ -19,11 +19,10 @@ interface ClientProfileHeaderProps {
 
 const TABS = [
   { id: "overview", label: "Overview" },
-  { id: "evolution", label: "Evolution" },
+  { id: "evaluations", label: "Evaluations" },
   { id: "programs", label: "Programs" },
   { id: "plan", label: "Plan" },
   { id: "docs", label: "Docs" },
-  { id: "reports", label: "Reports" },
 ];
 
 export default function ClientProfileHeader({ client, activeTab, onTabChange, onEdit }: ClientProfileHeaderProps) {

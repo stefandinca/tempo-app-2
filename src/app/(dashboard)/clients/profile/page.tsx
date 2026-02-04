@@ -8,6 +8,7 @@ import ClientOverviewTab from "@/components/clients/ClientOverviewTab";
 import ClientProgramsTab from "@/components/clients/ClientProgramsTab";
 import ClientPlanTab from "@/components/clients/ClientPlanTab";
 import ClientDocsTab from "@/components/clients/ClientDocsTab";
+import ClientEvaluationsTab from "@/components/clients/ClientEvaluationsTab";
 import EditClientModal from "@/components/clients/EditClientModal";
 import { Loader2, AlertCircle } from "lucide-react";
 
@@ -24,7 +25,7 @@ function ClientProfileContent() {
 
   // Sync tab with URL parameter
   useEffect(() => {
-    if (tabParam && ["overview", "programs", "plan", "docs"].includes(tabParam)) {
+    if (tabParam && ["overview", "programs", "plan", "evaluations", "docs"].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
@@ -98,7 +99,8 @@ function ClientProfileContent() {
           />
         )}
         {activeTab === "docs" && <ClientDocsTab client={client} />}
-        {!["overview", "programs", "plan", "docs"].includes(activeTab) && (
+        {activeTab === "evaluations" && <ClientEvaluationsTab client={client} />}
+        {!["overview", "programs", "plan", "docs", "evaluations"].includes(activeTab) && (
           <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800">
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white capitalize">{activeTab} Section</h3>
             <p className="text-neutral-500 mt-1">This section is currently under development.</p>

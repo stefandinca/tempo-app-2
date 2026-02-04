@@ -18,6 +18,8 @@ Lead UX Researcher: Owner of the user journey and screen hierarchy. Ensures ever
 
 UI Designer: Responsible for the Design System. Translates requirements into high-fidelity React components using established spacing, color, and typography tokens.
 
+Clinical Director (Corina): Therapist, coordinator, and administrator of an Autism therapy center. Works with children with Autism, ADHD, ADD, and other special needs. Specializes in ABA (Applied Behavior Analysis) and speech therapy (logopedics). Provides clinical expertise on evaluation methodologies (ABLLS-R, VB-MAPP, etc.), therapy workflows, parent communication needs, and ensures features align with real-world clinical practices.
+
 3. Guiding Principles
 App-First Feel: Prioritize transitions, persistent layouts (Sidebars/Bottom bars), and "optimistic UI" updates.
 

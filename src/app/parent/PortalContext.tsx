@@ -1,93 +1,55 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db, auth } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, arrayUnion } from "firebase/firestore";
-import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
+import { db } from "@/lib/firebase";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { Loader2, AlertCircle } from "lucide-react";
+import { useParentAuth } from "@/context/ParentAuthContext";
 
 export function usePortalData() {
+  const { isAuthenticated, clientId, loading: authLoading } = useParentAuth();
+  
   const [data, setData] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
+  const [evaluations, setEvaluations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [authReady, setAuthReady] = useState(false);
 
-  // First, restore Firebase auth state
+  // Sync loading state with auth
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // User is already signed in
-        console.log("[PortalContext] Auth restored, UID:", user.uid);
-        setAuthReady(true);
-      } else {
-        // No user signed in - check if we have stored credentials
-        const storedUid = typeof window !== 'undefined' ? localStorage.getItem("parent_uid") : null;
-        const storedCode = typeof window !== 'undefined' ? localStorage.getItem("parent_client_code") : null;
+    if (authLoading) {
+      setLoading(true);
+    }
+  }, [authLoading]);
 
-        if (storedCode) {
-          // We have a stored session, sign in anonymously again
-          try {
-            console.log("[PortalContext] Re-establishing anonymous auth...");
-            const userCredential = await signInAnonymously(auth);
-            const newUid = userCredential.user.uid;
-            console.log("[PortalContext] New anonymous UID:", newUid);
-
-            // Add the new UID to the client's parentUids array
-            const storedClientId = localStorage.getItem("parent_client_id");
-            if (storedClientId) {
-              try {
-                await updateDoc(doc(db, "clients", storedClientId), {
-                  parentUids: arrayUnion(newUid)
-                });
-                console.log("[PortalContext] Added new UID to parentUids");
-              } catch (updateErr) {
-                console.error("[PortalContext] Failed to update parentUids:", updateErr);
-                // Continue anyway - the UID might already be there from previous session
-              }
-            }
-
-            localStorage.setItem("parent_uid", newUid);
-            setAuthReady(true);
-          } catch (err) {
-            console.error("[PortalContext] Failed to restore auth:", err);
-            setError("Authentication failed. Please log in again.");
-            setLoading(false);
-          }
-        } else {
-          // No stored session
-          setAuthReady(true);
-        }
-      }
-    });
-
-    return () => unsubscribeAuth();
-  }, []);
-
-  // Then fetch data once auth is ready
+  // Fetch data once authenticated
   useEffect(() => {
-    if (!authReady) return;
+    if (authLoading) return;
 
-    // Get code from localStorage
-    const clientCode = typeof window !== 'undefined' ? localStorage.getItem("parent_client_code") : null;
-
-    if (!clientCode) {
-      setError("No client code found. Please log in.");
+    if (!isAuthenticated || !clientId) {
+      // If auth finished but not authenticated, we don't fetch data
+      // The layout will redirect to login page
       setLoading(false);
       return;
     }
 
-    // 1. Fetch Client Info
+    setLoading(true);
+    setError(null);
+
+    // 1. Fetch Client Info (using ID directly now)
+    const clientRef = collection(db, "clients");
+    // We already have the ID, but let's subscribe to the doc to get updates
     const clientQuery = query(
-      collection(db, "clients"),
-      where("clientCode", "==", clientCode.toUpperCase())
+        clientRef,
+        where("__name__", "==", clientId) // Query by doc ID
     );
 
     let unsubscribeSessions: (() => void) | null = null;
     let unsubscribeServices: (() => void) | null = null;
     let unsubscribePrograms: (() => void) | null = null;
+    let unsubscribeEvaluations: (() => void) | null = null;
 
     const unsubscribeClient = onSnapshot(clientQuery, (snapshot) => {
       if (snapshot.empty) {
@@ -97,8 +59,7 @@ export function usePortalData() {
       }
 
       const clientDoc = snapshot.docs[0];
-      const clientId = clientDoc.id;
-      const clientInfo = { id: clientId, ...clientDoc.data() };
+      const clientInfo = { id: clientDoc.id, ...clientDoc.data() };
       setData(clientInfo);
 
       // 2. Fetch Client Sessions (Real-time)
@@ -132,6 +93,23 @@ export function usePortalData() {
         const progItems: any[] = [];
         progSnap.forEach(doc => progItems.push({ id: doc.id, ...doc.data() }));
         setPrograms(progItems);
+      });
+
+      // 5. Fetch Completed Evaluations
+      if (unsubscribeEvaluations) unsubscribeEvaluations();
+      const evaluationsQuery = query(
+        collection(db, "clients", clientId, "evaluations"),
+        where("status", "==", "completed"),
+        orderBy("completedAt", "desc")
+      );
+      
+      unsubscribeEvaluations = onSnapshot(evaluationsQuery, (evalSnap) => {
+        const evalItems: any[] = [];
+        evalSnap.forEach(doc => evalItems.push({ id: doc.id, ...doc.data() }));
+        setEvaluations(evalItems);
+        setLoading(false);
+      }, (err) => {
+        console.error("Evaluations fetch error:", err);
         setLoading(false);
       });
 
@@ -146,10 +124,11 @@ export function usePortalData() {
       if (unsubscribeSessions) unsubscribeSessions();
       if (unsubscribeServices) unsubscribeServices();
       if (unsubscribePrograms) unsubscribePrograms();
+      if (unsubscribeEvaluations) unsubscribeEvaluations();
     };
-  }, [authReady]);
+  }, [isAuthenticated, clientId, authLoading]);
 
-  return { data, sessions, services, programs, loading, error };
+  return { data, sessions, services, programs, evaluations, loading, error };
 }
 
 export function PortalLoading() {

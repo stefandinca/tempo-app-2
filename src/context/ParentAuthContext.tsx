@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User, onAuthStateChanged, signInAnonymously, signOut as firebaseSignOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 
 interface ParentAuthContextType {
   user: User | null;
@@ -26,31 +26,65 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      // Only handle anonymous users in parent context
       if (authUser?.isAnonymous) {
+        // User is logged in anonymously
         setUser(authUser);
 
-        // Restore session from localStorage
+        // Check if we have stored session info
         const storedClientId = localStorage.getItem("parent_client_id");
         const storedClientName = localStorage.getItem("parent_client_name");
         const storedParentUid = localStorage.getItem("parent_uid");
 
-        // Verify the stored UID matches current auth user
-        if (storedClientId && storedParentUid === authUser.uid) {
+        if (storedClientId) {
+          // If the UID has changed (e.g. new session), we need to re-register it with the client
+          if (storedParentUid !== authUser.uid) {
+            console.log("[ParentAuth] UID mismatch or new session. Re-registering with client...");
+            try {
+              const clientRef = doc(db, "clients", storedClientId);
+              await updateDoc(clientRef, {
+                parentUids: arrayUnion(authUser.uid)
+              });
+              console.log("[ParentAuth] Re-registered successfully.");
+              localStorage.setItem("parent_uid", authUser.uid);
+            } catch (err) {
+              console.error("[ParentAuth] Failed to re-register UID with client:", err);
+              // We continue anyway, as the user might already be in the list
+              // or the update might fail due to permissions if they aren't (catch-22 handled by logic flow)
+            }
+          }
+
+          // Restore session state
           setClientId(storedClientId);
           setClientName(storedClientName);
         } else {
-          // UID mismatch - clear stale session
+          // No stored client info, clear state
           setClientId(null);
           setClientName(null);
         }
+        setLoading(false);
       } else {
-        // Not an anonymous user - don't set user in parent context
-        setUser(null);
-        setClientId(null);
-        setClientName(null);
+        // Not logged in (or not anonymous)
+        // Check if we should auto-login based on stored credentials
+        const storedCode = localStorage.getItem("parent_client_code");
+        
+        if (storedCode && !authUser) {
+          console.log("[ParentAuth] No active session, but found stored code. Auto-logging in...");
+          try {
+            await signInAnonymously(auth);
+            // The listener will fire again with the new user
+            return;
+          } catch (err) {
+            console.error("[ParentAuth] Auto-login failed:", err);
+            setLoading(false);
+          }
+        } else {
+          // No stored code, or logged in as non-anonymous (which shouldn't happen in parent portal usually)
+          setUser(null);
+          setClientId(null);
+          setClientName(null);
+          setLoading(false);
+        }
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
