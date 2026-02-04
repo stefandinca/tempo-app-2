@@ -107,6 +107,11 @@ export default function EvaluationSummary({
     ? getPriorityAreas(evaluation.categorySummaries)
     : [];
 
+  // Calculate domain scores
+  const domainScores = evaluation?.categorySummaries
+    ? calculateDomainScores(evaluation.categorySummaries)
+    : {};
+
   // Generate suggested goals from emerging skills
   const suggestedGoals: SuggestedGoal[] = evaluation
     ? generateABLLSGoals(evaluation, clientData.name || "Client", ABLLS_CATEGORIES)
@@ -382,6 +387,48 @@ export default function EvaluationSummary({
                 />
               )}
 
+              {/* Domain Breakdown */}
+              <div className="bg-white dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
+                  Domain Analysis
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(domainScores).map(([domain, data]) => (
+                    <div key={domain} className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl border border-neutral-100 dark:border-neutral-700">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-neutral-800 dark:text-neutral-200 text-sm">
+                          {domain}
+                        </h4>
+                        <span className={clsx(
+                          "text-sm font-bold",
+                          data.percentage >= 80 ? "text-success-600" :
+                          data.percentage >= 60 ? "text-blue-600" :
+                          data.percentage >= 40 ? "text-warning-600" :
+                          "text-error-600"
+                        )}>
+                          {data.percentage}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+                        <div
+                          className={clsx(
+                            "h-full rounded-full transition-all",
+                            data.percentage >= 80 ? "bg-success-500" :
+                            data.percentage >= 60 ? "bg-blue-500" :
+                            data.percentage >= 40 ? "bg-warning-500" :
+                            "bg-error-500"
+                          )}
+                          style={{ width: `${data.percentage}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-neutral-500 mt-2">
+                        Categories: {data.categories.join(", ")}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Category Breakdown */}
               <div>
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
@@ -514,7 +561,14 @@ export default function EvaluationSummary({
               className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
-              Export PDF
+              Clinical PDF
+            </button>
+            <button 
+              onClick={() => generateEvaluationPDF(evaluation!, clientData, previousEvaluation, allEvaluations, true)}
+              className="px-4 py-2 rounded-lg text-sm font-medium border border-primary-200 text-primary-700 hover:bg-primary-50 transition-colors flex items-center gap-2"
+            >
+              <User className="w-4 h-4" />
+              Parent Version
             </button>
             {onReEvaluate && (
               <button

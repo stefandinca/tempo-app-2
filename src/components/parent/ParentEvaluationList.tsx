@@ -1,10 +1,12 @@
 import { ChevronRight, Calendar, BarChart2 } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
+import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { EvaluationRadarChartMini } from "@/components/evaluations/EvaluationRadarChart";
+import { clsx } from "clsx";
 
 interface ParentEvaluationListProps {
-  evaluations: Evaluation[];
-  onSelect: (evaluation: Evaluation) => void;
+  evaluations: (Evaluation | VBMAPPEvaluation)[];
+  onSelect: (evaluation: Evaluation | VBMAPPEvaluation) => void;
 }
 
 export default function ParentEvaluationList({ evaluations, onSelect }: ParentEvaluationListProps) {
@@ -24,45 +26,82 @@ export default function ParentEvaluationList({ evaluations, onSelect }: ParentEv
 
   return (
     <div className="space-y-4">
-      {evaluations.map((evaluation) => (
-        <button
-          key={evaluation.id}
-          onClick={() => onSelect(evaluation)}
-          className="w-full text-left bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-all group"
-        >
-          <div className="flex items-center gap-4">
-            {/* Mini Chart */}
-            <div className="w-20 h-20 flex-shrink-0 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl overflow-hidden">
-              <EvaluationRadarChartMini evaluation={evaluation} className="w-full h-full" />
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-[10px] font-bold uppercase tracking-wider rounded">
-                  {evaluation.type}
-                </span>
-                <span className="text-xs text-neutral-500">
-                  {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
-                </span>
+      {evaluations.map((evaluation) => {
+        const isABLLS = evaluation.type === 'ABLLS';
+        const score = isABLLS 
+          ? (evaluation as Evaluation).overallPercentage 
+          : (evaluation as VBMAPPEvaluation).overallMilestonePercentage;
+        
+        return (
+          <button
+            key={evaluation.id}
+            onClick={() => onSelect(evaluation)}
+            className="w-full text-left bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              {/* Mini Chart - Only for ABLLS currently */}
+              <div className="w-20 h-20 flex-shrink-0 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl overflow-hidden flex items-center justify-center">
+                {isABLLS ? (
+                  <EvaluationRadarChartMini evaluation={evaluation as Evaluation} className="w-full h-full" />
+                ) : (
+                  <div className="text-center">
+                    <span className="block text-2xl font-bold text-primary-600">{(evaluation as VBMAPPEvaluation).overallMilestoneScore}</span>
+                    <span className="text-[10px] text-neutral-500 uppercase">Points</span>
+                  </div>
+                )}
               </div>
-              
-              <h3 className="font-bold text-neutral-900 dark:text-white truncate">
-                Evaluation Report
-              </h3>
-              
-              <p className="text-sm text-neutral-500 mt-1">
-                Overall Score: <span className="font-bold text-primary-600">{evaluation.overallPercentage}%</span>
-              </p>
-            </div>
 
-            {/* Chevron */}
-            <div className="text-neutral-300 group-hover:text-primary-500 transition-colors">
-              <ChevronRight className="w-5 h-5" />
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={clsx(
+                    "px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded",
+                    isABLLS 
+                      ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400"
+                      : "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
+                  )}>
+                    {evaluation.type}
+                  </span>
+                  <span className="text-xs text-neutral-500">
+                    {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+                
+                <h3 className="font-bold text-neutral-900 dark:text-white truncate">
+                  {isABLLS ? "Skills Assessment" : "Milestones Assessment"}
+                </h3>
+                
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                  <p className="text-sm text-neutral-500">
+                    Score: <span className="font-bold text-neutral-900 dark:text-white">{score}%</span>
+                  </p>
+                  
+                  {isABLLS ? (
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-success-500" />
+                      <span className="text-xs text-neutral-500">
+                        {Object.values((evaluation as Evaluation).categorySummaries).filter(c => c.percentage >= 80).length} Mastered
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-warning-500" />
+                      <span className="text-xs text-neutral-500">
+                        {(evaluation as VBMAPPEvaluation).barrierSummary.severeBarriers.length} Barriers
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Chevron */}
+              <div className="text-neutral-300 group-hover:text-primary-500 transition-colors">
+                <ChevronRight className="w-5 h-5" />
+              </div>
             </div>
-          </div>
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }

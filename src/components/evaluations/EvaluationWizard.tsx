@@ -119,12 +119,13 @@ export default function EvaluationWizard({
 
   // Handle score change
   const handleScoreChange = useCallback(
-    (itemId: string, score: ScoreValue, note?: string) => {
+    (itemId: string, score: ScoreValue, note?: string, isNA?: boolean) => {
       setLocalScores((prev) => ({
         ...prev,
         [itemId]: {
           score,
           updatedAt: new Date().toISOString(),
+          ...(isNA !== undefined && { isNA }),
           // Only include note if it has a value (Firestore doesn't accept undefined)
           ...(note !== undefined && note !== "" && { note })
         }

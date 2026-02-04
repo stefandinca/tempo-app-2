@@ -23,8 +23,9 @@ import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { useVBMAPPEvaluation, VBMAPP_BARRIERS, VBMAPP_SKILL_AREAS } from "@/hooks/useVBMAPP";
 import VBMAPPMilestoneGrid from "./VBMAPPMilestoneGrid";
 import { generateVBMAPPPDF } from "@/lib/pdfGenerator";
-import { calculateAge, formatAge, getVBMAPPDevelopmentalAge, getVBMAPPLevelMidpoint, calculateDevelopmentalDelay } from "@/lib/ageUtils";
+import { calculateAge, formatAge, getVBMAPPDevelopmentalAge, getVBMAPPLevelMidpoint, calculateDevelopmentalDelay, calculatePreciseDevelopmentalAge } from "@/lib/ageUtils";
 import { ClientInfo } from "@/types/client";
+import { getBarrierRecommendation } from "@/lib/clinicalInterpretation";
 import { getVBMAPPInterpretation } from "@/lib/clinicalInterpretation";
 import { generateVBMAPPGoals, SuggestedGoal } from "@/lib/goalGenerator";
 import SuggestedGoals from "../SuggestedGoals";
@@ -87,7 +88,7 @@ export default function VBMAPPSummary({
   
   const delayStats = (age && evaluation) ? calculateDevelopmentalDelay(
     age.totalMonths,
-    getVBMAPPLevelMidpoint(evaluation.dominantLevel)
+    calculatePreciseDevelopmentalAge(evaluation.overallMilestoneScore)
   ) : null;
 
   // Clinical interpretation
@@ -424,7 +425,7 @@ export default function VBMAPPSummary({
                             )}>
                               {score}
                             </span>
-                            <span className="text-sm text-neutral-700 dark:text-neutral-300 flex-1">
+                            <span className="text-sm text-neutral-700 dark:text-neutral-300 flex-1 font-medium">
                               {barrier.text.split('(')[0].trim()}
                             </span>
                           </div>
@@ -484,7 +485,14 @@ export default function VBMAPPSummary({
               className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
-              Export PDF
+              Clinical PDF
+            </button>
+            <button 
+              onClick={() => generateVBMAPPPDF(evaluation!, clientData, VBMAPP_BARRIERS, true)}
+              className="px-4 py-2 rounded-lg text-sm font-medium border border-indigo-200 text-indigo-700 hover:bg-indigo-50 transition-colors flex items-center gap-2"
+            >
+              <User className="w-4 h-4" />
+              Parent Version
             </button>
             {onReEvaluate && (
               <button

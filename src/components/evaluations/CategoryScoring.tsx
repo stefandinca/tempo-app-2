@@ -9,7 +9,7 @@ interface CategoryScoringProps {
   category: ABLLSCategory;
   scores: Record<string, ItemScore>;
   previousScores?: Record<string, ItemScore>;
-  onScoreChange: (itemId: string, score: ScoreValue, note?: string) => void;
+  onScoreChange: (itemId: string, score: ScoreValue, note?: string, isNA?: boolean) => void;
   readOnly?: boolean;
 }
 
@@ -32,7 +32,8 @@ export default function CategoryScoring({
 
   const saveNote = (itemId: string) => {
     const currentScore = scores[itemId]?.score ?? 0;
-    onScoreChange(itemId, currentScore, noteText || undefined);
+    const isNA = scores[itemId]?.isNA ?? false;
+    onScoreChange(itemId, currentScore, noteText || undefined, isNA);
     setExpandedNote(null);
   };
 
@@ -48,8 +49,10 @@ export default function CategoryScoring({
   return (
     <div className="space-y-3">
       {category.items.map((item) => {
-        const currentScore = scores[item.id]?.score;
-        const hasNote = !!scores[item.id]?.note;
+        const itemScore = scores[item.id];
+        const currentScore = itemScore?.score;
+        const isNA = itemScore?.isNA;
+        const hasNote = !!itemScore?.note;
         const previousScore = previousScores?.[item.id]?.score;
         const change = getScoreChange(item.id);
 
@@ -58,7 +61,9 @@ export default function CategoryScoring({
             key={item.id}
             className={clsx(
               "p-4 rounded-xl border transition-all",
-              currentScore !== undefined
+              isNA 
+                ? "bg-neutral-100 dark:bg-neutral-800/20 border-dashed border-neutral-300 opacity-75"
+                : currentScore !== undefined
                 ? "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700"
                 : "bg-neutral-50 dark:bg-neutral-800/50 border-neutral-100 dark:border-neutral-800"
             )}
@@ -79,14 +84,29 @@ export default function CategoryScoring({
 
                 {/* Score buttons */}
                 <div className="flex items-center gap-2">
+                  {/* N/A Button */}
+                  <button
+                    onClick={() => !readOnly && onScoreChange(item.id, 0, itemScore?.note, !isNA)}
+                    disabled={readOnly}
+                    title="Not Applicable"
+                    className={clsx(
+                      "px-3 h-10 rounded-lg font-bold text-xs transition-all",
+                      isNA
+                        ? "bg-neutral-500 text-white shadow-lg"
+                        : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500 hover:bg-neutral-200"
+                    )}
+                  >
+                    N/A
+                  </button>
+
                   {([0, 1, 2] as ScoreValue[]).map((scoreValue) => {
-                    const isSelected = currentScore === scoreValue;
+                    const isSelected = currentScore === scoreValue && !isNA;
                     const scoreInfo = SCORE_LABELS[scoreValue];
 
                     return (
                       <button
                         key={scoreValue}
-                        onClick={() => !readOnly && onScoreChange(item.id, scoreValue, scores[item.id]?.note)}
+                        onClick={() => !readOnly && onScoreChange(item.id, scoreValue, itemScore?.note, false)}
                         disabled={readOnly}
                         title={scoreInfo.description}
                         className={clsx(

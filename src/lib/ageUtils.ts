@@ -71,6 +71,25 @@ export function getVBMAPPLevelMidpoint(level: 1 | 2 | 3): number {
     }
   }
 
+/**
+ * Calculates a precise developmental age (in months) based on the total VB-MAPP milestone score.
+ * This provides a more accurate assessment than using level midpoints, especially for high scorers.
+ */
+export function calculatePreciseDevelopmentalAge(totalScore: number): number {
+  if (totalScore <= 55) {
+    // Level 1: 0-55 points maps to 0-18 months
+    return (totalScore / 55) * 18;
+  } else if (totalScore <= 110) {
+    // Level 2: 56-110 points maps to 18-30 months (12 month range)
+    return 18 + ((totalScore - 55) / 55) * 12;
+  } else {
+    // Level 3: 111-170 points maps to 30-48 months (18 month range)
+    // Max score is 170.
+    const scoreInLevel3 = Math.min(totalScore, 170) - 110;
+    return 30 + (scoreInLevel3 / 60) * 18;
+  }
+}
+
 export function calculateDevelopmentalDelay(
   chronologicalAgeMonths: number,
   developmentalAgeMonths: number

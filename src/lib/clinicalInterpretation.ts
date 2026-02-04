@@ -139,6 +139,63 @@ export function getCategoryInterpretation(percentage: number): {
 }
 
 /**
+ * Parent-friendly translations for clinical terms
+ */
+export const PARENT_FRIENDLY_NAMES: Record<string, string> = {
+  // ABLLS-R
+  'A': 'Cooperation & Reinforcer Effectiveness',
+  'B': 'Visual Performance (Puzzles/Matching)',
+  'C': 'Receptive Language (Understanding)',
+  'D': 'Imitation',
+  'E': 'Vocal Imitation (Echoing)',
+  'F': 'Requests (Manding)',
+  'G': 'Labeling (Tacting)',
+  'H': 'Intraverbals (Conversation)',
+  'I': 'Spontaneous Vocalization',
+  'J': 'Syntax & Grammar',
+  'K': 'Play & Leisure',
+  'L': 'Social Interaction',
+  'M': 'Group Instruction',
+  'N': 'Follow Classroom Routines',
+  'O': 'Generalized Responding',
+  'P': 'Reading Skills',
+  'Q': 'Math Skills',
+  'R': 'Writing Skills',
+  // VB-MAPP Additional
+  'MAND': 'Requesting',
+  'TACT': 'Labeling Objects',
+  'LR': 'Following Directions',
+  'VP-MTS': 'Visual Matching & Puzzles',
+  'ECHOIC': 'Repeating Sounds/Words',
+  'MOTOR': 'Copying Movements',
+  'INTRA': 'Answering Questions',
+  'SOCIAL': 'Playing with Peers',
+  'IMIT': 'Imitation',
+  'VPMTS': 'Visual Matching'
+};
+
+export function getParentFriendlyName(id: string, originalName: string): string {
+  return PARENT_FRIENDLY_NAMES[id.toUpperCase()] || originalName;
+}
+
+/**
+ * Get intervention recommendation for a VB-MAPP barrier
+ */
+export function getBarrierRecommendation(barrierId: string): string {
+  const recommendations: Record<string, string> = {
+    '1': 'Focus on "pairing" the therapist and environment with high-value reinforcers. Reduce demand density and use errorless teaching.',
+    '2': 'Prioritize mand training (requesting) using high-motivation items. Fade prompts quickly to encourage spontaneity.',
+    '3': 'Use functional natural environment teaching (NET). Ensure the child has a reason to tact beyond just labeling for the therapist.',
+    '9': 'Implement a systematic prompt-fading procedure. Move from most-to-least to least-to-most prompting where appropriate.',
+    '13': 'Conduct a formal preference assessment. Limit free access to highly preferred items to maintain their value as reinforcers.',
+    '16': 'Identify the sensory function of the behavior. Provide "heavy work" or sensory breaks, and teach functionally equivalent replacement behaviors.',
+    '20': 'Work on attending skills and pairing eye contact with reinforcement. Do not force eye contact; make it naturally reinforcing.'
+  };
+
+  return recommendations[barrierId] || 'Implement a targeted behavior intervention plan (BIP) focusing on the function of this barrier. Consult with a BCBA for specific protocols.';
+}
+
+/**
  * ABLLS Domain Groupings for clinical reporting
  */
 export const ABLLS_DOMAINS = {

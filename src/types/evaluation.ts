@@ -7,6 +7,7 @@ export type ScoreValue = 0 | 1 | 2;
 export interface ItemScore {
   score: ScoreValue;
   note?: string;
+  isNA?: boolean;
   updatedAt: string;
 }
 
@@ -104,19 +105,25 @@ export function computeCategorySummary(
   items: ABLLSItem[],
   scores: Record<string, ItemScore>
 ): CategorySummary {
-  const totalItems = items.length;
+  let totalItems = items.length;
   let scoredItems = 0;
   let totalScore = 0;
+  let naItems = 0;
 
   items.forEach(item => {
     const itemScore = scores[item.id];
     if (itemScore !== undefined) {
-      scoredItems++;
-      totalScore += itemScore.score;
+      if (itemScore.isNA) {
+        naItems++;
+      } else {
+        scoredItems++;
+        totalScore += itemScore.score;
+      }
     }
   });
 
-  const maxPossibleScore = totalItems * 2; // Max score is 2 per item
+  const adjustedTotalItems = totalItems - naItems;
+  const maxPossibleScore = adjustedTotalItems * 2; // Max score is 2 per item
   const percentage = maxPossibleScore > 0
     ? Math.round((totalScore / maxPossibleScore) * 100)
     : 0;
@@ -124,7 +131,7 @@ export function computeCategorySummary(
   return {
     categoryKey,
     categoryName,
-    totalItems,
+    totalItems: adjustedTotalItems,
     scoredItems,
     totalScore,
     maxPossibleScore,

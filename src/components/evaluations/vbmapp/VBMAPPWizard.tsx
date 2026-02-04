@@ -151,12 +151,13 @@ export default function VBMAPPWizard({
 
   // Handle milestone score change
   const handleMilestoneScoreChange = useCallback(
-    (itemId: string, score: MilestoneScore, note?: string) => {
+    (itemId: string, score: MilestoneScore, note?: string, isNA?: boolean) => {
       setMilestoneScores((prev) => ({
         ...prev,
         [itemId]: {
           score,
           updatedAt: new Date().toISOString(),
+          ...(isNA !== undefined && { isNA }),
           ...(note !== undefined && note !== "" && { note })
         }
       }));

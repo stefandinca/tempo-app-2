@@ -12,6 +12,7 @@ export type TransitionScore = 1 | 2 | 3 | 4 | 5;
 export interface VBMAPPItemScore {
   score: MilestoneScore | BarrierScore | TransitionScore;
   note?: string;
+  isNA?: boolean;
   updatedAt: string;
 }
 
@@ -242,7 +243,7 @@ export function computeVBMAPPSummaries(
   const levelSummaries: Record<string, LevelSummary> = {
     '1': {
       level: 1,
-      levelName: 'Nivel 1 (0-18 luni)',
+      levelName: 'Level 1 (0-18 months)',
       scoredItems: 0,
       totalItems: 0,
       totalScore: 0,
@@ -252,7 +253,7 @@ export function computeVBMAPPSummaries(
     },
     '2': {
       level: 2,
-      levelName: 'Nivel 2 (18-30 luni)',
+      levelName: 'Level 2 (18-30 months)',
       scoredItems: 0,
       totalItems: 0,
       totalScore: 0,
@@ -262,7 +263,7 @@ export function computeVBMAPPSummaries(
     },
     '3': {
       level: 3,
-      levelName: 'Nivel 3 (30-48 luni)',
+      levelName: 'Level 3 (30-48 months)',
       scoredItems: 0,
       totalItems: 0,
       totalScore: 0,
@@ -290,8 +291,13 @@ export function computeVBMAPPSummaries(
     area.items.forEach((item) => {
       const score = milestoneScores[item.id];
       if (score !== undefined) {
-        areaSummary.scoredItems++;
-        areaSummary.totalScore += score.score as number;
+        if (score.isNA) {
+          areaSummary.totalItems--;
+          areaSummary.maxPossibleScore--;
+        } else {
+          areaSummary.scoredItems++;
+          areaSummary.totalScore += score.score as number;
+        }
       }
     });
 
