@@ -20,6 +20,7 @@ export type NotificationType =
   | 'billing_generated'
   | 'billing_overdue'
   | 'report_ready'
+  | 'document_shared'
   | 'system_alert'
   | 'reminder';
 

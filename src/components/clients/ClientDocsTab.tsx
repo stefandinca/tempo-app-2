@@ -24,6 +24,7 @@ import {
 import { useClientDocuments, formatFileSize, ClientDocument } from "@/hooks/useClientDocuments";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { notifyParentDocumentShared } from "@/lib/notificationService";
 
 interface ClientDocsTabProps {
   client: any;
@@ -83,7 +84,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
     setUploadProgress(0);
 
     try {
-      await uploadDocument(
+      const uploadedDoc = await uploadDocument(
         selectedFile,
         {
           name: docName.trim(),
@@ -95,6 +96,23 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
         },
         (progress) => setUploadProgress(progress)
       );
+
+      // Send notification to parents if document is shared with them
+      if (shareWithParent && uploadedDoc) {
+        const categoryLabel = CATEGORIES.find(c => c.id === docCategory)?.label || "Document";
+        try {
+          await notifyParentDocumentShared(client.id, {
+            documentId: uploadedDoc.id,
+            documentName: docName.trim(),
+            documentCategory: categoryLabel,
+            sharedByName: userData?.name || user?.email || "Your therapy team",
+            triggeredByUserId: user?.uid || ""
+          });
+        } catch (notifyErr) {
+          console.error("Failed to send notification:", notifyErr);
+          // Don't fail the upload if notification fails
+        }
+      }
 
       success("Document uploaded successfully");
       resetUploadForm();
@@ -119,8 +137,28 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
   };
 
   const handleToggleParentAccess = async (doc: ClientDocument) => {
+    const isNowSharing = !doc.sharedWithParent;
+
     try {
-      await toggleParentAccess(doc.id, !doc.sharedWithParent);
+      await toggleParentAccess(doc.id, isNowSharing);
+
+      // Send notification to parents if document is now shared with them
+      if (isNowSharing) {
+        const categoryLabel = CATEGORIES.find(c => c.id === doc.category)?.label || "Document";
+        try {
+          await notifyParentDocumentShared(client.id, {
+            documentId: doc.id,
+            documentName: doc.name,
+            documentCategory: categoryLabel,
+            sharedByName: userData?.name || user?.email || "Your therapy team",
+            triggeredByUserId: user?.uid || ""
+          });
+        } catch (notifyErr) {
+          console.error("Failed to send notification:", notifyErr);
+          // Don't fail the action if notification fails
+        }
+      }
+
       success(doc.sharedWithParent ? "Document hidden from parent" : "Document shared with parent");
       setActiveMenu(null);
     } catch (err) {

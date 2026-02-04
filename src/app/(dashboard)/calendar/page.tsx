@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import CalendarToolbar from "@/components/calendar/CalendarToolbar";
 import WeekView from "@/components/calendar/WeekView";
 import MonthView from "@/components/calendar/MonthView";
@@ -14,6 +15,10 @@ import { useEventModal } from "@/context/EventModalContext";
 import { useAuth } from "@/context/AuthContext";
 
 export default function CalendarPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const clientIdParam = searchParams.get("clientId");
+
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('week');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -28,12 +33,25 @@ export default function CalendarPage() {
   // Filter State
   const [filters, setFilters] = useState<FilterState>({
     therapists: [],
-    clients: [],
+    clients: clientIdParam ? [clientIdParam] : [],
     eventTypes: []
   });
 
   // Track if we've initialized the default filter
   const hasInitializedFilter = useRef(false);
+
+  // Handle client filter from URL parameter
+  useEffect(() => {
+    if (clientIdParam) {
+      setFilters(prev => ({
+        ...prev,
+        therapists: [], // Clear therapist filter when filtering by client
+        clients: [clientIdParam]
+      }));
+      // Clean up URL after applying filter
+      router.replace("/calendar", { scroll: false });
+    }
+  }, [clientIdParam, router]);
 
   // Data from shared context
   const { events, teamMembers } = useData();

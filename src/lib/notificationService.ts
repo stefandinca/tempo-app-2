@@ -585,3 +585,45 @@ export async function notifyParentReportGenerated(
   await createNotificationsBatch(notifications);
   console.log("[NotificationService] Sent report notifications to", parentUids.length, "parents");
 }
+
+/**
+ * Notify parents when a document is shared with them
+ */
+export async function notifyParentDocumentShared(
+  clientId: string,
+  context: {
+    documentId: string;
+    documentName: string;
+    documentCategory: string; // e.g., "Assessment", "Report", "Consent Form"
+    sharedByName: string;
+    triggeredByUserId: string;
+  }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) {
+    console.log("[NotificationService] No parent UIDs found for client:", clientId);
+    return;
+  }
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    type: "document_shared" as NotificationType,
+    category: "client" as NotificationCategory,
+    title: "New Document Available",
+    message: `${context.sharedByName} shared a ${context.documentCategory.toLowerCase()}: "${context.documentName}"`,
+    sourceType: "client" as NotificationSourceType,
+    sourceId: context.documentId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Documents",
+        type: "navigate" as const,
+        route: "/parent/docs/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent document shared notifications to", parentUids.length, "parents");
+}

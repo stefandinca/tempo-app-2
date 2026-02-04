@@ -22,26 +22,34 @@ import {
   Plus,
   ArrowRight,
   Command,
-  MessageSquare
+  MessageSquare,
+  Eye,
+  FilePlus,
+  FileBarChart,
+  Stethoscope,
+  Target
 } from "lucide-react";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
 import { useEventModal } from "@/context/EventModalContext";
 import { useData } from "@/context/DataContext";
+import { useServices } from "@/hooks/useCollections";
 
 interface CommandItem {
   id: string;
   label: string;
   description?: string;
   icon: React.ReactNode;
-  category: "action" | "navigation" | "client" | "team";
+  category: "action" | "navigation" | "client" | "client-action" | "team";
   shortcut?: string;
   action: () => void;
+  clientId?: string; // For client-action items
 }
 
 export default function CommandPalette() {
   const { isOpen, close } = useCommandPalette();
   const { openModal: openEventModal } = useEventModal();
   const { clients, teamMembers } = useData();
+  const { data: services } = useServices();
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -219,15 +227,103 @@ export default function CommandPalette() {
       }
     ];
 
-    // Dynamic client search results
-    const clientItems: CommandItem[] = (clients.data || []).map(client => ({
-      id: `client-${client.id}`,
-      label: client.name,
-      description: "Client",
-      icon: <Users className="w-4 h-4" />,
-      category: "client" as const,
-      action: () => navigateTo(`/clients/profile?id=${client.id}`)
-    }));
+    // Find evaluation service for "New Evaluation" action
+    const evaluationService = services.find(s =>
+      s.label?.toLowerCase().includes('evaluation') ||
+      s.label?.toLowerCase().includes('evaluare')
+    );
+
+    // Dynamic client search results - now with contextual actions
+    const clientItems: CommandItem[] = [];
+
+    (clients.data || []).forEach(client => {
+      // View Profile action
+      clientItems.push({
+        id: `client-view-${client.id}`,
+        label: `View ${client.name}'s profile`,
+        description: "Open client profile page",
+        icon: <Eye className="w-4 h-4" />,
+        category: "client-action" as const,
+        clientId: client.id,
+        action: () => navigateTo(`/clients/profile?id=${client.id}`)
+      });
+
+      // View Schedule action
+      clientItems.push({
+        id: `client-calendar-${client.id}`,
+        label: `View ${client.name}'s schedule`,
+        description: "View calendar filtered by this client",
+        icon: <Calendar className="w-4 h-4" />,
+        category: "client-action" as const,
+        clientId: client.id,
+        action: () => navigateTo(`/calendar?clientId=${client.id}`)
+      });
+
+      // Schedule Session action
+      clientItems.push({
+        id: `client-schedule-${client.id}`,
+        label: `Schedule session for ${client.name}`,
+        description: "Create a new therapy session",
+        icon: <CalendarPlus className="w-4 h-4" />,
+        category: "client-action" as const,
+        clientId: client.id,
+        action: () => {
+          close();
+          openEventModal({ clientId: client.id });
+        }
+      });
+
+      // New Evaluation action
+      clientItems.push({
+        id: `client-evaluation-${client.id}`,
+        label: `New Evaluation for ${client.name}`,
+        description: "Schedule a client evaluation",
+        icon: <Stethoscope className="w-4 h-4" />,
+        category: "client-action" as const,
+        clientId: client.id,
+        action: () => {
+          close();
+          openEventModal({
+            clientId: client.id,
+            eventType: evaluationService?.id || "",
+            title: `Evaluation - ${client.name}`
+          });
+        }
+      });
+
+      // Create Plan action
+      clientItems.push({
+        id: `client-plan-${client.id}`,
+        label: `Create new Plan for ${client.name}`,
+        description: "Create a new intervention plan",
+        icon: <Target className="w-4 h-4" />,
+        category: "client-action" as const,
+        clientId: client.id,
+        action: () => navigateTo(`/clients/profile?id=${client.id}&tab=plan&action=create-plan`)
+      });
+
+      // Generate Report action
+      clientItems.push({
+        id: `client-report-${client.id}`,
+        label: `Generate report for ${client.name}`,
+        description: "Generate a client progress report",
+        icon: <FileBarChart className="w-4 h-4" />,
+        category: "client-action" as const,
+        clientId: client.id,
+        action: () => navigateTo(`/clients/profile?id=${client.id}&action=generate-report`)
+      });
+
+      // View Documents action
+      clientItems.push({
+        id: `client-docs-${client.id}`,
+        label: `View ${client.name}'s documents`,
+        description: "Browse client documents",
+        icon: <FileText className="w-4 h-4" />,
+        category: "client-action" as const,
+        clientId: client.id,
+        action: () => navigateTo(`/clients/profile?id=${client.id}&tab=docs`)
+      });
+    });
 
     // Dynamic team member search results
     const teamItems: CommandItem[] = (teamMembers.data || []).map(member => ({
@@ -240,7 +336,7 @@ export default function CommandPalette() {
     }));
 
     return [...actions, ...navigation, ...clientItems, ...teamItems];
-  }, [clients.data, teamMembers.data, close, openEventModal, navigateTo]);
+  }, [clients.data, teamMembers.data, services, close, openEventModal, navigateTo]);
 
   // Filter commands based on query
   const filteredCommands = useMemo(() => {
@@ -252,17 +348,36 @@ export default function CommandPalette() {
     }
 
     const lowerQuery = query.toLowerCase();
-    return allCommands.filter(cmd =>
-      cmd.label.toLowerCase().includes(lowerQuery) ||
-      cmd.description?.toLowerCase().includes(lowerQuery)
-    );
-  }, [allCommands, query]);
+
+    // Find matching clients to limit their actions
+    const matchingClients: string[] = [];
+    (clients.data || []).forEach(client => {
+      if (client.name.toLowerCase().includes(lowerQuery)) {
+        matchingClients.push(client.id);
+      }
+    });
+
+    // Limit to first 3 matching clients for client-action results
+    const limitedClientIds = new Set(matchingClients.slice(0, 3));
+
+    return allCommands.filter(cmd => {
+      // For client actions, only show for limited matching clients
+      if (cmd.category === "client-action") {
+        return cmd.clientId ? limitedClientIds.has(cmd.clientId) : false;
+      }
+
+      // For other commands, use standard filtering
+      return cmd.label.toLowerCase().includes(lowerQuery) ||
+        cmd.description?.toLowerCase().includes(lowerQuery);
+    });
+  }, [allCommands, query, clients.data]);
 
   // Group filtered commands by category
   const groupedCommands = useMemo(() => {
     const groups: { [key: string]: CommandItem[] } = {
       action: [],
       navigation: [],
+      "client-action": [],
       client: [],
       team: []
     };
@@ -310,11 +425,12 @@ export default function CommandPalette() {
   const categoryLabels: { [key: string]: string } = {
     action: "Quick Actions",
     navigation: "Navigation",
+    "client-action": "Client Actions",
     client: "Clients",
     team: "Team Members"
   };
 
-  const categoryOrder = ["action", "navigation", "client", "team"];
+  const categoryOrder = ["action", "client-action", "navigation", "client", "team"];
   let globalIndex = 0;
 
   return (

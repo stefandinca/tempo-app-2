@@ -22,6 +22,8 @@ interface NewEventModalProps {
   initialDate?: Date;
   initialTime?: string;
   initialClientId?: string;
+  initialEventType?: string;
+  initialTitle?: string;
 }
 
 const STEPS = ["Details", "Clients", "Programs", "Summary"];
@@ -32,7 +34,9 @@ export default function NewEventModal({
   onEventCreated,
   initialDate,
   initialTime,
-  initialClientId
+  initialClientId,
+  initialEventType,
+  initialTitle
 }: NewEventModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<EventFormData>(() => ({
@@ -51,9 +55,11 @@ export default function NewEventModal({
       ...INITIAL_DATA,
       selectedClients: initialClientId ? [initialClientId] : [],
       date: initialDate ? initialDate.toISOString().split('T')[0] : INITIAL_DATA.date,
-      startTime: initialTime || INITIAL_DATA.startTime
+      startTime: initialTime || INITIAL_DATA.startTime,
+      eventType: initialEventType || INITIAL_DATA.eventType,
+      title: initialTitle || INITIAL_DATA.title
     });
-  }, [initialClientId, initialDate, initialTime]);
+  }, [initialClientId, initialDate, initialTime, initialEventType, initialTitle]);
 
   // Reset form when modal opens
   useEffect(() => {

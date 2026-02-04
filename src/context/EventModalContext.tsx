@@ -3,8 +3,16 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import NewEventModal from "@/components/calendar/NewEventModal";
 
+interface EventModalOptions {
+  date?: Date;
+  time?: string;
+  clientId?: string;
+  eventType?: string;
+  title?: string;
+}
+
 interface EventModalContextType {
-  openModal: (options?: { date?: Date; time?: string; clientId?: string }) => void;
+  openModal: (options?: EventModalOptions) => void;
   closeModal: () => void;
 }
 
@@ -12,9 +20,9 @@ const EventModalContext = createContext<EventModalContextType>({} as EventModalC
 
 export function EventModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [initialData, setInitialData] = useState<{ date?: Date; time?: string; clientId?: string }>({});
+  const [initialData, setInitialData] = useState<EventModalOptions>({});
 
-  const openModal = (options?: { date?: Date; time?: string; clientId?: string }) => {
+  const openModal = (options?: EventModalOptions) => {
     setInitialData(options || {});
     setIsOpen(true);
   };
@@ -37,6 +45,8 @@ export function EventModalProvider({ children }: { children: ReactNode }) {
         initialDate={initialData.date}
         initialTime={initialData.time}
         initialClientId={initialData.clientId}
+        initialEventType={initialData.eventType}
+        initialTitle={initialData.title}
       />
     </EventModalContext.Provider>
   );

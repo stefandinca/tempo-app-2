@@ -30,37 +30,51 @@ export const sendPushNotification = functions.firestore
       return null;
     }
 
-    const timestamp = new Date().toLocaleTimeString();
-    
-    // Switch to Data-Only message to prevent duplicate notifications
-    // (Browser won't auto-display, forcing Service Worker to handle it)
-    const payload = {
+    const title = notification.title || "New Notification";
+    const body = notification.message || "You have a new update";
+    const url = notification.actions?.[0]?.route || "/parent/dashboard";
+
+    console.log(`Sending push notification: title="${title}", body="${body}", url="${url}"`);
+
+    // Data-only message - service worker will handle display
+    // IMPORTANT: Do NOT include 'notification' field or 'fcmOptions.link'
+    // as these cause the browser to auto-display a notification
+    const payload: admin.messaging.Message = {
       data: {
-        title: notification.title || "New Notification",
-        body: (notification.message || "You have a new update") + ` [${timestamp}]`,
-        url: notification.actions?.[0]?.route || "/parent/dashboard",
+        title: title,
+        body: body,
+        url: url,
         notificationId: context.params.notificationId,
-        timestamp: Date.now().toString()
+        type: notification.type || "general",
+        category: notification.category || "system"
       },
+      // Web push - only set headers, no notification-triggering options
+      webpush: {
+        headers: {
+          Urgency: "high"
+        }
+      },
+      // Android specific (for future mobile support)
       android: {
-        priority: 'high' as const
+        priority: "high"
       },
       token: fcmToken
     };
 
     try {
       const response = await admin.messaging().send(payload);
-      console.log("Successfully sent message:", response);
+      console.log("Successfully sent push notification:", response);
       return { success: true, messageId: response };
-    } catch (error) {
-      console.log("Error sending message:", error);
-      
-      // Optional: If token is invalid, remove it
-      if ((error as any).code === 'messaging/registration-token-not-registered') {
-          await tokenDoc.ref.delete();
-          console.log(`Invalid token deleted for user ${recipientId}`);
+    } catch (error: any) {
+      console.error("Error sending push notification:", error);
+
+      // If token is invalid, remove it
+      if (error.code === "messaging/registration-token-not-registered" ||
+          error.code === "messaging/invalid-registration-token") {
+        await tokenDoc.ref.delete();
+        console.log(`Invalid token deleted for user ${recipientId}`);
       }
-      
-      return { success: false, error };
+
+      return { success: false, error: error.message };
     }
   });

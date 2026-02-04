@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ClipboardList,
   Plus,
@@ -23,9 +23,11 @@ import { useToast } from "@/context/ToastContext";
 
 interface ClientPlanTabProps {
   client: any;
+  pendingAction?: string | null;
+  onActionHandled?: () => void;
 }
 
-export default function ClientPlanTab({ client }: ClientPlanTabProps) {
+export default function ClientPlanTab({ client, pendingAction, onActionHandled }: ClientPlanTabProps) {
   const { data: plans, loading, activePlan } = useInterventionPlans(client.id);
   const { data: programs } = usePrograms();
   const { success, error } = useToast();
@@ -33,6 +35,14 @@ export default function ClientPlanTab({ client }: ClientPlanTabProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<InterventionPlan | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+
+  // Handle pending action from URL
+  useEffect(() => {
+    if (pendingAction === "create-plan" && !loading) {
+      setIsCreateModalOpen(true);
+      onActionHandled?.();
+    }
+  }, [pendingAction, loading, onActionHandled]);
 
   const completedPlans = plans.filter(p => p.status === "completed");
   const draftPlans = plans.filter(p => p.status === "draft");

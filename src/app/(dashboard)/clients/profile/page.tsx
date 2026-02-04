@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useClient } from "@/hooks/useClient";
 import ClientProfileHeader from "@/components/clients/ClientProfileHeader";
 import ClientOverviewTab from "@/components/clients/ClientOverviewTab";
@@ -13,10 +13,31 @@ import { Loader2, AlertCircle } from "lucide-react";
 
 function ClientProfileContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const id = searchParams.get("id");
+  const tabParam = searchParams.get("tab");
+  const actionParam = searchParams.get("action");
   const { data: client, loading, error } = useClient(id || "");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(tabParam || "overview");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<string | null>(actionParam);
+
+  // Sync tab with URL parameter
+  useEffect(() => {
+    if (tabParam && ["overview", "programs", "plan", "docs"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
+  // Handle pending actions from URL
+  useEffect(() => {
+    if (actionParam) {
+      setPendingAction(actionParam);
+      // Clean up URL parameters after reading them
+      const newUrl = `/clients/profile?id=${id}${tabParam ? `&tab=${tabParam}` : ''}`;
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [actionParam, id, tabParam, router]);
 
   if (!id) {
     return (
@@ -61,9 +82,21 @@ function ClientProfileContent() {
       />
 
       <div className="pt-2">
-        {activeTab === "overview" && <ClientOverviewTab client={client} />}
+        {activeTab === "overview" && (
+          <ClientOverviewTab
+            client={client}
+            pendingAction={pendingAction}
+            onActionHandled={() => setPendingAction(null)}
+          />
+        )}
         {activeTab === "programs" && <ClientProgramsTab client={client} />}
-        {activeTab === "plan" && <ClientPlanTab client={client} />}
+        {activeTab === "plan" && (
+          <ClientPlanTab
+            client={client}
+            pendingAction={pendingAction}
+            onActionHandled={() => setPendingAction(null)}
+          />
+        )}
         {activeTab === "docs" && <ClientDocsTab client={client} />}
         {!["overview", "programs", "plan", "docs"].includes(activeTab) && (
           <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800">

@@ -155,20 +155,17 @@ export function NotificationProvider({
   }, [user, requestPushPermission]); // Add user as dependency so it retries on login
 
   // Handle Foreground Messages
+  // Note: We do NOT show browser notifications here to avoid duplicates.
+  // The service worker handles push notifications when in background.
+  // When in foreground, the in-app notification list updates via Firestore listener.
   useEffect(() => {
     if (!messaging) return;
 
     const unsubscribe = onMessage(messaging, (payload) => {
       console.log("[NotificationContext] Foreground message received:", payload);
-      // Trigger a browser notification if permitted
-      if (Notification.permission === 'granted') {
-         // Handle data-only payload
-         const data = payload.data || {};
-         new Notification(data.title || payload.notification?.title || "New Message", {
-            body: data.body || payload.notification?.body,
-            icon: '/icons/icon-192.svg'
-         });
-      }
+      // Don't show browser notification - the Firestore listener will update the in-app list
+      // and the user can see the notification badge update in real-time.
+      // This prevents duplicate notifications (one from here + one from service worker).
     });
 
     return () => unsubscribe();

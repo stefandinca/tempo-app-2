@@ -1,9 +1,9 @@
 "use client";
 
-import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2 } from "lucide-react";
+import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2, FileText } from "lucide-react";
 import Link from "next/link";
 import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
@@ -11,14 +11,17 @@ import { clsx } from "clsx";
 
 interface ClientOverviewTabProps {
   client: any;
+  pendingAction?: string | null;
+  onActionHandled?: () => void;
 }
 
-export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
+export default function ClientOverviewTab({ client, pendingAction, onActionHandled }: ClientOverviewTabProps) {
   const { data: teamMembers } = useTeamMembers();
   const { data: events, loading: eventsLoading } = useClientEvents(client.id);
   const { success, error: toastError } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const therapist = (teamMembers || []).find(t => t.id === client.assignedTherapistId);
 
@@ -72,17 +75,99 @@ export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
 
   const copyInviteLink = () => {
     if (!client.clientCode) return;
-    
+
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     // Use the v2 path for production compatibility
     const path = baseUrl.includes('localhost') ? '/parent' : '/v2/parent';
     const link = `${baseUrl}${path}/?code=${client.clientCode}`;
-    
+
     navigator.clipboard.writeText(link);
     setCopied(true);
     success("Invite link copied to clipboard!");
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Generate client progress report
+  const generateReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      // Dynamically import jsPDF
+      const { default: jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
+
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Title
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.text("Client Progress Report", pageWidth / 2, 20, { align: "center" });
+
+      // Client info
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Client: ${client.name}`, 20, 35);
+      doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 42);
+      if (therapist) {
+        doc.text(`Therapist: ${therapist.name}`, 20, 49);
+      }
+
+      // Summary stats
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Summary Statistics", 20, 65);
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Total Sessions: ${totalSessions}`, 25, 75);
+      doc.text(`Completed Sessions: ${completedSessions.length}`, 25, 82);
+      doc.text(`Attendance Rate: ${attendanceRate}%`, 25, 89);
+      doc.text(`Active Programs: ${activeProgramsCount}`, 25, 96);
+
+      // Session history table
+      if (events && events.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Session History", 20, 115);
+
+        const tableData = events
+          .sort((a: any, b: any) => parseDate(b.startTime).getTime() - parseDate(a.startTime).getTime())
+          .slice(0, 20)
+          .map((evt: any) => [
+            parseDate(evt.startTime).toLocaleDateString(),
+            evt.type || evt.title || "Session",
+            evt.status || "N/A",
+            evt.attendance || "N/A"
+          ]);
+
+        autoTable(doc, {
+          startY: 120,
+          head: [["Date", "Type", "Status", "Attendance"]],
+          body: tableData,
+          theme: "striped",
+          headStyles: { fillColor: [74, 144, 226] },
+          styles: { fontSize: 9 }
+        });
+      }
+
+      // Save the PDF
+      doc.save(`${client.name.replace(/\s+/g, '_')}_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+      success("Report generated successfully!");
+    } catch (err) {
+      console.error("Error generating report:", err);
+      toastError("Failed to generate report");
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  // Handle pending action from URL
+  useEffect(() => {
+    if (pendingAction === "generate-report" && !eventsLoading) {
+      generateReport();
+      onActionHandled?.();
+    }
+  }, [pendingAction, eventsLoading]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
@@ -271,6 +356,19 @@ export default function ClientOverviewTab({ client }: ClientOverviewTabProps) {
               <span className="font-bold text-primary-600">{activeProgramsCount}</span>
             </div>
           </div>
+          {/* Generate Report Button */}
+          <button
+            onClick={generateReport}
+            disabled={isGeneratingReport || eventsLoading}
+            className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all disabled:opacity-50"
+          >
+            {isGeneratingReport ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4" />
+            )}
+            {isGeneratingReport ? "Generating..." : "Generate Report"}
+          </button>
         </div>
 
         {/* Upcoming Schedule */}

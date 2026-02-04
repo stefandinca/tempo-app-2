@@ -2,7 +2,6 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js')
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
 // Initialize the Firebase app
-// TODO: Replace these with your actual Firebase config values
 firebase.initializeApp({
   apiKey: "AIzaSyBLyN1jo8PpJ5OMtkEuC4auhuuviapB3Bs",
   authDomain: "tempo-app-2.firebaseapp.com",
@@ -16,31 +15,40 @@ const messaging = firebase.messaging();
 
 // Helper to determine base path (handles /v2/ deployment)
 const getBaseUrl = () => {
-  // If the SW is served from /v2/firebase-messaging-sw.js, the scope is /v2/
   const scope = self.registration.scope;
   return scope.endsWith('/') ? scope.slice(0, -1) : scope;
 };
 
-// Handle background messages
+// Handle background messages from Firebase
 messaging.onBackgroundMessage(function(payload) {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  
-  // Data-only message structure
+  console.log('[SW] Background message received:', JSON.stringify(payload));
+
+  // Extract data from the payload
   const data = payload.data || {};
-  const notificationTitle = data.title || "New Notification";
+
+  const title = data.title || "New Notification";
+  const body = data.body || "You have a new update";
+  const notificationId = data.notificationId || `notif-${Date.now()}`;
+  const url = data.url || '/parent/dashboard';
+
+  console.log('[SW] Showing notification - Title:', title, 'Body:', body);
+
   const baseUrl = getBaseUrl();
-  
+
   const notificationOptions = {
-    body: data.body || "You have a new update",
-    // Use absolute path for icon including /v2 if present
+    body: body,
     icon: `${baseUrl}/icons/icon-192.svg`,
-    // Optional: Small badge for status bar (needs to be monochrome/transparent ideally)
-    badge: `${baseUrl}/icons/icon-192.svg`, 
-    data: data, // Pass the entire data object
-    tag: data.notificationId // Restore unique tag behavior
+    badge: `${baseUrl}/icons/icon-192.svg`,
+    data: {
+      url: url,
+      notificationId: notificationId
+    },
+    tag: notificationId,
+    renotify: false
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  // Return the promise to ensure notification is shown
+  return self.registration.showNotification(title, notificationOptions);
 });
 
 // Handle notification click (Deep Linking)
