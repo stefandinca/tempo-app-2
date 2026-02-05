@@ -1,7 +1,7 @@
 "use client";
 
 import { ChatThread } from "@/types/chat";
-import { useAuth } from "@/context/AuthContext";
+import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { clsx } from "clsx";
 import { Search, Plus } from "lucide-react";
 
@@ -13,7 +13,7 @@ interface ChatSidebarProps {
 }
 
 export default function ChatSidebar({ threads, activeThreadId, onSelectThread, onNewChat }: ChatSidebarProps) {
-  const { user } = useAuth();
+  const { user } = useAnyAuth();
 
   return (
     <div className="w-full lg:w-80 border-r border-neutral-200 dark:border-neutral-800 flex flex-col bg-white dark:bg-neutral-900">

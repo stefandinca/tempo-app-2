@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ChatThread, ChatMessage } from "@/types/chat";
-import { useAuth } from "@/context/AuthContext";
+import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { useChatActions, useMessages } from "@/hooks/useChat";
 import MessageBubble from "./MessageBubble";
 import { Send, Phone, Video, Info, ArrowLeft, Loader2 } from "lucide-react";
@@ -13,7 +13,7 @@ interface ChatViewProps {
 }
 
 export default function ChatView({ thread, onBack }: ChatViewProps) {
-  const { user } = useAuth();
+  const { user } = useAnyAuth();
   const { messages, loading: messagesLoading } = useMessages(thread?.id || null);
   const { sendMessage, markAsRead } = useChatActions();
   const [inputText, setInputText] = useState("");
@@ -49,7 +49,7 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
           <Info className="w-10 h-10" />
         </div>
         <h3 className="text-lg font-bold">Select a conversation</h3>
-        <p className="text-sm">Choose a colleague to start messaging</p>
+        <p className="text-sm">Choose a contact to start messaging</p>
       </div>
     );
   }

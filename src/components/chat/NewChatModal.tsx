@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { X, Search, Loader2 } from "lucide-react";
 import { useTeamMembers } from "@/hooks/useCollections";
-import { useAuth } from "@/context/AuthContext";
+import { useAnyAuth } from "@/hooks/useAnyAuth";
+import { useParentAuthOptional } from "@/context/ParentAuthContext";
+import { useClient } from "@/hooks/useClient";
 import { ChatParticipant } from "@/types/chat";
 
 interface NewChatModalProps {
@@ -13,17 +15,34 @@ interface NewChatModalProps {
 }
 
 export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatModalProps) {
-  const { user } = useAuth();
+  const { user, isParent } = useAnyAuth();
+  const parentAuth = useParentAuthOptional();
+  const { data: client } = useClient(parentAuth?.clientId || "");
   const { data: team, loading } = useTeamMembers();
   const [searchQuery, setSearchQuery] = useState("");
 
   if (!isOpen) return null;
 
-  const filteredTeam = team.filter(member => 
-    member.id !== user?.uid && 
-    (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     member.role?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredTeam = team.filter(member => {
+    // Don't show self
+    if (member.id === user?.uid) return false;
+
+    // Search filter
+    const matchesSearch = 
+      member.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      member.role?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    // If parent, only show relevant team members
+    if (isParent) {
+      const isAssigned = member.id === client?.assignedTherapistId;
+      const isCoordinatorOrAdmin = member.role === "Coordinator" || member.role === "Admin";
+      return isAssigned || isCoordinatorOrAdmin;
+    }
+
+    return true;
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">

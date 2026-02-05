@@ -627,3 +627,40 @@ export async function notifyParentDocumentShared(
   await createNotificationsBatch(notifications);
   console.log("[NotificationService] Sent document shared notifications to", parentUids.length, "parents");
 }
+
+/**
+ * Notify recipient about a new message
+ */
+export async function notifyMessageReceived(
+  recipientId: string,
+  recipientRole: NotificationRecipientRole,
+  context: {
+    senderName: string;
+    text: string;
+    threadId: string;
+    triggeredByUserId: string;
+  }
+): Promise<void> {
+  if (recipientId === context.triggeredByUserId) return;
+
+  const route = recipientRole === 'parent' ? '/parent/messages/' : '/messages';
+
+  await createNotification({
+    recipientId,
+    recipientRole,
+    type: "message_received",
+    category: "message",
+    title: `New Message from ${context.senderName}`,
+    message: context.text.length > 50 ? context.text.substring(0, 47) + "..." : context.text,
+    sourceType: "system", // Or 'team'/'client' depending on context, but message is generic
+    sourceId: context.threadId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "Reply",
+        type: "navigate",
+        route
+      }
+    ]
+  });
+}

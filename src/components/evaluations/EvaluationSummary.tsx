@@ -6,7 +6,6 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  Download,
   RefreshCw,
   Calendar,
   User,
@@ -18,14 +17,14 @@ import {
   GitCompare,
   AlertCircle,
   Lightbulb,
-  Clock
+  Clock,
+  BarChart2
 } from "lucide-react";
 import { Evaluation, CategorySummary } from "@/types/evaluation";
 import { useEvaluation, useClientEvaluations, ABLLS_CATEGORIES } from "@/hooks/useEvaluations";
 import CategoryScoring from "./CategoryScoring";
 import EvaluationRadarChart, { EvaluationRadarChartMini } from "./EvaluationRadarChart";
 import EvaluationComparison from "./EvaluationComparison";
-import { generateEvaluationPDF } from "@/lib/pdfGenerator";
 import { ClientInfo } from "@/types/client";
 import { calculateAge, formatAge } from "@/lib/ageUtils";
 import { getABLLSInterpretation, getPriorityAreas, calculateDomainScores } from "@/lib/clinicalInterpretation";
@@ -65,12 +64,6 @@ export default function EvaluationSummary({
       day: "numeric",
       year: "numeric"
     });
-  };
-
-  const handleExportPDF = () => {
-    if (evaluation) {
-      generateEvaluationPDF(evaluation, clientData, previousEvaluation, allEvaluations);
-    }
   };
 
   // Sort categories by key (A, B, C, etc.)
@@ -116,6 +109,13 @@ export default function EvaluationSummary({
   const suggestedGoals: SuggestedGoal[] = evaluation
     ? generateABLLSGoals(evaluation, clientData.name || "Client", ABLLS_CATEGORIES)
     : [];
+
+  const handleViewReport = () => {
+    const isProd = process.env.NODE_ENV === 'production';
+    const basePath = isProd ? '/v2' : '';
+    const url = `${basePath}/reports/evaluation/?type=ablls&id=${evaluationId}&clientId=${clientId}`;
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -557,23 +557,16 @@ export default function EvaluationSummary({
 
           <div className="flex items-center gap-3">
             <button 
-              onClick={handleExportPDF}
-              className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2"
+              onClick={handleViewReport}
+              className="px-4 py-2 rounded-lg text-sm font-bold bg-primary-600 hover:bg-primary-700 text-white transition-all flex items-center gap-2 shadow-lg shadow-primary-600/20"
             >
-              <Download className="w-4 h-4" />
-              Clinical PDF
-            </button>
-            <button 
-              onClick={() => generateEvaluationPDF(evaluation!, clientData, previousEvaluation, allEvaluations, true)}
-              className="px-4 py-2 rounded-lg text-sm font-medium border border-primary-200 text-primary-700 hover:bg-primary-50 transition-colors flex items-center gap-2"
-            >
-              <User className="w-4 h-4" />
-              Parent Version
+              <BarChart2 className="w-4 h-4" />
+              View Clinical Report
             </button>
             {onReEvaluate && (
               <button
                 onClick={onReEvaluate}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors flex items-center gap-2"
+                className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Start Re-evaluation

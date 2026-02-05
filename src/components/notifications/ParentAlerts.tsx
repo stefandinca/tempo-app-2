@@ -8,7 +8,8 @@ import {
   CreditCard,
   FileText,
   ChevronRight,
-  Bell
+  Bell,
+  MessageSquare
 } from "lucide-react";
 import { CATEGORY_META, formatRelativeTime } from "@/types/notifications";
 import { useNotifications } from "@/context/NotificationContext";
@@ -24,7 +25,8 @@ const categoryIcons = {
   billing: CreditCard,
   client: FileText,
   team: FileText,
-  system: Bell
+  system: Bell,
+  message: MessageSquare
 };
 
 export default function ParentAlerts({ clientName }: ParentAlertsProps) {
@@ -36,24 +38,23 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
   
 // ... existing code ...
 
-  const debugBox = (
+  const pushNotificationPrompt = (
     <div className="bg-primary-50 dark:bg-primary-900/10 p-4 rounded-2xl border border-primary-100 dark:border-primary-800 flex items-center justify-between mb-4">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-600">
           <Bell className="w-5 h-5" />
         </div>
         <div>
-          <p className="text-sm font-bold text-neutral-900 dark:text-white">Debug: Push Status</p>
-          <p className="text-xs text-neutral-500">Status: {pushPermissionStatus}</p>
-          <p className="text-[10px] font-mono text-neutral-400">ID: {user?.uid?.slice(0, 8)}...</p>
-          {pushError && <p className="text-xs text-error-500 font-bold mt-1">Err: {pushError}</p>}
+          <p className="text-sm font-bold text-neutral-900 dark:text-white">Enable Push Notifications</p>
+          <p className="text-xs text-neutral-500">Get real-time updates for sessions and messages</p>
+          {pushError && <p className="text-xs text-error-500 font-bold mt-1">Error: {pushError}</p>}
         </div>
       </div>
       <button 
         onClick={requestPushPermission}
-        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl transition-colors"
+        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl transition-colors shrink-0"
       >
-        {pushPermissionStatus === 'granted' ? 'Refresh Token' : 'Enable'}
+        {pushPermissionStatus === 'granted' ? 'Sync' : 'Enable'}
       </button>
     </div>
   );
@@ -64,12 +65,12 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
         </div>
-        {debugBox}
+        {pushPermissionStatus !== 'granted' && pushNotificationPrompt}
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-center">
           <Bell className="w-10 h-10 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
           <p className="text-sm text-neutral-500 dark:text-neutral-400">No notifications yet</p>
           <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
-            You&apos;ll see updates about schedules and billing here
+            You&apos;ll see updates about sessions and messages here
           </p>
         </div>
       </section>
@@ -95,7 +96,7 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
         </Link>
       </div>
 
-      {debugBox}
+      {pushPermissionStatus !== 'granted' && pushNotificationPrompt}
 
       <div className="space-y-3 pb-8">
         {alerts.map((alert) => {

@@ -18,7 +18,8 @@ const filterOptions: { id: FilterCategory; label: string }[] = [
   { id: "attendance", label: "Attendance" },
   { id: "team", label: "Team" },
   { id: "billing", label: "Billing" },
-  { id: "client", label: "Client" }
+  { id: "client", label: "Client" },
+  { id: "message", label: "Messages" }
 ];
 
 export default function NotificationFilters({

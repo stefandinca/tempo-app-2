@@ -8,6 +8,7 @@ import ParentEvaluationList from "@/components/parent/ParentEvaluationList";
 import ParentEvaluationDetail from "@/components/parent/ParentEvaluationDetail";
 import { clsx } from "clsx";
 import { Evaluation } from "@/types/evaluation";
+import { VBMAPPEvaluation } from "@/types/vbmapp";
 
 interface ProgramWithHistory {
   id: string;
@@ -21,12 +22,12 @@ type Tab = 'programs' | 'evaluations';
 export default function ParentProgressPage() {
   const { data: client, sessions, programs, evaluations, loading, error } = usePortalData();
   const [activeTab, setActiveTab] = useState<Tab>('programs');
-  const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
+  const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | VBMAPPEvaluation | null>(null);
 
   // Find previous evaluation if one is selected
   const previousEvaluation = useMemo(() => {
     if (!selectedEvaluation || !selectedEvaluation.previousEvaluationId || !evaluations) return null;
-    return evaluations.find((e: Evaluation) => e.id === selectedEvaluation.previousEvaluationId) || null;
+    return evaluations.find((e: any) => e.id === selectedEvaluation.previousEvaluationId) || null;
   }, [selectedEvaluation, evaluations]);
 
   // Process sessions to extract program scores and group by program

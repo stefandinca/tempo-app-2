@@ -14,43 +14,53 @@ interface AnyAuthResult {
 
 /**
  * Universal auth hook that works for both staff and parents.
- * Checks AuthContext first (staff), then falls back to ParentAuthContext (parents).
- * Returns { user, isParent, isStaff, loading, role } for NotificationContext and other consumers.
+ * Checks ParentAuthContext first for parents, then falls back to AuthContext for staff.
  */
 export function useAnyAuth(): AnyAuthResult {
-  // Try staff auth first
-  const staffAuth = useAuth();
-
   // Try parent auth (optional - won't throw if not in ParentAuthProvider)
   const parentAuth = useParentAuthOptional();
 
-  // Staff takes precedence
-  if (staffAuth?.user && !staffAuth.loading) {
-    return {
-      user: staffAuth.user,
-      isParent: false,
-      isStaff: true,
-      loading: false,
-      role: staffAuth.userRole
-    };
-  }
+  // Try staff auth
+  const staffAuth = useAuth();
 
-  // Check parent auth
-  if (parentAuth?.user && parentAuth.isAuthenticated && !parentAuth.loading) {
+  // Check parent auth first - if we are in parent portal context
+  if (parentAuth?.user && parentAuth.isAuthenticated) {
     return {
       user: parentAuth.user,
       isParent: true,
       isStaff: false,
-      loading: false,
+      loading: parentAuth.loading,
       role: 'Parent'
     };
   }
 
-  // Still loading
-  const isLoading = staffAuth?.loading || parentAuth?.loading || false;
+  // Fallback to staff auth
+  if (staffAuth?.user && staffAuth.userRole) {
+    return {
+      user: staffAuth.user,
+      isParent: false,
+      isStaff: true,
+      loading: staffAuth.loading,
+      role: staffAuth.userRole
+    };
+  }
+
+  // Check if current user is anonymous (parent) even if ParentAuthContext isn't fully ready
+  if (staffAuth?.user?.isAnonymous) {
+    return {
+      user: staffAuth.user,
+      isParent: true,
+      isStaff: false,
+      loading: staffAuth.loading,
+      role: 'Parent'
+    };
+  }
+
+  // Still loading or not authenticated
+  const isLoading = staffAuth?.loading || (parentAuth?.loading ?? false);
 
   return {
-    user: null,
+    user: staffAuth?.user || parentAuth?.user || null,
     isParent: false,
     isStaff: false,
     loading: isLoading,

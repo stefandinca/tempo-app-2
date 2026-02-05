@@ -2,14 +2,14 @@
 
 import { ChatMessage } from "@/types/chat";
 import { clsx } from "clsx";
-import { useAuth } from "@/context/AuthContext";
+import { useAnyAuth } from "@/hooks/useAnyAuth";
 
 interface MessageBubbleProps {
   message: ChatMessage;
 }
 
 export default function MessageBubble({ message }: MessageBubbleProps) {
-  const { user } = useAuth();
+  const { user } = useAnyAuth();
   const isMe = message.senderId === user?.uid;
 
   return (

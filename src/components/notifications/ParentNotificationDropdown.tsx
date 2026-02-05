@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
-import { Bell, Calendar, CheckCircle, CreditCard, FileText, ChevronRight } from "lucide-react";
+import { Bell, Calendar, CheckCircle, CreditCard, FileText, ChevronRight, MessageSquare } from "lucide-react";
 import { CATEGORY_META, formatRelativeTime } from "@/types/notifications";
 
 interface ParentNotificationDropdownProps {
@@ -15,7 +15,8 @@ const categoryIcons = {
   billing: CreditCard,
   client: FileText,
   team: FileText,
-  system: Bell
+  system: Bell,
+  message: MessageSquare
 };
 
 export default function ParentNotificationDropdown({ desktop = false }: ParentNotificationDropdownProps) {

@@ -11,7 +11,7 @@ interface ParentAuthContextType {
   clientName: string | null;
   loading: boolean;
   isAuthenticated: boolean;
-  authenticateWithCode: (clientId: string, clientName: string) => Promise<void>;
+  authenticateWithCode: (clientId: string, clientName: string, clientCode: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -91,7 +91,7 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   // Authenticate with client code (called after code validation)
-  const authenticateWithCode = useCallback(async (validatedClientId: string, validatedClientName: string) => {
+  const authenticateWithCode = useCallback(async (validatedClientId: string, validatedClientName: string, validatedClientCode: string) => {
     try {
       // Sign in anonymously if not already
       let currentUser = auth.currentUser;
@@ -111,6 +111,7 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
       localStorage.setItem("parent_uid", currentUser.uid);
       localStorage.setItem("parent_client_id", validatedClientId);
       localStorage.setItem("parent_client_name", validatedClientName);
+      localStorage.setItem("parent_client_code", validatedClientCode.toUpperCase());
 
       setUser(currentUser);
       setClientId(validatedClientId);

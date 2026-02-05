@@ -16,16 +16,23 @@ import {
   limit
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { useAuth } from "@/context/AuthContext";
+import { useParentAuthOptional } from "@/context/ParentAuthContext";
 import { ChatThread, ChatMessage, ChatParticipant } from "@/types/chat";
+import { notifyMessageReceived } from "@/lib/notificationService";
+import { NotificationRecipientRole } from "@/types/notifications";
 
 export function useThreads() {
-  const { user } = useAuth();
+  const { user } = useAnyAuth();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const q = query(
       collection(db, "threads"),
@@ -80,7 +87,9 @@ export function useMessages(threadId: string | null) {
 }
 
 export function useChatActions() {
-  const { user, userData } = useAuth();
+  const { user, isParent, role } = useAnyAuth();
+  const staffAuth = useAuth();
+  const parentAuth = useParentAuthOptional();
 
   const sendMessage = async (threadId: string, text: string) => {
     if (!user || !text.trim()) return;
@@ -105,10 +114,47 @@ export function useChatActions() {
       },
       updatedAt: serverTimestamp()
     });
+
+    // 3. Trigger notification
+    try {
+      const threadSnap = await getDoc(doc(db, "threads", threadId));
+      if (threadSnap.exists()) {
+        const threadData = threadSnap.data() as ChatThread;
+        const otherParticipantId = threadData.participants.find(id => id !== user.uid);
+        const otherUser = otherParticipantId ? threadData.participantDetails[otherParticipantId] : null;
+        
+        if (otherParticipantId && otherUser) {
+          // Get sender name
+          let senderName = "Someone";
+          if (isParent) {
+            // If sender is parent, use parentAuth if available, or thread details
+            const myDetails = threadData.participantDetails[user.uid];
+            senderName = myDetails?.name || (parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent");
+          } else {
+            // If sender is staff, use staffAuth if available, or thread details
+            const myDetails = threadData.participantDetails[user.uid];
+            senderName = myDetails?.name || staffAuth?.userData?.name || "Staff Member";
+          }
+
+          await notifyMessageReceived(
+            otherParticipantId,
+            otherUser.role.toLowerCase() as NotificationRecipientRole,
+            {
+              senderName,
+              text: text.trim(),
+              threadId,
+              triggeredByUserId: user.uid
+            }
+          );
+        }
+      }
+    } catch (err) {
+      console.error("[useChat] Error sending notification:", err);
+    }
   };
 
   const createOrGetThread = async (otherUser: ChatParticipant) => {
-    if (!user || !userData) return null;
+    if (!user) return null;
 
     // Deterministic ID for 1:1 chats
     const threadId = [user.uid, otherUser.id].sort().join("_");
@@ -116,13 +162,26 @@ export function useChatActions() {
     const threadSnap = await getDoc(threadRef);
 
     if (!threadSnap.exists()) {
-      const currentUserParticipant: ChatParticipant = {
-        id: user.uid,
-        name: userData.name || "Unknown",
-        initials: userData.initials || "??",
-        color: userData.color || "#ccc",
-        role: userData.role || "Staff"
-      };
+      let currentUserParticipant: ChatParticipant;
+
+      if (isParent) {
+        currentUserParticipant = {
+          id: user.uid,
+          name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
+          initials: "P",
+          color: "#4A90E2",
+          role: "Parent"
+        };
+      } else {
+        const userData = staffAuth?.userData;
+        currentUserParticipant = {
+          id: user.uid,
+          name: userData?.name || "Staff Member",
+          initials: userData?.initials || "S",
+          color: userData?.color || "#ccc",
+          role: role || "Staff"
+        };
+      }
 
       await setDoc(threadRef, {
         participants: [user.uid, otherUser.id],
@@ -133,6 +192,37 @@ export function useChatActions() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
+    } else {
+      // Thread exists, but let's make sure participantDetails are up to date 
+      // (especially for parents who might have been 'Unknown' before)
+      const threadData = threadSnap.data() as ChatThread;
+      const myDetails = threadData.participantDetails[user.uid];
+      
+      if (!myDetails || myDetails.name === "Unknown" || myDetails.name === "Staff Member" || (isParent && myDetails.name === "Parent")) {
+        let updatedMyDetails: ChatParticipant;
+        if (isParent) {
+          updatedMyDetails = {
+            id: user.uid,
+            name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
+            initials: "P",
+            color: "#4A90E2",
+            role: "Parent"
+          };
+        } else {
+          const userData = staffAuth?.userData;
+          updatedMyDetails = {
+            id: user.uid,
+            name: userData?.name || "Staff Member",
+            initials: userData?.initials || "S",
+            color: userData?.color || "#ccc",
+            role: role || "Staff"
+          };
+        }
+
+        await updateDoc(threadRef, {
+          [`participantDetails.${user.uid}`]: updatedMyDetails
+        });
+      }
     }
 
     return threadId;
@@ -147,3 +237,4 @@ export function useChatActions() {
 
   return { sendMessage, createOrGetThread, markAsRead };
 }
+

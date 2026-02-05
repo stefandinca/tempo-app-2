@@ -7,7 +7,8 @@ import {
   Users,
   CreditCard,
   User,
-  AlertTriangle
+  AlertTriangle,
+  MessageSquare
 } from "lucide-react";
 import {
   Notification,
@@ -28,7 +29,8 @@ const categoryIcons = {
   team: Users,
   billing: CreditCard,
   client: User,
-  system: AlertTriangle
+  system: AlertTriangle,
+  message: MessageSquare
 };
 
 export default function NotificationItem({

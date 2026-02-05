@@ -5,7 +5,8 @@ export type NotificationCategory =
   | 'team'
   | 'billing'
   | 'client'
-  | 'system';
+  | 'system'
+  | 'message';
 
 // Notification Types (specific event triggers)
 export type NotificationType =
@@ -22,7 +23,8 @@ export type NotificationType =
   | 'report_ready'
   | 'document_shared'
   | 'system_alert'
-  | 'reminder';
+  | 'reminder'
+  | 'message_received';
 
 // Recipient roles (matches existing userRole in AuthContext)
 export type NotificationRecipientRole = 'admin' | 'coordinator' | 'therapist' | 'parent';
@@ -111,6 +113,12 @@ export const CATEGORY_META: Record<NotificationCategory, CategoryMeta> = {
     color: 'text-error-500',
     bgColor: 'bg-error-100 dark:bg-error-900/30',
     iconName: 'AlertTriangle'
+  },
+  message: {
+    label: 'Message',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+    iconName: 'MessageSquare'
   }
 };
 

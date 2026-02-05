@@ -1,10 +1,9 @@
 import { useMemo } from "react";
-import { ArrowLeft, Download, TrendingUp, Award, Calendar, AlertTriangle, ArrowRight, Lightbulb, Target, Clock, Star } from "lucide-react";
+import { ArrowLeft, TrendingUp, Award, Calendar, AlertTriangle, ArrowRight, Lightbulb, Target, Clock, Star, BarChart2 } from "lucide-react";
 import { Evaluation, CategorySummary } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import EvaluationRadarChart from "@/components/evaluations/EvaluationRadarChart";
 import { clsx } from "clsx";
-import { generateEvaluationPDF, generateVBMAPPPDF } from "@/lib/pdfGenerator";
 import { ClientInfo } from "@/types/client";
 import { 
   getParentFriendlyName, 
@@ -111,12 +110,11 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
     return [];
   }, [isABLLS, abllsEval, vbmappEval, clientData.name]);
 
-  const handleDownload = () => {
-    if (isABLLS) {
-      generateEvaluationPDF(evaluation as Evaluation, clientData, previousEvaluation as Evaluation, allEvaluations as Evaluation[], true);
-    } else {
-      generateVBMAPPPDF(evaluation as VBMAPPEvaluation, clientData, VBMAPP_BARRIERS, true);
-    }
+  const handleViewReport = () => {
+    const isProd = process.env.NODE_ENV === 'production';
+    const basePath = isProd ? '/v2' : '';
+    const url = `${basePath}/reports/evaluation/?type=${isABLLS ? 'ablls' : 'vbmapp'}&id=${evaluation.id}&clientId=${clientData.id}&mode=parent`;
+    window.open(url, '_blank');
   };
 
   return (
@@ -138,13 +136,15 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
             <span>{new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
-        <button 
-          onClick={handleDownload}
-          className="ml-auto p-2 rounded-xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-          title="Download PDF Report"
-        >
-          <Download className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2 ml-auto">
+          <button 
+            onClick={handleViewReport}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 text-white hover:bg-primary-700 transition-all text-sm font-bold shadow-lg shadow-primary-600/20"
+          >
+            <BarChart2 className="w-4 h-4" />
+            View Full Report
+          </button>
+        </div>
       </div>
 
       {/* Overall Score Card */}
@@ -424,7 +424,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
               </h3>
               <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
                 {vbmappEval.barrierSummary.severeBarriers.map((id, index) => {
-                  const barrier = BARRIERS_LIST.find(b => b.id === id);
+                  const barrier = VBMAPP_BARRIERS.find(b => b.id === id);
                   return (
                     <div 
                       key={id}
@@ -495,10 +495,10 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
-                      {goal.area}
+                      {goal.skillArea}
                     </h4>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">
-                      {goal.goal}
+                      {goal.goalText}
                     </p>
                   </div>
                 </div>

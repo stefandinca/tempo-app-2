@@ -38,6 +38,8 @@ export default function NotificationsPage() {
         return "No billing notifications";
       case "client":
         return "No client notifications";
+      case "message":
+        return "No message notifications";
       default:
         return "No notifications yet";
     }

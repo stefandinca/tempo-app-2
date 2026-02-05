@@ -10,13 +10,14 @@ import {
   FileText,
   LogOut,
   CreditCard,
-  Loader2
+  Loader2,
+  MessageSquare
 } from "lucide-react";
 import { clsx } from "clsx";
 import { signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ParentAuthProvider, useParentAuth } from "@/context/ParentAuthContext";
-import { NotificationProvider } from "@/context/NotificationContext";
+import { NotificationProvider, useNotifications } from "@/context/NotificationContext";
 import ParentNotificationBell from "@/components/notifications/ParentNotificationBell";
 import ParentNotificationDropdown from "@/components/notifications/ParentNotificationDropdown";
 
@@ -25,10 +26,12 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, loading } = useParentAuth();
+  const { unreadMessageCount } = useNotifications();
 
   const navItems = [
     { name: "Home", href: `/parent/dashboard/`, icon: Home },
     { name: "Schedule", href: `/parent/calendar/`, icon: Calendar },
+    { name: "Messages", href: `/parent/messages/`, icon: MessageSquare },
     { name: "Progress", href: `/parent/progress/`, icon: BarChart2 },
     { name: "Billing", href: `/parent/billing/`, icon: CreditCard },
     { name: "Docs", href: `/parent/docs/`, icon: FileText },
@@ -119,18 +122,24 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
+            const isMessages = item.name === "Messages";
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={clsx(
-                  "flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all",
+                  "flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all relative",
                   isActive
                     ? "text-primary-600 dark:text-primary-400"
                     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
                 )}
               >
                 <item.icon className={clsx("w-6 h-6", isActive && "fill-current")} />
+                {isMessages && unreadMessageCount > 0 && (
+                  <span className="absolute top-1 right-3 w-4 h-4 bg-error-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+                  </span>
+                )}
                 <span className="text-[10px] font-medium uppercase tracking-wide">{item.name}</span>
               </Link>
             );
@@ -146,6 +155,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
 
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const isMessages = item.name === "Messages";
           return (
             <Link
               key={item.name}
@@ -158,6 +168,11 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
               )}
             >
               <item.icon className="w-6 h-6" />
+              {isMessages && unreadMessageCount > 0 && (
+                <span className="absolute top-2 right-2 w-5 h-5 bg-error-500 text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-neutral-900 flex items-center justify-center animate-pulse">
+                  {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+                </span>
+              )}
               <span className="absolute left-full ml-4 px-2 py-1 bg-neutral-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
                 {item.name}
               </span>

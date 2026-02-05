@@ -7,12 +7,22 @@ import NewChatModal from "@/components/chat/NewChatModal";
 import { useThreads, useChatActions } from "@/hooks/useChat";
 import { ChatParticipant } from "@/types/chat";
 import { clsx } from "clsx";
+import { useSearchParams } from "next/navigation";
 
 export default function MessagesPage() {
+  const searchParams = useSearchParams();
+  const threadIdParam = searchParams.get("threadId");
   const { threads, loading } = useThreads();
   const { createOrGetThread } = useChatActions();
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
+
+  // Handle threadId from URL
+  useEffect(() => {
+    if (threadIdParam) {
+      setActiveThreadId(threadIdParam);
+    }
+  }, [threadIdParam]);
 
   // Handle actions from Command Palette
   useEffect(() => {

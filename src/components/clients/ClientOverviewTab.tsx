@@ -1,13 +1,15 @@
 "use client";
 
-import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2, FileText, ClipboardCheck, ChevronRight } from "lucide-react";
+import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, Key, Copy, Check, RefreshCw, Loader2, FileText, ClipboardCheck, ChevronRight, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
+import { useChatActions } from "@/hooks/useChat";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useRouter } from "next/navigation";
 import { clsx } from "clsx";
 import EvaluationRadarChart from "@/components/evaluations/EvaluationRadarChart";
 
@@ -18,6 +20,8 @@ interface ClientOverviewTabProps {
 }
 
 export default function ClientOverviewTab({ client, pendingAction, onActionHandled }: ClientOverviewTabProps) {
+  const router = useRouter();
+  const { createOrGetThread } = useChatActions();
   const { data: teamMembers } = useTeamMembers();
   const { data: events, loading: eventsLoading } = useClientEvents(client.id);
   const { evaluations, loading: evaluationsLoading } = useClientEvaluations(client.id);
@@ -25,6 +29,36 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [isStartingChat, setIsStartingChat] = useState(false);
+
+  const handleMessageParent = async () => {
+    if (!client.parentUids || client.parentUids.length === 0) {
+      toastError("No parent has registered for the portal yet.");
+      return;
+    }
+
+    setIsStartingChat(true);
+    try {
+      // If multiple parents, we message the most recently registered (last in array)
+      const parentUid = client.parentUids[client.parentUids.length - 1];
+      const threadId = await createOrGetThread({
+        id: parentUid,
+        name: client.parentName || `Parent of ${client.name}`,
+        initials: "P",
+        color: "#4A90E2",
+        role: "Parent"
+      });
+
+      if (threadId) {
+        router.push(`/messages?threadId=${threadId}`);
+      }
+    } catch (err) {
+      console.error(err);
+      toastError("Failed to start conversation");
+    } finally {
+      setIsStartingChat(false);
+    }
+  };
 
   const therapist = (teamMembers || []).find(t => t.id === client.assignedTherapistId);
 
@@ -170,7 +204,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
       generateReport();
       onActionHandled?.();
     }
-  }, [pendingAction, eventsLoading]);
+  }, [pendingAction, eventsLoading, generateReport, onActionHandled]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
@@ -287,6 +321,17 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                 <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Current Access Code</p>
                 <p className="text-2xl font-mono font-bold text-primary-600 tracking-wider uppercase">{client.clientCode}</p>
               </div>
+
+              {client.parentUids && client.parentUids.length > 0 && (
+                <button
+                  onClick={handleMessageParent}
+                  disabled={isStartingChat}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-xl text-sm font-bold hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-all disabled:opacity-50"
+                >
+                  {isStartingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
+                  Message Parent
+                </button>
+              )}
               
               <div className="flex gap-2">
                 <button 

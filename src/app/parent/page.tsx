@@ -15,7 +15,7 @@ function ParentLoginContent() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, loading: authLoading } = useParentAuth();
+  const { isAuthenticated, loading: authLoading, authenticateWithCode } = useParentAuth();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -80,22 +80,10 @@ function ParentLoginContent() {
       const clientDoc = querySnapshot.docs[0];
       const clientData = clientDoc.data();
 
-      // Sign in anonymously to Firebase Auth
-      const userCredential = await signInAnonymously(auth);
-      const anonymousUid = userCredential.user.uid;
+      // Use context method to authenticate atomically
+      await authenticateWithCode(clientDoc.id, clientData.name, code.toUpperCase());
 
-      // Link anonymous UID to client document for notifications
-      await updateDoc(doc(db, "clients", clientDoc.id), {
-        parentUids: arrayUnion(anonymousUid)
-      });
-
-      // Store session including the anonymous UID
-      localStorage.setItem("parent_client_code", code.toUpperCase());
-      localStorage.setItem("parent_client_id", clientDoc.id);
-      localStorage.setItem("parent_client_name", clientData.name);
-      localStorage.setItem("parent_uid", anonymousUid);
-
-      console.log("[ParentLogin] Successfully authenticated with UID:", anonymousUid);
+      console.log("[ParentLogin] Atomic authentication successful.");
       router.push(`/parent/dashboard/`);
     } catch (err: any) {
       console.error("Verification error:", err);
