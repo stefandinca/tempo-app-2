@@ -14,6 +14,7 @@ import {
 import { CATEGORY_META, formatRelativeTime } from "@/types/notifications";
 import { useNotifications } from "@/context/NotificationContext";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
+import { useTranslation } from "react-i18next";
 
 interface ParentAlertsProps {
   clientName?: string;
@@ -30,6 +31,7 @@ const categoryIcons = {
 };
 
 export default function ParentAlerts({ clientName }: ParentAlertsProps) {
+  const { t } = useTranslation();
   const { notifications, loading, markAsRead, requestPushPermission, pushPermissionStatus, pushError } = useNotifications();
   const { user } = useAnyAuth();
 
@@ -45,8 +47,8 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
           <Bell className="w-5 h-5" />
         </div>
         <div>
-          <p className="text-sm font-bold text-neutral-900 dark:text-white">Enable Push Notifications</p>
-          <p className="text-xs text-neutral-500">Get real-time updates for sessions and messages</p>
+          <p className="text-sm font-bold text-neutral-900 dark:text-white">{t('parent_portal.push_prompt.title')}</p>
+          <p className="text-xs text-neutral-500">{t('parent_portal.push_prompt.description')}</p>
           {pushError && <p className="text-xs text-error-500 font-bold mt-1">Error: {pushError}</p>}
         </div>
       </div>
@@ -54,7 +56,7 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
         onClick={requestPushPermission}
         className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl transition-colors shrink-0"
       >
-        {pushPermissionStatus === 'granted' ? 'Sync' : 'Enable'}
+        {pushPermissionStatus === 'granted' ? t('parent_portal.push_prompt.sync') : t('parent_portal.push_prompt.enable')}
       </button>
     </div>
   );
@@ -63,14 +65,14 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
     return (
       <section className="px-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
+          <h3 className="font-bold text-neutral-900 dark:text-white">{t('parent_portal.alerts.title')}</h3>
         </div>
         {pushPermissionStatus !== 'granted' && pushNotificationPrompt}
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-center">
           <Bell className="w-10 h-10 text-neutral-300 dark:text-neutral-600 mx-auto mb-2" />
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">No notifications yet</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('parent_portal.alerts.no_alerts')}</p>
           <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
-            You&apos;ll see updates about sessions and messages here
+            {t('parent_portal.alerts.subtitle')}
           </p>
         </div>
       </section>
@@ -87,12 +89,12 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
   return (
     <section className="px-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-neutral-900 dark:text-white">Recent Alerts</h3>
+        <h3 className="font-bold text-neutral-900 dark:text-white">{t('parent_portal.alerts.title')}</h3>
         <Link
           href="/parent/calendar/"
           className="text-sm font-bold text-primary-600 hover:text-primary-700 dark:hover:text-primary-400"
         >
-          View All
+          {t('parent_portal.alerts.view_all')}
         </Link>
       </div>
 

@@ -6,6 +6,7 @@ import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { db } from "@/lib/firebase";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 interface Document {
   id: string;
@@ -20,10 +21,10 @@ interface Document {
 }
 
 const CATEGORIES = [
-  { id: "assessment", label: "Assessment", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
-  { id: "report", label: "Report", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-  { id: "consent", label: "Consent Form", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
-  { id: "other", label: "Other", color: "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400" }
+  { id: "assessment", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
+  { id: "report", color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+  { id: "consent", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
+  { id: "other", color: "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400" }
 ];
 
 function formatFileSize(bytes: number): string {
@@ -43,6 +44,8 @@ function getFileIcon(fileType: string) {
 }
 
 export default function ParentDocsPage() {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US';
   const { data: client, loading: clientLoading, error: clientError } = usePortalData();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
@@ -61,12 +64,9 @@ export default function ParentDocsPage() {
       orderBy("uploadedAt", "desc")
     );
 
-    console.log("[ParentDocs] Setting up documents listener for client:", client.id);
-
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        console.log("[ParentDocs] Received snapshot, docs count:", snapshot.size);
         const docs: Document[] = [];
         snapshot.forEach((doc) => {
           docs.push({ id: doc.id, ...doc.data() } as Document);
@@ -76,12 +76,6 @@ export default function ParentDocsPage() {
       },
       (err) => {
         console.error("[ParentDocs] Error fetching documents:", err);
-        console.error("[ParentDocs] Error code:", err.code);
-        console.error("[ParentDocs] Error message:", err.message);
-        // Check if it's a permissions error - may need to log in again
-        if (err.code === 'permission-denied') {
-          console.error("[ParentDocs] Permission denied - user may need to re-authenticate");
-        }
         setDocsLoading(false);
       }
     );
@@ -97,11 +91,13 @@ export default function ParentDocsPage() {
     : documents.filter(d => d.category === filterCategory);
 
   return (
-    <div className="p-4 space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+    <div className="p-4 space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 pb-24">
       <header>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Documents</h1>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('parent_portal.docs.title')}</h1>
         <p className="text-neutral-500 text-sm">
-          {documents.length} document{documents.length !== 1 ? "s" : ""} available for {client.name}
+          {documents.length === 1 
+            ? t('parent_portal.docs.subtitle_single', { name: client.name })
+            : t('parent_portal.docs.subtitle', { count: documents.length, name: client.name })}
         </p>
       </header>
 
@@ -117,7 +113,7 @@ export default function ParentDocsPage() {
                 : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400"
             )}
           >
-            All
+            {t('parent_portal.docs.all')}
           </button>
           {CATEGORIES.map(cat => {
             const count = documents.filter(d => d.category === cat.id).length;
@@ -133,7 +129,7 @@ export default function ParentDocsPage() {
                     : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400"
                 )}
               >
-                {cat.label} ({count})
+                {t(`parent_portal.docs.categories.${cat.id}`)} ({count})
               </button>
             );
           })}
@@ -143,7 +139,7 @@ export default function ParentDocsPage() {
       {docsLoading ? (
         <div className="py-16 flex flex-col items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary-500 mb-4" />
-          <p className="text-neutral-500">Loading documents...</p>
+          <p className="text-neutral-500">{t('common.loading')}</p>
         </div>
       ) : filteredDocuments.length === 0 ? (
         <div className="py-16 text-center bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
@@ -151,12 +147,12 @@ export default function ParentDocsPage() {
             <FolderOpen className="w-8 h-8 text-neutral-300" />
           </div>
           <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-            {documents.length === 0 ? "No documents shared" : "No matching documents"}
+            {documents.length === 0 ? t('parent_portal.docs.no_docs') : t('parent_portal.docs.no_matching')}
           </h3>
           <p className="text-neutral-500 text-sm mt-1">
             {documents.length === 0
-              ? "Reports and assessments will appear here when shared by your therapy team."
-              : "Try selecting a different category."}
+              ? t('parent_portal.docs.no_docs_subtitle')
+              : t('parent_portal.docs.no_matching_subtitle')}
           </p>
         </div>
       ) : (
@@ -182,7 +178,7 @@ export default function ParentDocsPage() {
                         {doc.name}
                       </h4>
                       <span className={clsx("px-2 py-0.5 text-xs font-medium rounded-full", category?.color)}>
-                        {category?.label}
+                        {t(`parent_portal.docs.categories.${doc.category}`)}
                       </span>
                     </div>
 
@@ -191,12 +187,12 @@ export default function ParentDocsPage() {
                       <span>•</span>
                       <span>
                         {doc.uploadedAt?.toDate?.()
-                          ? new Date(doc.uploadedAt.toDate()).toLocaleDateString("en-US", {
+                          ? new Date(doc.uploadedAt.toDate()).toLocaleDateString(currentLang, {
                               year: "numeric",
                               month: "long",
                               day: "numeric"
                             })
-                          : "Recently uploaded"}
+                          : t('parent_portal.docs.recently_uploaded')}
                       </span>
                     </div>
 
@@ -214,7 +210,7 @@ export default function ParentDocsPage() {
                     className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl font-medium hover:bg-primary-600 transition-colors flex-shrink-0"
                   >
                     <Download className="w-4 h-4" />
-                    <span className="hidden sm:inline">Download</span>
+                    <span className="hidden sm:inline">{t('parent_portal.docs.download')}</span>
                   </a>
                 </div>
               </div>

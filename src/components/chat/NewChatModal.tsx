@@ -7,6 +7,7 @@ import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { useParentAuthOptional } from "@/context/ParentAuthContext";
 import { useClient } from "@/hooks/useClient";
 import { ChatParticipant } from "@/types/chat";
+import { useTranslation } from "react-i18next";
 
 interface NewChatModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface NewChatModalProps {
 }
 
 export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatModalProps) {
+  const { t } = useTranslation();
   const { user, isParent } = useAnyAuth();
   const parentAuth = useParentAuthOptional();
   const { data: client } = useClient(parentAuth?.clientId || "");
@@ -49,7 +51,7 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
       <div className="bg-white dark:bg-neutral-900 w-full max-w-md rounded-2xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-          <h3 className="font-bold text-lg text-neutral-900 dark:text-white">New Conversation</h3>
+          <h3 className="font-bold text-lg text-neutral-900 dark:text-white">{t('chat.new_conversation')}</h3>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
             <X className="w-5 h-5" />
           </button>
@@ -61,7 +63,7 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
             <input 
               type="text" 
-              placeholder="Search team members..."
+              placeholder={t('chat.search_contacts')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
@@ -74,11 +76,11 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
           {loading ? (
             <div className="py-12 flex flex-col items-center justify-center text-neutral-500">
               <Loader2 className="w-8 h-8 animate-spin mb-2" />
-              <p className="text-sm">Loading team...</p>
+              <p className="text-sm">{t('common.loading')}</p>
             </div>
           ) : filteredTeam.length === 0 ? (
             <div className="py-12 text-center text-neutral-500">
-              <p className="text-sm">No team members found.</p>
+              <p className="text-sm">{t('chat.no_contacts')}</p>
             </div>
           ) : (
             filteredTeam.map((member) => (
@@ -90,16 +92,22 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
                     name: member.name,
                     initials: member.initials,
                     color: member.color,
-                    role: member.role
+                    role: member.role,
+                    phone: member.phone,
+                    photoURL: member.photoURL
                   });
                 }}
                 className="w-full p-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 rounded-xl transition-colors text-left"
               >
                 <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm"
-                  style={{ backgroundColor: member.color || '#ccc' }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm overflow-hidden"
+                  style={{ backgroundColor: member.photoURL ? 'transparent' : (member.color || '#ccc') }}
                 >
-                  {member.initials}
+                  {member.photoURL ? (
+                    <img src={member.photoURL} alt={member.name} className="w-full h-full object-cover" />
+                  ) : (
+                    member.initials
+                  )}
                 </div>
                 <div>
                   <p className="font-bold text-sm text-neutral-900 dark:text-white">{member.name}</p>

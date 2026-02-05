@@ -46,7 +46,9 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
         name: client.parentName || `Parent of ${client.name}`,
         initials: "P",
         color: "#4A90E2",
-        role: "Parent"
+        role: "Parent",
+        phone: client.phone,
+        clientId: client.id
       });
 
       if (threadId) {
@@ -114,8 +116,8 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
     if (!client.clientCode) return;
 
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    // Use the v2 path for production compatibility
-    const path = baseUrl.includes('localhost') ? '/parent' : '/v2/parent';
+    // No longer using /v2 for production
+    const path = '/parent';
     const link = `${baseUrl}${path}/?code=${client.clientCode}`;
 
     navigator.clipboard.writeText(link);

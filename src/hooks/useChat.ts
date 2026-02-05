@@ -10,8 +10,10 @@ import {
   doc, 
   setDoc, 
   getDoc,
+  getDocs,
   updateDoc,
   arrayUnion,
+  arrayRemove,
   Timestamp,
   limit
 } from "firebase/firestore";
@@ -19,6 +21,7 @@ import { db } from "@/lib/firebase";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { useAuth } from "@/context/AuthContext";
 import { useParentAuthOptional } from "@/context/ParentAuthContext";
+import { useClient } from "@/hooks/useClient";
 import { ChatThread, ChatMessage, ChatParticipant } from "@/types/chat";
 import { notifyMessageReceived } from "@/lib/notificationService";
 import { NotificationRecipientRole } from "@/types/notifications";
@@ -43,7 +46,11 @@ export function useThreads() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const threadList: ChatThread[] = [];
       snapshot.forEach((doc) => {
-        threadList.push({ id: doc.id, ...doc.data() } as ChatThread);
+        const data = doc.data() as ChatThread;
+        // Only show if not archived by this user
+        if (!data.archivedBy?.includes(user.uid)) {
+          threadList.push({ ...data, id: doc.id } as ChatThread);
+        }
       });
       setThreads(threadList);
       setLoading(false);
@@ -90,6 +97,7 @@ export function useChatActions() {
   const { user, isParent, role } = useAnyAuth();
   const staffAuth = useAuth();
   const parentAuth = useParentAuthOptional();
+  const { data: client } = useClient(parentAuth?.clientId || "");
 
   const sendMessage = async (threadId: string, text: string) => {
     if (!user || !text.trim()) return;
@@ -104,7 +112,7 @@ export function useChatActions() {
     // 1. Add message to subcollection
     await addDoc(collection(db, "threads", threadId, "messages"), messageData);
 
-    // 2. Update thread's last message and updatedAt
+    // 2. Update thread's last message and updatedAt, and clear archivedBy for everyone
     await updateDoc(doc(db, "threads", threadId), {
       lastMessage: {
         text: text.trim(),
@@ -112,7 +120,8 @@ export function useChatActions() {
         timestamp: serverTimestamp(),
         readBy: [user.uid]
       },
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
+      archivedBy: [] // Unarchive for everyone when a new message arrives
     });
 
     // 3. Trigger notification
@@ -156,49 +165,39 @@ export function useChatActions() {
   const createOrGetThread = async (otherUser: ChatParticipant) => {
     if (!user) return null;
 
-    // Deterministic ID for 1:1 chats
-    const threadId = [user.uid, otherUser.id].sort().join("_");
-    const threadRef = doc(db, "threads", threadId);
-    const threadSnap = await getDoc(threadRef);
+    // We check for an existing active (not archived) thread first
+    const q = query(
+      collection(db, "threads"),
+      where("participants", "array-contains", user.uid),
+      orderBy("updatedAt", "desc")
+    );
+    
+    const querySnap = await getDocs(q);
+    let activeThreadId: string | null = null;
 
-    if (!threadSnap.exists()) {
-      let currentUserParticipant: ChatParticipant;
+    querySnap.forEach(doc => {
+      const data = doc.data() as ChatThread;
+      // It's truly active if NO ONE has archived it and it has the other participant
+      if (data.participants.includes(otherUser.id) && (!data.archivedBy || data.archivedBy.length === 0)) {
+        activeThreadId = doc.id;
+      }
+    });
 
-      if (isParent) {
-        currentUserParticipant = {
-          id: user.uid,
-          name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
-          initials: "P",
-          color: "#4A90E2",
-          role: "Parent"
-        };
-      } else {
-        const userData = staffAuth?.userData;
-        currentUserParticipant = {
-          id: user.uid,
-          name: userData?.name || "Staff Member",
-          initials: userData?.initials || "S",
-          color: userData?.color || "#ccc",
-          role: role || "Staff"
-        };
+    if (activeThreadId) {
+      // Thread exists, but let's make sure participantDetails are up to date 
+      const threadData = querySnap.docs.find(d => d.id === activeThreadId)?.data() as ChatThread;
+      const myDetails = threadData?.participantDetails[user.uid];
+      const otherDetailsInThread = threadData?.participantDetails[otherUser.id];
+      
+      // Update OTHER user if we have more info now (like phone/clientId)
+      if (otherUser.phone && (!otherDetailsInThread?.phone || !otherDetailsInThread?.clientId)) {
+        await updateDoc(doc(db, "threads", activeThreadId), {
+          [`participantDetails.${otherUser.id}.phone`]: otherUser.phone,
+          [`participantDetails.${otherUser.id}.clientId`]: otherUser.clientId || otherDetailsInThread?.clientId || ""
+        });
       }
 
-      await setDoc(threadRef, {
-        participants: [user.uid, otherUser.id],
-        participantDetails: {
-          [user.uid]: currentUserParticipant,
-          [otherUser.id]: otherUser
-        },
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-    } else {
-      // Thread exists, but let's make sure participantDetails are up to date 
-      // (especially for parents who might have been 'Unknown' before)
-      const threadData = threadSnap.data() as ChatThread;
-      const myDetails = threadData.participantDetails[user.uid];
-      
-      if (!myDetails || myDetails.name === "Unknown" || myDetails.name === "Staff Member" || (isParent && myDetails.name === "Parent")) {
+      if (!myDetails || myDetails.name === "Unknown" || myDetails.name === "Staff Member" || (isParent && myDetails.name === "Parent") || !myDetails.phone) {
         let updatedMyDetails: ChatParticipant;
         if (isParent) {
           updatedMyDetails = {
@@ -206,7 +205,9 @@ export function useChatActions() {
             name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
             initials: "P",
             color: "#4A90E2",
-            role: "Parent"
+            role: "Parent",
+            phone: client?.phone || "",
+            clientId: parentAuth?.clientId || ""
           };
         } else {
           const userData = staffAuth?.userData;
@@ -215,17 +216,65 @@ export function useChatActions() {
             name: userData?.name || "Staff Member",
             initials: userData?.initials || "S",
             color: userData?.color || "#ccc",
-            role: role || "Staff"
+            role: role || "Staff",
+            phone: userData?.phone || ""
           };
         }
 
-        await updateDoc(threadRef, {
+        await updateDoc(doc(db, "threads", activeThreadId), {
           [`participantDetails.${user.uid}`]: updatedMyDetails
         });
       }
+      return activeThreadId;
     }
 
+    // If no active thread, create a new one with a unique ID
+    const threadRef = doc(collection(db, "threads"));
+    const threadId = threadRef.id;
+
+    let currentUserParticipant: ChatParticipant;
+
+    if (isParent) {
+      currentUserParticipant = {
+        id: user.uid,
+        name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
+        initials: "P",
+        color: "#4A90E2",
+        role: "Parent",
+        phone: client?.phone || "",
+        clientId: parentAuth?.clientId || ""
+      };
+    } else {
+      const userData = staffAuth?.userData;
+      currentUserParticipant = {
+        id: user.uid,
+        name: userData?.name || "Staff Member",
+        initials: userData?.initials || "S",
+        color: userData?.color || "#ccc",
+        role: role || "Staff",
+        phone: userData?.phone || ""
+      };
+    }
+
+    await setDoc(threadRef, {
+      participants: [user.uid, otherUser.id],
+      participantDetails: {
+        [user.uid]: currentUserParticipant,
+        [otherUser.id]: otherUser
+      },
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      archivedBy: []
+    });
+
     return threadId;
+  };
+
+  const archiveThread = async (threadId: string) => {
+    if (!user) return;
+    await updateDoc(doc(db, "threads", threadId), {
+      archivedBy: arrayUnion(user.uid)
+    });
   };
 
   const markAsRead = async (threadId: string) => {
@@ -235,6 +284,5 @@ export function useChatActions() {
     });
   };
 
-  return { sendMessage, createOrGetThread, markAsRead };
+  return { sendMessage, createOrGetThread, markAsRead, archiveThread };
 }
-

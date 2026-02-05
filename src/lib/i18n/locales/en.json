@@ -1,0 +1,331 @@
+{
+  "common": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "search": "Search...",
+    "unknown": "Unknown",
+    "you": "You",
+    "actions": "Actions",
+    "status": "Status",
+    "role": "Role"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "messages": "Messages",
+    "clients": "Clients",
+    "team": "Team",
+    "billing": "Billing",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "sign_out": "Sign Out"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and system preferences",
+    "tabs": {
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "security": "Security",
+      "appearance": "Appearance",
+      "billing": "Billing Config",
+      "system": "System"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "subtitle": "Update your personal details.",
+      "full_name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "password": "New Password",
+      "password_placeholder": "Leave blank to keep current",
+      "avatar": "Avatar",
+      "avatar_color": "Avatar Color",
+      "upload_avatar": "Upload Avatar",
+      "success": "Profile updated successfully",
+      "error": "Failed to update profile",
+      "reauth_required": "Please sign in again to change email or password."
+    },
+    "appearance": {
+      "title": "Appearance",
+      "subtitle": "Customize the interface.",
+      "theme": "Theme",
+      "language": "Language",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "active_clients": "Active Clients",
+    "attendance_rate": "Attendance Rate",
+    "sessions_today": "Sessions Today",
+    "trends": {
+      "this_month": "+{{count}} this month",
+      "vs_last_week": "{{value}} vs last week",
+      "same_as_yesterday": "Same as yesterday"
+    },
+    "schedule": {
+      "title": "Today's Schedule",
+      "view_all": "View All",
+      "no_sessions": "No sessions scheduled for today.",
+      "attendance": "Attendance",
+      "present": "Present",
+      "absent": "Absent"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "view_all": "View All",
+      "actions": {
+        "logged_attendance": "logged attendance",
+        "created_event": "created event",
+        "updated_progress": "updated progress"
+      }
+    }
+  },
+  "calendar": {
+    "today": "Today",
+    "views": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    },
+    "filters": {
+      "title": "Filters",
+      "therapists": "Therapists",
+      "clients": "Clients",
+      "event_types": "Event Types",
+      "clear": "Clear",
+      "apply": "Apply"
+    },
+    "event": {
+      "details": "Session Details",
+      "type": "Type",
+      "therapist": "Therapist",
+      "client": "Client",
+      "date": "Date",
+      "time": "Time",
+      "duration": "Duration",
+      "notes": "Session Notes",
+      "notes_placeholder": "Add clinical observations...",
+      "attendance": "Attendance",
+      "readonly": "Read Only",
+      "programs_scores": "Programs & Scores",
+      "no_programs": "No programs assigned to this session.",
+      "add_program": "Add",
+      "remove_program": "Remove",
+      "search_programs": "Search programs...",
+      "all_assigned": "All programs assigned",
+      "no_matching_programs": "No matching programs",
+      "delete_confirm": "Are you sure you want to delete this event? This action cannot be undone.",
+      "save_success": "Event updated successfully",
+      "delete_success": "Event deleted",
+      "error_permission": "You do not have permission to edit this event."
+    }
+  },
+  "attendance": {
+    "present": "Present",
+    "absent": "Absent",
+    "excused": "Excused"
+  },
+  "parent_portal": {
+    "welcome": "👋 Welcome back, {{name}}!",
+    "viewing_for": "Viewing portal for: ",
+    "dashboard": {
+      "next_session": "Next Session",
+      "no_upcoming": "No upcoming sessions scheduled.",
+      "balance_due": "Balance Due",
+      "overall_progress": "Overall Progress",
+      "sessions_month": "Sessions ({{month}})",
+      "completed": "completed",
+      "with": "with",
+      "assigned_therapist": "Assigned Therapist"
+    },
+    "alerts": {
+      "title": "Recent Alerts",
+      "view_all": "View All",
+      "no_alerts": "No notifications yet",
+      "subtitle": "You'll see updates about schedules and messages here"
+    },
+    "push_prompt": {
+      "title": "Enable Push Notifications",
+      "description": "Get real-time updates for sessions and messages",
+      "enable": "Enable",
+      "sync": "Sync"
+    },
+    "calendar": {
+      "title": "Session Schedule",
+      "subtitle": "Upcoming and past therapy sessions",
+      "no_sessions": "No sessions found",
+      "no_sessions_subtitle": "Schedule details will appear here soon.",
+      "completed": "Completed",
+      "past": "Past",
+      "confirm": "Confirm",
+      "min": "min"
+    },
+    "progress": {
+      "title": "Progress Tracking",
+      "subtitle": "Monitor {{name}}'s therapy progress",
+      "tabs": {
+        "programs": "Programs",
+        "evaluations": "Evaluations"
+      },
+      "stats": {
+        "programs": "Programs",
+        "sessions": "Sessions",
+        "trials": "Trials",
+        "success": "Success"
+      },
+      "no_data": "No progress data yet",
+      "no_data_subtitle": "Program scores will appear here once therapists begin tracking progress during sessions.",
+      "program_progress": "Program Progress",
+      "understanding_scores": "Understanding Scores",
+      "score_labels": {
+        "incorrect": "Incorrect response",
+        "no_response": "No response",
+        "prompted": "Prompted/Assisted",
+        "correct": "Correct/Independent"
+      }
+    },
+    "billing": {
+      "title": "Invoices & Payments",
+      "subtitle": "Manage your billing and view history",
+      "current_balance": "Current Balance",
+      "payment_pending": "Payment Pending",
+      "all_paid": "All Paid",
+      "pay_online": "Pay Balance Online",
+      "payment_required": "Payment Required",
+      "paid_history": "Paid History",
+      "no_history": "No payment history available.",
+      "invoice": "Invoice",
+      "issued": "Issued",
+      "due": "Due",
+      "unpaid": "Unpaid",
+      "disclaimer": "Payments are synchronized within 24 hours. For urgent billing issues, please contact the clinic administration directly.",
+      "online_payments_soon": "Online payments coming soon.",
+      "download_error": "Failed to download invoice."
+    },
+    "docs": {
+      "title": "Documents",
+      "subtitle": "{{count}} documents available for {{name}}",
+      "subtitle_single": "1 document available for {{name}}",
+      "all": "All",
+      "categories": {
+        "assessment": "Assessment",
+        "report": "Report",
+        "consent": "Consent Form",
+        "other": "Other"
+      },
+      "no_docs": "No documents shared",
+      "no_docs_subtitle": "Reports and assessments will appear here when shared by your therapy team.",
+      "no_matching": "No matching documents",
+      "no_matching_subtitle": "Try selecting a different category.",
+      "recently_uploaded": "Recently uploaded",
+      "download": "Download"
+    }
+  },
+  "clients": {
+    "title": "Clients",
+    "new_client": "New Client",
+    "search_placeholder": "Search clients...",
+    "status": {
+      "active": "Active",
+      "archived": "Archived",
+      "all": "All"
+    },
+    "sort": {
+      "name": "Sort by Name",
+      "recent": "Sort by Recent"
+    },
+    "no_results": "No clients found",
+    "no_results_subtitle": "Try adjusting your search or filters to find what you're looking for.",
+    "clear_search": "Clear search"
+  },
+  "evaluations": {
+    "title": "ABLLS Evaluation Results",
+    "summary": "Summary",
+    "compare": "Compare",
+    "completed": "Completed",
+    "evaluator": "Evaluator",
+    "version": "Version",
+    "client_age": "Client Age",
+    "overall_score": "Overall Score",
+    "points": "points",
+    "since_last": "{{value}}% since last evaluation",
+    "clinical_interpretation": "Clinical Interpretation",
+    "priority_areas": "Priority Intervention Areas",
+    "priority_subtitle": "Focus treatment on these categories for maximum impact:",
+    "skills_overview": "Skills Overview",
+    "comparing_with": "Comparing with evaluation from",
+    "suggested_goals": "Suggested IEP Goals",
+    "no_emerging_skills": "No emerging skills identified for goal development.",
+    "domain_analysis": "Domain Analysis",
+    "category_breakdown": "Category Breakdown",
+    "items": "items",
+    "view_report": "View Clinical Report",
+    "start_reevaluation": "Start Re-evaluation",
+    "close": "Close"
+  },
+  "auth": {
+    "sign_in_title": "Sign in to TempoApp",
+    "sign_in_subtitle": "Welcome back, please enter your details.",
+    "email": "Email address",
+    "password": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot your password?",
+    "sign_in_button": "Sign in",
+    "invalid_credentials": "Invalid email or password.",
+    "sign_in_error": "Failed to sign in. Please try again.",
+    "is_parent": "Are you a parent?",
+    "access_parent_portal": "Access Parent Portal",
+    "is_staff": "Are you a team member?",
+    "access_staff_portal": "Clinic Team Login",
+    "parent_login_title": "Parent Portal",
+    "parent_login_subtitle": "Enter your unique access code received from the clinic.",
+    "access_code": "Access Code",
+    "access_code_placeholder": "e.g. JS-1234",
+    "verifying": "Verifying code...",
+    "invalid_code": "Invalid access code. Please check and try again."
+  },
+  "chat": {
+    "title": "Messages",
+    "search_placeholder": "Search messages...",
+    "no_conversations": "No conversations yet.",
+    "start_chatting": "Start chatting",
+    "new_conversation": "New Conversation",
+    "search_contacts": "Search contacts...",
+    "no_contacts": "No contacts found.",
+    "select_conversation": "Select a conversation",
+    "select_contact": "Choose a contact to start messaging",
+    "type_message": "Type a message...",
+    "no_messages": "No messages yet. Say hello!",
+    "started_conversation": "Started a conversation",
+    "unknown_user": "Unknown User",
+    "archive_confirm": "Are you sure you want to archive this conversation?",
+    "archive_success": "Conversation archived",
+    "archive_error": "Failed to archive conversation",
+    "no_phone": "No phone number available for this contact"
+  },
+  "team": {
+    "title": "Team",
+    "add_member": "Add Member",
+    "search_placeholder": "Search team members...",
+    "no_results": "No team members found.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "no_email": "No email",
+    "no_phone": "No phone",
+    "active_clients": "{{count}} Active Clients",
+    "active_clients_one": "1 Active Client",
+    "sessions_week": "{{count}} Sessions / week",
+    "message": "Message",
+    "edit_profile": "Edit Profile"
+  }
+}

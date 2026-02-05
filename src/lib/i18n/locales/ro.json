@@ -1,0 +1,331 @@
+{
+  "common": {
+    "save": "Salvează",
+    "saving": "Se salvează...",
+    "cancel": "Anulează",
+    "edit": "Editează",
+    "delete": "Șterge",
+    "loading": "Se încarcă...",
+    "search": "Caută...",
+    "unknown": "Necunoscut",
+    "you": "Tu",
+    "actions": "Acțiuni",
+    "status": "Status",
+    "role": "Rol"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "messages": "Mesaje",
+    "clients": "Clienți",
+    "team": "Echipă",
+    "billing": "Facturare",
+    "analytics": "Analize",
+    "settings": "Setări",
+    "sign_out": "Deconectare"
+  },
+  "settings": {
+    "title": "Setări",
+    "subtitle": "Gestionați preferințele contului și sistemului",
+    "tabs": {
+      "profile": "Profil",
+      "notifications": "Notificări",
+      "security": "Securitate",
+      "appearance": "Aspect",
+      "billing": "Configurație Facturare",
+      "system": "Sistem"
+    },
+    "profile": {
+      "title": "Informații Profil",
+      "subtitle": "Actualizați detaliile personale.",
+      "full_name": "Nume Complet",
+      "email": "Adresă Email",
+      "phone": "Număr Telefon",
+      "password": "Parolă Nouă",
+      "password_placeholder": "Lăsați gol pentru a nu schimba",
+      "avatar": "Avatar",
+      "avatar_color": "Culoare Avatar",
+      "upload_avatar": "Încarcă Avatar",
+      "success": "Profil actualizat cu succes",
+      "error": "Eroare la actualizarea profilului",
+      "reauth_required": "Vă rugăm să vă reconectați pentru a schimba emailul sau parola."
+    },
+    "appearance": {
+      "title": "Aspect",
+      "subtitle": "Personalizați interfața.",
+      "theme": "Temă",
+      "language": "Limbă",
+      "themes": {
+        "light": "Luminos",
+        "dark": "Întunecat",
+        "system": "Sistem"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Bine ai revenit",
+    "active_clients": "Clienți Activi",
+    "attendance_rate": "Rata de Prezență",
+    "sessions_today": "Ședințe Astăzi",
+    "trends": {
+      "this_month": "+{{count}} luna aceasta",
+      "vs_last_week": "{{value}} față de săptămâna trecută",
+      "same_as_yesterday": "La fel ca ieri"
+    },
+    "schedule": {
+      "title": "Programul de Azi",
+      "view_all": "Vezi Tot",
+      "no_sessions": "Nu sunt ședințe programate pentru azi.",
+      "attendance": "Prezență",
+      "present": "Prezent",
+      "absent": "Absent"
+    },
+    "activity": {
+      "title": "Activitate Recentă",
+      "view_all": "Vezi Tot",
+      "actions": {
+        "logged_attendance": "a înregistrat prezența",
+        "created_event": "a creat un eveniment",
+        "updated_progress": "a actualizat progresul"
+      }
+    }
+  },
+  "calendar": {
+    "today": "Azi",
+    "views": {
+      "month": "Lună",
+      "week": "Săptămână",
+      "day": "Zi"
+    },
+    "filters": {
+      "title": "Filtre",
+      "therapists": "Terapeuți",
+      "clients": "Clienți",
+      "event_types": "Tipuri de Evenimente",
+      "clear": "Resetează",
+      "apply": "Aplică"
+    },
+    "event": {
+      "details": "Detalii Ședință",
+      "type": "Tip",
+      "therapist": "Terapeut",
+      "client": "Client",
+      "date": "Data",
+      "time": "Ora",
+      "duration": "Durată",
+      "notes": "Note Ședință",
+      "notes_placeholder": "Adaugă observații clinice...",
+      "attendance": "Prezență",
+      "readonly": "Doar Citire",
+      "programs_scores": "Programe și Scoruri",
+      "no_programs": "Nu sunt programe alocate acestei ședințe.",
+      "add_program": "Adaugă",
+      "remove_program": "Șterge",
+      "search_programs": "Caută programe...",
+      "all_assigned": "Toate programele sunt alocate",
+      "no_matching_programs": "Nu s-au găsit programe",
+      "delete_confirm": "Ești sigur că vrei să ștergi această ședință? Această acțiune este ireversibilă.",
+      "save_success": "Ședință actualizată cu succes",
+      "delete_success": "Ședință ștearsă",
+      "error_permission": "Nu ai permisiunea de a edita acest eveniment."
+    }
+  },
+  "attendance": {
+    "present": "Prezent",
+    "absent": "Absent",
+    "excused": "Motivat"
+  },
+  "parent_portal": {
+    "welcome": "👋 Bine ai revenit, {{name}}!",
+    "viewing_for": "Portal pentru: ",
+    "dashboard": {
+      "next_session": "Următoarea Ședință",
+      "no_upcoming": "Nu sunt ședințe programate.",
+      "balance_due": "Sold de Plată",
+      "overall_progress": "Progres General",
+      "sessions_month": "Ședințe ({{month}})",
+      "completed": "finalizate",
+      "with": "cu",
+      "assigned_therapist": "Terapeut alocat"
+    },
+    "alerts": {
+      "title": "Alerte Recente",
+      "view_all": "Vezi Tot",
+      "no_alerts": "Nicio notificare momentan",
+      "subtitle": "Vei vedea aici actualizări despre programări și mesaje"
+    },
+    "push_prompt": {
+      "title": "Activează Notificările Push",
+      "description": "Primește actualizări în timp real pentru ședințe și mesaje",
+      "enable": "Activează",
+      "sync": "Sincronizează"
+    },
+    "calendar": {
+      "title": "Programul Ședințelor",
+      "subtitle": "Ședințe de terapie viitoare și trecute",
+      "no_sessions": "Nu s-au găsit ședințe",
+      "no_sessions_subtitle": "Detaliile programului vor apărea aici în curând.",
+      "completed": "Finalizat",
+      "past": "Trecut",
+      "confirm": "Confirmă",
+      "min": "min"
+    },
+    "progress": {
+      "title": "Monitorizare Progres",
+      "subtitle": "Urmăriți progresul terapiei pentru {{name}}",
+      "tabs": {
+        "programs": "Programe",
+        "evaluations": "Evaluări"
+      },
+      "stats": {
+        "programs": "Programe",
+        "sessions": "Ședințe",
+        "trials": "Încercări",
+        "success": "Succes"
+      },
+      "no_data": "Nu există date de progres momentan",
+      "no_data_subtitle": "Scorurile programelor vor apărea aici odată ce terapeuții încep monitorizarea progresului în timpul ședințelor.",
+      "program_progress": "Progres Programe",
+      "understanding_scores": "Înțelegerea Scorurilor",
+      "score_labels": {
+        "incorrect": "Răspuns incorect",
+        "no_response": "Niciun răspuns",
+        "prompted": "Ajutat/Ghidat",
+        "correct": "Corect/Independent"
+      }
+    },
+    "billing": {
+      "title": "Facturi și Plăți",
+      "subtitle": "Gestionați facturarea și vizualizați istoricul",
+      "current_balance": "Sold Curent",
+      "payment_pending": "Plată în așteptare",
+      "all_paid": "Toate plătite",
+      "pay_online": "Plătește Soldul Online",
+      "payment_required": "Plată Necesară",
+      "paid_history": "Istoric Plăți",
+      "no_history": "Nu există istoric de plăți.",
+      "invoice": "Factură",
+      "issued": "Emisă",
+      "due": "Scadență",
+      "unpaid": "Neplătită",
+      "disclaimer": "Plățile sunt sincronizate în termen de 24 de ore. Pentru probleme urgente de facturare, vă rugăm să contactați direct administrația clinicii.",
+      "online_payments_soon": "Plățile online vor fi disponibile în curând.",
+      "download_error": "Eroare la descărcarea facturii."
+    },
+    "docs": {
+      "title": "Documente",
+      "subtitle": "{{count}} documente disponibile pentru {{name}}",
+      "subtitle_single": "1 document disponibil pentru {{name}}",
+      "all": "Toate",
+      "categories": {
+        "assessment": "Evaluare",
+        "report": "Raport",
+        "consent": "Formular Consimțământ",
+        "other": "Altele"
+      },
+      "no_docs": "Niciun document partajat",
+      "no_docs_subtitle": "Rapoartele și evaluările vor apărea aici când vor fi partajate de echipa de terapie.",
+      "no_matching": "Niciun document potrivit",
+      "no_matching_subtitle": "Încercați să selectați o altă categorie.",
+      "recently_uploaded": "Încărcat recent",
+      "download": "Descarcă"
+    }
+  },
+  "clients": {
+    "title": "Clienți",
+    "new_client": "Client Nou",
+    "search_placeholder": "Caută clienți...",
+    "status": {
+      "active": "Activ",
+      "archived": "Arhivat",
+      "all": "Toți"
+    },
+    "sort": {
+      "name": "Sortează după nume",
+      "recent": "Sortează după cele mai recente"
+    },
+    "no_results": "Nu s-au găsit clienți",
+    "no_results_subtitle": "Încercați să ajustați căutarea sau filtrele.",
+    "clear_search": "Șterge căutarea"
+  },
+  "evaluations": {
+    "title": "Rezultate Evaluare ABLLS",
+    "summary": "Rezumat",
+    "compare": "Compară",
+    "completed": "Finalizat",
+    "evaluator": "Evaluator",
+    "version": "Versiune",
+    "client_age": "Vârstă Client",
+    "overall_score": "Scor General",
+    "points": "puncte",
+    "since_last": "{{value}}% de la ultima evaluare",
+    "clinical_interpretation": "Interpretare Clinică",
+    "priority_areas": "Arii de Intervenție Prioritare",
+    "priority_subtitle": "Concentrați tratamentul pe aceste categorii pentru impact maxim:",
+    "skills_overview": "Prezentare Generală Abilități",
+    "comparing_with": "Comparând cu evaluarea din",
+    "suggested_goals": "Obiective IEP Sugerate",
+    "no_emerging_skills": "Nu s-au identificat abilități emergente pentru dezvoltarea obiectivelor.",
+    "domain_analysis": "Analiză pe Domenii",
+    "category_breakdown": "Detaliere pe Categorii",
+    "items": "itemi",
+    "view_report": "Vezi Raportul Clinic",
+    "start_reevaluation": "Începe Reevaluarea",
+    "close": "Închide"
+  },
+  "auth": {
+    "sign_in_title": "Conectare la TempoApp",
+    "sign_in_subtitle": "Bine ai revenit, te rugăm să introduci datele tale.",
+    "email": "Adresă email",
+    "password": "Parolă",
+    "remember_me": "Ține-mă minte",
+    "forgot_password": "Ai uitat parola?",
+    "sign_in_button": "Conectare",
+    "invalid_credentials": "Email sau parolă invalidă.",
+    "sign_in_error": "Eroare la conectare. Vă rugăm să încercați din nou.",
+    "is_parent": "Ești părinte?",
+    "access_parent_portal": "Accesează Portalul Părinților",
+    "is_staff": "Ești membru al echipei?",
+    "access_staff_portal": "Conectare Echipa Clinică",
+    "parent_login_title": "Portal Părinți",
+    "parent_login_subtitle": "Introdu codul tău unic de acces primit de la clinică.",
+    "access_code": "Cod de Acces",
+    "access_code_placeholder": "ex: JS-1234",
+    "verifying": "Se verifică codul...",
+    "invalid_code": "Cod de acces invalid. Vă rugăm să verificați și să încercați din nou."
+  },
+  "chat": {
+    "title": "Mesaje",
+    "search_placeholder": "Caută mesaje...",
+    "no_conversations": "Nicio conversație momentan.",
+    "start_chatting": "Începe o conversație",
+    "new_conversation": "Conversație Nouă",
+    "search_contacts": "Caută contacte...",
+    "no_contacts": "Nu s-au găsit contacte.",
+    "select_conversation": "Selectează o conversație",
+    "select_contact": "Alege un contact pentru a începe conversația",
+    "type_message": "Scrie un mesaj...",
+    "no_messages": "Niciun mesaj momentan. Spune salut!",
+    "started_conversation": "A început o conversație",
+    "unknown_user": "Utilizator Necunoscut",
+    "archive_confirm": "Ești sigur că vrei să arhivezi această conversație?",
+    "archive_success": "Conversație arhivată",
+    "archive_error": "Eroare la arhivarea conversației",
+    "no_phone": "Niciun număr de telefon disponibil pentru acest contact"
+  },
+  "team": {
+    "title": "Echipă",
+    "add_member": "Adaugă Membru",
+    "search_placeholder": "Caută membri...",
+    "no_results": "Nu s-au găsit membri ai echipei.",
+    "active": "Activ",
+    "inactive": "Inactiv",
+    "no_email": "Fără email",
+    "no_phone": "Fără telefon",
+    "active_clients": "{{count}} Clienți Activi",
+    "active_clients_one": "1 Client Activ",
+    "sessions_week": "{{count}} Ședințe / săptămână",
+    "message": "Mesaj",
+    "edit_profile": "Editează Profil"
+  }
+}

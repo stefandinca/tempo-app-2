@@ -111,9 +111,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
   }, [isABLLS, abllsEval, vbmappEval, clientData.name]);
 
   const handleViewReport = () => {
-    const isProd = process.env.NODE_ENV === 'production';
-    const basePath = isProd ? '/v2' : '';
-    const url = `${basePath}/reports/evaluation/?type=${isABLLS ? 'ablls' : 'vbmapp'}&id=${evaluation.id}&clientId=${clientData.id}&mode=parent`;
+    const url = `/reports/evaluation/?type=${isABLLS ? 'ablls' : 'vbmapp'}&id=${evaluation.id}&clientId=${clientData.id}&mode=parent`;
     window.open(url, '_blank');
   };
 

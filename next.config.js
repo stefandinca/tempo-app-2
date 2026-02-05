@@ -6,7 +6,7 @@ const isProd = process.env.NODE_ENV === 'production';
 const nextConfig = {
   // Only enable Static Export and Base Path in Production
   output: isProd ? 'export' : undefined,
-  basePath: isProd ? '/v2' : '',
+  basePath: '',
   trailingSlash: isProd,
   
   images: {

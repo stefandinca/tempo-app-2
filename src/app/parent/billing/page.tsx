@@ -6,8 +6,11 @@ import { useClientInvoices } from "@/hooks/useCollections";
 import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
 import { useState, useMemo } from "react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 export default function ParentBillingPage() {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US';
   const { data: client, loading: portalLoading, error: portalError } = usePortalData();
   const { data: invoices, loading: invoicesLoading } = useClientInvoices(client?.id || "");
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -31,14 +34,10 @@ export default function ParentBillingPage() {
   const handleDownload = async (invoice: any) => {
     setDownloadingId(invoice.id);
     try {
-      // Reconstruct InvoiceData from the stored snapshot
-      // The invoice document structure matches what we saved in the Admin view
       const invoiceData: InvoiceData = {
         series: invoice.series,
         number: invoice.number,
-        date: invoice.date, // Already formatted YYYY-MM-DD in snapshot or needs parsing?
-                            // Admin saved as YYYY-MM-DD string.
-                            // generateInvoicePDF expects string dates.
+        date: invoice.date, 
         dueDate: invoice.dueDate,
         clinic: invoice.clinic,
         client: invoice.client,
@@ -47,8 +46,6 @@ export default function ParentBillingPage() {
         currency: invoice.currency
       };
 
-      // Format dates for the PDF specifically if needed (generateInvoicePDF takes strings)
-      // If we saved them as ISO strings, we might want to prettify them for the PDF
       const prettyData = {
         ...invoiceData,
         date: new Date(invoice.date).toLocaleDateString("ro-RO"),
@@ -67,7 +64,7 @@ export default function ParentBillingPage() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download failed", err);
-      alert("Failed to download invoice.");
+      alert(t('parent_portal.billing.download_error'));
     } finally {
       setDownloadingId(null);
     }
@@ -76,8 +73,8 @@ export default function ParentBillingPage() {
   return (
     <div className="p-4 space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 pb-20 font-sans">
       <header>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Invoices & Payments</h1>
-        <p className="text-neutral-500 text-sm">Manage your billing and view history</p>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('parent_portal.billing.title')}</h1>
+        <p className="text-neutral-500 text-sm">{t('parent_portal.billing.subtitle')}</p>
       </header>
 
       {/* 1. Balance Summary */}
@@ -90,7 +87,7 @@ export default function ParentBillingPage() {
         </div>
         
         <div className="flex flex-col items-center text-center space-y-2 py-4">
-          <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Current Balance</p>
+          <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">{t('parent_portal.billing.current_balance')}</p>
           <h2 className="text-5xl font-black text-neutral-900 dark:text-white">
             {balance.toFixed(2)} RON
           </h2>
@@ -99,19 +96,19 @@ export default function ParentBillingPage() {
             balance > 0 ? "bg-warning-100 text-warning-700" : "bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400"
           )}>
             {balance > 0 ? (
-              <><Clock className="w-3 h-3" /> Payment Pending</>
+              <><Clock className="w-3 h-3" /> {t('parent_portal.billing.payment_pending')}</>
             ) : (
-              <><CheckCircle2 className="w-3 h-3" /> All Paid</>
+              <><CheckCircle2 className="w-3 h-3" /> {t('parent_portal.billing.all_paid')}</>
             )}
           </div>
         </div>
 
         {balance > 0 && (
           <button 
-            onClick={() => alert("Online payments coming soon.")}
+            onClick={() => alert(t('parent_portal.billing.online_payments_soon'))}
             className="w-full mt-6 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/20"
           >
-            Pay Balance Online
+            {t('parent_portal.billing.pay_online')}
             <ArrowUpRight className="w-5 h-5" />
           </button>
         )}
@@ -120,7 +117,7 @@ export default function ParentBillingPage() {
       {/* 2. Outstanding Invoices */}
       {pendingInvoices.length > 0 && (
         <section className="space-y-4">
-          <h3 className="font-bold text-neutral-900 dark:text-white px-2">Payment Required</h3>
+          <h3 className="font-bold text-neutral-900 dark:text-white px-2">{t('parent_portal.billing.payment_required')}</h3>
           <div className="space-y-3">
             {pendingInvoices.map((inv) => (
               <div key={inv.id} className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -129,16 +126,16 @@ export default function ParentBillingPage() {
                     <FileText className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-neutral-900 dark:text-white">Invoice #{inv.series}-{inv.number}</p>
-                    <p className="text-xs text-neutral-500">Issued: {new Date(inv.date).toLocaleDateString()}</p>
-                    <p className="text-xs text-error-500 font-medium">Due: {new Date(inv.dueDate).toLocaleDateString()}</p>
+                    <p className="text-sm font-bold text-neutral-900 dark:text-white">{t('parent_portal.billing.invoice')} #{inv.series}-{inv.number}</p>
+                    <p className="text-xs text-neutral-500">{t('parent_portal.billing.issued')}: {new Date(inv.date).toLocaleDateString(currentLang)}</p>
+                    <p className="text-xs text-error-500 font-medium">{t('parent_portal.billing.due')}: {new Date(inv.dueDate).toLocaleDateString(currentLang)}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-0 border-neutral-100 dark:border-neutral-800 pt-3 sm:pt-0">
                   <div className="text-right">
                     <p className="text-sm font-black text-neutral-900 dark:text-white">{inv.total.toFixed(2)} RON</p>
-                    <span className="text-[10px] font-bold uppercase text-warning-600">Unpaid</span>
+                    <span className="text-[10px] font-bold uppercase text-warning-600">{t('parent_portal.billing.unpaid')}</span>
                   </div>
                   <button
                     onClick={() => handleDownload(inv)}
@@ -159,7 +156,7 @@ export default function ParentBillingPage() {
       <section className="space-y-4">
         <h3 className="font-bold text-neutral-900 dark:text-white px-2 flex items-center gap-2">
           <History className="w-4 h-4 text-neutral-400" />
-          Paid History
+          {t('parent_portal.billing.paid_history')}
         </h3>
         
         {paidInvoices.length > 0 ? (
@@ -173,7 +170,7 @@ export default function ParentBillingPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-neutral-900 dark:text-white">#{inv.series}-{inv.number}</p>
-                      <p className="text-xs text-neutral-500">{new Date(inv.date).toLocaleDateString()}</p>
+                      <p className="text-xs text-neutral-500">{new Date(inv.date).toLocaleDateString(currentLang)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -192,14 +189,14 @@ export default function ParentBillingPage() {
         ) : (
           <div className="text-center py-10 opacity-50">
             <Receipt className="w-12 h-12 mx-auto mb-2 text-neutral-300" />
-            <p className="text-sm text-neutral-500">No payment history available.</p>
+            <p className="text-sm text-neutral-500">{t('parent_portal.billing.no_history')}</p>
           </div>
         )}
       </section>
 
       {/* Disclaimer */}
       <p className="text-[10px] text-neutral-400 text-center px-6 leading-relaxed">
-        Payments are synchronized within 24 hours. For urgent billing issues, please contact the clinic administration directly.
+        {t('parent_portal.billing.disclaimer')}
       </p>
     </div>
   );

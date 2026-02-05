@@ -18,24 +18,26 @@ import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
 import { useNotifications } from "@/context/NotificationContext";
-
-const navItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Calendar", href: "/calendar/", icon: Calendar },
-  { name: "Messages", href: "/messages/", icon: MessageSquare },
-  { name: "Clients", href: "/clients/", icon: Users, badge: 48 },
-  { name: "Team", href: "/team/", icon: UserCircle },
-];
-
-const adminItems = [
-  { name: "Billing", href: "/billing/", icon: CreditCard, roles: ['Admin'] },
-  { name: "Analytics", href: "/analytics/", icon: BarChart2, roles: ['Admin', 'Coordinator'] },
-  { name: "Services", href: "/services/", icon: Briefcase, roles: ['Admin', 'Coordinator'] },
-  { name: "Settings", href: "/settings/", icon: Settings, roles: ['Admin'] },
-];
+import { useTranslation } from "react-i18next";
 
 export default function Sidebar() {
+  const { t } = useTranslation();
   const pathname = usePathname();
+// ... inside component ...
+  const navItems = [
+    { name: t('nav.dashboard'), href: "/", icon: LayoutDashboard },
+    { name: t('nav.calendar'), href: "/calendar/", icon: Calendar },
+    { name: t('nav.messages'), href: "/messages/", icon: MessageSquare },
+    { name: t('nav.clients'), href: "/clients/", icon: Users, badge: 48 },
+    { name: t('nav.team'), href: "/team/", icon: UserCircle },
+    { name: t('nav.settings'), href: "/settings/", icon: Settings },
+  ];
+
+  const adminItems = [
+    { name: t('nav.billing'), href: "/billing/", icon: CreditCard, roles: ['Admin'] },
+    { name: t('nav.analytics'), href: "/analytics/", icon: BarChart2, roles: ['Admin', 'Coordinator'] },
+    { name: t('nav.services'), href: "/services/", icon: Briefcase, roles: ['Admin', 'Coordinator'] },
+  ];
   const { userRole } = useAuth();
   const { open: openCommandPalette } = useCommandPalette();
   const { unreadMessageCount } = useNotifications();

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   Search,
   RefreshCw,
@@ -37,7 +38,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const [theme, setTheme] = useState("light");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, userData, signOut } = useAuth();
   const { openModal } = useEventModal();
   const { open: openCommandPalette } = useCommandPalette();
   
@@ -135,11 +136,11 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Search */}
         <button
           onClick={openCommandPalette}
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+          className="flex items-center gap-2 p-2 md:px-3 md:py-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
         >
-          <Search className="w-4 h-4" />
-          <span>Search...</span>
-          <kbd className="px-1.5 py-0.5 text-xs bg-white dark:bg-neutral-600 rounded shadow-sm">⌘K</kbd>
+          <Search className="w-5 h-5 md:w-4 md:h-4" />
+          <span className="hidden md:inline">Search...</span>
+          <kbd className="hidden md:inline px-1.5 py-0.5 text-xs bg-white dark:bg-neutral-600 rounded shadow-sm">⌘K</kbd>
         </button>
 
         {/* Refresh */}
@@ -171,10 +172,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
             onClick={toggleProfile}
             className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
           >
-            <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
-                {user?.email?.[0].toUpperCase() || "U"}
-              </span>
+            <div 
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium overflow-hidden shadow-sm"
+              style={{ backgroundColor: userData?.photoURL ? 'transparent' : (userData?.color || '#4A90E2') }}
+            >
+              {userData?.photoURL ? (
+                <img src={userData.photoURL} alt={userData.name} className="w-full h-full object-cover" />
+              ) : (
+                userData?.initials || user?.email?.[0].toUpperCase() || "U"
+              )}
             </div>
             <ChevronDown className="w-4 h-4 text-neutral-500 hidden sm:block" />
           </button>
@@ -195,14 +201,22 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   </p>
                 </div>
                 
-                <a href="#" className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                <Link 
+                  href="/settings" 
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                >
                   <User className="w-4 h-4" />
                   <span>Profile</span>
-                </a>
-                <a href="#" className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+                </Link>
+                <Link 
+                  href="/settings" 
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                >
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
-                </a>
+                </Link>
                 
                 <div className="border-t border-neutral-200 dark:border-neutral-800 mt-1 pt-1">
                   <button 

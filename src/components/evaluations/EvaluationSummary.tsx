@@ -30,6 +30,7 @@ import { calculateAge, formatAge } from "@/lib/ageUtils";
 import { getABLLSInterpretation, getPriorityAreas, calculateDomainScores } from "@/lib/clinicalInterpretation";
 import { generateABLLSGoals, SuggestedGoal } from "@/lib/goalGenerator";
 import SuggestedGoals from "./SuggestedGoals";
+import { useTranslation } from "react-i18next";
 
 interface EvaluationSummaryProps {
   isOpen: boolean;
@@ -50,6 +51,8 @@ export default function EvaluationSummary({
   previousEvaluation,
   onReEvaluate
 }: EvaluationSummaryProps) {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US';
   const { evaluation, loading } = useEvaluation(clientId, evaluationId);
   const { evaluations: allEvaluations } = useClientEvaluations(clientId);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -58,7 +61,7 @@ export default function EvaluationSummary({
   if (!isOpen) return null;
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    return new Date(dateStr).toLocaleDateString(currentLang, {
       weekday: "long",
       month: "long",
       day: "numeric",
@@ -111,9 +114,7 @@ export default function EvaluationSummary({
     : [];
 
   const handleViewReport = () => {
-    const isProd = process.env.NODE_ENV === 'production';
-    const basePath = isProd ? '/v2' : '';
-    const url = `${basePath}/reports/evaluation/?type=ablls&id=${evaluationId}&clientId=${clientId}`;
+    const url = `/reports/evaluation/?type=ablls&id=${evaluationId}&clientId=${clientId}`;
     window.open(url, '_blank');
   };
 
@@ -132,7 +133,7 @@ export default function EvaluationSummary({
           <div className="flex items-center gap-6">
             <div>
               <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-                ABLLS Evaluation Results
+                {t('evaluations.title')}
               </h2>
               <p className="text-sm text-neutral-500">{clientData.name}</p>
             </div>
@@ -150,7 +151,7 @@ export default function EvaluationSummary({
                   )}
                 >
                   <FileText className="w-4 h-4" />
-                  Summary
+                  {t('evaluations.summary')}
                 </button>
                 <button
                   onClick={() => setActiveView("comparison")}
@@ -162,7 +163,7 @@ export default function EvaluationSummary({
                   )}
                 >
                   <GitCompare className="w-4 h-4" />
-                  Compare
+                  {t('evaluations.compare')}
                 </button>
               </div>
             )}
@@ -195,7 +196,7 @@ export default function EvaluationSummary({
                 <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                   <Calendar className="w-5 h-5 text-neutral-400" />
                   <div>
-                    <p className="text-xs text-neutral-500">Completed</p>
+                    <p className="text-xs text-neutral-500">{t('evaluations.completed')}</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
                       {formatDate(evaluation.completedAt || evaluation.updatedAt)}
                     </p>
@@ -204,7 +205,7 @@ export default function EvaluationSummary({
                 <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                   <User className="w-5 h-5 text-neutral-400" />
                   <div>
-                    <p className="text-xs text-neutral-500">Evaluator</p>
+                    <p className="text-xs text-neutral-500">{t('evaluations.evaluator')}</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
                       {evaluation.evaluatorName}
                     </p>
@@ -213,7 +214,7 @@ export default function EvaluationSummary({
                 <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                   <Target className="w-5 h-5 text-neutral-400" />
                   <div>
-                    <p className="text-xs text-neutral-500">Version</p>
+                    <p className="text-xs text-neutral-500">{t('evaluations.version')}</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
                       {evaluation.version}
                     </p>
@@ -223,7 +224,7 @@ export default function EvaluationSummary({
                   <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                     <Clock className="w-5 h-5 text-neutral-400" />
                     <div>
-                      <p className="text-xs text-neutral-500">Client Age</p>
+                      <p className="text-xs text-neutral-500">{t('evaluations.client_age')}</p>
                       <p className="text-sm font-medium text-neutral-900 dark:text-white">
                         {formatAge(age)}
                       </p>
@@ -237,7 +238,7 @@ export default function EvaluationSummary({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-1">
-                      Overall Score
+                      {t('evaluations.overall_score')}
                     </p>
                     <div className="flex items-baseline gap-3">
                       <span
@@ -253,7 +254,7 @@ export default function EvaluationSummary({
                         {evaluation.overallPercentage}%
                       </span>
                       <span className="text-neutral-500">
-                        ({evaluation.overallScore} / {evaluation.overallMaxScore} points)
+                        ({evaluation.overallScore} / {evaluation.overallMaxScore} {t('evaluations.points')})
                       </span>
                     </div>
                     {overallComparison !== null && (
@@ -276,7 +277,7 @@ export default function EvaluationSummary({
                           )}
                         >
                           {overallComparison > 0 ? "+" : ""}
-                          {overallComparison}% since last evaluation
+                          {t('evaluations.since_last', { value: overallComparison })}
                         </span>
                       </div>
                     )}
@@ -308,7 +309,7 @@ export default function EvaluationSummary({
                     )} />
                     <div>
                       <h4 className="font-bold text-neutral-900 dark:text-white">
-                        Clinical Interpretation: {interpretation.title}
+                        {t('evaluations.clinical_interpretation')}: {interpretation.title}
                       </h4>
                       <p className="text-sm text-neutral-700 dark:text-neutral-300 mt-1">
                         {interpretation.description}
@@ -333,10 +334,10 @@ export default function EvaluationSummary({
                     <Lightbulb className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <h4 className="font-bold text-neutral-900 dark:text-white">
-                        Priority Intervention Areas
+                        {t('evaluations.priority_areas')}
                       </h4>
                       <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-                        Focus treatment on these categories for maximum impact:
+                        {t('evaluations.priority_subtitle')}
                       </p>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {priorityAreas.map(area => (
@@ -363,7 +364,7 @@ export default function EvaluationSummary({
               {/* Full Radar Chart */}
               <div className="bg-white dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
-                  Skills Overview
+                  {t('evaluations.skills_overview')}
                 </h3>
                 <EvaluationRadarChart
                   evaluation={evaluation}
@@ -373,7 +374,7 @@ export default function EvaluationSummary({
                 />
                 {previousEvaluation && (
                   <p className="text-xs text-center text-neutral-500 mt-2">
-                    Comparing with evaluation from {new Date(previousEvaluation.completedAt || previousEvaluation.updatedAt).toLocaleDateString()}
+                    {t('evaluations.comparing_with')} {new Date(previousEvaluation.completedAt || previousEvaluation.updatedAt).toLocaleDateString(currentLang)}
                   </p>
                 )}
               </div>
@@ -382,15 +383,15 @@ export default function EvaluationSummary({
               {suggestedGoals.length > 0 && (
                 <SuggestedGoals
                   goals={suggestedGoals}
-                  title="Suggested IEP Goals"
-                  emptyMessage="No emerging skills identified for goal development."
+                  title={t('evaluations.suggested_goals')}
+                  emptyMessage={t('evaluations.no_emerging_skills')}
                 />
               )}
 
               {/* Domain Breakdown */}
               <div className="bg-white dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
-                  Domain Analysis
+                  {t('evaluations.domain_analysis')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.entries(domainScores).map(([domain, data]) => (
@@ -432,7 +433,7 @@ export default function EvaluationSummary({
               {/* Category Breakdown */}
               <div>
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
-                  Category Breakdown
+                  {t('evaluations.category_breakdown')}
                 </h3>
                 <div className="space-y-2">
                   {sortedCategories.map(([key, summary]) => {
@@ -513,7 +514,7 @@ export default function EvaluationSummary({
                               />
                             </div>
                             <p className="text-xs text-neutral-500 mt-1">
-                              {summary.scoredItems}/{summary.totalItems} items · {summary.totalScore}/{summary.maxPossibleScore} points
+                              {summary.scoredItems}/{summary.totalItems} {t('evaluations.items')} · {summary.totalScore}/{summary.maxPossibleScore} {t('evaluations.points')}
                             </p>
                           </div>
 
@@ -552,7 +553,7 @@ export default function EvaluationSummary({
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
           >
-            Close
+            {t('evaluations.close')}
           </button>
 
           <div className="flex items-center gap-3">
@@ -561,7 +562,7 @@ export default function EvaluationSummary({
               className="px-4 py-2 rounded-lg text-sm font-bold bg-primary-600 hover:bg-primary-700 text-white transition-all flex items-center gap-2 shadow-lg shadow-primary-600/20"
             >
               <BarChart2 className="w-4 h-4" />
-              View Clinical Report
+              {t('evaluations.view_report')}
             </button>
             {onReEvaluate && (
               <button
@@ -569,7 +570,7 @@ export default function EvaluationSummary({
                 className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                Start Re-evaluation
+                {t('evaluations.start_reevaluation')}
               </button>
             )}
           </div>

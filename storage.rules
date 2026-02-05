@@ -8,41 +8,23 @@ service firebase.storage {
       return request.auth != null;
     }
 
-    // Helper: Check if user is a team member with a specific role
-    // Note: Storage rules can access Firestore data via firestore.get()
-    function isTeamMember() {
-      return isSignedIn() &&
-             firestore.exists(/databases/(default)/documents/team_members/$(request.auth.uid));
-    }
-
-    function hasRole(role) {
-      return isTeamMember() &&
-             firestore.get(/databases/(default)/documents/team_members/$(request.auth.uid)).data.role == role;
-    }
-
+    // Helper: Check if user is an Admin
     function isAdmin() {
-      return hasRole('Admin') || hasRole('admin');
-    }
-
-    function isCoordinator() {
-      return hasRole('Coordinator');
-    }
-
-    function isTherapist() {
-      return hasRole('Therapist');
-    }
-
-    function isStaff() {
-      return isAdmin() || isCoordinator() || isTherapist();
-    }
-
-    // Helper: Check if user is a parent of a specific client
-    function isParentOf(clientId) {
-      let clientDoc = firestore.get(/databases/(default)/documents/clients/$(clientId));
       return isSignedIn() &&
-             clientDoc != null &&
-             'parentUids' in clientDoc.data &&
-             request.auth.uid in clientDoc.data.parentUids;
+             firestore.exists(/databases/(default)/documents/team_members/$(request.auth.uid)) &&
+             firestore.get(/databases/(default)/documents/team_members/$(request.auth.uid)).data.role in ['Admin', 'admin'];
+    }
+
+    // ============================================
+    // AVATARS
+    // Path: avatars/{userId}/{fileName}
+    // ============================================
+    match /avatars/{userId}/{fileName} {
+      allow read: if true; // Publicly readable
+      
+      // Allow write if you are the owner or an admin
+      // Simplified checks to reduce firestore overhead
+      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
     }
 
     // ============================================
@@ -50,17 +32,7 @@ service firebase.storage {
     // Path: clients/{clientId}/documents/{fileName}
     // ============================================
     match /clients/{clientId}/documents/{fileName} {
-      // READ: Staff can read all client documents
-      //       Parents can read documents (access control via Firestore sharedWithParent)
-      allow read: if isStaff() || isParentOf(clientId);
-
-      // WRITE (upload): Only staff can upload documents
-      allow write: if isStaff() &&
-                      request.resource.size < 10 * 1024 * 1024 && // Max 10MB
-                      request.resource.contentType.matches('application/pdf|application/msword|application/vnd.openxmlformats-officedocument.*|image/.*|application/vnd.ms-excel|application/vnd.ms-powerpoint');
-
-      // DELETE: Only staff can delete documents
-      allow delete: if isStaff();
+      allow read, write: if isSignedIn();
     }
 
     // ============================================

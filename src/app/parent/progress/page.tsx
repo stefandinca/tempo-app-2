@@ -9,6 +9,7 @@ import ParentEvaluationDetail from "@/components/parent/ParentEvaluationDetail";
 import { clsx } from "clsx";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
+import { useTranslation } from "react-i18next";
 
 interface ProgramWithHistory {
   id: string;
@@ -20,6 +21,7 @@ interface ProgramWithHistory {
 type Tab = 'programs' | 'evaluations';
 
 export default function ParentProgressPage() {
+  const { t } = useTranslation();
   const { data: client, sessions, programs, evaluations, loading, error } = usePortalData();
   const [activeTab, setActiveTab] = useState<Tab>('programs');
   const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | VBMAPPEvaluation | null>(null);
@@ -140,8 +142,8 @@ export default function ParentProgressPage() {
   return (
     <div className="p-4 space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 pb-24">
       <header>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Progress Tracking</h1>
-        <p className="text-neutral-500 text-sm">Monitor {client.name}&apos;s therapy progress</p>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('parent_portal.progress.title')}</h1>
+        <p className="text-neutral-500 text-sm">{t('parent_portal.progress.subtitle', { name: client.name })}</p>
       </header>
 
       {/* Tabs */}
@@ -156,7 +158,7 @@ export default function ParentProgressPage() {
           )}
         >
           <ListChecks className="w-4 h-4" />
-          Programs
+          {t('parent_portal.progress.tabs.programs')}
         </button>
         <button
           onClick={() => setActiveTab('evaluations')}
@@ -168,7 +170,7 @@ export default function ParentProgressPage() {
           )}
         >
           <FileText className="w-4 h-4" />
-          Evaluations
+          {t('parent_portal.progress.tabs.evaluations')}
         </button>
       </div>
 
@@ -184,7 +186,7 @@ export default function ParentProgressPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-neutral-900 dark:text-white">{summaryStats.totalPrograms}</p>
-                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">Programs</p>
+                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">{t('parent_portal.progress.stats.programs')}</p>
                   </div>
                 </div>
               </div>
@@ -196,7 +198,7 @@ export default function ParentProgressPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-neutral-900 dark:text-white">{summaryStats.totalSessions}</p>
-                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">Sessions</p>
+                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">{t('parent_portal.progress.stats.sessions')}</p>
                   </div>
                 </div>
               </div>
@@ -208,7 +210,7 @@ export default function ParentProgressPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-neutral-900 dark:text-white">{summaryStats.totalTrials}</p>
-                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">Trials</p>
+                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">{t('parent_portal.progress.stats.trials')}</p>
                   </div>
                 </div>
               </div>
@@ -230,7 +232,7 @@ export default function ParentProgressPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-neutral-900 dark:text-white">{summaryStats.avgSuccessRate}%</p>
-                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">Success</p>
+                    <p className="text-[10px] text-neutral-500 uppercase font-semibold tracking-wider">{t('parent_portal.progress.stats.success')}</p>
                   </div>
                 </div>
               </div>
@@ -240,9 +242,9 @@ export default function ParentProgressPage() {
               <div className="w-16 h-16 bg-neutral-50 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BarChart2 className="w-8 h-8 text-neutral-300" />
               </div>
-              <h3 className="text-lg font-bold text-neutral-900 dark:text-white">No progress data yet</h3>
+              <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t('parent_portal.progress.no_data')}</h3>
               <p className="text-neutral-500 text-sm mt-1 max-w-xs mx-auto">
-                Program scores will appear here once therapists begin tracking progress during sessions.
+                {t('parent_portal.progress.no_data_subtitle')}
               </p>
             </div>
           )}
@@ -251,7 +253,7 @@ export default function ParentProgressPage() {
           {programsWithHistory.length > 0 && (
             <section>
               <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest px-1 mb-4">
-                Program Progress
+                {t('parent_portal.progress.program_progress')}
               </h2>
               <div className="space-y-4">
                 {programsWithHistory.map((program) => (
@@ -269,23 +271,23 @@ export default function ParentProgressPage() {
 
           {/* Legend / Help */}
           <section className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl p-4 border border-neutral-100 dark:border-neutral-800">
-            <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">Understanding Scores</h3>
+            <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3">{t('parent_portal.progress.understanding_scores')}</h3>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded bg-error-500 flex items-center justify-center text-white font-bold text-[10px]">−</div>
-                <span className="text-neutral-600 dark:text-neutral-400">Incorrect response</span>
+                <span className="text-neutral-600 dark:text-neutral-400">{t('parent_portal.progress.score_labels.incorrect')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded bg-neutral-500 flex items-center justify-center text-white font-bold text-[10px]">0</div>
-                <span className="text-neutral-600 dark:text-neutral-400">No response</span>
+                <span className="text-neutral-600 dark:text-neutral-400">{t('parent_portal.progress.score_labels.no_response')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded bg-warning-500 flex items-center justify-center text-white font-bold text-[10px]">P</div>
-                <span className="text-neutral-600 dark:text-neutral-400">Prompted/Assisted</span>
+                <span className="text-neutral-600 dark:text-neutral-400">{t('parent_portal.progress.score_labels.prompted')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded bg-success-500 flex items-center justify-center text-white font-bold text-[10px]">+</div>
-                <span className="text-neutral-600 dark:text-neutral-400">Correct/Independent</span>
+                <span className="text-neutral-600 dark:text-neutral-400">{t('parent_portal.progress.score_labels.correct')}</span>
               </div>
             </div>
           </section>

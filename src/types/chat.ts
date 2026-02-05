@@ -7,6 +7,8 @@ export interface ChatParticipant {
   initials: string;
   color: string;
   role: string;
+  phone?: string;
+  clientId?: string;
 }
 
 export interface LastMessage {
@@ -23,6 +25,8 @@ export interface ChatThread {
   lastMessage?: LastMessage;
   updatedAt: Timestamp;
   createdAt: Timestamp;
+  isArchived?: boolean;
+  archivedBy?: string[]; // Array of UIDs who archived it
 }
 
 export interface ChatMessage {

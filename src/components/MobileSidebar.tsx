@@ -12,10 +12,12 @@ import {
   Settings, 
   Briefcase,
   MessageSquare,
-  X
+  X,
+  Search
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useNotifications } from "@/context/NotificationContext";
+import { useCommandPalette } from "@/context/CommandPaletteContext";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -40,6 +42,7 @@ const adminItems = [
 export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const pathname = usePathname();
   const { unreadMessageCount } = useNotifications();
+  const { open: openCommandPalette } = useCommandPalette();
 
   return (
     <>
@@ -74,6 +77,18 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
         {/* Nav Items */}
         <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-4rem)]">
+          {/* Mobile Search Trigger */}
+          <button
+            onClick={() => {
+              onClose();
+              openCommandPalette();
+            }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 mb-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
+          >
+            <Search className="w-5 h-5 text-primary-500" />
+            <span>Search...</span>
+          </button>
+
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             

@@ -1,9 +1,13 @@
 "use client";
 
-import { Edit, User, Mail, Calendar } from "lucide-react";
+import { Edit, User, Mail, Calendar, Phone, MessageSquare, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
+import { useChatActions } from "@/hooks/useChat";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export interface TeamMember {
   id: string;
@@ -12,8 +16,10 @@ export interface TeamMember {
   role: string;
   color: string;
   email: string;
-  sessions?: number; // Optional stat
-  clients?: number;  // Optional stat
+  phone?: string;
+  photoURL?: string;
+  sessions?: number;
+  clients?: number;
   isActive?: boolean;
   baseSalary?: number;
   defaultBonus?: number;
@@ -25,7 +31,34 @@ interface TeamMemberCardProps {
 }
 
 export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) {
-  const { userRole } = useAuth();
+  const { t } = useTranslation();
+  const { userRole, user } = useAuth();
+  const { createOrGetThread } = useChatActions();
+  const [isStartingChat, setIsStartingChat] = useState(false);
+  const router = useRouter();
+
+  const isMe = user?.uid === member.id;
+
+  const handleMessage = async () => {
+    setIsStartingChat(true);
+    try {
+      const threadId = await createOrGetThread({
+        id: member.id,
+        name: member.name,
+        initials: member.initials,
+        color: member.color,
+        role: member.role,
+        phone: member.phone
+      });
+      if (threadId) {
+        router.push(`/messages?threadId=${threadId}`);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsStartingChat(false);
+    }
+  };
 
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 hover:shadow-md transition-all group relative">
@@ -43,41 +76,66 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
       {/* Header: Avatar & Name */}
       <div className="flex items-start gap-4 mb-4">
         <div 
-          className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-sm"
-          style={{ backgroundColor: member.color || '#ccc' }}
+          className="w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-sm flex-shrink-0 overflow-hidden"
+          style={{ backgroundColor: member.photoURL ? 'transparent' : (member.color || '#ccc') }}
         >
-          {member.initials}
+          {member.photoURL ? (
+            <img src={member.photoURL} alt={member.name} className="w-full h-full object-cover" />
+          ) : (
+            member.initials
+          )}
         </div>
-        <div>
+        <div className="min-w-0">
           <Link href="/team/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-            <h3 className="font-bold text-lg text-neutral-900 dark:text-white leading-tight">{member.name}</h3>
+            <h3 className="font-bold text-lg text-neutral-900 dark:text-white leading-tight truncate">
+              {member.name}
+              {isMe && <span className="ml-2 text-xs font-normal text-neutral-400">({t('common.you')})</span>}
+            </h3>
           </Link>
-          <p className="text-sm text-primary-600 dark:text-primary-400 font-medium">{member.role}</p>
+          <p className="text-sm text-primary-600 dark:text-primary-400 font-medium truncate">{member.role}</p>
           <div className="flex items-center gap-1.5 mt-1 text-xs text-neutral-500">
             <span className={clsx(
               "w-2 h-2 rounded-full",
               member.isActive !== false ? "bg-success-500" : "bg-neutral-300"
             )} />
-            {member.isActive !== false ? "Active" : "Inactive"}
+            {member.isActive !== false ? t('team.active') : t('team.inactive')}
           </div>
         </div>
       </div>
 
       {/* Details */}
-      <div className="space-y-2 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+      <div className="space-y-2 border-t border-neutral-100 dark:border-neutral-800 pt-4 pb-4">
         <div className="flex items-center gap-2.5 text-sm text-neutral-600 dark:text-neutral-400">
           <Mail className="w-4 h-4 text-neutral-400" />
-          <span className="truncate">{member.email || "No email"}</span>
+          <span className="truncate">{member.email || t('team.no_email')}</span>
+        </div>
+        <div className="flex items-center gap-2.5 text-sm text-neutral-600 dark:text-neutral-400">
+          <Phone className="w-4 h-4 text-neutral-400" />
+          <span className="truncate">{member.phone || t('team.no_phone')}</span>
         </div>
         <div className="flex items-center gap-2.5 text-sm text-neutral-600 dark:text-neutral-400">
           <User className="w-4 h-4 text-neutral-400" />
-          <span>{member.clients || 0} Active Clients</span>
+          <span>{t('team.active_clients', { count: member.clients || 0 })}</span>
         </div>
         <div className="flex items-center gap-2.5 text-sm text-neutral-600 dark:text-neutral-400">
           <Calendar className="w-4 h-4 text-neutral-400" />
-          <span>{member.sessions || 0} Sessions / week</span>
+          <span>{t('team.sessions_week', { count: member.sessions || 0 })}</span>
         </div>
       </div>
+
+      {/* Action: Message Button (only if not current user) */}
+      {!isMe && (
+        <div className="pt-2 border-t border-neutral-50 dark:border-neutral-800/50 mt-2">
+          <button
+            onClick={handleMessage}
+            disabled={isStartingChat}
+            className="w-full flex items-center justify-center gap-2 py-2 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-xl text-sm font-bold hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-all disabled:opacity-50"
+          >
+            {isStartingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
+            {t('team.message')}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 type ViewType = 'month' | 'week' | 'day';
 
@@ -24,6 +25,8 @@ export default function CalendarToolbar({
   onToggleFilters,
   activeFilterCount
 }: CalendarToolbarProps) {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US';
   
   const navigate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
@@ -55,13 +58,13 @@ export default function CalendarToolbar({
       end.setDate(start.getDate() + 6);
       
       if (start.getMonth() !== end.getMonth()) {
-        return `${start.toLocaleDateString('en-US', { month: 'short' })} - ${end.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+        return `${start.toLocaleDateString(currentLang, { month: 'short' })} - ${end.toLocaleDateString(currentLang, { month: 'short', year: 'numeric' })}`;
       }
     }
     if (currentView === 'day') {
-       return currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+       return currentDate.toLocaleDateString(currentLang, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     }
-    return currentDate.toLocaleDateString('en-US', options);
+    return currentDate.toLocaleDateString(currentLang, options);
   };
 
   return (
@@ -74,7 +77,7 @@ export default function CalendarToolbar({
             onClick={onToday}
             className="px-3 py-1.5 text-sm font-medium border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-700 dark:text-neutral-300"
           >
-            Today
+            {t('calendar.today')}
           </button>
           <div className="flex items-center">
             <button 
@@ -103,13 +106,13 @@ export default function CalendarToolbar({
                 key={view}
                 onClick={() => onViewChange(view as ViewType)}
                 className={clsx(
-                  "px-3 py-1.5 text-sm font-medium rounded-md transition-all capitalize",
+                  "px-3 py-1.5 text-sm font-medium rounded-md transition-all",
                   currentView === view
                     ? "bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-white"
                     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
                 )}
               >
-                {view}
+                {t(`calendar.views.${view}`)}
               </button>
             ))}
           </div>

@@ -55,10 +55,10 @@ export default function BottomNav() {
       </Link>
 
       <Link 
-        href="/profile/" 
+        href="/settings" 
         className={clsx(
           "flex flex-col items-center gap-1 p-2 min-w-[64px]",
-          pathname === "/profile/" ? "text-primary-500" : "text-neutral-400"
+          pathname === "/settings" ? "text-primary-500" : "text-neutral-400"
         )}
       >
         <User className="w-5 h-5" />

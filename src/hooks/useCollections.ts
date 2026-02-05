@@ -64,6 +64,8 @@ export interface TeamMember {
   role: string;
   color: string;
   email: string;
+  phone?: string;
+  photoURL?: string;
   sessions?: number;
   clients?: number;
   isActive?: boolean;

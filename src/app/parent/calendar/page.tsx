@@ -8,9 +8,11 @@ import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers } from "@/hooks/useCollections";
 import { clsx } from "clsx";
 import { useState } from "react";
-// import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
+import { useTranslation } from "react-i18next";
 
 export default function ParentSchedulePage() {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US';
   const { data: client, sessions, loading, error } = usePortalData();
   const { data: team } = useTeamMembers();
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -21,7 +23,6 @@ export default function ParentSchedulePage() {
 
   const getTherapist = (id: string) => {
     const found = (team || []).find(t => t.id === id);
-    if (!found && id) console.log(`Schedule: Therapist with ID ${id} not found in team list of ${team?.length || 0} members`);
     return found;
   };
 
@@ -34,7 +35,7 @@ export default function ParentSchedulePage() {
 
   // Group sessions by date
   const groupedSessions = sessions.reduce((acc: any, sess) => {
-    const dateKey = parseDate(sess.startTime).toLocaleDateString('en-US', { 
+    const dateKey = parseDate(sess.startTime).toLocaleDateString(currentLang, { 
       weekday: 'long', 
       month: 'long', 
       day: 'numeric' 
@@ -47,8 +48,8 @@ export default function ParentSchedulePage() {
   return (
     <div className="p-4 space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 pb-12">
       <header>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Session Schedule</h1>
-        <p className="text-neutral-500 text-sm">Upcoming and past therapy sessions</p>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('parent_portal.calendar.title')}</h1>
+        <p className="text-neutral-500 text-sm">{t('parent_portal.calendar.subtitle')}</p>
       </header>
 
       {sessions.length === 0 ? (
@@ -56,8 +57,8 @@ export default function ParentSchedulePage() {
           <div className="w-16 h-16 bg-neutral-50 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
             <Calendar className="w-8 h-8 text-neutral-300" />
           </div>
-          <h3 className="text-lg font-bold text-neutral-900 dark:text-white">No sessions found</h3>
-          <p className="text-neutral-500 text-sm mt-1">Schedule details will appear here soon.</p>
+          <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t('parent_portal.calendar.no_sessions')}</h3>
+          <p className="text-neutral-500 text-sm mt-1">{t('parent_portal.calendar.no_sessions_subtitle')}</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -86,11 +87,11 @@ export default function ParentSchedulePage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm font-bold text-neutral-900 dark:text-white">
-                              {sessDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {sessDate.toLocaleTimeString(currentLang, { hour: '2-digit', minute: '2-digit' })}
                             </span>
                             <span className="w-1 h-1 rounded-full bg-neutral-300" />
                             <span className="text-sm font-medium text-neutral-500">
-                              {sess.duration} min
+                              {sess.duration} {t('parent_portal.calendar.min')}
                             </span>
                           </div>
                           <h4 className="font-bold text-neutral-900 dark:text-white truncate">{sess.type}</h4>
@@ -103,7 +104,7 @@ export default function ParentSchedulePage() {
                               {therapist?.initials || '??'}
                             </div>
                             <span className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
-                              {therapist?.name || 'Assigned Therapist'}
+                              {therapist?.name || t('parent_portal.dashboard.assigned_therapist')}
                             </span>
                           </div>
                         </div>
@@ -112,15 +113,15 @@ export default function ParentSchedulePage() {
                           {sess.status === 'completed' ? (
                             <span className="flex items-center gap-1 text-[10px] font-bold text-success-600 bg-success-50 dark:bg-success-900/20 px-2 py-1 rounded-full uppercase tracking-wider">
                               <CheckCircle2 className="w-3 h-3" />
-                              Completed
+                              {t('parent_portal.calendar.completed')}
                             </span>
                           ) : isUpcoming ? (
                             <button className="text-[10px] font-bold text-primary-600 bg-primary-50 dark:bg-primary-900/20 px-3 py-1.5 rounded-full uppercase tracking-wider hover:bg-primary-100 transition-colors">
-                              Confirm
+                              {t('parent_portal.calendar.confirm')}
                             </button>
                           ) : (
                             <span className="text-[10px] font-bold text-neutral-400 bg-neutral-50 dark:bg-neutral-800 px-2 py-1 rounded-full uppercase tracking-wider">
-                              Past
+                              {t('parent_portal.calendar.past')}
                             </span>
                           )}
                         </div>
@@ -131,15 +132,8 @@ export default function ParentSchedulePage() {
               </div>
             </div>
           ))}
-                </div>
-              )}
-        
-              {/* <ParentEventDetailPanel 
-                event={selectedEvent}
-                isOpen={isDetailOpen}
-                onClose={() => setIsDetailOpen(false)}
-              /> */}
-            </div>
-          );
-        }
-        
+        </div>
+      )}
+    </div>
+  );
+}

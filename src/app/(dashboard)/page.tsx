@@ -19,8 +19,10 @@ import { useData } from "@/context/DataContext";
 import { useAuth } from "@/context/AuthContext";
 import { KPICardSkeleton } from "@/components/ui/Skeleton";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
+import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { events, clients, teamMembers } = useData();
   const { user, userRole } = useAuth();
   const eventsLoading = events.loading || clients.loading || teamMembers.loading;
@@ -119,9 +121,9 @@ export default function Dashboard() {
       {/* KPI Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <KpiCard
-          title="Active Clients"
+          title={t('dashboard.active_clients')}
           value={clients.data.length.toString()}
-          trend="+3 this month" 
+          trend={t('dashboard.trends.this_month', { count: 3 })} 
           icon={Users} 
           trendIcon={TrendingUp}
           trendColor="text-success-600"
@@ -129,9 +131,9 @@ export default function Dashboard() {
           iconColor="text-primary-600"
         />
         <KpiCard 
-          title="Attendance Rate" 
+          title={t('dashboard.attendance_rate')} 
           value="94%" 
-          trend="-2% vs last week" 
+          trend={t('dashboard.trends.vs_last_week', { value: '-2%' })} 
           icon={CheckCircle} 
           trendIcon={TrendingDown}
           trendColor="text-error-600"
@@ -139,9 +141,9 @@ export default function Dashboard() {
           iconColor="text-warning-600"
         />
         <KpiCard 
-          title="Sessions Today" 
+          title={t('dashboard.sessions_today')} 
           value={todaysEvents.length.toString()} 
-          trend="Same as yesterday" 
+          trend={t('dashboard.trends.same_as_yesterday')} 
           icon={CalendarCheck} 
           trendIcon={Minus}
           trendColor="text-neutral-500"
@@ -157,16 +159,16 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
-              <h3 className="font-semibold text-neutral-900 dark:text-white">Today&apos;s Schedule</h3>
+              <h3 className="font-semibold text-neutral-900 dark:text-white">{t('dashboard.schedule.title')}</h3>
               <button className="text-sm text-primary-600 dark:text-primary-400 font-medium flex items-center gap-1 hover:underline">
-                View All <ArrowRight className="w-4 h-4" />
+                {t('dashboard.schedule.view_all')} <ArrowRight className="w-4 h-4" />
               </button>
             </div>
             
             <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
                {todaysEvents.length === 0 ? (
                  <div className="p-8 text-center text-neutral-500">
-                   No sessions scheduled for today.
+                   {t('dashboard.schedule.no_sessions')}
                  </div>
                ) : (
                  todaysEvents.map(evt => {
@@ -178,6 +180,7 @@ export default function Dashboard() {
                    return (
                      <ScheduleItem 
                         key={evt.id}
+                        t={t}
                         time={startTime} 
                         endTime={endTime}
                         client={client.name}
@@ -187,6 +190,7 @@ export default function Dashboard() {
                         therapistId={therapist.id}
                         initials={therapist.initials}
                         color={therapist.color}
+                        photoURL={therapist.photoURL}
                         status={evt.status}
                         showActions={evt.status === 'in-progress'}
                         onClick={() => {
@@ -212,13 +216,13 @@ export default function Dashboard() {
         <div className="space-y-6">
           <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
-              <h3 className="font-semibold text-neutral-900 dark:text-white">Recent Activity</h3>
-              <button className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">View All</button>
+              <h3 className="font-semibold text-neutral-900 dark:text-white">{t('dashboard.activity.title')}</h3>
+              <button className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">{t('dashboard.activity.view_all')}</button>
             </div>
             <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
               <ActivityItem 
                 user="Dr. Maria Garcia" 
-                action="logged attendance" 
+                action={t('dashboard.activity.actions.logged_attendance')} 
                 target="John Smith" 
                 time="5 min ago"
                 icon={CheckCircle}
@@ -227,7 +231,7 @@ export default function Dashboard() {
               />
               <ActivityItem 
                 user="Dr. Andrei Ionescu" 
-                action="created event" 
+                action={t('dashboard.activity.actions.created_event')} 
                 target="Team Meeting" 
                 time="15 min ago"
                 icon={CalendarPlus}
@@ -236,7 +240,7 @@ export default function Dashboard() {
               />
               <ActivityItem 
                 user="Dr. Elena Popescu" 
-                action="updated progress" 
+                action={t('dashboard.activity.actions.updated_progress')} 
                 target="Sara Lee" 
                 time="1 hour ago"
                 icon={TrendingUp}
@@ -271,7 +275,7 @@ function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendC
   );
 }
 
-function ScheduleItem({ time, endTime, client, clientId, type, therapist, therapistId, initials, color, status, showActions, onClick }: any) {
+function ScheduleItem({ t, time, endTime, client, clientId, type, therapist, therapistId, initials, color, photoURL, status, showActions, onClick }: any) {
   const statusColors: any = {
     'completed': 'bg-success-500',
     'in-progress': 'bg-warning-500',
@@ -316,12 +320,14 @@ function ScheduleItem({ time, endTime, client, clientId, type, therapist, therap
               className="flex items-center gap-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               <div 
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-medium" 
-                style={{ backgroundColor: color ? color : '#4A90E2' }}
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-medium overflow-hidden" 
+                style={{ backgroundColor: photoURL ? 'transparent' : (color || '#4A90E2') }}
               >
-                <div className="w-full h-full rounded-full flex items-center justify-center" style={{ backgroundColor: color }}>
-                  {initials}
-                </div>
+                {photoURL ? (
+                  <img src={photoURL} alt={therapist} className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
               </div>
               <span>{therapist}</span>
             </Link>
@@ -329,7 +335,7 @@ function ScheduleItem({ time, endTime, client, clientId, type, therapist, therap
 
           {showActions && (
             <div className="mt-3 flex items-center gap-2 animate-in slide-in-from-top-2 duration-200">
-              <span className="text-xs text-neutral-500 mr-1">Attendance:</span>
+              <span className="text-xs text-neutral-500 mr-1">{t('dashboard.schedule.attendance')}:</span>
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -337,7 +343,7 @@ function ScheduleItem({ time, endTime, client, clientId, type, therapist, therap
                 }}
                 className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-success-100 dark:hover:bg-success-900/30 hover:text-success-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700"
               >
-                Present
+                {t('dashboard.schedule.present')}
               </button>
               <button 
                 onClick={(e) => {
@@ -346,7 +352,7 @@ function ScheduleItem({ time, endTime, client, clientId, type, therapist, therap
                 }}
                 className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-error-100 dark:hover:bg-error-900/30 hover:text-error-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700"
               >
-                Absent
+                {t('dashboard.schedule.absent')}
               </button>
             </div>
           )}
@@ -356,12 +362,18 @@ function ScheduleItem({ time, endTime, client, clientId, type, therapist, therap
   );
 }
 
-function ActivityItem({ user, action, target, time, icon: Icon, iconColor, iconBg, userHref, targetHref }: any) {
+function ActivityItem({ user, action, target, time, icon: Icon, iconColor, iconBg, photoURL, userHref, targetHref }: any) {
   return (
     <div className="p-4 flex items-start gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
-      <div className={`w-8 h-8 ${iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
-        <Icon className={`w-4 h-4 ${iconColor}`} />
-      </div>
+      {photoURL ? (
+        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm border border-white dark:border-neutral-800">
+          <img src={photoURL} alt={user} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className={`w-8 h-8 ${iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
+          <Icon className={`w-4 h-4 ${iconColor}`} />
+        </div>
+      )}
       <div className="flex-1 min-w-0">
         <p className="text-sm text-neutral-900 dark:text-white">
           <Link href={userHref || "/team/"} className="font-medium hover:text-primary-600 transition-colors">{user}</Link>

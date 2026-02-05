@@ -5,11 +5,14 @@ import {
   User, 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
-  signOut as firebaseSignOut 
+  signOut as firebaseSignOut,
+  updateEmail,
+  updatePassword
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import i18n from "@/lib/i18n";
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +21,8 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  changeEmail: (newEmail: string) => Promise<void>;
+  changePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -47,6 +52,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const data = docSnap.data();
             setUserData(data);
             setUserRole(data.role as any);
+
+            // Apply language preference
+            const userLang = data.language || 'ro';
+            if (i18n.language !== userLang) {
+              i18n.changeLanguage(userLang);
+            }
+
             setLoading(false);
           } else {
             // Check if parent (parents might be in a different collection or just clients)
@@ -85,8 +97,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
+  const changeEmail = async (newEmail: string) => {
+    if (!auth.currentUser) throw new Error("No user logged in");
+    await updateEmail(auth.currentUser, newEmail);
+  };
+
+  const changePassword = async (newPassword: string) => {
+    if (!auth.currentUser) throw new Error("No user logged in");
+    await updatePassword(auth.currentUser, newPassword);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userData, userRole, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, userData, userRole, loading, signIn, signOut, changeEmail, changePassword }}>
       {!loading && children}
     </AuthContext.Provider>
   );

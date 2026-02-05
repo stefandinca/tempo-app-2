@@ -8,8 +8,11 @@ import { db, auth } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
 import { useParentAuth } from "@/context/ParentAuthContext";
+import { useTranslation } from "react-i18next";
+import { clsx } from "clsx";
 
 function ParentLoginContent() {
+  const { t, i18n } = useTranslation();
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -43,19 +46,10 @@ function ParentLoginContent() {
     );
   }
 
-  // Don't show login if already authenticated
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-      </div>
-    );
-  }
-
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (code.length < 4) {
-      setError("Please enter a valid client code.");
+      setError(t('auth.access_code_placeholder'));
       return;
     }
 
@@ -71,7 +65,7 @@ function ParentLoginContent() {
       const querySnapshot = await getDocs(q);
       
       if (querySnapshot.empty) {
-        setError("Invalid client code. Please check and try again.");
+        setError(t('auth.invalid_code'));
         setIsLoading(false);
         return;
       }
@@ -87,16 +81,40 @@ function ParentLoginContent() {
       router.push(`/parent/dashboard/`);
     } catch (err: any) {
       console.error("Verification error:", err);
-      setError("An error occurred. Please try again.");
+      setError(t('auth.sign_in_error'));
       setIsLoading(false);
     }
   };
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4">
-      {/* Hidden marker for debug */}
-      <span className="sr-only">PARENT_LOGIN_PAGE_ACTIVE</span>
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col items-center justify-center p-4 relative">
       
+      {/* Language Switcher */}
+      <div className="absolute top-4 right-4 flex items-center gap-2 bg-white dark:bg-neutral-900 p-1 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <button
+          onClick={() => changeLanguage('ro')}
+          className={clsx(
+            "px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+            i18n.language.startsWith('ro') ? "bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400" : "text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+          )}
+        >
+          RO
+        </button>
+        <button
+          onClick={() => changeLanguage('en')}
+          className={clsx(
+            "px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+            i18n.language.startsWith('en') ? "bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400" : "text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+          )}
+        >
+          EN
+        </button>
+      </div>
+
       <div className="max-w-md w-full bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
         <div className="p-8 sm:p-12 text-center">
           {/* Logo */}
@@ -105,17 +123,17 @@ function ParentLoginContent() {
           </div>
 
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
-            Parent Portal Access
+            {t('auth.parent_login_title')}
           </h1>
           <p className="text-neutral-500 text-sm mb-8">
-            Enter the unique client code provided by your clinic to access your child&apos;s therapy journey.
+            {t('auth.parent_login_subtitle')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
               <input
                 type="text"
-                placeholder="Enter Client Code"
+                placeholder={t('auth.access_code')}
                 className="w-full px-6 py-4 bg-neutral-100 dark:bg-neutral-800 border-none rounded-2xl text-center text-xl font-mono tracking-[0.5em] uppercase focus:ring-2 focus:ring-primary-500 transition-all placeholder:text-neutral-400 placeholder:tracking-normal placeholder:font-sans placeholder:text-base"
                 value={code}
                 onChange={(e) => setCode(e.target.value.slice(0, 8))}
@@ -135,7 +153,7 @@ function ParentLoginContent() {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  Access Portal
+                  {t('auth.access_parent_portal')}
                   <ChevronRight className="w-5 h-5" />
                 </>
               )}
@@ -145,13 +163,13 @@ function ParentLoginContent() {
 
         <div className="bg-neutral-50 dark:bg-neutral-800/50 p-6 text-center border-t border-neutral-100 dark:border-neutral-800">
           <p className="text-xs text-neutral-500 leading-relaxed">
-            Don&apos;t have a code? Please contact your clinic administrator or therapy coordinator.
+            {t('parent_portal.billing.disclaimer')}
           </p>
         </div>
       </div>
       
       <Link href="/login/" className="mt-8 text-sm text-neutral-500 hover:text-primary-600 transition-colors">
-        Staff Login
+        {t('auth.access_staff_portal')}
       </Link>
     </div>
   );

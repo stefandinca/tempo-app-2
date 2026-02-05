@@ -25,6 +25,7 @@ import {
 import { getToken, onMessage } from "firebase/messaging";
 import { db, messaging } from "@/lib/firebase";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
+import { useTranslation } from "react-i18next";
 import { Notification as NotificationData, NotificationCategory } from "@/types/notifications";
 import {
   generateMockNotifications,
@@ -69,6 +70,7 @@ export function NotificationProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   const { user, role } = useAnyAuth();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0); // New State

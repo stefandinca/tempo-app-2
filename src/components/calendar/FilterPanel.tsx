@@ -4,6 +4,7 @@ import { useClients, useTeamMembers, useServices } from "@/hooks/useCollections"
 import { X, Search, Check } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface FilterState {
   therapists: string[]; // IDs
@@ -19,6 +20,7 @@ interface FilterPanelProps {
 }
 
 export default function FilterPanel({ isOpen, onClose, filters, onFilterChange }: FilterPanelProps) {
+  const { t } = useTranslation();
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
   const { data: services } = useServices();
@@ -67,13 +69,13 @@ export default function FilterPanel({ isOpen, onClose, filters, onFilterChange }
         
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-neutral-200 dark:border-neutral-800">
-          <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">Filters</h3>
+          <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">{t('calendar.filters.title')}</h3>
           <div className="flex items-center gap-2">
             <button 
               onClick={clearFilters}
               className="text-xs font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
             >
-              Clear All
+              {t('calendar.filters.clear')}
             </button>
             <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
               <X className="w-5 h-5 text-neutral-500" />
@@ -86,7 +88,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onFilterChange }
           
           {/* Team Members */}
           <div>
-            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">Team Members</h4>
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">{t('calendar.filters.therapists')}</h4>
             <div className="space-y-2">
               {teamMembers.map(member => (
                 <label 
@@ -121,7 +123,7 @@ export default function FilterPanel({ isOpen, onClose, filters, onFilterChange }
 
           {/* Service Types */}
           <div>
-            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">Service Types</h4>
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">{t('calendar.filters.event_types')}</h4>
             <div className="space-y-2">
               {services.map(service => (
                 <label
@@ -150,12 +152,12 @@ export default function FilterPanel({ isOpen, onClose, filters, onFilterChange }
 
           {/* Clients */}
           <div>
-            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">Clients</h4>
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">{t('calendar.filters.clients')}</h4>
             <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               <input 
                 type="text" 
-                placeholder="Search clients..." 
+                placeholder={t('common.search')} 
                 className="w-full pl-9 pr-4 py-2 bg-neutral-100 dark:bg-neutral-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                 value={clientSearch}
                 onChange={(e) => setClientSearch(e.target.value)}

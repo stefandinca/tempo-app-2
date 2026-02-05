@@ -7,6 +7,7 @@ import { EventModalProvider } from "@/context/EventModalContext";
 import { CommandPaletteProvider } from "@/context/CommandPaletteContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { NotificationProvider } from "@/context/NotificationContext";
+import i18n from "@/lib/i18n";
 import CommandPalette from "@/components/CommandPalette";
 
 const inter = Inter({ subsets: ["latin"] });

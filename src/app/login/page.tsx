@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { clsx } from "clsx";
 
 export default function LoginPage() {
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,15 +35,6 @@ export default function LoginPage() {
     );
   }
 
-  // Don't show login form if already authenticated
-  if (user && userRole && ['Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
-      </div>
-    );
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -52,17 +46,44 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error(err);
       if (err.code === "auth/invalid-credential") {
-        setError("Invalid email or password.");
+        setError(t('auth.invalid_credentials'));
       } else {
-        setError("Failed to sign in. Please try again.");
+        setError(t('auth.sign_in_error'));
       }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950 px-4 sm:px-6 lg:px-8 relative">
+      
+      {/* Language Switcher - Login Page */}
+      <div className="absolute top-4 right-4 flex items-center gap-2 bg-white dark:bg-neutral-900 p-1 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <button
+          onClick={() => changeLanguage('ro')}
+          className={clsx(
+            "px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+            i18n.language.startsWith('ro') ? "bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400" : "text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+          )}
+        >
+          RO
+        </button>
+        <button
+          onClick={() => changeLanguage('en')}
+          className={clsx(
+            "px-3 py-1.5 text-xs font-bold rounded-lg transition-all",
+            i18n.language.startsWith('en') ? "bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400" : "text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+          )}
+        >
+          EN
+        </button>
+      </div>
+
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -70,10 +91,10 @@ export default function LoginPage() {
             <span className="text-white font-bold text-2xl">T</span>
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-neutral-900 dark:text-white">
-            Sign in to TempoApp
+            {t('auth.sign_in_title')}
           </h2>
           <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            Welcome back, please enter your details.
+            {t('auth.sign_in_subtitle')}
           </p>
         </div>
 
@@ -82,7 +103,7 @@ export default function LoginPage() {
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
-                Email address
+                {t('auth.email')}
               </label>
               <input
                 id="email-address"
@@ -91,14 +112,14 @@ export default function LoginPage() {
                 autoComplete="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-3 border border-neutral-300 dark:border-neutral-700 placeholder-neutral-500 text-neutral-900 dark:text-white dark:bg-neutral-800 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
-                placeholder="Email address"
+                placeholder={t('auth.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                Password
+                {t('auth.password')}
               </label>
               <input
                 id="password"
@@ -107,7 +128,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-3 border border-neutral-300 dark:border-neutral-700 placeholder-neutral-500 text-neutral-900 dark:text-white dark:bg-neutral-800 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm transition-colors"
-                placeholder="Password"
+                placeholder={t('auth.password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -142,16 +163,16 @@ export default function LoginPage() {
                 htmlFor="remember-me"
                 className="ml-2 block text-sm text-neutral-900 dark:text-neutral-300"
               >
-                Remember me
+                {t('auth.remember_me')}
               </label>
             </div>
 
             <div className="text-sm">
               <a
                 href="#"
-                className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+                className="font-medium text-primary-600 hover:text-primary-500 dark:hover:text-primary-400"
               >
-                Forgot your password?
+                {t('auth.forgot_password')}
               </a>
             </div>
           </div>
@@ -165,7 +186,7 @@ export default function LoginPage() {
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                "Sign in"
+                t('auth.sign_in_button')
               )}
             </button>
           </div>
@@ -174,12 +195,12 @@ export default function LoginPage() {
         {/* Parent Access Link */}
         <div className="text-center mt-4">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Are you a parent?{" "}
+            {t('auth.is_parent')}{" "}
             <Link
               href="/parent/"
-              className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+              className="font-medium text-primary-600 hover:text-primary-500 dark:hover:text-primary-400"
             >
-              Access Parent Portal
+              {t('auth.access_parent_portal')}
             </Link>
           </p>
         </div>

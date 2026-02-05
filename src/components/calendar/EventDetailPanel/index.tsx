@@ -24,6 +24,7 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { useClients, useTeamMembers, usePrograms } from "@/hooks/useCollections";
 import ProgramScoreCounter, { ProgramScores } from "./ProgramScoreCounter";
+import { useTranslation } from "react-i18next";
 import {
   notifySessionRescheduled,
   notifySessionCancelled,
@@ -40,6 +41,7 @@ interface EventDetailPanelProps {
 }
 
 export default function EventDetailPanel({ event, isOpen, onClose }: EventDetailPanelProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const { user: authUser, userRole } = useAuth();
   const { data: clients } = useClients();
@@ -161,7 +163,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
   const handleSave = async () => {
     if (!canEdit) {
-      error("You do not have permission to edit this event.");
+      error(t('event.error_permission'));
       return;
     }
     setIsSubmitting(true);
@@ -246,7 +248,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
         }
       }
 
-      success("Event updated successfully");
+      success(t('event.save_success'));
       setIsSubmitting(false);
       onClose();
     } catch (err) {
@@ -258,10 +260,10 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
   const handleDelete = async () => {
     if (!canEdit) {
-      error("You do not have permission to delete this event.");
+      error(t('event.error_permission'));
       return;
     }
-    if (!confirm("Are you sure you want to delete this event? This action cannot be undone.")) return;
+    if (!confirm(t('event.delete_confirm'))) return;
 
     setIsDeleting(true);
     try {
@@ -297,7 +299,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       }
 
       await deleteDoc(doc(db, "events", event.id));
-      success("Event deleted");
+      success(t('event.delete_success'));
       setIsDeleting(false);
       onClose();
     } catch (err) {
@@ -327,9 +329,9 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">Session Details</h3>
+            <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">{t('event.details')}</h3>
             {!canEdit && (
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-neutral-100 text-neutral-500 rounded">Read Only</span>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-neutral-100 text-neutral-500 rounded">{t('event.readonly')}</span>
             )}
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
@@ -354,7 +356,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           {/* Time & Date */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
-              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">Date</p>
+              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t('event.date')}</p>
               {canEdit ? (
                 <input 
                   type="date" 
@@ -370,7 +372,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               )}
             </div>
             <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
-              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">Time</p>
+              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t('event.time')}</p>
               {canEdit ? (
                 <input 
                   type="time" 
@@ -394,7 +396,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                 <User className="w-4 h-4" />
               </div>
                           <div>
-                            <p className="text-xs text-neutral-500">Client</p>
+                            <p className="text-xs text-neutral-500">{t('event.client')}</p>
                             <Link 
                               href={client ? `/clients/profile?id=${client.id}` : "#"} 
                               className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
@@ -405,13 +407,17 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                         </div>
                         <div className="flex items-center gap-3">
                           <div 
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                            style={{ backgroundColor: therapist?.color || '#ccc' }}
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold overflow-hidden"
+                            style={{ backgroundColor: therapist?.photoURL ? 'transparent' : (therapist?.color || '#ccc') }}
                           >
-                            {therapist?.initials || '?'}
+                            {therapist?.photoURL ? (
+                              <img src={therapist.photoURL} alt={therapist.name} className="w-full h-full object-cover" />
+                            ) : (
+                              therapist?.initials || '?'
+                            )}
                           </div>
                           <div>
-                            <p className="text-xs text-neutral-500">Therapist</p>
+                            <p className="text-xs text-neutral-500">{t('event.therapist')}</p>
                             <Link 
                               href="/team/" 
                               className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
@@ -423,7 +429,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
           {/* Attendance Toggle */}
           <div>
-            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Attendance</p>
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">{t('event.attendance')}</p>
             <div className="grid grid-cols-3 gap-2">
               <button 
                 onClick={() => canEdit && setAttendance(attendance === 'present' ? null : 'present')}
@@ -436,7 +442,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                     : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50"
                 )}
               >
-                Present
+                {t('attendance.present')}
               </button>
               <button 
                 onClick={() => canEdit && setAttendance(attendance === 'absent' ? null : 'absent')}
@@ -449,7 +455,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                     : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50"
                 )}
               >
-                Absent
+                {t('attendance.absent')}
               </button>
               <button 
                 onClick={() => canEdit && setAttendance(attendance === 'excused' ? null : 'excused')}
@@ -462,7 +468,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                     : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50"
                 )}
               >
-                Excused
+                {t('attendance.excused')}
               </button>
             </div>
           </div>
@@ -539,7 +545,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                       <input
                         type="text"
-                        placeholder="Search programs..."
+                        placeholder={t('event.search_programs')}
                         className="w-full pl-8 pr-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         value={programSearch}
                         onChange={(e) => setProgramSearch(e.target.value)}
@@ -549,7 +555,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                     <div className="max-h-40 overflow-y-auto space-y-1">
                       {availablePrograms.length === 0 ? (
                         <p className="text-xs text-neutral-500 text-center py-3">
-                          {programSearch ? "No matching programs" : "All programs assigned"}
+                          {programSearch ? t('event.no_matching_programs') : t('event.all_assigned')}
                         </p>
                       ) : (
                         availablePrograms.map(program => (
@@ -650,9 +656,9 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold py-3 transition-colors shadow-lg shadow-primary-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSaving ? (
-                <><Loader2 className="w-5 h-5 animate-spin" /> Saving...</>
+                <><Loader2 className="w-5 h-5 animate-spin" /> {t('common.saving')}</>
               ) : (
-                <><Check className="w-5 h-5" /> Save Changes</>
+                <><Check className="w-5 h-5" /> {t('common.save')}</>
               )}
             </button>
           </div>

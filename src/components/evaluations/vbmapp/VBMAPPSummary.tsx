@@ -95,9 +95,7 @@ export default function VBMAPPSummary({
     : [];
 
   const handleViewReport = () => {
-    const isProd = process.env.NODE_ENV === 'production';
-    const basePath = isProd ? '/v2' : '';
-    const url = `${basePath}/reports/evaluation/?type=vbmapp&id=${evaluationId}&clientId=${clientId}`;
+    const url = `/reports/evaluation/?type=vbmapp&id=${evaluationId}&clientId=${clientId}`;
     window.open(url, '_blank');
   };
 
