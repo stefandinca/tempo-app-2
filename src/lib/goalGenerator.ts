@@ -3,8 +3,9 @@
  * Auto-generates suggested goals from emerging skills
  */
 
-import { Evaluation, CategorySummary } from "@/types/evaluation";
+import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation, MilestoneScore } from "@/types/vbmapp";
+import { AbllsCategory } from "@/data/ablls-r-protocol";
 
 export interface SuggestedGoal {
   id: string;
@@ -155,12 +156,12 @@ export function generateVBMAPPGoals(
 }
 
 /**
- * Generate IEP goals from ABLLS emerging skills (scored 1)
+ * Generate IEP goals from ABLLS emerging skills (scored > 0 but less than max)
  */
 export function generateABLLSGoals(
   evaluation: Evaluation,
   clientName: string,
-  categories: Array<{ key: string; name: string; items: Array<{ id: string; text: string }> }>
+  categories: AbllsCategory[]
 ): SuggestedGoal[] {
   const goals: SuggestedGoal[] = [];
 
@@ -168,19 +169,19 @@ export function generateABLLSGoals(
     for (const item of category.items) {
       const score = evaluation.scores[item.id]?.score;
 
-      // Only generate goals for emerging skills (1)
-      if (score === 1) {
-        const template = GOAL_TEMPLATES[category.key as keyof typeof GOAL_TEMPLATES];
+      // Only generate goals for emerging skills (scored but not mastered)
+      if (score !== undefined && score > 0 && score < item.maxScore) {
+        const template = GOAL_TEMPLATES[category.id as keyof typeof GOAL_TEMPLATES];
         const goalBase = template?.goal || "will demonstrate the target skill";
         const criteria = template?.criteria || "with 80% accuracy across 3 consecutive sessions";
 
         goals.push({
           id: item.id,
-          skillArea: category.name,
-          skillCode: category.key,
+          skillArea: category.title,
+          skillCode: category.id,
           itemId: item.id,
           itemDescription: item.text,
-          currentScore: 1,
+          currentScore: score,
           goalText: `${clientName} ${goalBase} ${criteria}.`,
           shortTermObjective: `${clientName} will demonstrate "${item.text}" with prompting faded to independence.`,
           targetCriteria: criteria

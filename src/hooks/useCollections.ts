@@ -374,3 +374,49 @@ export function usePayoutsByMonth(year: number, month: number) {
 
   return { data, loading, error };
 }
+
+// Expenses by Month (Admin)
+export function useExpensesByMonth(year: number, month: number) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Format bounds as YYYY-MM-DD
+    const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const startStr = `${monthStr}-01`;
+    const endStr = `${monthStr}-31`;
+
+    const q = query(
+      collection(db, "expenses"),
+      where("date", ">=", startStr),
+      where("date", "<=", endStr),
+      orderBy("date", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q,
+      (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        setData(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching monthly expenses:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [year, month]);
+
+  return { data, loading, error };
+}
+
+// Recurring Expenses (Admin)
+export function useRecurringExpenses() {
+  return useCollection<any>("recurring_expenses");
+}

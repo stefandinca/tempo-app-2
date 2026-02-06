@@ -21,12 +21,15 @@ import {
 } from "@/hooks/useEvaluations";
 import { ItemScore, ScoreValue, Evaluation } from "@/types/evaluation";
 import CategoryScoring from "./CategoryScoring";
+import { calculateAge } from "@/lib/ageUtils";
+import { Lightbulb, Info } from "lucide-react";
 
 interface EvaluationWizardProps {
   isOpen: boolean;
   onClose: () => void;
   clientId: string;
   clientName: string;
+  clientDob?: string;
   evaluationId?: string; // If editing existing
   previousEvaluation?: Evaluation | null; // For re-evaluation comparison
 }
@@ -36,6 +39,7 @@ export default function EvaluationWizard({
   onClose,
   clientId,
   clientName,
+  clientDob,
   evaluationId,
   previousEvaluation
 }: EvaluationWizardProps) {
@@ -43,6 +47,8 @@ export default function EvaluationWizard({
   const { success, error: toastError } = useToast();
   const { saving, createEvaluation, saveEvaluationProgress, completeEvaluation } =
     useEvaluationActions();
+
+  const age = calculateAge(clientDob);
 
   // Local state
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
@@ -119,7 +125,7 @@ export default function EvaluationWizard({
 
   // Handle score change
   const handleScoreChange = useCallback(
-    (itemId: string, score: ScoreValue, note?: string, isNA?: boolean) => {
+    (itemId: string, score: number, note?: string, isNA?: boolean) => {
       setLocalScores((prev) => ({
         ...prev,
         [itemId]: {
@@ -269,7 +275,7 @@ export default function EvaluationWizard({
 
               return (
                 <button
-                  key={category.key}
+                  key={category.id}
                   onClick={() => goToCategory(index)}
                   className={clsx(
                     "px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5",
@@ -282,7 +288,7 @@ export default function EvaluationWizard({
                       : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
                   )}
                 >
-                  <span>{category.key}</span>
+                  <span>{category.id}</span>
                   {isComplete && !isActive && <Check className="w-3 h-3" />}
                 </button>
               );
@@ -299,31 +305,36 @@ export default function EvaluationWizard({
           ) : (
             <>
               {/* Category Header */}
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
-                  {currentCategory.key}. {currentCategory.name}
-                </h3>
-                <p className="text-sm text-neutral-500 mt-1">
-                  {getCategoryCompletion(currentCategoryIndex).scored} of{" "}
-                  {getCategoryCompletion(currentCategoryIndex).total} items scored
-                </p>
+              <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
+                    {currentCategory.id}. {currentCategory.title}
+                  </h3>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    {getCategoryCompletion(currentCategoryIndex).scored} of{" "}
+                    {getCategoryCompletion(currentCategoryIndex).total} items scored
+                  </p>
+                </div>
+                {age && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl px-4 py-2 flex items-center gap-3">
+                    <Info className="w-4 h-4 text-blue-500" />
+                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                      <span className="font-bold">Protocol Adaptat:</span> Afișăm recomandări pentru vârsta de <span className="font-bold">{age.years} ani</span>.
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Scoring Legend */}
-              <div className="mb-6 p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl flex flex-wrap gap-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded bg-error-500 text-white flex items-center justify-center font-bold">0</span>
-                  <span className="text-neutral-600 dark:text-neutral-400">Not observed</span>
+              {/* Developmental Note */}
+              {age && age.years < 5 && ["P", "Q", "R", "S"].includes(currentCategory.id) && (
+                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex gap-3 animate-in slide-in-from-top-2 duration-300">
+                  <Lightbulb className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                  <div className="text-sm text-amber-800 dark:text-amber-200">
+                    <p className="font-bold mb-1">Notă Clinică: Recomandare Vârstă</p>
+                    <p>Abilitățile din categoria <strong>{currentCategory.title}</strong> sunt de obicei dezvoltate după vârsta de 5 ani. Pentru un copil de {age.years} ani, prioritizați ariile fundamentale (A-E) dacă există lacune.</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded bg-warning-500 text-white flex items-center justify-center font-bold">1</span>
-                  <span className="text-neutral-600 dark:text-neutral-400">Emerging (with prompts)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded bg-success-500 text-white flex items-center justify-center font-bold">2</span>
-                  <span className="text-neutral-600 dark:text-neutral-400">Mastered (independent)</span>
-                </div>
-              </div>
+              )}
 
               {/* Category Scoring */}
               <CategoryScoring
@@ -331,6 +342,7 @@ export default function EvaluationWizard({
                 scores={localScores}
                 previousScores={previousEvaluation?.scores}
                 onScoreChange={handleScoreChange}
+                clientAgeYears={age?.years}
               />
             </>
           )}

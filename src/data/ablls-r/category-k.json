@@ -1,0 +1,210 @@
+{
+  "id": "K",
+  "title": "JOACĂ INDEPENDENTĂ",
+  "items": [
+    {
+      "id": "K1",
+      "text": "Explorează jucăriile din mediu",
+      "objective": "Exploreaza o varietate de jucarii din mediu.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Ridica si/sau manipuleaza cel putin 1 jucarie intr-un interval de 10 min." },
+        { "score": 2, "text": "Manipuleaza o jucarie sau mai multe cel putin 2 min dintr-un interval de 10 min." }
+      ]
+    },
+    {
+      "id": "K2",
+      "text": "Le permite celorlalți să manipuleze sau să atingă obiectele cu care se joacă",
+      "objective": "Permite adultilor sau altor copii sa stea langa el in timp ce se joaca si le permite sa manipuleze ocazional jucariile in timpul interactiunii.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Permite altor copii sa stea langa el cand se joaca cu o jucarie." },
+        { "score": 2, "text": "Permite altor copii sau adulti sa manipuleze ocazional jucaria cu care el se joacă." }
+      ]
+    },
+    {
+      "id": "K3",
+      "text": "Realizează activități independente în aer liber",
+      "objective": "Se implică în activitati independente in aer liber (ex. Leagan, groapa cu nisip, sanie, sa dea cos la basket).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Participă la 2 activitati in 5 min." },
+        { "score": 2, "text": "Participă la 2 activitati in 10 min" },
+        { "score": 3, "text": "Participă la 3 activitati in 10 min" },
+        { "score": 4, "text": "Alege si se implica in cel putin 3 activitati timp de cel putin 15 min." }
+      ]
+    },
+    {
+      "id": "K4",
+      "text": "Realizează activități independente de petrecere a timpului liber în interior",
+      "objective": "Se implica in activitati de petrecere a timpului liber in casa (ex. se uita pe carti sau la tv; asculta muzica; face puzzle).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Se implica in 2 activitati timp de 5 min." },
+        { "score": 2, "text": "Se implica in 2 activitati timp de 10 min." },
+        { "score": 3, "text": "Se implica in 3 activitati timp de 10 min." },
+        { "score": 4, "text": "Alege si se implica in cel putin 3 activitati timp de cel putin 15 min." }
+      ]
+    },
+    {
+      "id": "K5",
+      "text": "Se joacă cu/manipulează jucăriile corespunzător",
+      "objective": "Copilul se joaca corespunzator cu jucariile.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Se joaca cu cel putin 1 jucarie pana la 10 min cu prompturi ocazionale." },
+        { "score": 2, "text": "Se joaca cu cel putin 2 jucarii pana la 10 min fara prompturi." }
+      ]
+    },
+    {
+      "id": "K6",
+      "text": "Se joaca independent și vorbește în timp ce se joacă",
+      "objective": "Vorbeste in timp ce se joaca independent.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Are 1 raspuns verbal intr-un interval de 20 min." },
+        { "score": 2, "text": "Are 2 raspunsuri verbale in 20 min." },
+        { "score": 3, "text": "Are 3 raspunsuri verbale in 20 min." },
+        { "score": 4, "text": "Are cel putin 10 raspunsuri verbale in 20 min." }
+      ]
+    },
+    {
+      "id": "K7",
+      "text": "Realizează diferite acțiuni cu obiectele din jocurile tematice",
+      "objective": "Se joaca cu jucarii pe o anumita tema (ex. Unelte pentru gatit; papusi; figurine: masinute: misca o masinuta pe o rampa, se preface ca pune combustibil, duce masina in garaj).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează spontan 2 activitati conectate cu 1 jucarie." },
+        { "score": 2, "text": "Realizează spontan 5 activitati conectate cu 1 jucarie." },
+        { "score": 3, "text": "Realizează spontan 5 activitati cu 2 jucarii." },
+        { "score": 4, "text": "Realizează spontan 5 activitati cu 5 jucarii." }
+      ]
+    },
+    {
+      "id": "K8",
+      "text": "Se joacă interactiv cu ceilalți copii",
+      "objective": "Se implica in jocuri interactive cu alti copii.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Accepta jucarii oferite de alti copii." },
+        { "score": 2, "text": "Ofera jucarii altor copii cand acestia le cer si accepta jucarii oferite de alti copii." },
+        { "score": 3, "text": "Interactioneaza cu alti copii si jucarii pana la 5 min (cereri incluse)." },
+        { "score": 4, "text": "Interactioneaza cu alti copii si jucarii pana la 10 min (cereri incluse)." }
+      ]
+    },
+    {
+      "id": "K9",
+      "text": "Se joacă interactiv cu diferiți copii",
+      "objective": "Se implica in jocuri interactive cu o varitate de copii.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Se joaca cu cel putin 2 copii (individual sau grup)." },
+        { "score": 2, "text": "Se joaca cu cel putin 4 copii." },
+        { "score": 3, "text": "Se joaca cu cel putin 6 copii." },
+        { "score": 4, "text": "Se joaca cu cel putin 8 copii (individual sau în grup)." }
+      ]
+    },
+    {
+      "id": "K10",
+      "text": "Participă la jocuri sociodramatice",
+      "objective": "Joaca roluri de personaje sau activitati (ex. Se preface ca e mama, tata, Tom; serveste ceaiul).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Se preface că este un personaj sau se preface că realizează o activitate (ex., face pizza)." },
+        { "score": 2, "text": "Joacă rolul a cel puțin 2 personaje sau se preface că realizează 2 activități (ex., face pizza)." },
+        { "score": 3, "text": "Joacă rolul a cel puțin 5 personaje sau se preface că realizează 5 activități (ex., face pizza)." },
+        { "score": 4, "text": "Joacă rolul a cel puțin 10 personaje sau se preface că realizează 10 activități (ex., face pizza)." }
+      ]
+    },
+    {
+      "id": "K11",
+      "text": "Se joacă cu diferite obiecte și vorbește în timpul jocului cu ceilalți copii",
+      "objective": "Cere obiecte si actiuni, numeste obiecte si actiuni si face comentarii potrivite in timp ce se joaca cu un copil.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Are un raspuns verbal in 10 min." },
+        { "score": 2, "text": "Are 2 raspunsuri verbale in 10 min." },
+        { "score": 3, "text": "Are 5 raspunsuri verbale in 10 min." },
+        { "score": 4, "text": "Are cel putin 10 raspunsuri verbale in 10 min." }
+      ]
+    },
+    {
+      "id": "K12",
+      "text": "Participă la jocuri simple cu mingea",
+      "objective": "Se joaca independent cu mingea: rostogoleste, arunca, suteaza si paseaza mingea altui copil (cel putin 5 schimburi intre ei).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează o acțiune dar necesită prompturi ocazionale pentru a vedea dacă celalalt copil este pregătit și pentru a-l urmări când realizează acțiunea." },
+        { "score": 2, "text": "Realizează o acțiune dar necesită prompturi ocazionale pentru a vedea dacă celalalt copil este pregătit sau pentru a-l urmări când realizează acțiunea." },
+        { "score": 3, "text": "Realizează independent 2 actiuni cu mingea, pentru cel puțin 3 schimburi." },
+        { "score": 4, "text": "Realizează independent cel puțin 3 acțiuni cu mingea cu alt copil, până la 5 schimburi." }
+      ]
+    },
+    {
+      "id": "K13",
+      "text": "Participă la jocuri coordonate de ceilalți copii",
+      "objective": "Le permite celorlalti copii sa conducă un joc de coordonare (urmeaza indicatiile celorlalti).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Urmeaza indicatiile celorlalti pentru a realiza cel putin o activitate (nu are nevoie de prompturi multiple)." },
+        { "score": 2, "text": "Urmeaza indicatiile directe si indirecte de la copii - pentru cel putin o activitate." },
+        { "score": 3, "text": "Urmeaza indicatiile directe si indirecte de la copii - pentru 3 activitati." },
+        { "score": 4, "text": "Urmeaza indicatiile directe si indirecte de la copii - pentru 4 activitati." }
+      ]
+    },
+    {
+      "id": "K14",
+      "text": "Participă la jocuri motorii interactive",
+      "objective": "Participa la jocuri care ii cer sa isi schimbe comportamentul in functie de comportamentul celorlalti (ex., Pitita, Prinde-ma, fotbal, Intrecere, Nu e supara frate).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt pentru a i se aminti cand e randul lui si de a completa anumite actiuni in joc." },
+        { "score": 2, "text": "Are nevoie de cateva prompturi pentru a i se aminti ca e randul lui sau pentru a completa anumite actiuni in joc (nu ambele)." },
+        { "score": 3, "text": "Participa la 2 jocuri independent." },
+        { "score": 4, "text": "Participa independent la 3 jocuri interactive." }
+      ]
+    },
+    {
+      "id": "K15",
+      "text": "Participă la jocuri de societate (ex., Nu te supăra, frate!)",
+      "objective": "Participa la jocuri de societate (ex., Nu te supara frate, Monopoly, Candyland, etc.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt pentru a i se aminti cand e randul lui si de a completa anumite actiuni din joc." },
+        { "score": 2, "text": "Are nevoie de cateva prompturi pentru a i se aminti ca e randul lui sau pentru a completa anumite actiuni din joc (nu ambele)." },
+        { "score": 3, "text": "Participa la 2 jocuri independent." },
+        { "score": 4, "text": "Participa la 3 jocuri de societate." }
+      ]
+    }
+  ]
+}

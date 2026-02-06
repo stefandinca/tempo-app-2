@@ -8,6 +8,7 @@ import { useEventModal } from "@/context/EventModalContext";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export interface Client {
   id: string;
@@ -64,6 +65,7 @@ function calculateAge(birthDate: string | null | undefined): number | null {
 }
 
 export default function ClientCard({ client, teamMembers, events, activePlan }: ClientCardProps) {
+  const { t, i18n } = useTranslation();
   const { openModal } = useEventModal();
   const { success, error } = useToast();
 
@@ -94,11 +96,11 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
     const isToday = eventDate.toDateString() === today.toDateString();
     const isTomorrow = eventDate.toDateString() === tomorrow.toDateString();
 
-    const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const timeStr = eventDate.toLocaleTimeString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { hour: 'numeric', minute: '2-digit', hour12: i18n.language !== 'ro' });
 
-    if (isToday) return `Today, ${timeStr}`;
-    if (isTomorrow) return `Tomorrow, ${timeStr}`;
-    return eventDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + `, ${timeStr}`;
+    if (isToday) return `${t('calendar.today')}, ${timeStr}`;
+    if (isTomorrow) return `${i18n.language === 'ro' ? 'Mâine' : 'Tomorrow'}, ${timeStr}`;
+    return eventDate.toLocaleDateString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + `, ${timeStr}`;
   };
 
   // Close menu when clicking outside
@@ -123,23 +125,23 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
       await updateDoc(doc(db, "clients", client.id), {
         isArchived: !client.isArchived
       });
-      success(client.isArchived ? "Client restored" : "Client archived");
+      success(client.isArchived ? t('clients.client_restored') : t('clients.client_archived'));
       setIsMenuOpen(false);
     } catch (err) {
-      error("Failed to update client");
+      error(t('clients.update_error'));
     }
   };
 
   // Handle Delete
   const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete ${client.name}? This action cannot be undone.`)) {
+    if (!confirm(t('clients.delete_confirm', { name: client.name }))) {
       return;
     }
     try {
       await deleteDoc(doc(db, "clients", client.id));
-      success("Client deleted");
+      success(t('clients.client_deleted'));
     } catch (err) {
-      error("Failed to delete client");
+      error(t('clients.delete_error'));
     }
   };
 
@@ -166,7 +168,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
               </Link>
               {client.isArchived && (
                 <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded">
-                  Archived
+                  {t('clients.status.archived')}
                 </span>
               )}
               {activePlan && !client.isArchived && (
@@ -177,8 +179,8 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
               )}
             </div>
             <p className="text-xs text-neutral-500">
-              {age !== null ? `Age: ${age} years` : "Age: N/A"}
-              {client.birthDate && ` • Born: ${new Date(client.birthDate).toLocaleDateString('ro-RO', { day: '2-digit', month: 'short', year: 'numeric' })}`}
+              {age !== null ? t('clients.age_years', { count: age }) : "Age: N/A"}
+              {client.birthDate && ` • ${t('clients.born')}: ${new Date(client.birthDate).toLocaleDateString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' })}`}
             </p>
           </div>
         </div>
@@ -199,21 +201,21 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Edit className="w-4 h-4" />
-                Edit
+                {t('common.edit')}
               </Link>
               <button
                 onClick={handleArchive}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
               >
                 <Archive className="w-4 h-4" />
-                {client.isArchived ? "Restore" : "Archive"}
+                {client.isArchived ? t('clients.restore') : t('clients.archive')}
               </button>
               <button
                 onClick={handleDelete}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                Delete
+                {t('common.delete')}
               </button>
             </div>
           )}
@@ -236,7 +238,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
                 <span className="font-medium truncate">{therapist.name}</span>
               </Link>
             ) : (
-              <span className="italic text-neutral-400">Unassigned</span>
+              <span className="italic text-neutral-400">{t('clients.unassigned')}</span>
             )}
           </div>
         </div>
@@ -259,10 +261,10 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
           <Calendar className="w-4 h-4 text-neutral-400" />
           {nextEvent ? (
             <span className="truncate">
-              Next: <span className="font-medium text-neutral-900 dark:text-white">{formatNextEvent()}</span>
+              {t('clients.next_session')}: <span className="font-medium text-neutral-900 dark:text-white">{formatNextEvent()}</span>
             </span>
           ) : (
-            <span className="truncate italic text-neutral-400">No upcoming sessions</span>
+            <span className="truncate italic text-neutral-400">{t('clients.no_upcoming')}</span>
           )}
         </div>
 
@@ -271,7 +273,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
           <div className="flex items-center justify-between text-xs mb-1.5">
             <div className="flex items-center gap-1 text-neutral-500">
               <TrendingUp className="w-3 h-3" />
-              <span>Overall Progress</span>
+              <span>{t('clients.overall_progress')}</span>
             </div>
             <span className="font-bold text-neutral-900 dark:text-white">{client.progress}%</span>
           </div>
@@ -290,13 +292,13 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
           href={`/clients/profile?id=${client.id}`}
           className="flex-1 text-center py-2 px-3 text-sm font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-xl hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 transition-all"
         >
-          View Profile
+          {t('clients.view_profile')}
         </Link>
         <button
           onClick={handleQuickSchedule}
           className="flex-1 text-center py-2 px-3 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all border border-transparent hover:border-primary-100 dark:hover:border-primary-900/50"
         >
-          Quick Schedule
+          {t('clients.quick_schedule')}
         </button>
       </div>
     </div>

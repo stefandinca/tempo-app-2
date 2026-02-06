@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -12,11 +12,14 @@ import CommandPalette from "@/components/CommandPalette";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  themeColor: "#4A90E2",
+};
+
 export const metadata: Metadata = {
   title: "TempoApp - Therapy Management",
   description: "Modern management for therapy centers",
   manifest: "/manifest.json",
-  themeColor: "#4A90E2",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

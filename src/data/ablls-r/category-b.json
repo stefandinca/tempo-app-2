@@ -1,0 +1,372 @@
+{
+  "id": "B",
+  "title": "PERFORMANTA VIZUALA",
+  "items": [
+    {
+      "id": "B1",
+      "text": "Face incastru",
+      "objective": "Pune independent piese în incastru.",
+      "sd": "Pune piesa/ Fă incastru/De unde este 'nume'?",
+      "response": "Se uită la fiecare piesă și le inserează în spațiul din incastru.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Pune 3 piese (oferite una cate una) prin incercare si eroare." },
+        { "score": 2, "text": "Pune 5 piese (oferite una cate una) prin incercare si eroare." },
+        { "score": 3, "text": "Pune 3 piese (oferite in grup) - se uita si potriveste." },
+        { "score": 4, "text": "Pune 5 piese (oferite in grup) - se uita si potriveste." }
+      ]
+    },
+    {
+      "id": "B2",
+      "text": "Pune piese in sortator",
+      "objective": "Localizează și inserează diferite forme în sortator.",
+      "sd": "Unde intră 'forma'?",
+      "response": "Inserează forma în locul potrivit.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Pune 2 piese prin incercare si eroare." },
+        { "score": 2, "text": "Pune 4 piese prin incercare si eroare." },
+        { "score": 3, "text": "Pune 4 piese - se uită si pune forma." },
+        { "score": 4, "text": "Pune 6 piese - se uită la piesă și caută locul potrivit în care să pună piesa." }
+      ]
+    },
+    {
+      "id": "B3",
+      "text": "Potrivește obiecte identice (3D-3D)",
+      "objective": "Potrivește obiecte la obiecte identice în câmp de 3 itemi.",
+      "sd": "Potrivește/Pune la fel/Unde este? + i se oferă un obiect",
+      "response": "Scanează itemii și potrivește corect.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Potrivește un obiect în câmp de 2 itemi." },
+        { "score": 2, "text": "Potrivește cel putin 2 obiecte în câmp de 2 itemi." },
+        { "score": 3, "text": "Potrivește 5 obiecte în câmp de 4 itemi." },
+        { "score": 4, "text": "Potrivește 10 obiecte în câmp de 8 itemi." }
+      ]
+    },
+    {
+      "id": "B4",
+      "text": "Potrivește obiecte la imagini (3D-2D)",
+      "objective": "Potrivește obiecte la imaginile identice ale obiectelor în câmp de 3 itemi.",
+      "sd": "Potriveste/Unde este? - în câmp de 3",
+      "response": "Scanează itemii și potrivește corect.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Potriveste un item in fiecare trial." },
+        { "score": 2, "text": "Potriveste 3 itemi în succesiune." }
+      ]
+    },
+    {
+      "id": "B5",
+      "text": "Potrivește imagini la imagini (2D-2D)",
+      "objective": "Potrivește itemi identici reprezentați în imagine în câmp de 3 itemi.",
+      "sd": "Potriveste/Unde este? - în câmp de 8",
+      "response": "Scanează itemii și potrivește corect.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Potrivește o imagine în câmp de 2 itemi." },
+        { "score": 2, "text": "Potrivește 2 imagini în câmp de 2 itemi." },
+        { "score": 3, "text": "Potrivește 5 imagini în câmp de 4 itemi." },
+        { "score": 4, "text": "Potrivește 10 imagini în câmp de 8 itemi." }
+      ]
+    },
+    {
+      "id": "B6",
+      "text": "Potrivește imagini la obiecte (2D-3D)",
+      "objective": "Potrivește imagini la obiecte identice în câmp de 3 itemi.",
+      "sd": "Potriveste/Unde este? - în câmp de 3",
+      "response": "Scanează itemii și potrivește corect.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Potrivește un item in fiecare trial." },
+        { "score": 2, "text": "Potrivește 3 itemi în succesiune." }
+      ]
+    },
+    {
+      "id": "B7",
+      "text": "Potrivește cu fluență (2D-2D)",
+      "objective": "Potrivește cu rapiditate un grup de 10 imagini la imagini identice într-un câmp de 10 imagini.",
+      "sd": "Potriveste/Unde este? - în câmp de 3/5/.../10 imagini",
+      "response": "Scanează itemii și potrivește corect.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Potrivește 5 itemi în 15 secunde." },
+        { "score": 2, "text": "Potrivește 10 itemi în 30 de secunde." }
+      ]
+    },
+    {
+      "id": "B8",
+      "text": "Sortează itemi non-identici",
+      "objective": "Sorteaza itemi non-identici în categorii când are obiecte de referință.",
+      "sd": "I se oferă 3 imagini/obiecte + are pe masă 3 imagini (i.e., criteriu de referință pentru fiecare categorie)",
+      "response": "Sortează imaginile/obiectele în grupele corecte (ex., toate căsuțele, toți copacii).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "4 itemi (2 itemi per categorie) cu obiecte de referinta - în câmp de 2 itemi." },
+        { "score": 2, "text": "6 obiecte (2 itemi per 3 categorii) cu obiecte de referinta - cand pe masa sunt 3 categorii." },
+        { "score": 3, "text": "12 itemi (3 per 4 categorii) cu obiecte de referinta - cand pe masa sunt 4 categorii." },
+        { "score": 4, "text": "20 de itemi (5 itemi per 4 categorii); poate sorta 10 tipuri de itemi în 4 categorii." }
+      ]
+    },
+    {
+      "id": "B9",
+      "text": "Realizează structuri de cuburi dupa o imagine",
+      "objective": "Potrivește cuburile pe cardul-structură și lasă deoparte extra cuburile.",
+      "sd": "Construieste",
+      "response": "Realizeaza construcția",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează o structură din doua cuburi (fara extra cuburi)." },
+        { "score": 2, "text": "Realizează structura din 4 cuburi (fara extra cuburi)." },
+        { "score": 3, "text": "Realizează o structură din 4 sau mai multe cuburi (cu extra cuburi)." },
+        { "score": 4, "text": "Realizează o structură din 6 sau mai multe cuburi (cu extra cuburi)." }
+      ]
+    },
+    {
+      "id": "B10",
+      "text": "Face puzzle în ramă cu multiple conexiuni",
+      "objective": "Realizează un puzzle din lemn cu ramă și piese neregulate.",
+      "sd": "Fă puzzle-ul",
+      "response": "Face puzzle-ul",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Face un puzzle cu 5 piese." },
+        { "score": 2, "text": "Face 2 puzzle-uri cu 5 piese." },
+        { "score": 3, "text": "Face 4 puzzle-uri cu 5 piese." },
+        { "score": 4, "text": "Face 4 puzzle-uri cu 8 piese." }
+      ]
+    },
+    {
+      "id": "B11",
+      "text": "Face puzzle cu ramă pătrată și cu piese neregulate",
+      "objective": "Realizează un puzzle din carton cu rama si piese neregulate.",
+      "sd": "Fă puzzle-ul",
+      "response": "Face puzzle-ul",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Face 3 puzzle-uri cu 2 piese." },
+        { "score": 2, "text": "Face 3 puzzle-uri cu 3 piese." },
+        { "score": 3, "text": "Face 3 puzzle-uri cu 4 piese." },
+        { "score": 4, "text": "Face 3 puzzle-uri cu 5 piese." }
+      ]
+    },
+    {
+      "id": "B12",
+      "text": "Realizează structuri din cuburi după o imagine",
+      "objective": "Reproduce structuri de cuburi reprezentate în imagini.",
+      "sd": "Construieste",
+      "response": "Realizeaza construcția",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează structuri din 2 cuburi (fara extra cuburi)" },
+        { "score": 2, "text": "Realizează structuri din 4 cuburi (fara extra cuburi)" },
+        { "score": 3, "text": "Realizează structuri din patru sau mai multe parti (fara extra cuburi)" },
+        { "score": 4, "text": "Realizeaza repede structuri din 6 sau mai multe piese (cu extra cuburi)." }
+      ]
+    },
+    {
+      "id": "B13",
+      "text": "Continuă un pattern",
+      "objective": "Reproduce un pattern sub modelul adultului.",
+      "sd": "Adultul formează un pattern din cuburi - verde, roșu, verde, roșu; îi oferă același număr de cuburi colorate și îi cere să formeze același pattern (Pune ABABAB, arată și spune fiecare culoare/obiect și îi cere 'Continuă...')",
+      "response": "Ia cuburile și își formează structura în fața structurii adultului",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Potrivește 6 piese cu 2 itemi (A si B), fara extra cuburi." },
+        { "score": 2, "text": "Potrivește 6 piese cu 3 itemi (A, B, C), fara extra cuburi." },
+        { "score": 3, "text": "Potrivește 8 piese cu 4 itemi, fara extra cuburi." },
+        { "score": 4, "text": "Potrivește 8 piese cu 4 itemi, cu extra cuburi." }
+      ]
+    },
+    {
+      "id": "B14",
+      "text": "Realizează un puzzle cu piese juxtapuse",
+      "objective": "Realizează un puzzle fără ramă și cu piese neregulate.",
+      "sd": "Fă puzzle-ul",
+      "response": "Face puzzle-ul",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Face un puzzle cu cel puțin 3 piese." },
+        { "score": 2, "text": "Face 2 puzzle-uri cu 3 piese." },
+        { "score": 3, "text": "Face 4 puzzle-uri cu 4 piese." },
+        { "score": 4, "text": "Face 4 puzzle-uri cu 5 piese." }
+      ]
+    },
+    {
+      "id": "B15",
+      "text": "Jigsaw puzzle",
+      "objective": "Realizează un puzzle fără ramă și cu piese neregulate (ex., Cei 3 purcelusi de la Noriel)",
+      "sd": "Fă puzzle-ul",
+      "response": "Face puzzle-ul",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Face un puzzle cu cel puțin 8 piese." },
+        { "score": 2, "text": "Face 2 puzzle-uri cu 8 piese." },
+        { "score": 3, "text": "Face 2 puzzle-uri cu 12 piese." },
+        { "score": 4, "text": "Face 4 puzzle-uri cu 12 piese." }
+      ]
+    },
+    {
+      "id": "B16",
+      "text": "Asociază logic imagini",
+      "objective": "Formeaza perechi de asocieri logice (ex., potrivește albina la miere).",
+      "sd": "Unde punem (nume)/Potriveste/(Nume) se potrivește cu ...",
+      "response": "Pune itemul la imaginea pereche",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează 5 asocieri." },
+        { "score": 2, "text": "Realizează 10 asocieri" },
+        { "score": 3, "text": "Realizează 10 asocieri potrivind 2 imagini la itemul target (ex., albina - stup, miere)." },
+        { "score": 4, "text": "Realizează 20 asocieri potrivind 2 imagini la itemul target." }
+      ]
+    },
+    {
+      "id": "B17",
+      "text": "Sortează itemi după funcție",
+      "objective": "Sorteaza un set de 4/10 itemi după funcție în câmp de 2 imagini/obiecte/grupe.",
+      "sd": "Unde le punem?/Cum le aranjăm?",
+      "response": "Grupează itemii după funcție",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Sortează 2 itemi pentru 2 functii." },
+        { "score": 2, "text": "Sortează 5 itemi pentru 2 functii." },
+        { "score": 3, "text": "Sortează 5 itemi pentru 3 functii." },
+        { "score": 4, "text": "Sortează 5 itemi pentru 4 functii." }
+      ]
+    },
+    {
+      "id": "B18",
+      "text": "Sortează itemi după o caracteristică",
+      "objective": "Sorteaza un set de 4/10 itemi după o caracteristica în câmp de 2 imagini/obiecte/grupe.",
+      "sd": "Unde le punem?/Cum le aranjăm?",
+      "response": "Grupează itemii după caracteristică",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Sortează 2 itemi pentru 2 caracteristici" },
+        { "score": 2, "text": "Sortează 5 itemi pentru 2 caracteristici" },
+        { "score": 3, "text": "Sortează 5 itemi pentru 3 caracteristici" },
+        { "score": 4, "text": "Sortează 5 itemi pentru 4 caracteristici" }
+      ]
+    },
+    {
+      "id": "B19",
+      "text": "Sortează itemi după categorie",
+      "objective": "Sorteaza 2/5 itemi după categorie în câmp de 2 imagini/obiecte/grupe (ex., adultul îi oferă 4/10 imagini și îi cere să le grupeze în categorii având criteriul de referință).",
+      "sd": "Unde le punem?/Cum le aranjăm?",
+      "response": "Sorteaza itemii în categorii",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Sortează 2 itemi din 2 clase" },
+        { "score": 2, "text": "Sortează 5 itemi din 2 clase" },
+        { "score": 3, "text": "Sortează 5 itemi din 3 clase" },
+        { "score": 4, "text": "Sortează 5 itemi din 4 clase" }
+      ]
+    },
+    {
+      "id": "B20",
+      "text": "Reproduce o secvență de obiecte",
+      "objective": "Reproduce aranjarea unor obiecte/imagini după câteva secunde (ex., adultul pune de la stânga la dreapta - un pitic, o girafă și un crocodil. Retrage obiectele, așteaptă 2/5 secunde și îi cere să așeze obiectele în aceeași ordine).",
+      "sd": "Așează 3 itemi, îi indepărtează și îi cere 'Pune-i la fel/Pune-i în aceeași ordine'",
+      "response": "Reproduce ordinea itemilor",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Reproduce o secvență de 2 itemi, după 2 secunde - cu prompt verbal sau prompt gestual" },
+        { "score": 2, "text": "Reproduce o secvență de 2 itemi, după 2 secunde - fara prompt" },
+        { "score": 3, "text": "Reproduce o secvență de 3 itemi, cu 2 secunde sau 2 itemi după 5 secunde." },
+        { "score": 4, "text": "Reproduce o secvență imediat, cu 3 itemi după 5 secunde." }
+      ]
+    },
+    {
+      "id": "B21",
+      "text": "Potrivește un item după câteva secunde",
+      "objective": "Arată un obiect după câteva secunde (ex., adultul așează pe masă 2/5 obiecte; pune un paravan în fața lor; ia de pe masă un obiect, i-l arată și îi spune 'Poți să-l găsești?' + asteaptă 2/5 secunde până să îndepărteze paravanul).",
+      "sd": "Ce ti-am arătat?",
+      "response": "Indică obiectul arătat mai devreme de adult",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică itemul dupa 2 secunde - gaseste 3 itemi - 2 itemi prezentati" },
+        { "score": 2, "text": "Identifică itemul dupa 3 secunde - gaseste 5 itemi - 3 itemi prezentati" },
+        { "score": 3, "text": "Identifică itemul dupa 3 secunde - gaseste 5 itemi în 3 secunde" },
+        { "score": 4, "text": "Identifică itemul dupa 5 secunde - gaseste 10 itemi (gaseste un item în 3 sec.) - 5 itemi prezentati" }
+      ]
+    },
+    {
+      "id": "B22",
+      "text": "Extinde un pattern",
+      "objective": "Continuă un pattern început de adult (ex., adultul formează un pattern din cuburi - verde, roșu, verde, roșu, verde, roșu; îi oferă mai multe cuburi îi îi cere că continue modelul de cuburi colorate).",
+      "sd": "Pune ABABAB, arată și spune fiecare culoare/obiect și îi cere 'Continuă...'",
+      "response": "Continua patternul",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Extinde pattern-ul format din 2 itemi" },
+        { "score": 2, "text": "Extinde pattern-ul format din 3 itemi" },
+        { "score": 3, "text": "Extinde pattern-ul format din 3 itemi, intr-o structura repetitiva, cu distractori irelevanti" },
+        { "score": 4, "text": "Extinde pattern-ul format din 3 itemi, intr-o structura iregulata, cu distractori irelevanti" }
+      ]
+    },
+    {
+      "id": "B23",
+      "text": "Realizează o structura 3D după un model 3D",
+      "objective": "Reproduce o structură de cuburi 3D (ex., adultul realizează o structură în fața lui; după ce e gata îi oferă același număr de cuburi și îi cere să reproducă structura).",
+      "sd": "Construiește la fel/Fă și tu la fel",
+      "response": "Reproduce constructia",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Reproduce 2 obiecte realizate din 3 cuburi sau alti itemi." },
+        { "score": 2, "text": "Reproduce 2 obiecte realizate din 6 cuburi sau alti itemi." }
+      ]
+    },
+    {
+      "id": "B24",
+      "text": "Potrivește obiecte în secvență logică",
+      "objective": "Potrivește un item formând astfel o asociere logică (ex., adultul pune o farfurie, copilul pune lângă farfurie o lingură; adultul mai pune o farfurie, copilul pune și lângă aceasta o lingură, etc).",
+      "sd": "Adultul pune un obiect pe masă/pe covor (Format: 3/8 obiecte. Copilului i se oferă un număr identic de obiecte)",
+      "response": "Copilul pune lângă acest obiect un obiect din setul lui.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Asociaza un item langa un alt item pentru 3 raspunsuri (lingura langa farfuria)." },
+        { "score": 2, "text": "Asociaza un item langa un item pentru o serie de cel putin 6 raspunsuri." }
+      ]
+    },
+    {
+      "id": "B25",
+      "text": "Ordonează un set de imagini după un criteriu",
+      "objective": "Ordonează imaginile după mărime, cantitate, luminozitate si secventialitate temporală.",
+      "sd": "Aranjează-le/Pune-le în ordine",
+      "response": "Aranjează imaginile de la stânga la dreapta",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Aranjează 2 seturi pentru un atribut." },
+        { "score": 2, "text": "Aranjează 2 seturi pentru 2 atribute." },
+        { "score": 3, "text": "Aranjează 2 seturi pentru 3 atribute." },
+        { "score": 4, "text": "Aranjează 4 seturi pentru 4 atribute." }
+      ]
+    },
+    {
+      "id": "B26",
+      "text": "Aranjează cronologic un set de imagini (secvențialitate)",
+      "objective": "Aranjează un set de imagini în ordine cronologică.",
+      "sd": "Aranjează-le/Pune-le în ordine",
+      "response": "Aranjează imaginile de la stânga la dreapta",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Aranjează 2 secvente de 3 imagini" },
+        { "score": 2, "text": "Aranjează 3 secvente de 3 imagini" },
+        { "score": 3, "text": "Aranjează 5 secvente de 3 imagini" },
+        { "score": 4, "text": "Aranjează 5 secvente de 4 imagini" }
+      ]
+    },
+    {
+      "id": "B27",
+      "text": "Rezolvă labirinturi",
+      "objective": "Trasează cu creionul/carioca drumul din interiorul labirintului de la Start la Finish.",
+      "sd": "Start/Du-l pe (nume) la (nume)",
+      "response": "Desenează traseul în labirint",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Rezolva labirinturi cu o singura optiune." },
+        { "score": 2, "text": "Rezolva labirinturi cu 3 optiuni." }
+      ]
+    }
+  ]
+}

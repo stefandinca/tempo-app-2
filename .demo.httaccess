@@ -1,0 +1,18 @@
+# --- MAINTENANCE MODE TOGGLE ---
+# To ENABLE: Remove the '#' from the 4 lines below
+# To DISABLE: Add '#' back to the 4 lines below
+# PassengerEnabled off
+# RewriteEngine On
+# RewriteCond %{REQUEST_URI} !/maintenance.html$
+# RewriteCond %{REQUEST_URI} !/logo.png$
+# RewriteRule ^(.*)$ /maintenance.html [R=302,L]
+# -------------------------------
+
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/incjzljm/demo.tempoapp.ro"
+PassengerBaseURI "/"
+PassengerNodejs "/home/incjzljm/nodevenv/demo.tempoapp.ro/20/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+PassengerAppLogFile "/home/incjzljm/logs/passenger.log"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END

@@ -1,0 +1,336 @@
+{
+  "id": "Y",
+  "title": "MOTRICITATE GROSIERĂ",
+  "items": [
+    {
+      "id": "Y1",
+      "text": "Merge adecvat",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y2",
+      "text": "Îngenunchiază",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y3",
+      "text": "Aleargă adecvat",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y4",
+      "text": "Se rostogolește",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y5",
+      "text": "Sare în față",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y6",
+      "text": "Sare de pe un obiect",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y7",
+      "text": "Merge cu spatele",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y8",
+      "text": "Țopăie în două picioare",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y9",
+      "text": "Aruncă mingea de la piept sau de deasupra capului",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y10",
+      "text": "Împinge mingea pe podea",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y11",
+      "text": "Urcă scara alternând picioarele",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y12",
+      "text": "Se târăște pe burtă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y13",
+      "text": "Se ghemulește",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y14",
+      "text": "Merge pe bârnă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y15",
+      "text": "Prinde mingea",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y16",
+      "text": "Merge cu tricicleta",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y17",
+      "text": "Merge în lateral",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y18",
+      "text": "Aleargă la galop",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y19",
+      "text": "Stă într-un picior",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y20",
+      "text": "Dă șut la poartă sau la un adult",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y21",
+      "text": "Stă agățat cu mâinile de o bârnă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y22",
+      "text": "Prinde mingea cu mâinile",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y23",
+      "text": "Aruncă mingea cu mâinile",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y24",
+      "text": "Aruncă o minge in aer și o prinde cu mâinile",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y25",
+      "text": "Bate mingea",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y26",
+      "text": "Dă șut într-o minge în mișcare",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y27",
+      "text": "Se împinge în picioare când se dă în leagăn",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y28",
+      "text": "Sare peste un obiect",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y29",
+      "text": "Sare în sac",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Y30",
+      "text": "Merge cu bicicleta",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    }
+  ]
+}

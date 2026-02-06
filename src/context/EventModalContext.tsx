@@ -9,6 +9,7 @@ interface EventModalOptions {
   clientId?: string;
   eventType?: string;
   title?: string;
+  editingEvent?: any; // Existing event to edit
 }
 
 interface EventModalContextType {
@@ -47,6 +48,7 @@ export function EventModalProvider({ children }: { children: ReactNode }) {
         initialClientId={initialData.clientId}
         initialEventType={initialData.eventType}
         initialTitle={initialData.title}
+        editingEvent={initialData.editingEvent}
       />
     </EventModalContext.Provider>
   );

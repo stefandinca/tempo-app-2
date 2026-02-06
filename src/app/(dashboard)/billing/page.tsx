@@ -1,19 +1,21 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Download, FileText, Users } from "lucide-react";
+import { Download, FileText, Users, DollarSign } from "lucide-react";
 import { clsx } from "clsx";
 import MonthSelector from "@/components/billing/MonthSelector";
 import BillingOverview from "@/components/billing/BillingOverview";
 import ClientInvoicesTable from "@/components/billing/ClientInvoicesTable";
 import TeamPayoutsTable from "@/components/billing/TeamPayoutsTable";
+import ExpenseManager from "@/components/billing/ExpenseManager";
 import {
   useEventsByMonth,
   useClients,
   useServices,
   useTeamMembers,
   useInvoicesByMonth,
-  usePayoutsByMonth
+  usePayoutsByMonth,
+  useExpensesByMonth
 } from "@/hooks/useCollections";
 import {
   aggregateClientInvoices,
@@ -25,10 +27,12 @@ import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "fireb
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { createNotificationsBatch, getParentUids } from "@/lib/notificationService";
+import { useTranslation } from "react-i18next";
 
-type Tab = "invoices" | "payouts";
+type Tab = "invoices" | "payouts" | "expenses";
 
 export default function BillingPage() {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const { user: authUser } = useAuth();
   
@@ -42,11 +46,12 @@ export default function BillingPage() {
   const { data: events, loading: eventsLoading } = useEventsByMonth(year, month);
   const { data: existingInvoices, loading: invoicesLoading } = useInvoicesByMonth(year, month);
   const { data: existingPayouts, loading: payoutsLoading } = usePayoutsByMonth(year, month);
+  const { data: expenses, loading: expensesLoading } = useExpensesByMonth(year, month);
   const { data: clients, loading: clientsLoading } = useClients();
   const { data: services, loading: servicesLoading } = useServices();
   const { data: teamMembers, loading: teamLoading } = useTeamMembers();
 
-  const loading = eventsLoading || clientsLoading || servicesLoading || teamLoading || invoicesLoading || payoutsLoading;
+  const loading = eventsLoading || clientsLoading || servicesLoading || teamLoading || invoicesLoading || payoutsLoading || expensesLoading;
 
   // Calculate invoices and payouts
   const invoices = useMemo(() => {
@@ -60,8 +65,8 @@ export default function BillingPage() {
   }, [events, teamMembers, existingPayouts, loading]);
 
   const summary = useMemo(() => {
-    return calculateBillingSummary(invoices, payouts);
-  }, [invoices, payouts]);
+    return calculateBillingSummary(invoices, payouts, expenses);
+  }, [invoices, payouts, expenses]);
 
   // Handlers
   const handleMonthChange = (newYear: number, newMonth: number) => {
@@ -80,7 +85,7 @@ export default function BillingPage() {
       const snapshot = await getDocs(q);
       
       if (snapshot.empty) {
-        error("Cannot mark as paid: Invoice not generated yet.");
+        error(t('billing_page.mark_paid_error'));
         return;
       }
 
@@ -92,7 +97,7 @@ export default function BillingPage() {
       );
 
       await Promise.all(updates);
-      success("Invoice marked as paid.");
+      success(t('billing_page.mark_paid_success'));
 
       // Notify admins
       if (authUser) {
@@ -159,7 +164,7 @@ export default function BillingPage() {
       );
 
       await Promise.all(updates);
-      success("Invoice marked as pending.");
+      success(t('billing_page.mark_pending_success'));
 
     } catch (err) {
       console.error(err);
@@ -168,8 +173,9 @@ export default function BillingPage() {
   };
 
   const tabs = [
-    { id: "invoices" as Tab, label: "Client Invoices", icon: FileText, count: invoices.length },
-    { id: "payouts" as Tab, label: "Team Payouts", icon: Users, count: payouts.length }
+    { id: "invoices" as const, label: t('billing_page.client_invoices'), icon: FileText, count: invoices.length },
+    { id: "payouts" as const, label: t('billing_page.team_payouts'), icon: Users, count: payouts.length },
+    { id: "expenses" as const, label: t('billing_page.expenses'), icon: DollarSign, count: expenses.length }
   ];
 
   return (
@@ -177,9 +183,9 @@ export default function BillingPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Billing</h1>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('billing_page.title')}</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Manage client invoices and team payouts
+            {t('billing_page.subtitle')}
           </p>
         </div>
 
@@ -187,7 +193,7 @@ export default function BillingPage() {
           <MonthSelector year={year} month={month} onChange={handleMonthChange} />
           <button className="flex items-center gap-2 px-4 py-2 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium">
             <Download className="w-4 h-4" />
-            Export
+            {t('billing_page.export')}
           </button>
         </div>
       </div>
@@ -203,7 +209,7 @@ export default function BillingPage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => setActiveTab(tab.id as any)}
                 className={clsx(
                   "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all relative",
                   activeTab === tab.id
@@ -246,6 +252,14 @@ export default function BillingPage() {
           <TeamPayoutsTable 
             payouts={payouts} 
             loading={loading} 
+            year={year}
+            month={month}
+          />
+        )}
+        {activeTab === "expenses" && (
+          <ExpenseManager
+            expenses={expenses}
+            loading={loading}
             year={year}
             month={month}
           />

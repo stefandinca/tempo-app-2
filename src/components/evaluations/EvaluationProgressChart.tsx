@@ -43,6 +43,14 @@ const CATEGORY_COLORS: Record<string, string> = {
   P: "#ec4899", // pink
   Q: "#f43f5e", // rose
   R: "#78716c", // stone
+  S: "#44403c", // stone dark
+  T: "#fbbf24", // amber light
+  U: "#34d399", // emerald light
+  V: "#60a5fa", // blue light
+  W: "#818cf8", // indigo light
+  X: "#a78bfa", // violet light
+  Y: "#f472b6", // pink light
+  Z: "#fb7185", // rose light
 };
 
 interface ChartDataPoint {
@@ -359,23 +367,23 @@ export default function EvaluationProgressChart({
                   <div className="grid grid-cols-2 gap-2">
                     {ABLLS_CATEGORIES.map((cat) => (
                       <button
-                        key={cat.key}
-                        onClick={() => toggleCategory(cat.key)}
+                        key={cat.id}
+                        onClick={() => toggleCategory(cat.id)}
                         className={clsx(
                           "flex items-center gap-2 p-2 rounded-lg text-left text-sm transition-colors",
-                          selectedCategories.includes(cat.key)
+                          selectedCategories.includes(cat.id)
                             ? "bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800"
                             : "hover:bg-neutral-50 dark:hover:bg-neutral-700 border border-transparent"
                         )}
                       >
                         <span
                           className="w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center text-white flex-shrink-0"
-                          style={{ backgroundColor: CATEGORY_COLORS[cat.key] }}
+                          style={{ backgroundColor: CATEGORY_COLORS[cat.id] }}
                         >
-                          {cat.key}
+                          {cat.id}
                         </span>
                         <span className="text-neutral-700 dark:text-neutral-300 truncate text-xs">
-                          {cat.name}
+                          {cat.title}
                         </span>
                       </button>
                     ))}

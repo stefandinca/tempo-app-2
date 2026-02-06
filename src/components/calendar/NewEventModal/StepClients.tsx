@@ -5,6 +5,7 @@ import { useClients } from "@/hooks/useCollections";
 import { EventFormData } from "./types";
 import { Search, UserPlus, Check } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 interface StepClientsProps {
   data: EventFormData;
@@ -12,6 +13,7 @@ interface StepClientsProps {
 }
 
 export default function StepClients({ data, updateData }: StepClientsProps) {
+  const { t } = useTranslation();
   const { data: clients } = useClients();
   const [search, setSearch] = useState("");
 
@@ -40,18 +42,18 @@ export default function StepClients({ data, updateData }: StepClientsProps) {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-            Select Clients
+            {t('event_modal.select_clients')}
           </label>
           <button className="text-xs font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 flex items-center gap-1">
             <UserPlus className="w-3 h-3" />
-            Add New
+            {t('event_modal.add_new')}
           </button>
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
           <input 
             type="text" 
-            placeholder="Search by name..." 
+            placeholder={t('event_modal.search_by_name')}
             className="w-full pl-9 pr-4 py-2.5 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -63,7 +65,7 @@ export default function StepClients({ data, updateData }: StepClientsProps) {
       <div className="max-h-[320px] overflow-y-auto space-y-2 pr-1">
         {filteredClients.length === 0 ? (
           <div className="text-center py-8 text-neutral-500 text-sm">
-            No clients found matching &quot;{search}&quot;
+            {t('event_modal.no_clients_found', { search })}
           </div>
         ) : (
           filteredClients.map(client => {
@@ -95,11 +97,11 @@ export default function StepClients({ data, updateData }: StepClientsProps) {
                       <p className="font-medium text-sm text-neutral-900 dark:text-white">{client.name}</p>
                       {isArchived && (
                         <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 rounded">
-                          Archived
+                          {t('event_modal.archived')}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-neutral-500">{client.medicalInfo || 'No notes'}</p>
+                    <p className="text-xs text-neutral-500">{client.medicalInfo || t('event_modal.no_notes')}</p>
                   </div>
                 </div>
 
@@ -118,7 +120,9 @@ export default function StepClients({ data, updateData }: StepClientsProps) {
       </div>
       
       <p className="text-xs text-neutral-500 text-right">
-        {data.selectedClients.length} selected
+        {data.selectedClients.length === 1 
+          ? t('event_modal.selected_count_one') 
+          : t('event_modal.selected_count', { count: data.selectedClients.length })}
       </p>
     </div>
   );

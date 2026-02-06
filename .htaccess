@@ -1,22 +1,18 @@
-Options -MultiViews
-DirectorySlash On
-DirectoryIndex index.html
+# --- MAINTENANCE MODE TOGGLE ---
+# To ENABLE: Remove the '#' from the 4 lines below
+# To DISABLE: Add '#' back to the 4 lines below
+# PassengerEnabled off
+# RewriteEngine On
+# RewriteCond %{REQUEST_URI} !/maintenance.html$
+# RewriteCond %{REQUEST_URI} !/logo.png$
+# RewriteRule ^(.*)$ /maintenance.html [R=302,L]
+# -------------------------------
 
-RewriteEngine On
-RewriteBase /v2/
-
-# 1. If the exact file exists (e.g. style.css), serve it
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^ - [L]
-
-# 2. If it's a directory and has an index.html, serve it
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteCond %{REQUEST_FILENAME}/index.html -f
-RewriteRule ^ - [L]
-
-# 3. Clean URLs: If /parent is requested, check if /parent/index.html exists
-RewriteCond %{DOCUMENT_ROOT}/v2/$1/index.html -f
-RewriteRule ^(.*)/?$ $1/index.html [L]
-
-# 4. Fallback to SPA root for EVERYTHING ELSE (the dashboard)
-RewriteRule . /v2/index.html [L]
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/incjzljm/livebetterlife.tempoapp.ro"
+PassengerBaseURI "/"
+PassengerNodejs "/home/incjzljm/nodevenv/livebetterlife.tempoapp.ro/20/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+PassengerAppLogFile "/home/incjzljm/logs/passenger.log"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END

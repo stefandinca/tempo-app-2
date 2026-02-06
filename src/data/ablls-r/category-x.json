@@ -1,0 +1,130 @@
+{
+  "id": "X",
+  "title": "TRAINING DE TOALETĂ",
+  "items": [
+    {
+      "id": "X1",
+      "text": "Urinează la toaletă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "A urinat la toaletă de cel puțin 2 ori." },
+        { "score": 2, "text": "Urinează la toaletă de 2 ori pe săptămână." },
+        { "score": 3, "text": "Urinează la toaletă da 5 ori pe săptămână." },
+        { "score": 4, "text": "Urinează de 2 sau mai multe ori la toaletă pe zi." }
+      ]
+    },
+    {
+      "id": "X2",
+      "text": "Nu are accidente (dacă e dus la toaletă)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Nu are mai mult de 4 accidente pe saptamana." },
+        { "score": 2, "text": "Nu are mai mult de 2 accidente pe saptamana in medii controlate (acasa, gradinita)." },
+        { "score": 3, "text": "Nu mai are mai mult de 2 accidente pe saptamana in toate mediile." },
+        { "score": 4, "text": "Nu are accidente." }
+      ]
+    },
+    {
+      "id": "X3",
+      "text": "Se duce independent la baie (în locurile cunoscute)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt pentru anumite aspecte ale procesului." },
+        { "score": 2, "text": "Realizează independent toți pașii din acest proces." }
+      ]
+    },
+    {
+      "id": "X4",
+      "text": "Cere să meargă la baie",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Cere sa mearga la baie in medii familiare." },
+        { "score": 2, "text": "Cere sa mearga la baie in medii cunoscute si publice." }
+      ]
+    },
+    {
+      "id": "X5",
+      "text": "Se șterge după ce face pipi (fată)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Se sterge singura, dar are nevoie de cateva prompturi verbale." },
+        { "score": 2, "text": "Se sterge singura, fara asistenta." }
+      ]
+    },
+    {
+      "id": "X6",
+      "text": "Face treaba mare la toaletă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "A facut treaba mare de 2 ori la toaletă." },
+        { "score": 2, "text": "Face treaba mare de cel putin 2 ori pe saptamana." }
+      ]
+    },
+    {
+      "id": "X7",
+      "text": "Nu are accidente (caca - dacă este dus la baie)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Nu are mai mult de 4 accidente pe saptamana" },
+        { "score": 2, "text": "Nu are mai mult de 2 accidente pe saptamana" }
+      ]
+    },
+    {
+      "id": "X8",
+      "text": "Se șterge după ce face caca",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Se sterge singur, dar are nevoie de verificare" },
+        { "score": 2, "text": "Se sterge singur, fara asistenta" }
+      ]
+    },
+    {
+      "id": "X9",
+      "text": "Se duce independent la baie pentru caca (în locurile cunoscute)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt verbal pentru anumite aspecte ale procesului" },
+        { "score": 2, "text": "Realizeaza toti pasii procesului independent" }
+      ]
+    },
+    {
+      "id": "X10",
+      "text": "Merge la baie independent",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt verbal pentru anumite aspecte ale procesului" },
+        { "score": 2, "text": "Realizeaza toti pasii procesului independent" }
+      ]
+    }
+  ]
+}

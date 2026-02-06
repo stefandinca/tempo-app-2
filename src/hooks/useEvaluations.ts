@@ -17,18 +17,22 @@ import { db } from "@/lib/firebase";
 import {
   Evaluation,
   ItemScore,
-  ABLLSCategory,
-  parseABLLSData,
   computeOverallSummary
 } from "@/types/evaluation";
-import ablsData from "../../documentation/ablls.json";
+import { ABLLS_PROTOCOL } from "@/data/ablls-r-protocol";
 
-// Parse ABLLS data once
-export const ABLLS_CATEGORIES: ABLLSCategory[] = parseABLLSData(ablsData);
+// Use full ABLLS-R protocol
+export const ABLLS_CATEGORIES = ABLLS_PROTOCOL;
 
-// Get total item count
+// Get total item count from protocol
 export const ABLLS_TOTAL_ITEMS = ABLLS_CATEGORIES.reduce(
   (sum, cat) => sum + cat.items.length,
+  0
+);
+
+// Get total max score possible
+export const ABLLS_MAX_TOTAL_SCORE = ABLLS_CATEGORIES.reduce(
+  (sum, cat) => sum + cat.items.reduce((itemSum, item) => itemSum + item.maxScore, 0),
   0
 );
 
@@ -183,7 +187,7 @@ export function useEvaluationActions() {
       clientId: string,
       evaluationId: string,
       itemId: string,
-      score: 0 | 1 | 2,
+      score: number,
       note?: string
     ) => {
       const evaluationRef = doc(db, "clients", clientId, "evaluations", evaluationId);

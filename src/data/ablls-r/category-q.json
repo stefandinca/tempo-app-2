@@ -1,0 +1,219 @@
+{
+  "id": "Q",
+  "title": "CITIRE",
+  "items": [
+    {
+      "id": "Q1",
+      "text": "Receptiv litere",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică 5 litere mari sau mici de tipar." },
+        { "score": 2, "text": "Identifică 10 litere mari sau mici de tipar." },
+        { "score": 3, "text": "Identifică 15 litere mari sau mici de tipar." },
+        { "score": 4, "text": "Identifică 26 de litere mari si mici." }
+      ]
+    },
+    {
+      "id": "Q2",
+      "text": "Tact litere",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 5 litere mari sau mici de tipar." },
+        { "score": 2, "text": "Numește 10 litere mari sau mici de tipar." },
+        { "score": 3, "text": "Numește 15 litere mari sau mici de tipar." },
+        { "score": 4, "text": "Numește 26 de litere mari si mici." }
+      ]
+    },
+    {
+      "id": "Q3",
+      "text": "NA",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 0,
+      "criteria": []
+    },
+    {
+      "id": "Q4",
+      "text": "NA",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 0,
+      "criteria": []
+    },
+    {
+      "id": "Q5",
+      "text": "Potrivește cuvânt la imagine",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Potrivește 2 cuvinte la imaginile corespunzătoare." },
+        { "score": 2, "text": "Potrivește 5 cuvinte la imaginile corespunzătoare." },
+        { "score": 3, "text": "Potrivește 10 cuvinte la imaginile corespunzătoare." },
+        { "score": 4, "text": "Potrivește 20 de cuvinte la imaginile corespunzătoare." }
+      ]
+    },
+    {
+      "id": "Q6",
+      "text": "Potrivește cuvânt la cuvânt",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Potrivește cuvânt la cuvânt cu același font, cu 3 litere diferite (3 cuvinte - toate literele diferite)" },
+        { "score": 2, "text": "Potrivește cuvânt la cuvânt cu același font, cu 2 litere diferite" },
+        { "score": 3, "text": "Potrivește cuvânt la cuvânt cu același font, cu o litera diferita" },
+        { "score": 4, "text": "Potrivește cuvânt la cuvânt cu diferite fonturi, cu o singura litera diferita in cuvintele-distractori." }
+      ]
+    },
+    {
+      "id": "Q7",
+      "text": "Citește pe litere un cuvânt",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Citește pe litere cuvinte din 3 litere cu un singur prompt per cuvant" },
+        { "score": 2, "text": "Arată și numește fiecare literă pentru cuvânt de 5 litere - fără prompt." }
+      ]
+    },
+    {
+      "id": "Q8",
+      "text": "Potrivește literele pe un cuvânt scris",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Potrivește literele pe un cuvânt din 3 litere - fara extra litere." },
+        { "score": 2, "text": "Potrivește literele pe un cuvânt din 5 litere - cu extra litere la dispoziție." }
+      ]
+    },
+    {
+      "id": "Q9",
+      "text": "Completează litera care lipsește din cuvant",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Adaugă o literă la început, mijloc sau sfârșit în 5 cuvinte." },
+        { "score": 2, "text": "Adaugă o literă în orice poziție (inceput, mijloc sau sfarsit) în 10 cuvinte." }
+      ]
+    },
+    {
+      "id": "Q10",
+      "text": "Citește cuvinte simple",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Citește 5 cuvinte." },
+        { "score": 2, "text": "Citește 10 cuvinte." },
+        { "score": 3, "text": "Citește 20 de cuvinte." },
+        { "score": 4, "text": "Citește 50 de cuvinte." }
+      ]
+    },
+    {
+      "id": "Q11",
+      "text": "Decodifică cuvinte",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Citeste cuvinte formate din consoana-vocala-consoană." },
+        { "score": 2, "text": "Citește 20 de cuvinte (4 litere sau mai multe) - inclusiv cuvinte - itemi - pe care nu ii cunoaște în receptiv sau tact." }
+      ]
+    },
+    {
+      "id": "Q12",
+      "text": "Citește o propoziție simplă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Citește 2 propoziții din 3 cuvinte." },
+        { "score": 2, "text": "Citește 5 propoziții din 3 cuvinte" },
+        { "score": 3, "text": "Citește 10 propoziții din 3 cuvinte" },
+        { "score": 4, "text": "Citeste fraze care conțin cuvinte cunoscute." }
+      ]
+    },
+    {
+      "id": "Q13",
+      "text": "Citește propoziții din 3 - 6 cuvinte",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Citește 2 propoziții din 2 - 6 cuvinte" },
+        { "score": 2, "text": "Citește 5 propoziții din 4 - 6 cuvinte" },
+        { "score": 3, "text": "Citește 10 propoziții din 4 - 6 cuvinte" },
+        { "score": 4, "text": "Poate citi orice propoziție formată din cuvinte cunoscute." }
+      ]
+    },
+    {
+      "id": "Q14",
+      "text": "Completează cuvinte lipsă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 3,
+      "criteria": [
+        { "score": 1, "text": "Completează cu un cuvânt când trebuie să selecteze cuvântul potrivit din 2 optiuni (2 cuvinte care difera 50%)" },
+        { "score": 2, "text": "Completează cu un cuvânt când trebuie să selecteze cuvântul potrivit din 3 optiuni (cuvinte difera mai putin de 50%)." },
+        { "score": 3, "text": "Completează cu un cuvânt fără să aibă opțiuni de selectat." }
+      ]
+    },
+    {
+      "id": "Q15",
+      "text": "Citește și realizează o sarcină",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Citeste 10 propozitii si realizează cel putin 3 acțiuni (ia, pune in, pune pe)." },
+        { "score": 2, "text": "Citeste 20 de propozitii si realizează cel putin 6 actiuni." }
+      ]
+    },
+    {
+      "id": "Q16",
+      "text": "Citește și rezolvă un exercițiu pe fișă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Citește 10 propozitii si realizează 3 acțiuni (incercuieste, deseneaza, taie)." },
+        { "score": 2, "text": "Citește 20 de propozitii si realizează 6 acțiuni." }
+      ]
+    },
+    {
+      "id": "Q17",
+      "text": "Citește un paragraf și răspunde la WH Questions",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Citește o propoziție și răspunde la o întrebare din propoziție." },
+        { "score": 2, "text": "Citește cel puțin 3 propoziții și răspunde la simple întrebări legate de conținutul textului." }
+      ]
+    }
+  ]
+}

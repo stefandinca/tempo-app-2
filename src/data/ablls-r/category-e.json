@@ -1,0 +1,262 @@
+{
+  "id": "E",
+  "title": "ECHOIC",
+  "items": [
+    {
+      "id": "E1",
+      "text": "Imită sunete la cerere",
+      "objective": "Imită aproape orice sunet cu ușurință și cu acuratețe.",
+      "sd": "Spune 'sunet'.",
+      "response": "Imită sunetul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Imită 2 sunete." },
+        { "score": 2, "text": "Imită 5 sunete" },
+        { "score": 3, "text": "Imită 15 sunete" },
+        { "score": 4, "text": "Imită aproape orice sunet cu ușurință și cu acuratețe." }
+      ]
+    },
+    {
+      "id": "E2",
+      "text": "Imită diferite sunete în succesiune",
+      "objective": "Imită 10 sunete diferite în 15 secunde.",
+      "sd": "Spune 'sunet 1', spune 'sunet 2'... (ex., ma, a, me, muuu, ba, bo).",
+      "response": "Imită sunetele.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Imită 5 sunete în 10 secunde." },
+        { "score": 2, "text": "Imită cel puțin 10 sunete în 15 secunde." }
+      ]
+    },
+    {
+      "id": "E3",
+      "text": "Imită sunetele inițiale dintr-un cuvânt",
+      "objective": "Imită cel puțin primul sunet dintr-un cuvânt (ex., a pentru apă, la haide spune ha, pentru papa spune pa, la urs spune u).",
+      "sd": "Spune 'cuvânt'",
+      "response": "Imită primul/primele sunete din cuvânt.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Imită 2 sunete." },
+        { "score": 2, "text": "Imită 5 sunete." },
+        { "score": 3, "text": "Imită 15 sunete." },
+        { "score": 4, "text": "Imită aproape orice sunet cu ușurință și cu acuratețe." }
+      ]
+    },
+    {
+      "id": "E4",
+      "text": "Imită multiple combinații de sunete",
+      "objective": "Repetă sunetele învățate într-o varietate de combinații (ex.. ma ma vs ma me vs ma mo; eee o vs eee eeee vs eee au).",
+      "sd": "Spune 'silabă'",
+      "response": "Imită silaba.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Repetă 3 perechi de sunete pentru 2 silabe diferite." },
+        { "score": 2, "text": "Repetă 4 perechi de sunete pentru 4 silabe diferite." }
+      ]
+    },
+    {
+      "id": "E5",
+      "text": "Imită sunete lungi vs scurte/ repede vs încet",
+      "objective": "Repetă sunetele învățate repede sau încet, le prelungeste sau le spune rapid (ex., 'mm' vs 'mmmmmmmmm').",
+      "sd": "Spune 'm!'/'mmmm'",
+      "response": "Imită sunetul.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie doar de prompturi gestuale pentru a spune sunetul rapid sau încet." },
+        { "score": 2, "text": "Imită ușor sunetele spune repede sau încet." }
+      ]
+    },
+    {
+      "id": "E6",
+      "text": "Repetă un sunet de mai multe ori",
+      "objective": "Repetă același sunet de 2 - 3 ori.",
+      "sd": "Spune 'auuu'/'auuu', 'auuu', 'auuu'.",
+      "response": "Imită sunetele și respectă numărul de emisii vocale.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Repetă un sunet/o silaba/un cuvânt de 1 - 3 ori doar prompt gestual." },
+        { "score": 2, "text": "Repetă un sunet/o silaba/un cuvânt de 1 - 3 ori." }
+      ]
+    },
+    {
+      "id": "E7",
+      "text": "Realizează tranziția de la un sunet la celălalt",
+      "objective": "Când adultul repetă 'mmmmmmmmmmmmmmmeeeeeeee', copilul leagă cele două sunete (nu spune 'm' - pauză -'e').",
+      "sd": "Spune 'mmmmeeee'.",
+      "response": "Imită sunetele.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Imită 2 perechi de sunete." },
+        { "score": 2, "text": "Imită 4 perechi de sunete." }
+      ]
+    },
+    {
+      "id": "E8",
+      "text": "Imită vocală-consoană/consoană-vocală",
+      "objective": "Repetă cuvinte din 2 sunete (ex., pe, am, pa, ta).",
+      "sd": "Spune 'silabă'.",
+      "response": "Imită silaba, fără pauză între sunete.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Repetă 3 perechi de silabe (vocală-consoană sau consoană-vocală), fără pauză între sunete." },
+        { "score": 2, "text": "Repetă 3 perechi de silabe formate din vocală-consoană și 3 perechi de silabe formate din consoană-vocală, fără pauză între sunete." }
+      ]
+    },
+    {
+      "id": "E9",
+      "text": "Repetă 2 secvențe de consoană-vocală sau invers.",
+      "objective": "Repetă silabe duble (ex., 'ma ma', 'pa pa', bo bo').",
+      "sd": "Spune 'silabă, silabă'.",
+      "response": "Imită silabele, fără pauză între sunete sau silabe.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Repetă 3 perechi de 2 silabe." },
+        { "score": 2, "text": "Repetă 6 perechi de 2 silabe." }
+      ]
+    },
+    {
+      "id": "E10",
+      "text": "Repetă compinații de 3 sunete",
+      "objective": "Repetă cuvinte formate din 3 sunete (ex.. apa, cal, băț, bum, uau, pat, pis).",
+      "sd": "Spune 'cuvânt'.",
+      "response": "Imită silabele, fără pauză între silabe.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Repetă 3 cuvinte." },
+        { "score": 2, "text": "Repetă 12 cuvinte." }
+      ]
+    },
+    {
+      "id": "E11",
+      "text": "Repetă combinații de sunete - cu 2 consoane alăturate",
+      "objective": "Repetă combinații de sunete (ex., brîu, cra, cri, cro, brum).",
+      "sd": "Spune 'cuvânt'.",
+      "response": "Imită sunetele/cuvântul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Repetă 2 cuvinte/combinații de sunete." },
+        { "score": 2, "text": "Repetă 5 cuvinte/combinații de sunete." },
+        { "score": 3, "text": "Repetă 15 cuvinte/combinații de sunete." },
+        { "score": 4, "text": "Repetă cu ușurință noi cuvinte/combinații de sunete." }
+      ]
+    },
+    {
+      "id": "E12",
+      "text": "Imită cuvinte",
+      "objective": "Repetă cuvinte la cerere.",
+      "sd": "Spune 'cuvânt'.",
+      "response": "Imită cuvântul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Aproximează 2 cuvinte." },
+        { "score": 2, "text": "Aproximează 5 cuvinte." },
+        { "score": 3, "text": "Aproximeaza 15 cuvinte." },
+        { "score": 4, "text": "Repetă cu ușurință orice cuvânt." }
+      ]
+    },
+    {
+      "id": "E13",
+      "text": "Repetă propoziții",
+      "objective": "Repetă propoziții la cerere.",
+      "sd": "Spune 'propoziție'.",
+      "response": "Imită propoziția.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Repetă propoziții din 2 cuvinte." },
+        { "score": 2, "text": "Repetă propoziții din 3 cuvinte." },
+        { "score": 3, "text": "Repetă propoziții din 4 cuvinte." },
+        { "score": 4, "text": "Repetă cu ușurință propoziții din 6 sau mai multe cuvinte." }
+      ]
+    },
+    {
+      "id": "E14",
+      "text": "Repetă secvențe de numere",
+      "objective": "Repetă secvente de numere la cerere (ex., repetă un număr de telefon).",
+      "sd": "Spune 'număr, număr, număr'.",
+      "response": "Imită secvența de numere.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Repetă o secvență de 2 numere." },
+        { "score": 2, "text": "Repetă o secvență de 3 numere." },
+        { "score": 3, "text": "Repetă o secvență de 4 numere." },
+        { "score": 4, "text": "Repetă o secvență de 7 sau mai multe numere." }
+      ]
+    },
+    {
+      "id": "E15",
+      "text": "Repetă cuvinte spuse rapid sau lent",
+      "objective": "Repetă cuvinte spuse la o viteză normală, spuse rapid sau prelungite anumite sunete din cuvânt (ex., spune 'mașina' repede, normal sau prelungit - 'maaaaaașiiiiină')",
+      "sd": "Spune 'cuvânt'.",
+      "response": "Imită cuvântul.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Imită cuvinte spuse mai repede sau mai lent decât în mod obișnuit." },
+        { "score": 2, "text": "Imită cuvinte spuse mai repede și mai lent decât în mod obișnuit." }
+      ]
+    },
+    {
+      "id": "E16",
+      "text": "Repetă cuvintele spuse tare sau în șoaptă",
+      "objective": "Imită tonalitatea adultului.",
+      "sd": "Spune 'cuvânt' - tare/în șoaptă.",
+      "response": "Imită cuvântul tare/în șoaptă.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt gestual pentru a imita tonalitatea adultului." },
+        { "score": 2, "text": "Imită cu ușurință tonalitatea adultului." }
+      ]
+    },
+    {
+      "id": "E17",
+      "text": "Repetă intonația adultului",
+      "objective": "Imită intonația adultului (ex., voce subțire, groasă).",
+      "sd": "Spune 'cuvânt' - voce subțire/groasă.",
+      "response": "Imită cuvântul - voce subțire/groasă.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt gestual pentru a imita intonația adultului." },
+        { "score": 2, "text": "Imită cu ușurință intonația adultului." }
+      ]
+    },
+    {
+      "id": "E18",
+      "text": "Repetă mesaje scurte",
+      "objective": "Transmite un scurt mesaj unui adult (ex., mama îl roagă să se ducă la tata și să-i spună 'Vreau pizza' - copilul se duce la tata și îi spune 'Vreau pizza').",
+      "sd": "Spune-i 'persoana' 'propoziție'",
+      "response": "Se duce la 'persoană' și repetă propoziția.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Face 5 pași până la adult și repetă o propoziție din 2 cuvinte." },
+        { "score": 2, "text": "Face 10 pași până la adult repetă o propoziție din 3 cuvinte." }
+      ]
+    },
+    {
+      "id": "E19",
+      "text": "Imită spontan cuvinte",
+      "objective": "Imită spontan cuvinte.",
+      "sd": "Aude un cuvânt.",
+      "response": "Imită cuvântul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Repetă spontan 2 cuvinte pe zi." },
+        { "score": 2, "text": "Repetă spontan 5 cuvinte pe zi." },
+        { "score": 3, "text": "Repetă spontan 15 cuvinte pe zi." },
+        { "score": 4, "text": "Repetă spontan 20 de cuvinte pe zi." }
+      ]
+    },
+    {
+      "id": "E20",
+      "text": "Imită spontan fraze",
+      "objective": "Imită spontan fraze.",
+      "sd": "Aude o frază.",
+      "response": "Imită fraza.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Repetă spontan propoziții din 2 cuvinte de 3 pe zi." },
+        { "score": 2, "text": "Repetă spontan propoziții din 3 cuvinte de 3 pe zi." },
+        { "score": 3, "text": "Repetă spontan propoziții din 4 cuvinte de 3 pe zi." },
+        { "score": 4, "text": "Repetă spontan propoziții din 6 sau mai multe cuvinte de 3 pe zi." }
+      ]
+    }
+  ]
+}

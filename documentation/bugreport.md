@@ -1,0 +1,1 @@
+1. when creating a new event, by selecting a box in the calendar, it preselects minutes based on the current hour:minutes. Example: you select 2PM, the current time is 10:22PM. In the event box the start time will appear (preselected) as 2:22PM.

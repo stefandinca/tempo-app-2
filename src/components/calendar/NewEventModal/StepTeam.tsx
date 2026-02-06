@@ -4,17 +4,21 @@ import { useTeamMembers, useServices } from "@/hooks/useCollections";
 import { EventFormData } from "./types";
 import { clsx } from "clsx";
 import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface StepTeamProps {
   data: EventFormData;
   updateData: (updates: Partial<EventFormData>) => void;
 }
 
-const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
 export default function StepTeam({ data, updateData }: StepTeamProps) {
+  const { t, i18n } = useTranslation();
   const { data: teamMembers } = useTeamMembers();
   const { data: services } = useServices();
+
+  const DAYS = i18n.language.startsWith('ro') 
+    ? ['D', 'L', 'M', 'M', 'J', 'V', 'S']
+    : ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   const toggleTeamMember = (id: string) => {
     const current = data.selectedTeamMembers;
@@ -39,7 +43,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-            Event Name
+            {t('event_modal.event_name')}
           </label>
           <input 
             type="text"
@@ -51,14 +55,14 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-            Service Type
+            {t('event_modal.type')}
           </label>
           <select
             className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
             value={data.eventType}
             onChange={(e) => updateData({ eventType: e.target.value })}
           >
-            <option value="">Select a service...</option>
+            <option value="">{t('event_modal.select_service')}</option>
             {services.map(service => (
               <option key={service.id} value={service.id}>
                 {service.label}
@@ -73,7 +77,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-            Date
+            {t('event_modal.date')}
           </label>
           <input 
             type="date"
@@ -84,7 +88,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-            Start Time
+            {t('event_modal.start_time')}
           </label>
           <input 
             type="time"
@@ -95,7 +99,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-            Duration (min)
+            {t('event_modal.duration')}
           </label>
           <input 
             type="number"
@@ -112,7 +116,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-            Recurrence
+            {t('event_modal.recurring')}
           </label>
           <div className="flex items-center gap-2">
             <input 
@@ -122,7 +126,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
               onChange={(e) => updateData({ isRecurring: e.target.checked })}
               className="rounded text-primary-500 focus:ring-primary-500"
             />
-            <label htmlFor="isRecurring" className="text-sm text-neutral-500 cursor-pointer">Repeat weekly</label>
+            <label htmlFor="isRecurring" className="text-sm text-neutral-500 cursor-pointer">{t('event_modal.repeat_weekly')}</label>
           </div>
         </div>
         
@@ -148,7 +152,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
             
             <div>
               <label className="block text-xs font-medium mb-1.5 text-neutral-500">
-                Repeat until
+                {t('event_modal.repeat_until')}
               </label>
               <input 
                 type="date"
@@ -165,7 +169,7 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
       {/* Team Selection */}
       <div>
         <label className="block text-sm font-medium mb-3 text-neutral-700 dark:text-neutral-300">
-          Assign Team Members
+          {t('event_modal.assign_team')}
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto">
           {teamMembers.map(member => {
@@ -205,12 +209,12 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
       {/* Details */}
       <div>
         <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-          Optional Details
+          {t('event_modal.optional_details')}
         </label>
         <textarea 
           className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors resize-none"
           rows={2}
-          placeholder="Room number, special instructions..."
+          placeholder={t('event_modal.details_placeholder')}
           value={data.details}
           onChange={(e) => updateData({ details: e.target.value })}
         />

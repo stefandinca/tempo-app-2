@@ -11,8 +11,10 @@ import ClientDocsTab from "@/components/clients/ClientDocsTab";
 import ClientEvaluationsTab from "@/components/clients/ClientEvaluationsTab";
 import EditClientModal from "@/components/clients/EditClientModal";
 import { Loader2, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function ClientProfileContent() {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
@@ -44,8 +46,8 @@ function ClientProfileContent() {
     return (
       <div className="flex flex-col items-center justify-center h-[80vh] text-center p-6">
         <AlertCircle className="w-12 h-12 text-error-500 mb-4" />
-        <h2 className="text-xl font-bold">Invalid Request</h2>
-        <p className="text-neutral-500 mt-2">No client ID provided.</p>
+        <h2 className="text-xl font-bold">{t('clients.invalid_request')}</h2>
+        <p className="text-neutral-500 mt-2">{t('clients.no_id_provided')}</p>
       </div>
     );
   }
@@ -64,10 +66,10 @@ function ClientProfileContent() {
         <div className="w-16 h-16 bg-error-50 dark:bg-error-900/20 rounded-full flex items-center justify-center mb-4">
           <AlertCircle className="w-8 h-8 text-error-500" />
         </div>
-        <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Client not found</h2>
-        <p className="text-neutral-500 mt-2">The client you are looking for doesn&apos;t exist or has been removed.</p>
+        <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{t('clients.client_not_found')}</h2>
+        <p className="text-neutral-500 mt-2">{t('clients.client_not_found_subtitle')}</p>
         <a href="/clients" className="mt-6 px-6 py-2 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors">
-          Back to Client List
+          {t('clients.back_to_list')}
         </a>
       </div>
     );
@@ -103,7 +105,7 @@ function ClientProfileContent() {
         {!["overview", "programs", "plan", "docs", "evaluations"].includes(activeTab) && (
           <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800">
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white capitalize">{activeTab} Section</h3>
-            <p className="text-neutral-500 mt-1">This section is currently under development.</p>
+            <p className="text-neutral-500 mt-1">{t('clients.under_development')}</p>
           </div>
         )}
       </div>

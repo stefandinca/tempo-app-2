@@ -3,12 +3,14 @@
 import { EventFormData } from "./types";
 import { useClients, useTeamMembers, useServices, usePrograms } from "@/hooks/useCollections";
 import { Calendar, Clock, User, BookOpen, Repeat } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface StepSummaryProps {
   data: EventFormData;
 }
 
 export default function StepSummary({ data }: StepSummaryProps) {
+  const { t } = useTranslation();
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
   const { data: services } = useServices();
@@ -24,9 +26,9 @@ export default function StepSummary({ data }: StepSummaryProps) {
       
       {/* Event Header */}
       <div className="bg-primary-50 dark:bg-primary-900/20 p-4 rounded-xl border border-primary-100 dark:border-primary-900/50">
-        <h3 className="text-lg font-bold text-primary-900 dark:text-primary-100">{data.title || "Untitled Event"}</h3>
+        <h3 className="text-lg font-bold text-primary-900 dark:text-primary-100">{data.title || t('event_modal.untitled_event')}</h3>
         <p className="text-sm text-primary-700 dark:text-primary-300">
-          {selectedService?.label || "No service selected"}
+          {selectedService?.label || t('event_modal.no_service_selected')}
           {selectedService?.isBillable && selectedService?.basePrice > 0 && (
             <span className="ml-2 text-xs bg-primary-100 dark:bg-primary-800 px-2 py-0.5 rounded-full">
               {selectedService.basePrice} RON
@@ -46,7 +48,7 @@ export default function StepSummary({ data }: StepSummaryProps) {
           {data.isRecurring && (
             <div className="col-span-2 flex items-center gap-2 text-neutral-700 dark:text-neutral-300">
               <Repeat className="w-4 h-4 text-primary-500" />
-              <span>Recurring Weekly</span>
+              <span>{t('event_modal.recurring_weekly')}</span>
             </div>
           )}
         </div>
@@ -57,7 +59,7 @@ export default function StepSummary({ data }: StepSummaryProps) {
         {/* People */}
         <div className="space-y-4">
           <div>
-            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">Team</h4>
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">{t('event_modal.team')}</h4>
             {selectedTeam.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {selectedTeam.map(t => (
@@ -68,12 +70,12 @@ export default function StepSummary({ data }: StepSummaryProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-neutral-400 italic">No team members selected</p>
+              <p className="text-xs text-neutral-400 italic">{t('event_modal.no_team_selected')}</p>
             )}
           </div>
 
           <div>
-            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">Clients</h4>
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">{t('event_modal.clients')}</h4>
             {selectedClients.length > 0 ? (
               <div className="space-y-2">
                 {selectedClients.map(c => (
@@ -84,14 +86,14 @@ export default function StepSummary({ data }: StepSummaryProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-neutral-400 italic">No clients selected</p>
+              <p className="text-xs text-neutral-400 italic">{t('event_modal.no_clients_selected')}</p>
             )}
           </div>
         </div>
 
         {/* Programs */}
         <div>
-          <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">Programs</h4>
+          <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">{t('event_modal.steps.programs')}</h4>
           {selectedPrograms.length > 0 ? (
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {selectedPrograms.map(p => (
@@ -105,14 +107,14 @@ export default function StepSummary({ data }: StepSummaryProps) {
               ))}
             </div>
           ) : (
-            <p className="text-xs text-neutral-400 italic">No programs selected</p>
+            <p className="text-xs text-neutral-400 italic">{t('event_modal.no_programs_selected')}</p>
           )}
         </div>
       </div>
 
       {data.details && (
         <div>
-          <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">Notes</h4>
+          <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-1">{t('event_modal.notes')}</h4>
           <p className="text-sm text-neutral-600 dark:text-neutral-400 italic">
             &ldquo;{data.details}&rdquo;
           </p>

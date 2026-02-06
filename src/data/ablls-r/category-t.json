@@ -1,0 +1,94 @@
+{
+  "id": "T",
+  "title": "ROMÂNĂ",
+  "items": [
+    {
+      "id": "T1",
+      "text": "Potrivește literele pe un card - cuvânt",
+      "objective": "Potriveste litere magnetice pe un cuvant scris din 5 litere cand i se dau litere in plus.",
+      "sd": "Adultul îi prezintă imaginea obiectului, îi ofera cardul cuvânt și îi cere 'Scrie (cuvânt)'",
+      "response": "Potriveste fiecare litera pe cardul - cuvânt.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Potrivește literele pe cuvinte din 3 litere când literele sunt diferite și nu i se dau litere în plus." },
+        { "score": 2, "text": "Potrivește literele pe cuvinte din 5 litere când anumite litere se repetă și i se dau litere în plus." }
+      ]
+    },
+    {
+      "id": "T2",
+      "text": "Identifică litera care lipsește dintr-un cuvânt",
+      "objective": "Completează cuvântul cu litera care lipsește.",
+      "sd": "Adultul îi prezinta imaginea obiectului și îi ofera cardul cuvânt + literele magnetice",
+      "response": "Pune în spațiul dat litera care lipsește.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Pune litera într-o poziție (început, mijloc sau sfârșit) pentru 5 cuvinte" },
+        { "score": 2, "text": "Pune litera în orice poziție (început, mijloc sau sfârșit) pentru 10 cuvinte" }
+      ]
+    },
+    {
+      "id": "T3",
+      "text": "Copiază cuvinte",
+      "objective": "Copiază cuvinte formate din 6 litere.",
+      "sd": "Copiază 'cuvânt'",
+      "response": "Copiază pe hârtie sau la calculator cuvântul arătat.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Copiază cuvinte din 3 litere." },
+        { "score": 2, "text": "Copiază cuvinte din 6 cuvinte (scrie în spațiu, cu litere mici și mari, cu spațiu între cuvinte)." }
+      ]
+    },
+    {
+      "id": "T4",
+      "text": "Scrie litera care lipsește dintr-un cuvânt",
+      "objective": "Scrie litera care lipseste din 10 cuvinte formate din 3 litere.",
+      "sd": "Adultul îi prezintă imaginea obiectului, îi ofera cardul cuvânt și îi cere să scrie litera care lipsește",
+      "response": "Scrie in spatiul dat litera lipsă.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Scrie litera într-o poziție (început, mijloc sau sfârșit) pentru 5 cuvinte" },
+        { "score": 2, "text": "Scrie litera în orice poziție (început, mijloc sau sfârșit) pentru 10 cuvinte" }
+      ]
+    },
+    {
+      "id": "T5",
+      "text": "Spune cuvântul pe litere",
+      "objective": "Spune pe litere 25 de cuvinte formate din 3 litera.",
+      "sd": "Spune pe litere 'cuvânt'",
+      "response": "Spune pe litere cuvântul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Spune pe litere 2 cuvinte." },
+        { "score": 2, "text": "Spune pe litere 5 cuvinte." },
+        { "score": 3, "text": "Spune pe litere 10 cuvinte." },
+        { "score": 4, "text": "Spune pe litere 25 de cuvinte." }
+      ]
+    },
+    {
+      "id": "T6",
+      "text": "Scrie după dictare",
+      "objective": "Scrie după dictare 25 de cuvinte",
+      "sd": "Scrie 'cuvant'",
+      "response": "Scrie cuvântul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Scrie 2 cuvinte." },
+        { "score": 2, "text": "Scrie 5 cuvinte." },
+        { "score": 3, "text": "Scrie 10 cuvinte." },
+        { "score": 4, "text": "Scrie 25 de cuvinte." }
+      ]
+    },
+    {
+      "id": "T7",
+      "text": "Își spune numele pe litere/își scrie numele",
+      "objective": "Își spune și își scrie prenumele și numele de familie.",
+      "sd": "Spune pe litere 'prenume/nume'/Scrie 'prenume/nume'",
+      "response": "Spune sau scrie 'prenume/nume'.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate să spună pe litere sau să își scrie numele." },
+        { "score": 2, "text": "Spune pe litere și își scrie numele." }
+      ]
+    }
+  ]
+}

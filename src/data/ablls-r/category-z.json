@@ -1,0 +1,314 @@
+{
+  "id": "Z",
+  "title": "MOTRICITATE FINĂ",
+  "items": [
+    {
+      "id": "Z1",
+      "text": "Mâzgălește",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z2",
+      "text": "Pune formele in sortator",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z3",
+      "text": "Face incastru cu piese individuale",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z4",
+      "text": "Puzzle cu margine",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z5",
+      "text": "Jocul cu forme magnetice",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z6",
+      "text": "Transferă un obiect dintr-o mână în alta",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z7",
+      "text": "Pune clești într-o placă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z8",
+      "text": "Dă paginile",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z9",
+      "text": "Pune cârlige pe sfoară",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z10",
+      "text": "Colorează fără să depășească conturul",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z11",
+      "text": "Deschide 'ziploc' (pungile de plastic de la Ikea)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z12",
+      "text": "Taie cu foarfeca",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z13",
+      "text": "Face un turn",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z14",
+      "text": "Pune mărgele pe șnur",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z15",
+      "text": "Desface capacul de la sticlă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z16",
+      "text": "Taie cu foarfeca pe linie",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z17",
+      "text": "Urmărește cu degetul diferite linii pe hârtie",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z18",
+      "text": "Lipește cu lipici lichid",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z19",
+      "text": "Dă la o parte ambalajul care acoperă mâncarea",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z20",
+      "text": "Copiază forme geometrice si pattern-uri (cu aproximație)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z21",
+      "text": "Lipește imagini în poziții corespunzătoare (ex., ochii pentru o față)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z22",
+      "text": "Lipește imagini în poziții corespunzătoare pe o coală albă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z23",
+      "text": "Pune cercuri pe o tijă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z24",
+      "text": "Pune capacul la borcan",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z25",
+      "text": "Face pensa de scris",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z26",
+      "text": "Împăturește o coală de hârtie (prin imitație)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z27",
+      "text": "Taie cu foarfeca forme geometrice",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    },
+    {
+      "id": "Z28",
+      "text": "Copiază cu acuratețe forme geometrice și pattern-uri",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 1,
+      "criteria": [
+        { "score": 1, "text": "Da" }
+      ]
+    }
+  ]
+}

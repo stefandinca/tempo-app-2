@@ -1,0 +1,630 @@
+{
+  "id": "G",
+  "title": "TACT",
+  "items": [
+    {
+      "id": "G1",
+      "text": "Numește obiecte preferate (SR+)",
+      "objective": "Numește 10 obiecte preferate.",
+      "sd": "Ce este?/I se prezintă obiectul.",
+      "response": "Numește obiectul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 obiecte." },
+        { "score": 2, "text": "Numește 4 obiecte." },
+        { "score": 3, "text": "Numește 6 obiecte." },
+        { "score": 4, "text": "Numește 10 obiecte." }
+      ]
+    },
+    {
+      "id": "G2",
+      "text": "Numește 100 de obiecte comune",
+      "objective": "Numește 100 de obiecte comune",
+      "sd": "Ce este?/I se prezintă obiectul/Cum se numește?",
+      "response": "Numește obiectul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 5 obiecte." },
+        { "score": 2, "text": "Numește 10 obiecte." },
+        { "score": 3, "text": "Numește 50 de obiecte." },
+        { "score": 4, "text": "Numește 100 de obiecte pe exemplare multiple." }
+      ]
+    },
+    {
+      "id": "G3",
+      "text": "Numește persoanele cunoscute",
+      "objective": "Numește persoana indicată",
+      "sd": "Cine este?/Cum o cheamă?/Cum îl cheamă?",
+      "response": "Numește persoana indicată.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 persoane." },
+        { "score": 2, "text": "Numește 4 persoane." },
+        { "score": 3, "text": "Numește 6 persoane." },
+        { "score": 4, "text": "Numește 10 persoane." }
+      ]
+    },
+    {
+      "id": "G4",
+      "text": "Numește 100 de obiecte comune în imagini",
+      "objective": "Numește obiectul din imagine.",
+      "sd": "Ce este?/I se prezintă obiectul/Cum se numește?",
+      "response": "Numește obiectul din imagine.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 5 obiecte." },
+        { "score": 2, "text": "Numește 10 obiecte." },
+        { "score": 3, "text": "Numește 50 de obiecte." },
+        { "score": 4, "text": "Numește 100 de obiecte pe exemplare multiple." }
+      ]
+    },
+    {
+      "id": "G5",
+      "text": "Numește părțile corpului",
+      "objective": "Numește 20 de părți ale corpului pe el si pe ceilalți.",
+      "sd": "Ce este? + adultul indică o parte a corpului.",
+      "response": "Numește partea corpului indicată.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 părți ale corpului pe el sau pe ceilalți." },
+        { "score": 2, "text": "Numește 5 părți ale corpului." },
+        { "score": 3, "text": "Numește 10 părți ale corpului." },
+        { "score": 4, "text": "Numește 20 de părți ale corpului." }
+      ]
+    },
+    {
+      "id": "G6",
+      "text": "Numește articolele de îmbrăcăminte",
+      "objective": "Numește 4 sau mai multe articole de îmbrăcăminte.",
+      "sd": "Ce este? + adultul indică un articol de îmbrăcăminte.",
+      "response": "Numește articolul de îmbrăcăminte.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 articole de îmbrăcăminte." },
+        { "score": 2, "text": "Numește 4 sau mai multe articole de îmbrăcăminte." }
+      ]
+    },
+    {
+      "id": "G7",
+      "text": "Numește acțiunile în progres",
+      "objective": "Numește 20 de acțiuni în progres și identifică acțiunile învățate pe multiple exemplare.",
+      "sd": "Ce face el/ea? Ce se întâmplă?",
+      "response": "Numește acțiunea în progres.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 acțiuni." },
+        { "score": 2, "text": "Numește 5 acțiuni." },
+        { "score": 3, "text": "Numește 10 acțiuni." },
+        { "score": 4, "text": "Numește 20 de acțiuni în progres." }
+      ]
+    },
+    {
+      "id": "G8",
+      "text": "Numește acțiunile prezentate în imagini",
+      "objective": "Numește 20 de acțiuni pe multiple imagini.",
+      "sd": "Ce face el/ea? Ce se întâmplă?",
+      "response": "Numește acțiunea din imagine.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 acțiuni." },
+        { "score": 2, "text": "Numește 5 acțiuni." },
+        { "score": 3, "text": "Numește 10 acțiuni." },
+        { "score": 4, "text": "Numește 20 de acțiuni." }
+      ]
+    },
+    {
+      "id": "G9",
+      "text": "Numește cu fluență diferiți itemi",
+      "objective": "Numește 10 itemi învățați în 10 secunde.",
+      "sd": "Ce este?",
+      "response": "Numește itemii prezentați în timpul prestabilit.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește 5 itemi în 10 secunde." },
+        { "score": 2, "text": "Numește 10 itemi în 15 secunde." }
+      ]
+    },
+    {
+      "id": "G10",
+      "text": "Învață să numească obiecte noi fără training direct",
+      "objective": "Învață numele unor obiecte doar auzindu-i pe ceilalți numind acele obiecte.",
+      "sd": "Adultul creează situații în care copilul poate să numească spontan obiectele din mediu.",
+      "response": "Numește spontan obiectele din mediu.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Învață un obiect după 5 prezentări." },
+        { "score": 2, "text": "Învață repede noi obiecte (fără training)." }
+      ]
+    },
+    {
+      "id": "G11",
+      "text": "Numește itemi folosind diferite 'rame'",
+      "objective": "Numește itemi în propoziții scurte în jumătate din tacturile lui spontane și folosește cel puțin doua 'rame' (ex., Este un..., Uite un...Văd un...A trecut un ...).",
+      "sd": "Adultul îi oferă itemi/activități pentru a fi numite.",
+      "response": "Folosește spontan diferite 'rame' când numește un item/o activitate.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Cu prompt folosește 2 rame." },
+        { "score": 2, "text": "Numește spontan folosind în jumătate din cazuri cel puțin 2 rame." }
+      ]
+    },
+    {
+      "id": "G12",
+      "text": "Numește părțile componente sau caracteristicile obiectelor",
+      "objective": "Numește părțile componente ale obiectelor.",
+      "sd": "Ce este? + adultul indică un element al obiectului.",
+      "response": "Numește elementul indicat de adult.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 părți sau caracteristici pentru 2 obiecte." },
+        { "score": 2, "text": "Numește 2 părți sau caracteristici pentru 4 obiecte." },
+        { "score": 3, "text": "Numește 3 părți sau caracteristici pentru 4 obiecte." },
+        { "score": 4, "text": "Numește 3 părți sau caracteristici pentru 10 obiecte." }
+      ]
+    },
+    {
+      "id": "G13",
+      "text": "Numește adjective",
+      "objective": "Numește proprietățile obiectelor (ex., culoare, mărime, textură, lungime, etc).",
+      "sd": "Cum este 'obiect'?",
+      "response": "Numește proprietatea obiectului.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește un adjectiv." },
+        { "score": 2, "text": "Numește 5 adjective (pot fi toate culori)." },
+        { "score": 3, "text": "Numește 10 adjective (pot fi 5 culori)." },
+        { "score": 4, "text": "Numește 20 de adjective (3 culori, 2 forme, 2 mărimi)." }
+      ]
+    },
+    {
+      "id": "G14",
+      "text": "Numește imaginea pereche dintr-o asociere logică",
+      "objective": "Numește itemul pereche (în câmp de 3 imagini pe masa)",
+      "sd": "Ce se potrivește cu 'item'? + adultul îi prezintă o imagine",
+      "response": "Numește itemul pereche (în câmp de 3 imagini pe masa)",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește un item pereche pentru 5 asocieri." },
+        { "score": 2, "text": "Numește un item pereche pentru 10 asocieri." },
+        { "score": 3, "text": "Numește 2 itemi pereche pentru 10 asocieri." },
+        { "score": 4, "text": "Numește 2 itemi pereche pentru 20 de asocieri." }
+      ]
+    },
+    {
+      "id": "G15",
+      "text": "Numește un obiect când i se spune funcția acestuia",
+      "objective": "Numește itemul corect (în câmp de 3 imagini pe masă).",
+      "sd": "Cu ce 'acțiune'? (ex., Cu ce te încalți?)",
+      "response": "Numește itemul corect (în câmp de 3 imagini pe masă).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 obiecte." },
+        { "score": 2, "text": "Numește 5 obiecte." },
+        { "score": 3, "text": "Numește 10 obiecte." },
+        { "score": 4, "text": "Numește 25 de obiecte - cu 4 exemplare pentru 6 funcții." }
+      ]
+    },
+    {
+      "id": "G16",
+      "text": "Numește un item când i se spune caracteristica acestuia",
+      "objective": "Numește itemul cu acea caracteristică (în câmp de 3 imagini pe masă).",
+      "sd": "Are 'caracteristică'. (ex., Are coadă)",
+      "response": "Numește itemul cu acea caracteristică (în câmp de 3 imagini pe masă).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 obiecte." },
+        { "score": 2, "text": "Numește 5 obiecte." },
+        { "score": 3, "text": "Numește 10 obiecte." },
+        { "score": 4, "text": "Numește 25 de obiecte - cu 2 exemplare pentru 6 caracteristici." }
+      ]
+    },
+    {
+      "id": "G17",
+      "text": "Numește un item când i se spune categoria",
+      "objective": "Numește itemul din categoria cerută (în câmp de 4 - 8 imagini pe masă).",
+      "sd": "Care este 'categorie'?",
+      "response": "Numește itemul din categoria cerută (în câmp de 4 - 8 imagini pe masă).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 5 itemi dintr-o categorie." },
+        { "score": 2, "text": "Numește 5 itemi din 2 categorii." },
+        { "score": 3, "text": "Numește 5 itemi din 3 categorii." },
+        { "score": 4, "text": "Numește 4 itemi din 4 categorii." }
+      ]
+    },
+    {
+      "id": "G18",
+      "text": "Numește 2 sau mai mulți itemi prezentați simultan",
+      "objective": "Numește o pereche de obiecte/imagini.",
+      "sd": "Ce sunt? + adultul îi prezintă două obiecte/imagini.",
+      "response": "'Obiect', 'Obiect' (poate să nu folosească conjuncția).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește o pereche de obiecte/imagini." },
+        { "score": 2, "text": "Numește 5 perechi de obiecte/imagini." },
+        { "score": 3, "text": "Numește 10 perechi de obiecte/imagini." },
+        { "score": 4, "text": "Numește 20 de perechi de obiecte/imagini." }
+      ]
+    },
+    {
+      "id": "G19",
+      "text": "Numește 2 sau mai mulți itemi când i se prezintă o imagine",
+      "objective": "Numește o pereche de itemi.",
+      "sd": "La uite ce avem aici + adultul îi prezintă o imagine cu mai mulți itemi.",
+      "response": "'Obiect', 'Obiect' (poate să nu folosească conjuncția).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește o pereche de itemi." },
+        { "score": 2, "text": "Numește 5 perechi de itemi." },
+        { "score": 3, "text": "Numește 10 perechi de itemi." },
+        { "score": 4, "text": "Numește 20 de perechi de itemi." }
+      ]
+    },
+    {
+      "id": "G20",
+      "text": "Numește două sau mai multe obiecte sau itemi într-o imagini folosind 'rame' și conjuncția 'și'",
+      "objective": "Numește spontan folosind 2 'rame' și conjuncția 'și' în proporție de 50%.",
+      "sd": "Ce vezi? + adultul îi prezintă 2 sau mai mulți itemi sau o imagine complexă.",
+      "response": "'Ramă' + 'obiect' și 'obiect'",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește o pereche de itemi folosind 2 'rame'." },
+        { "score": 2, "text": "Numește spontan folosind 2 'rame' și conjuncția 'și' în proporție de 50%." }
+      ]
+    },
+    {
+      "id": "G21",
+      "text": "Descrie un item folosind structura 'verb-substantiv'",
+      "objective": "Numește 10 verbe cu o varietate de substantive.",
+      "sd": "Ce face el/ea?/Ce face 'personaj'?",
+      "response": "'Verb' + 'substantiv' (ex., împinge mașina).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 perechi de 'Verb' + 'substantiv'." },
+        { "score": 2, "text": "Numește 5 perechi de 'Verb' + 'substantiv'." },
+        { "score": 3, "text": "Numește 5 verbe cu o varietate de substantive." },
+        { "score": 4, "text": "Numește 10 verbe cu o varietate de substantive." }
+      ]
+    },
+    {
+      "id": "G22",
+      "text": "Descrie un item folosind structura 'substantiv - adjectiv'",
+      "objective": "Numește 10 adjective cu o varietate de substantive.",
+      "sd": "Ce avem aici? Ce este? + adultul îi prezintă un item.",
+      "response": "'Substantiv' + 'adjectiv'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 perechi 'substantiv' + 'adjectiv'." },
+        { "score": 2, "text": "Numește 5 perechi 'substantiv' + 'adjectiv'." },
+        { "score": 3, "text": "Numește 5 adjective cu o varietate de substantive." },
+        { "score": 4, "text": "Numește 10 adjective cu o varietate de substantive." }
+      ]
+    },
+    {
+      "id": "G23",
+      "text": "Răspunde cu 'da' si 'nu' la întrebări legate de identitatea unui obiect (i.e., Este cățel?)",
+      "objective": "Răspunde cu 'da' si 'nu' pentru caracteristicile itemului prezent.",
+      "sd": "Este 'item'? + adultul îi prezintă un item.",
+      "response": "Da/Nu (ex., când i se prezintă un cățel și este întrebat 'Este avion?' copilul spune 'Nu'; când i se prezintă o pisică și este întrebat 'Este pisică?' copilul spune 'Da').",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 'da' și 'nu' pentru itemi prezenți." },
+        { "score": 2, "text": "Folosește 'da' și 'nu' pentru caracteristicile itemului prezent." }
+      ]
+    },
+    {
+      "id": "G24",
+      "text": "Numește funcția unui item",
+      "objective": "Numește 25 de funcții - cu 4 exemplare pentru 6 funcții.",
+      "sd": "Ce faci cu 'item'? + adultul îi prezintă un item.",
+      "response": "'Acțiune'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 funcții." },
+        { "score": 2, "text": "Numește 5 funcții." },
+        { "score": 3, "text": "Numește 10 funcții." },
+        { "score": 4, "text": "Numește 25 de funcții - cu 4 exemplare pentru 6 funcții." }
+      ]
+    },
+    {
+      "id": "G25",
+      "text": "Numește categoria din care face parte un item",
+      "objective": "Încadrează 5 itemi în 10 categorii.",
+      "sd": "Ce este? + adultul îi prezintă un item.",
+      "response": "'Categorie'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 categorii." },
+        { "score": 2, "text": "Încadrează 2 itemi în 5 categorii." },
+        { "score": 3, "text": "Încadrează 3 itemi în 5 categorii." },
+        { "score": 4, "text": "Încadrează 5 itemi în 10 categorii." }
+      ]
+    },
+    {
+      "id": "G26",
+      "text": "Răspunde la diferite întrebări legate de aspectul unui item",
+      "objective": "Răspunde la 3 întrebări pe un item.",
+      "sd": "Variabil (ex., 'Ce este/Ce faci cu cana/Ce culoare are/Cum este cana?').",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări pe un item." },
+        { "score": 2, "text": "Răspunde la 3 întrebări pe un item." }
+      ]
+    },
+    {
+      "id": "G27",
+      "text": "Numește categoria când i se prezintă un set de itemi",
+      "objective": "Încadrează 5 itemi în 10 categorii.",
+      "sd": "Ce sunt? + adultul ii prezinta 4 elemente dintr-o categorie.",
+      "response": "'Categorie'.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Încadrează 2 itemi în 2 categorii." },
+        { "score": 2, "text": "Încadrează 2 itemi în 5 categorii." },
+        { "score": 3, "text": "Încadrează 3 itemi în 5 categorii." },
+        { "score": 4, "text": "Încadrează 5 itemi în 10 categorii." }
+      ]
+    },
+    {
+      "id": "G28",
+      "text": "Numește părțile lipsă sau incorecte a unui obiect",
+      "objective": "Numește 5 itemi lipsă și 5 itemi incorecți.",
+      "sd": "Ce lipsește? + adultul îi prezintă imaginea unui item cu un element lipsă.",
+      "response": "'Item lipsă'.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește 5 itemi lipsă sau incorecți." },
+        { "score": 2, "text": "Numește 5 itemi lipsă și 5 itemi incorecți." }
+      ]
+    },
+    {
+      "id": "G29",
+      "text": "Numește itemul care nu aparține categoriei prezentate",
+      "objective": "Numește 3 exemplare din 10 categorii.",
+      "sd": "Ce nu se potrivește?/Care nu este 'categorie'? + adultul îi prezintă 4 elemente dintr-o categorie și un distractor.",
+      "response": "Numește elementul care nu aparține categoriei.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 3 exemplare din 2 categorii." },
+        { "score": 2, "text": "Numește 3 exemplare din 3 categorii." },
+        { "score": 3, "text": "Numește 3 exemplare din 5 categorii." },
+        { "score": 4, "text": "Numește 3 exemplare din 10 categorii." }
+      ]
+    },
+    {
+      "id": "G30",
+      "text": "Numește situațiile problematice",
+      "objective": "Identifică 3 situații problematice.",
+      "sd": "Ce s-a întâmplat aici?",
+      "response": "Numește situația problematică.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică o situație problematică." },
+        { "score": 2, "text": "Identifică 3 situații problematice." }
+      ]
+    },
+    {
+      "id": "G31",
+      "text": "Numește meseriile",
+      "objective": "Numește 4 meserii.",
+      "sd": "Ce meserie are? Cine este?",
+      "response": "Numește meseria persoanei prezentate.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește o meserie." },
+        { "score": 2, "text": "Numește 2 meserii." },
+        { "score": 3, "text": "Numește 3 meserii." },
+        { "score": 4, "text": "Numește 4 meserii." }
+      ]
+    },
+    {
+      "id": "G32",
+      "text": "Numește obiectele aflate la distanță când adultul le indică",
+      "objective": "Numește itemi de la 100 de pași.",
+      "sd": "Adultul arată spre un item aflat la distanță.",
+      "response": "Numește itemul indicat.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește itemi de la 10 pași." },
+        { "score": 2, "text": "Numește itemi de la 100 de pași." }
+      ]
+    },
+    {
+      "id": "G33",
+      "text": "Numește sunetele din mediu",
+      "objective": "Numește 8 sunete.",
+      "sd": "Ce se aude?",
+      "response": "Numește sunetul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește cel puțin 2 sunete." },
+        { "score": 2, "text": "Numește cel puțin 4 sunete." },
+        { "score": 3, "text": "Numește 6 sunete." },
+        { "score": 4, "text": "Numește 8 sunete." }
+      ]
+    },
+    {
+      "id": "G34",
+      "text": "Utilizează 'rame' în structura 'verb-substantiv' sau 'substantiv-adjectiv'",
+      "objective": "Folosește 2 fraze în 50% din timp.",
+      "sd": "Item prezent",
+      "response": "'Ramă' + 'verb-substantiv' sau 'Ramă' + 'substantiv-adjectiv' (ex., Este o mașină roșie'/Este o minge de fitness/Este o mănușă veche/ Este stricat robotul').",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 rame cu prompt." },
+        { "score": 2, "text": "Folosește 2 fraze în 50% din timp." }
+      ]
+    },
+    {
+      "id": "G35",
+      "text": "Numește prepozițiile",
+      "objective": "Numește 10 prepoziții.",
+      "sd": "Unde este 'item'?",
+      "response": "'prepoziție'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 prepoziții." },
+        { "score": 2, "text": "Numește 4 prepoziții." },
+        { "score": 3, "text": "Numește 6 prepoziții." },
+        { "score": 4, "text": "Numește 10 prepoziții." }
+      ]
+    },
+    {
+      "id": "G36",
+      "text": "Folosește 'rame' când numește prepozițiile",
+      "objective": "Folosește cel puțin două rame în 50% din timp.",
+      "sd": "Unde este 'item'?",
+      "response": "'Ramă' + 'prepoziție' + 'obiect de referință'.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 rame cu prompt." },
+        { "score": 2, "text": "Folosește cel puțin două rame în 50% din timp." }
+      ]
+    },
+    {
+      "id": "G37",
+      "text": "Folosește pronumele",
+      "objective": "Numește 8 pronume.",
+      "sd": "Cine are 'item'?/A cui este 'item'?",
+      "response": "'Pronume'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 1 pronume." },
+        { "score": 2, "text": "Numește 3 pronume." },
+        { "score": 3, "text": "Numește 4 pronume." },
+        { "score": 4, "text": "Numește 8 pronume." }
+      ]
+    },
+    {
+      "id": "G38",
+      "text": "Utilizează 'rame' atunci când folosește pronumele",
+      "objective": "Folosește cel puțin două rame în 50% din timp.",
+      "sd": "Cine are 'item'?/A cui este 'item'?",
+      "response": "'Ramă' + 'Pronume' (ex., Este al meu).",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 rame cu prompt." },
+        { "score": 2, "text": "Folosește cel puțin două rame în 50% din timp." }
+      ]
+    },
+    {
+      "id": "G39",
+      "text": "Descrie imagini complexe",
+      "objective": "Numește 4 aspecte dintr-o scenă (include o acțiune și un item).",
+      "sd": "Ce se întâmplă aici?",
+      "response": "Numește 1 - 4 aspecte dintr-o scenă.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește o acțiune sau un item dintr-o scenă." },
+        { "score": 2, "text": "Numește 4 aspecta (include o acțiune și un item)." }
+      ]
+    },
+    {
+      "id": "G40",
+      "text": "Numește părți specifice dintr-o scenă",
+      "objective": "Numește itemi după categorie sau caracteristică.",
+      "sd": "Variabil + adultul îi prezintă o imagine cu o pădure și este întrebat 'Ce animal stă în copac' copilul spune 'bufnița').",
+      "response": "Variabil (ex., când i se prezintă o imagine cu o pădure și este întrebat 'Ce animal stă în copac' copilul spune 'bufnița').",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește itemi după categorie sau caracteristică." },
+        { "score": 2, "text": "Numește itemi după categorie și caracteristică." }
+      ]
+    },
+    {
+      "id": "G41",
+      "text": "Numește adverbe",
+      "objective": "Folosește cel puțin 10 adverbe.",
+      "sd": "Cum 'acțiune' 'item'? + adultul modelează o acțiune cu un item (ex.. Cum merge broasca?).",
+      "response": "'Adverb'.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 adverbe." },
+        { "score": 2, "text": "Folosește cel puțin 4 adverbe." },
+        { "score": 3, "text": "Folosește cel puțin 6 adverbe." },
+        { "score": 4, "text": "Folosește cel puțin 10 adverbe." }
+      ]
+    },
+    {
+      "id": "G42",
+      "text": "Numește emoțiile de bază",
+      "objective": "Numește 4 emoții.",
+      "sd": "Cum se simte el/ea?",
+      "response": "'Emoție'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește o emoție." },
+        { "score": 2, "text": "Numește 2 emoții." },
+        { "score": 3, "text": "Numește 3 emoții." },
+        { "score": 4, "text": "Numește 4 emoții." }
+      ]
+    },
+    {
+      "id": "G43",
+      "text": "Numește emoții și stări personale",
+      "objective": "Își numește stările și emoțiile personale.",
+      "sd": "Cum te simti?",
+      "response": "'Emoție'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește o stare sau emoție personală." },
+        { "score": 2, "text": "Numește 2 stări și emoții personale." },
+        { "score": 3, "text": "Numește 3 stări și emoții personale." },
+        { "score": 4, "text": "Își numește stările și emoțiile personale." }
+      ]
+    },
+    {
+      "id": "G44",
+      "text": "Descrie un item folosind 4 părți de vorbire",
+      "objective": "Descrie un item în 6 cuvinte cu 4 părți de vorbire.",
+      "sd": "Descrie un item folosind 3 componente distincte (ex., Mașina roșie a lui tata).",
+      "response": "Descrie un item folosind 3 părți de vorbire (verb, substantiv, adjectiv, articol, pronume).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Descrie un item în 3 cuvinte cu 3 părți de vorbire.(verb, substantiv, adjectiv, articol, pronume)." },
+        { "score": 2, "text": "Descrie un item în 4 cuvinte cu 3 părți de vorbire." },
+        { "score": 3, "text": "Descrie un item în 5 cuvinte cu 3 părți de vorbire." },
+        { "score": 4, "text": "Descrie un item în 6 cuvinte cu 4 părți de vorbire." }
+      ]
+    },
+    {
+      "id": "G45",
+      "text": "Folosește 'rame' și diferiți descriptori",
+      "objective": "Folosește 2 rame - 50% din timp.",
+      "sd": "Ce ai?/ Îmi poți spune ceva despre 'item'?",
+      "response": "Descrie un item folosind 'rame' și diferiți descriptori (ex., Văd o mașină roșie care merge repede).",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 rame." },
+        { "score": 2, "text": "Folosește 2 rame - 50% din timp." }
+      ]
+    },
+    {
+      "id": "G46",
+      "text": "Numește comportamentele întâlnite în interacțiunea socială",
+      "objective": "Numește 10 momente de interacțiune socială.",
+      "sd": "Cum este ea/el?",
+      "response": "Numește momentele de interactiune socială (ex., Ea este rușinată, se ceartă, se bat, vorbesc, este ocupată, este haioasă).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 momente de interacțiune socială." },
+        { "score": 2, "text": "Numește 4 momente de interacțiune socială." },
+        { "score": 3, "text": "Numește 6 momente de interacțiune socială." },
+        { "score": 4, "text": "Numește 10 momente de interacțiune socială." }
+      ]
+    },
+    {
+      "id": "G47",
+      "text": "Numește spontan",
+      "objective": "Numește 20 de itemi sau acțiuni pe zi.",
+      "sd": "Item prezent.",
+      "response": "Numește spontan itemul prezent.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește 10 itemi sau acțiuni pe zi." },
+        { "score": 2, "text": "Numește 20 de itemi sau acțiuni pe zi." }
+      ]
+    }
+  ]
+}

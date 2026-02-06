@@ -1,0 +1,372 @@
+{
+  "id": "R",
+  "title": "MATEMATICĂ",
+  "items": [
+    {
+      "id": "R1",
+      "text": "Numara pana la 10 cand adultul incepe secventa (adultul spune '1', '2'...)",
+      "objective": "Numără până la 10 cand adultul începe secvența.",
+      "sd": "Numără până la 10 - 1, 2, ...",
+      "response": "Continuă să numere până la 10",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numara o data cu adultul pana la 10 (echoic)" },
+        { "score": 2, "text": "Continua sa numere pana la 10 cand adultul incepe secventa (1, 2....)" }
+      ]
+    },
+    {
+      "id": "R2",
+      "text": "Numara pana la un numar dat",
+      "objective": "Numără până la un număr dat.",
+      "sd": "Numără până la '...'",
+      "response": "Începe de la 1 și se oprește la numărul dat.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numara pana la 10" },
+        { "score": 2, "text": "Numara pana la 20" },
+        { "score": 3, "text": "Numara pana la 30" },
+        { "score": 4, "text": "Numara pana la un numar dat (în concentrul 1 -30)." }
+      ]
+    },
+    {
+      "id": "R3",
+      "text": "Numara obiecte cu prompt",
+      "objective": "Numără obiecte cu prompt atunci când adultul începe secventa.",
+      "sd": "Adultul începe să numere fiecare obiect - 1, 2 ... + Set de 10 obiecte identice",
+      "response": "Numără cu adultul 1, 2 și continuă să numere până la 10",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numara o data cu adultul (echoic) chiar daca acesta schimba ritmul (1,2,3 - pauza-4,5...) pana la 10" },
+        { "score": 2, "text": "Numara pana la 10 obiecte cand adultul incepe secventa (1, 2...)" }
+      ]
+    },
+    {
+      "id": "R4",
+      "text": "Numara obiecte asezate aleator",
+      "objective": "Numără un set de obiecte (până la 100 de obiecte)",
+      "sd": "Numără '....'",
+      "response": "Numără setul de obiecte",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numara 5 obiecte." },
+        { "score": 2, "text": "Numara 10 obiecte" },
+        { "score": 3, "text": "Numara 20 de obiecte" },
+        { "score": 4, "text": "Numara 100 de obiecte" }
+      ]
+    },
+    {
+      "id": "R5",
+      "text": "Numara obiecte dintr-un set mai mare",
+      "objective": "Numără obiecte până la un număr dat dintr-un set de 30 de obiecte",
+      "sd": "Dă-mi 'număr'",
+      "response": "Numără până la numărul dat și îi oferă adultului obiectele.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numără 5 obiecte" },
+        { "score": 2, "text": "Numără 10 obiecte" },
+        { "score": 3, "text": "Numără 20 de obiecte" },
+        { "score": 4, "text": "Numără 30 de obiecte" }
+      ]
+    },
+    {
+      "id": "R6",
+      "text": "Tact cifre in ordine (pe linia numerelor)",
+      "objective": "Numește cifrele de la 1 la 10.",
+      "sd": "Adultul indică o cifră pe linia numerelor ''Ce cifră este?'",
+      "response": "Numește cifra",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește cifrele cand adultul incepe (1, 2...) pana la 10" },
+        { "score": 2, "text": "Numește cifrele de la 1 la 10 pe linia numerelor" }
+      ]
+    },
+    {
+      "id": "R7",
+      "text": "Tact cifre",
+      "objective": "Numește cifrele de la 1 la 100.",
+      "sd": "Adultul îi prezintă un card + 'Ce cifră este?'",
+      "response": "Numește cifra",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește cifrele de la 1 la 10" },
+        { "score": 2, "text": "Numește cifrele pana la 20" },
+        { "score": 3, "text": "Numește cifrele pana la 30" },
+        { "score": 4, "text": "Numește cifrele pana la 100" }
+      ]
+    },
+    {
+      "id": "R8",
+      "text": "Asociaza cantitate la numar",
+      "objective": "Asociaza cantitate la numar si numar la cantitate.",
+      "sd": "Carduri cu diferite cantitati/Obiecte Câte sunt aici? Potrivește numărul/Găsește la fel",
+      "response": "Numără obiectele și potrivește la cardul număr",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Asociaza cantitate la numar pana la 5" },
+        { "score": 2, "text": "Asociaza cantitate la numar pana la 10" },
+        { "score": 3, "text": "Asociaza cantitate la numar pana la 20" },
+        { "score": 4, "text": "Asociaza cantitate la numar pana la 100" }
+      ]
+    },
+    {
+      "id": "R9",
+      "text": "Receptiv & tact 'mult/mai mult'",
+      "objective": "Identifică și numește 'mult/mai mult'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'mult/mai mult' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'mult/mai mult' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R10",
+      "text": "Receptiv & tact 'puțin/mai puțin'",
+      "objective": "Identifică și numește 'puțin/mai puțin'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'puțin/mai puțin' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'puțin/mai puțin' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R11",
+      "text": "Receptiv & tact 'cateva'",
+      "objective": "Identifică și numește 'câteva'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'câteva' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'câteva' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R12",
+      "text": "Receptiv & tact 'toate'",
+      "objective": "Identifică și numește 'toate'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'toate' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'toate' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R13",
+      "text": "Receptiv & tact 'zero/nici unul-una'",
+      "objective": "Identifică și numește 'zero/nici unul-una'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'zero/nici unul-una' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'zero/nici unul-una' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R14",
+      "text": "Adauga itemi pentru a ajunge la un numar dat",
+      "objective": "Adaugă obiecte într-un set până la un număr dat (afla cati itemi trebuie sa mai puna pentru a ajunge la o anumita cantitate - daca are 2 cuburi si adultul ii spune ca are nevoie de 4 cuburi in total, copilul mai ia 2 cuburi).",
+      "sd": "Adultul începe să formeze un set + 'Continuă păla la 'număr'",
+      "response": "Adaugă obiecte până la numărul dat.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Fizic pune itemi pentru a completa un set de 5 obiecte." },
+        { "score": 2, "text": "Fizic pune itemi pentru a completa un set de 10 obiecte." }
+      ]
+    },
+    {
+      "id": "R15",
+      "text": "Receptiv & tact 'la fel'",
+      "objective": "Identifică și numește 'la fel'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'la fel' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'la fel' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R16",
+      "text": "Receptiv & tact 'diferit'",
+      "objective": "Identifică și numește 'diferit'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'diferit' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'diferit' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R17",
+      "text": "Receptiv & tact 'mai mare'",
+      "objective": "Identifică și numește 'mai mare'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'mai mare' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'mai mare' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R18",
+      "text": "Receptiv & tact 'adauga/pune'",
+      "objective": "Identifică și numește 'adaugă/pune'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'adaugă/pune' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'adaugă/pune' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R19",
+      "text": "Se deplaseaza si ia un numar de obiecte dintr-un set mai mare.",
+      "objective": "Se deplasează 5 - 10 m, ia 1 - 10 obiecte identice și le aduce adultului.",
+      "sd": "Du-te și adu-mi 'număr de obiecte'",
+      "response": "Se duce, ia numărul de obiecte și le aduce adultului",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Se duce, ia 2 itemi și îi aduce adultului." },
+        { "score": 2, "text": "Se duce, ia 4 itemi și îi aduce adultului." },
+        { "score": 3, "text": "Se duce, ia 6 itemi și îi aduce adultului." },
+        { "score": 4, "text": "Se duce, ia 10 itemi și îi aduce adultului." }
+      ]
+    },
+    {
+      "id": "R20",
+      "text": "Efectueaza adunari cu treceri peste ordin",
+      "objective": "Efectuează adunări cu trecere peste ordin",
+      "sd": "Rezolvă adunarea/Cât fac ...?",
+      "response": "Adună cele două numere și scrie suma.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Aduna 2 numare (1 - 10)" },
+        { "score": 2, "text": "Aduna 2 numare (1 - 20) - fara trecere peste ordin" },
+        { "score": 3, "text": "Aduna 2 numere (1-20) cu trecere peste ordin" },
+        { "score": 4, "text": "Aduna 2 numere (1-99) cu trecere peste ordin" }
+      ]
+    },
+    {
+      "id": "R21",
+      "text": "Timp - Spune cat este ceasul",
+      "objective": "Spune cât este ceasul atât pe ceas digital, cât și ceas analag.",
+      "sd": "Cât este ceasul?",
+      "response": "Este '...'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește ora." },
+        { "score": 2, "text": "Numește 'jumatate de ora'" },
+        { "score": 3, "text": "Numește 'sfertul de oră'." },
+        { "score": 4, "text": "Numește ora exacta" }
+      ]
+    },
+    {
+      "id": "R22",
+      "text": "Identifica banii dupa nume",
+      "objective": "Numește banii.",
+      "sd": "Câți bani ai?",
+      "response": "Numește moneda/bacnota.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește 2 monede/bani." },
+        { "score": 2, "text": "Numește 4 monede." }
+      ]
+    },
+    {
+      "id": "R23",
+      "text": "Identifica banii dupa valoare",
+      "objective": "Identifică banii - în câmp de 3 monede/bacnote.",
+      "sd": "Unde ai 'monedă/bacnotă'?",
+      "response": "Arată moneda/bacnota",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 monede/bani." },
+        { "score": 2, "text": "Arată 4 monede/bani." }
+      ]
+    },
+    {
+      "id": "R24",
+      "text": "Schimba banii pentru a ajunge la o suma data",
+      "objective": "Oferă o sumă de bani.",
+      "sd": "Dă-mi 5 lei - având la dispoziție diferite monede",
+      "response": "Adună monedele până la suma cerută.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Adună monezi până la 1 leu." },
+        { "score": 2, "text": "Adună până la 2 lei." },
+        { "score": 3, "text": "Adună până la 5 lei." },
+        { "score": 4, "text": "Adună până la 10 lei." }
+      ]
+    },
+    {
+      "id": "R25",
+      "text": "Receptiv & tact 'egal'",
+      "objective": "Identifică și numește 'egal'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'egal' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'egal' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R26",
+      "text": "Receptiv & tact 'inegale/nu sunt egale'",
+      "objective": "Identifică și numește 'inegale/nu sunt egale'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'inegale/nu sunt egale' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'inegale/nu sunt egale' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R27",
+      "text": "Receptiv & tact 'minus'",
+      "objective": "Identifică și numește 'minus'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'minus' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'minus' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R28",
+      "text": "Receptiv & tact 'plus'",
+      "objective": null,
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'plus' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'plus' în receptiv și tact." }
+      ]
+    },
+    {
+      "id": "R29",
+      "text": "Receptiv & tact 'scade/ia din'",
+      "objective": "Identifică și numește 'scade/ia din'",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică și numește 'scade/ia din' în receptiv sau tact." },
+        { "score": 2, "text": "Identifică și numește 'scade/ia din' în receptiv și tact." }
+      ]
+    }
+  ]
+}

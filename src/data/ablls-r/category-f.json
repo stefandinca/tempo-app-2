@@ -1,0 +1,370 @@
+{
+  "id": "F",
+  "title": "MAND",
+  "items": [
+    {
+      "id": "F1",
+      "text": "Indică ce își dorește",
+      "objective": "Cere 10 itemi sub următoarele forme: arată cu degetul, împinge adultul, stă lângă item sau activitate.",
+      "sd": "Item prezent",
+      "response": "Variabil.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are o cerere pe întreaga zi." },
+        { "score": 2, "text": "Are 5 cereri pe zi (cel puțin 3 itemi diferiți sau activități)." }
+      ]
+    },
+    {
+      "id": "F2",
+      "text": "Cereri în prezența obiectului cu echoic + întrebarea 'Ce vrei?'",
+      "objective": "Cere vocal 10 itemi cu prompt imitativ (i.e. repetă numele itemului după adult).",
+      "sd": "Item prezent + întrebarea 'Ce vrei?' + 'numele itemului'",
+      "response": "Repetă numele itemului.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Cere un obiect sau o activitate." },
+        { "score": 2, "text": "Cere 4 obiecte sau activități." },
+        { "score": 3, "text": "Cere 6 obiecte sau activități." },
+        { "score": 4, "text": "Cere 10 sau mai multe obiecte și activități." }
+      ]
+    },
+    {
+      "id": "F3",
+      "text": "Cereri în prezența obiectului + intrebarea 'Ce vrei?'",
+      "objective": "Cere vocal 10 itemi prezenți în aria lui vizuala când adultul îl întreabă 'Ce vrei?'.",
+      "sd": "Item prezent + intrebarea 'Ce vrei?'",
+      "response": "Spune numele itemului dorit.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Cere un obiect sau o activitate." },
+        { "score": 2, "text": "Cere 4 obiecte sau activități." },
+        { "score": 3, "text": "Cere 6 obiecte sau activități." },
+        { "score": 4, "text": "Cere 10 sau mai multe obiecte și activități." }
+      ]
+    },
+    {
+      "id": "F4",
+      "text": "Cereri în absența obiectului + 'Ce vrei?'",
+      "objective": "Cere vocal 10 itemi absenți din aria lui vizuală când adultul îl întreabă 'Ce vrei?'.",
+      "sd": "'Ce vrei?'",
+      "response": "Spune numele itemului dorit.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Cere un obiect sau o activitate." },
+        { "score": 2, "text": "Cere 4 obiecte sau activități." },
+        { "score": 3, "text": "Cere 6 obiecte sau activități." },
+        { "score": 4, "text": "Cere 10 sau mai multe obiecte și activități." }
+      ]
+    },
+    {
+      "id": "F5",
+      "text": "Cereri spontane în prezența obiectelor",
+      "objective": "Cere vocal 10 itemi prezenți în aria lui vizuală.",
+      "sd": "Adult prezent.",
+      "response": "Spune numele itemului dorit.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Cere 2 obiecte specifice sau activități." },
+        { "score": 2, "text": "Cere 4 obiecte specifice sau activități." },
+        { "score": 3, "text": "Cere 6 obiecte specifice sau activități." },
+        { "score": 4, "text": "Cere 10 sau mai multe obiecte specifice sau activități (când o parte din obiectele activității sunt prezente)." }
+      ]
+    },
+    {
+      "id": "F6",
+      "text": "Cereri spontane în absența obiectelor",
+      "objective": "Cere vocal 10 itemi absenți din aria lui vizuală.",
+      "sd": "Adult prezent.",
+      "response": "Spune numele itemului dorit.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Cere 2 obiecte specifice sau activități." },
+        { "score": 2, "text": "Cere 4 obiecte specifice sau activități." },
+        { "score": 3, "text": "Cere 6 obiecte specifice sau activități." },
+        { "score": 4, "text": "Cere 10 sau mai multe obiecte specifice sau activități (când obiectele necesare activității NU sunt prezente)." }
+      ]
+    },
+    {
+      "id": "F7",
+      "text": "Cereri de obiecte, acțiuni și informații cu contact vizual",
+      "objective": "Se uită la adult când emite o cerere.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Se uită în proporție de 50% din numărul total de cereri." },
+        { "score": 2, "text": "Se uită în proporție de 80% din numărul total de cereri." }
+      ]
+    },
+    {
+      "id": "F8",
+      "text": "Cereri de acțiuni",
+      "objective": "Cere adulților să realizeze pentru el o acțiune.",
+      "sd": "Adultul creeaza o situație în care copilul să ceară o acțiune.",
+      "response": "Cere spontan o actiune (ex., împinge, deschide).",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Cere o acțiune." },
+        { "score": 2, "text": "Cere 3 acțiuni." },
+        { "score": 3, "text": "Cere 6 acțiuni." },
+        { "score": 4, "text": "Cere 10 sau mai multe acțiuni." }
+      ]
+    },
+    {
+      "id": "F9",
+      "text": "Cere obiectele necesare unei activități",
+      "objective": "Cere un item necesar completării unei activități când i se oferă o parte din materiale (ex., i se oferă cerealele dar nu și lingura, paharul fără apă sau suc).",
+      "sd": "Adultul reține itemul necesar completării activității.",
+      "response": "Cere itemul care lipsește.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Are o cerera de obiect/activitate." },
+        { "score": 2, "text": "Cere cel puțin 3 obiecte/3 activități." },
+        { "score": 3, "text": "Cere cel puțin 6 obiecte/6 activități." },
+        { "score": 4, "text": "Cere 10 sau mai multe obiecte/10 activități." }
+      ]
+    },
+    {
+      "id": "F10",
+      "text": "Cereri de 'DA' sau 'NU'/gesturile de 'DA' - 'NU'",
+      "objective": "Indică ce își dorește sau respinge un obiect cu ajutorul gesturilor (mișca capul în semn de 'da' sau 'nu') sau spune 'da' sau 'nu'.",
+      "sd": "Variabil",
+      "response": "Gest ('da/nu)/Spune 'da'/'nu'.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Răspunde doar cu 'da' sau doar cu 'nu'." },
+        { "score": 2, "text": "Răspunde cu 'da' și 'nu'." }
+      ]
+    },
+    {
+      "id": "F11",
+      "text": "Cere în propoziții",
+      "objective": "Formulează o propoziție sau întrebare (ex., Aș vrea un pic de suc, Am nevoie de creion, Pot să iau mașina?. Te rog vreau la magazin) când își dorește un obiect, acțiune sau informație.",
+      "sd": "Adultul creeaza o situație motivațională.",
+      "response": "Formulează o propoziție din 3 sau mai multe cuvinte pentru a cere obiecte, acțiuni sau informații.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Uneori folosește 3 sau mai multe cuvinte pentru a cere obiecte, acțiuni sau informații." },
+        { "score": 2, "text": "De obicei foloseste 3 sau mai multe cuvinte pentru a cere obiecte, acțiuni sau informații." }
+      ]
+    },
+    {
+      "id": "F12",
+      "text": "Cere asistență/ajutor",
+      "objective": "Cere ajutor când nu reușește singur să realizeze o actiune (ex., Ajuta-ma - când vrea să i se desfacă ambalajul unei prăjituri, Ajuta-mă - când vrea să se îmbrace, Întoarce cartea - când nu vede).",
+      "sd": "Adultul creează o situație motivațională.",
+      "response": "Cere asistență/ajutor.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Cere ajutor într-o situație sau două (ex., când nu reușește să deschidă capace, să se încalțe)." },
+        { "score": 2, "text": "Cere ajutor într-o varietate de situații." }
+      ]
+    },
+    {
+      "id": "F13",
+      "text": "Învață cereri noi fără training intensiv",
+      "objective": "Învață să ceară noi obiecte, acțiuni sau informații după mai puțin de 5 trial-uri de învățare.",
+      "sd": "Adultul creează o situație motivațională.",
+      "response": "Cere obiecte, acțiuni sau informații.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Cere obiecte, acțiuni si informații după mai puțin de 5 trial-uri." },
+        { "score": 2, "text": "Învață cereri de obiecte, acțiuni si informații fără training direct." }
+      ]
+    },
+    {
+      "id": "F14",
+      "text": "Cereri de atenție",
+      "objective": "Cere adulților să fie atenți la acțiunile lui (ex., 'Mama, uită-te la mine', 'Uite așa fac eu').",
+      "sd": "Variabil.",
+      "response": "Atrage atenția adultului.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Are 2 cereri pe zi." },
+        { "score": 2, "text": "Are 4 cereri pe zi." },
+        { "score": 3, "text": "Are 6 cereri pe zi." },
+        { "score": 4, "text": "Are 10 sau mai multe cereri pe zi." }
+      ]
+    },
+    {
+      "id": "F15",
+      "text": "Cere să fie oprită sau îndepărtată o activitate",
+      "objective": "Cere să fie oprită, îndepărtată sau diminuată o activitate (ex., 'Oprește muzica', 'Oprește-te', 'Închide ușa', 'Nu mai vreau').",
+      "sd": "Variabil.",
+      "response": "Cere să fie oprită, îndepărtată sau diminuată o activitate",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Cere sa fie oprită, îndepărtată sau diminuată o activitate în situațiile create de adult." },
+        { "score": 2, "text": "cere spontan să fie oprită, îndepărtată sau diminuată o activitate." }
+      ]
+    },
+    {
+      "id": "F16",
+      "text": "Cereri cu adjectiv",
+      "objective": "Cere obiecte, acțiuni sau informații folosind adjectivele (ex., balon mare).",
+      "sd": "Variabil.",
+      "response": "Cere obiecte, acțiuni sau informații folosind adjectivele.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 adjective, cu sau fără substantiv, în situațiile create de adult." },
+        { "score": 2, "text": "Folosește spontan cel puțin 4 adjective cu substantiv." }
+      ]
+    },
+    {
+      "id": "F17",
+      "text": "Cereri cu prepoziții",
+      "objective": "Cere obiecte, acțiuni sau informații folosind prepozițiile (ex., în timpul jocului cu piticii din Albă ca Zăpada îi cere adultului să pună un pitic 'în casă').",
+      "sd": "Variabil.",
+      "response": "Cere obiecte, acțiuni sau informații folosind prepozițiile.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 prepoziții, cu sau fără substantiv, în situațiile create de adult." },
+        { "score": 2, "text": "Folosește spontan cel puțin 4 prepoziții cu substantiv." }
+      ]
+    },
+    {
+      "id": "F18",
+      "text": "Cereri de evenimente viitoare",
+      "objective": "Cere obiecte, acțiuni sau activități viitoare (cere de dimineață să se uite la 'Mica sirenă' după-amiază).",
+      "sd": "Adultul setează o situație motivațională.",
+      "response": "Cere obiecte, acțiuni sau activități viitoare.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Cere să obțină un obiect/activitate imediat după ce termină o sarcină sau cere după sarcină un obiect/activitate pentru mai târziu (în aceeași zi)." },
+        { "score": 2, "text": "Cere spontan obiecte/activități cu câteva zile în avans (cere de luni să meargă la piscină vineri)." }
+      ]
+    },
+    {
+      "id": "F19",
+      "text": "Cereri de informații - 'Ce?'",
+      "objective": "Pune întrebări pentru a afla o informație (ex., întreabă 'Ce este?' cand vede un obiect necunoscut, întreabă 'Ce face?' când vede un obiect și nu îi cunoaște funcția).",
+      "sd": "Adultul setează o situație motivațională.",
+      "response": "Folosește intrebarea 'Ce ...' pentru a avea acces la informatie.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește întrebarea 'Ce...?' în prezența obiectelor necunoscute, în timpul sesiunilor de lucru." },
+        { "score": 2, "text": "Folosește întrebarea 'Ce...?' în situații naturale, în prezența obiectelor necunoscute." }
+      ]
+    },
+    {
+      "id": "F20",
+      "text": "Cereri de informații - 'Unde?'",
+      "objective": "Pune întrebări pentru a afla o informație (ex., întreabă 'Unde?' când adultul îi spune 'Hai să mergem!', întreabă 'Unde este tableta?' când adultul îi spune 'Să intrăm pe Youtube').",
+      "sd": "Adultul setează o situație motivațională.",
+      "response": "Folosește întrebarea 'Unde ...?' pentru a avea acces la informație.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește întrebarea 'Unde...?' în prezența obiectelor/situațiilor necunoscute, în timpul sesiunilor de lucru." },
+        { "score": 2, "text": "Folosește întrebarea 'Unde...?' în situații naturale, în prezența obiectelor/situațiilor necunoscute." }
+      ]
+    },
+    {
+      "id": "F21",
+      "text": "Cereri de informații - 'Cine?/A cui?/Ale cui?'",
+      "objective": "Pune întrebări pentru a afla o informație (ex., întreabă 'Cine este?' cand întâlnește o persoană nouă, întreabă 'A cui este pantoful?' când vede un pantof în curte și 5 copiii).",
+      "sd": "Adultul setează o situație motivațională.",
+      "response": "Folosește întrebarea ''Cine?/A cui/Ale cui?'' pentru a avea acces la informație.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește întrebarea 'Cine?/A cui?/Ale cui?' în prezența obiectelor necunoscute, în timpul sesiunilor de lucru." },
+        { "score": 2, "text": "Folosește întrebarea 'Cine?/A cui?/Ale cui?' în situații naturale, în prezența obiectelor necunoscute." }
+      ]
+    },
+    {
+      "id": "F22",
+      "text": "Cereri cu adverbe",
+      "objective": "Cere adultului să realizeze pentru el o acțiune folosind adverbale (ex., împinge-mă tare, mergi încet, aruncă tare).",
+      "sd": "Adultul setează o situație motivațională.",
+      "response": "Cere o acțiune însoțită de un adverb.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 adverbe, cu sau fără acțiune, în situațiile create de adult." },
+        { "score": 2, "text": "Folosește cel puțin 4 adverbe când cere o acțiune." }
+      ]
+    },
+    {
+      "id": "F23",
+      "text": "Cereri cu pronume",
+      "objective": "Cere obiecte folosind pronumele (ex., Vreau ochelarii tăi).",
+      "sd": "Adultul setează o situație motivațională.",
+      "response": "Cere un item folosind structura 'substantiv-pronume'.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 pronume, cu sau fără substantiv, în situațiile create de adult." },
+        { "score": 2, "text": "Cere spontan itemi cu cel puțin 4 pronume lângă substantiv." }
+      ]
+    },
+    {
+      "id": "F24",
+      "text": "Cereri de informații 'Care?'",
+      "objective": "Pune întrebări pentru a afla o informație (ex., Care e a mea? Pe care o iau?. Care e șaiba?).",
+      "sd": "Adultul setează o situatie motivațională.",
+      "response": "Folosește întrebarea 'Care?'' pentru a avea acces la informație.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește întrebarea 'Care?' în prezenta obiectelor necunoscute, în timpul sesiunilor de lucru." },
+        { "score": 2, "text": "Folosește întrebarea 'Care?' în situații naturale, în prezența obiectelor necunoscute." }
+      ]
+    },
+    {
+      "id": "F25",
+      "text": "Cereri de informații 'Când?'",
+      "objective": "Pune întrebări pentru a afla o informație (ex., Când mergem in parc?, Când mergem la magazin?).",
+      "sd": "Adultul setează o situație motivațională.",
+      "response": "Folosește întrebarea 'Când?'' pentru a avea acces la informație.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește întrebarea 'Când?' în prezența obiectelor necunoscute, în timpul sesiunilor de lucru." },
+        { "score": 2, "text": "Folosește întrebarea 'Când?' în situații naturale, în prezența obiectelor necunoscute." }
+      ]
+    },
+    {
+      "id": "F26",
+      "text": "Cereri de informații 'Cum?'",
+      "objective": "Pune întrebări pentru a afla o informație (ex., Cum se deschide? Cum să fac?, Cum să fac felicitarea?)",
+      "sd": "Variabil.",
+      "response": "Folosește întrebarea 'Cum?'' pentru a avea acces la informație.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește întrebarea 'Cum?' în prezența obiectelor necunoscute, în timpul sesiunilor de lucru." },
+        { "score": 2, "text": "Folosește întrebarea 'Cum?' în situații naturale, în prezența obiectelor necunoscute." }
+      ]
+    },
+    {
+      "id": "F27",
+      "text": "Cereri de informații 'Pot/O să/Facem?' (WH Questions)",
+      "objective": "Pune întrebări pentru a afla o informație (ex., Pot să cumpăr pantofi de la benzinărie?).",
+      "sd": "Variabil.",
+      "response": "Folosește întrebarea 'Pot/O să/Facem?' pentru a avea acces la informație.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește cel puțin o formă de 'WH Questions'." },
+        { "score": 2, "text": "Cere spontan itemi/activități cu cel puțin două forme de 'WH Questions'." }
+      ]
+    },
+    {
+      "id": "F28",
+      "text": "Cereri de informații 'De ce?'",
+      "objective": "Copilul pune întrebări pentru a afla o informație (ex., De ce nu mai mergem?, De ce a făcut așa?).",
+      "sd": "Variabil.",
+      "response": "Folosește întrebarea 'De ce?'' pentru a avea acces la informație.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește întrebarea 'De ce?' în prezența obiectelor necunoscute, în timpul sesiunilor de lucru." },
+        { "score": 2, "text": "Folosește întrebarea 'De ce?' în situații naturale, în prezența obiectelor necunoscute." }
+      ]
+    },
+    {
+      "id": "F29",
+      "text": "Cereri spontane",
+      "objective": "Copilul cere obiecte, acțiuni si informații pe toată durata zilei.",
+      "sd": "Variabil.",
+      "response": "Cere obiecte, acțiuni sau informații.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are 10 cereri spontane pe zi." },
+        { "score": 2, "text": "Are 20 de cereri spontane pe zi." }
+      ]
+    }
+  ]
+}

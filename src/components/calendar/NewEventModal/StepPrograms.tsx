@@ -5,6 +5,7 @@ import { EventFormData } from "./types";
 import { Search, Check, BookOpen, Loader2, Info, Target } from "lucide-react";
 import { clsx } from "clsx";
 import { usePrograms, useInterventionPlans } from "@/hooks/useCollections";
+import { useTranslation } from "react-i18next";
 
 interface StepProgramsProps {
   data: EventFormData;
@@ -12,6 +13,7 @@ interface StepProgramsProps {
 }
 
 export default function StepPrograms({ data, updateData }: StepProgramsProps) {
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
   const { data: programs, loading } = usePrograms();
 
@@ -56,7 +58,7 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
+    return new Date(dateStr).toLocaleDateString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', {
       month: "short",
       day: "numeric"
     });
@@ -72,7 +74,7 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
-              {activePlan.programIds.length} programs auto-selected from active plan
+              {t('event_modal.programs_auto_selected', { count: activePlan.programIds.length })}
             </p>
             <p className="text-xs text-primary-600 dark:text-primary-400 mt-0.5">
               &quot;{activePlan.name}&quot; ({formatDate(activePlan.startDate)} - {formatDate(activePlan.endDate)})
@@ -84,13 +86,13 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
       {/* Header & Search */}
       <div className="flex flex-col gap-3">
         <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-          Select Programs
+          {t('event_modal.select_programs')}
         </label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
           <input
             type="text"
-            placeholder="Search programs..."
+            placeholder={t('event_modal.search_programs')}
             className="w-full pl-9 pr-4 py-2.5 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -103,11 +105,11 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
             <Loader2 className="w-8 h-8 animate-spin mb-2" />
-            <p className="text-sm">Loading programs...</p>
+            <p className="text-sm">{t('common.loading')}</p>
           </div>
         ) : filteredPrograms.length === 0 ? (
           <div className="text-center py-8 text-neutral-500 text-sm">
-            No programs found matching &quot;{search}&quot;
+            {t('event_modal.no_programs_found', { search })}
           </div>
         ) : (
           filteredPrograms.map(prog => {
@@ -148,7 +150,9 @@ export default function StepPrograms({ data, updateData }: StepProgramsProps) {
       </div>
       
       <p className="text-xs text-neutral-500 text-right">
-        {data.selectedPrograms.length} selected
+        {data.selectedPrograms.length === 1 
+          ? t('event_modal.selected_count_one') 
+          : t('event_modal.selected_count', { count: data.selectedPrograms.length })}
       </p>
     </div>
   );

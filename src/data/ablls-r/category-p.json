@@ -1,0 +1,78 @@
+{
+  "id": "P",
+  "title": "GENERALIZAREA RĂSPUNSULUI",
+  "items": [
+    {
+      "id": "P1",
+      "text": "Generalizează itemii",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Generalizeaza itemii în 10 trial-uri." },
+        { "score": 2, "text": "Învață să numească și să arate un item și imediat generalizează itemii în aceeași clasă în 2 trial-uri." }
+      ]
+    },
+    {
+      "id": "P2",
+      "text": "Generalizeaza persoanele",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Lucrează usor cu 4 adulți." },
+        { "score": 2, "text": "Demonstrează cu ușurință abilitățile învățate cu noi adulți." }
+      ]
+    },
+    {
+      "id": "P3",
+      "text": "Generalizează locația",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește ce a învățat în alta locație cu minim de prompt." },
+        { "score": 2, "text": "Folosește ușor ce a învățat în altă locație." }
+      ]
+    },
+    {
+      "id": "P4",
+      "text": "Folosește abilitățile învățate în grup",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește abilitățile învățate în grup cu prompt verbal minim." },
+        { "score": 2, "text": "Folosește abilitățile învățate în grup spontan." }
+      ]
+    },
+    {
+      "id": "P5",
+      "text": "Generalizeaza forma raspunsului",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Oferă forme alternative de răspuns cu prompt verbal minim (ex., câine - luri, cățeluș sau cățel)." },
+        { "score": 2, "text": "Spontan folosește mai multe alternative de răspuns." }
+      ]
+    },
+    {
+      "id": "P6",
+      "text": "Generalizeaza abilitatile de limbaj",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Realizează transferul din tact in mand și receptiv." },
+        { "score": 2, "text": "Realizează transferul din receptiv - funcție în intraverbal - funcție." }
+      ]
+    }
+  ]
+}

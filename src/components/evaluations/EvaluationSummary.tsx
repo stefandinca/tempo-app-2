@@ -439,7 +439,7 @@ export default function EvaluationSummary({
                   {sortedCategories.map(([key, summary]) => {
                     const comparison = getComparison(key);
                     const isExpanded = expandedCategory === key;
-                    const category = ABLLS_CATEGORIES.find((c) => c.key === key);
+                    const category = ABLLS_CATEGORIES.find((c) => c.id === key);
 
                     return (
                       <div

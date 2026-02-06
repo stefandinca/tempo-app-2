@@ -7,8 +7,10 @@ import NotificationFilters, { FilterCategory } from "@/components/notifications/
 import NotificationList from "@/components/notifications/NotificationList";
 import { ArrowLeft, Settings, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 export default function NotificationsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { notifications, filterByCategory, loadMore, hasMore, markAllAsRead, unreadCount } = useNotifications();
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
@@ -27,21 +29,21 @@ export default function NotificationsPage() {
   const getEmptyMessage = () => {
     switch (activeFilter) {
       case "unread":
-        return "No unread notifications";
+        return t('notifications.empty.unread');
       case "schedule":
-        return "No schedule notifications";
+        return t('notifications.empty.schedule');
       case "attendance":
-        return "No attendance notifications";
+        return t('notifications.empty.attendance');
       case "team":
-        return "No team notifications";
+        return t('notifications.empty.team');
       case "billing":
-        return "No billing notifications";
+        return t('notifications.empty.billing');
       case "client":
-        return "No client notifications";
+        return t('notifications.empty.client');
       case "message":
-        return "No message notifications";
+        return t('notifications.empty.message');
       default:
-        return "No notifications yet";
+        return t('notifications.empty.general');
     }
   };
 
@@ -59,11 +61,11 @@ export default function NotificationsPage() {
             </button>
             <div>
               <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
-                Notifications
+                {t('notifications.title')}
               </h1>
               {unreadCount > 0 && (
                 <p className="text-xs text-neutral-500">
-                  {unreadCount} unread
+                  {unreadCount === 1 ? t('notifications.unread_count_one') : t('notifications.unread_count', { count: unreadCount })}
                 </p>
               )}
             </div>
@@ -75,7 +77,7 @@ export default function NotificationsPage() {
                 onClick={markAllAsRead}
                 className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-1.5"
               >
-                Mark all read
+                {t('notifications.mark_all_read')}
               </button>
             )}
             <Link
@@ -115,10 +117,10 @@ export default function NotificationsPage() {
               {isLoadingMore ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading...
+                  {t('common.loading')}
                 </>
               ) : (
-                "Load More"
+                t('notifications.load_more')
               )}
             </button>
           </div>

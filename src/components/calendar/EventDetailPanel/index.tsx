@@ -14,7 +14,8 @@ import {
   ChevronUp,
   Plus,
   Minus,
-  Search
+  Search,
+  Pencil
 } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
@@ -33,6 +34,7 @@ import {
   notifyParentSessionCancelled,
   notifyParentAttendanceLogged
 } from "@/lib/notificationService";
+import { useEventModal } from "@/context/EventModalContext";
 
 interface EventDetailPanelProps {
   event: any; // Firestore Event Document
@@ -47,6 +49,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
   const { data: programs } = usePrograms();
+  const { openModal } = useEventModal();
 
   // Local state for editing
   const [attendance, setAttendance] = useState<string | null>(null);
@@ -67,14 +70,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const [originalTime, setOriginalTime] = useState("");
   const [originalAttendance, setOriginalAttendance] = useState<string | null>(null);
 
-  // Permission Logic - Therapists can edit events they're assigned to (check teamMemberIds)
+  // Permission Logic - Any team member (Admin, Coordinator, Therapist) can edit any event
   const canEdit =
     userRole === 'Admin' ||
     userRole === 'Coordinator' ||
-    (userRole === 'Therapist' && (
-      event?.therapistId === authUser?.uid ||
-      (event?.teamMemberIds || []).includes(authUser?.uid)
-    ));
+    userRole === 'Therapist';
 
   // Default scores for a new program
   const defaultScores: ProgramScores = useMemo(() => ({ minus: 0, zero: 0, prompted: 0, plus: 0 }), []);
@@ -163,7 +163,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
   const handleSave = async () => {
     if (!canEdit) {
-      error(t('event.error_permission'));
+      error(t('calendar.event.error_permission'));
       return;
     }
     setIsSubmitting(true);
@@ -248,7 +248,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
         }
       }
 
-      success(t('event.save_success'));
+      success(t('calendar.event.save_success'));
       setIsSubmitting(false);
       onClose();
     } catch (err) {
@@ -260,10 +260,10 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
   const handleDelete = async () => {
     if (!canEdit) {
-      error(t('event.error_permission'));
+      error(t('calendar.event.error_permission'));
       return;
     }
-    if (!confirm(t('event.delete_confirm'))) return;
+    if (!confirm(t('calendar.event.delete_confirm'))) return;
 
     setIsDeleting(true);
     try {
@@ -299,7 +299,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       }
 
       await deleteDoc(doc(db, "events", event.id));
-      success(t('event.delete_success'));
+      success(t('calendar.event.delete_success'));
       setIsDeleting(false);
       onClose();
     } catch (err) {
@@ -329,14 +329,28 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">{t('event.details')}</h3>
+            <h3 className="font-semibold text-lg text-neutral-900 dark:text-white">{t('calendar.event.details')}</h3>
             {!canEdit && (
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-neutral-100 text-neutral-500 rounded">{t('event.readonly')}</span>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 bg-neutral-100 text-neutral-500 rounded">{t('calendar.event.readonly')}</span>
             )}
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-            <X className="w-5 h-5 text-neutral-500" />
-          </button>
+          <div className="flex items-center gap-1">
+            {canEdit && (
+              <button
+                onClick={() => {
+                  onClose();
+                  openModal({ editingEvent: event });
+                }}
+                className="p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 text-primary-600 transition-colors"
+                title={t('common.edit') || 'Edit'}
+              >
+                <Pencil className="w-5 h-5" />
+              </button>
+            )}
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+              <X className="w-5 h-5 text-neutral-500" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -356,7 +370,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           {/* Time & Date */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
-              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t('event.date')}</p>
+              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t('calendar.event.date')}</p>
               {canEdit ? (
                 <input 
                   type="date" 
@@ -372,7 +386,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               )}
             </div>
             <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
-              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t('event.time')}</p>
+              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t('calendar.event.time')}</p>
               {canEdit ? (
                 <input 
                   type="time" 
@@ -396,7 +410,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                 <User className="w-4 h-4" />
               </div>
                           <div>
-                            <p className="text-xs text-neutral-500">{t('event.client')}</p>
+                            <p className="text-xs text-neutral-500">{t('calendar.event.client')}</p>
                             <Link 
                               href={client ? `/clients/profile?id=${client.id}` : "#"} 
                               className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
@@ -417,7 +431,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                             )}
                           </div>
                           <div>
-                            <p className="text-xs text-neutral-500">{t('event.therapist')}</p>
+                            <p className="text-xs text-neutral-500">{t('calendar.event.therapist')}</p>
                             <Link 
                               href="/team/" 
                               className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
@@ -429,7 +443,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
           {/* Attendance Toggle */}
           <div>
-            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">{t('event.attendance')}</p>
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">{t('calendar.event.attendance')}</p>
             <div className="grid grid-cols-3 gap-2">
               <button 
                 onClick={() => canEdit && setAttendance(attendance === 'present' ? null : 'present')}
@@ -482,7 +496,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
             >
               <div className="flex items-center gap-2">
                 <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                  Programs & Scores
+                  {t('calendar.event.programs_scores')}
                 </p>
                 {selectedPrograms.length > 0 && (
                   <span className="text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-600 px-2 py-0.5 rounded-full font-bold">
@@ -531,7 +545,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-100 dark:border-neutral-800">
                 <div className="text-center py-4">
                   <BookOpen className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
-                  <p className="text-sm text-neutral-500 italic">No programs assigned to this session.</p>
+                  <p className="text-sm text-neutral-500 italic">{t('calendar.event.no_programs')}</p>
                 </div>
               </div>
             )}
@@ -545,7 +559,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                       <input
                         type="text"
-                        placeholder={t('event.search_programs')}
+                        placeholder={t('calendar.event.search_programs')}
                         className="w-full pl-8 pr-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         value={programSearch}
                         onChange={(e) => setProgramSearch(e.target.value)}
@@ -555,7 +569,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                     <div className="max-h-40 overflow-y-auto space-y-1">
                       {availablePrograms.length === 0 ? (
                         <p className="text-xs text-neutral-500 text-center py-3">
-                          {programSearch ? t('event.no_matching_programs') : t('event.all_assigned')}
+                          {programSearch ? t('calendar.event.no_matching_programs') : t('calendar.event.all_assigned')}
                         </p>
                       ) : (
                         availablePrograms.map(program => (
@@ -587,7 +601,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                       }}
                       className="w-full mt-2 py-1.5 text-xs text-neutral-500 hover:text-neutral-700 transition-colors"
                     >
-                      Close
+                      {t('common.close') || 'Close'}
                     </button>
                   </div>
                 ) : (
@@ -601,7 +615,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl text-sm text-neutral-500 hover:text-primary-600 hover:border-primary-400 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
-                      Add
+                      {t('calendar.event.add_program')}
                     </button>
                     {selectedPrograms.length > 0 && (
                       <button
@@ -615,7 +629,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                         )}
                       >
                         <Minus className="w-4 h-4" />
-                        {isRemoveModeActive ? "Done" : "Remove"}
+                        {isRemoveModeActive ? (t('common.done') || "Done") : t('calendar.event.remove_program')}
                       </button>
                     )}
                   </div>
@@ -626,11 +640,11 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
           {/* Session Notes */}
           <div>
-            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">Session Notes</p>
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">{t('calendar.event.notes')}</p>
             <textarea 
               className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-neutral-900 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               rows={4}
-              placeholder="Add clinical observations..."
+              placeholder={t('calendar.event.notes_placeholder')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               disabled={!canEdit}

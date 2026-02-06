@@ -8,6 +8,7 @@ import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useTranslation } from "react-i18next";
 
 interface TeamPayoutsTableProps {
   payouts: TeamPayout[];
@@ -17,6 +18,7 @@ interface TeamPayoutsTableProps {
 }
 
 export default function TeamPayoutsTable({ payouts, loading, year, month }: TeamPayoutsTableProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ bonus: string; deductions: string }>({ bonus: "", deductions: "" });
@@ -68,7 +70,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
 
       await setDoc(doc(db, "payouts", payoutId), payload, { merge: true });
       
-      success(markAsPaid ? "Payment recorded successfully" : "Payout updated");
+      success(markAsPaid ? t('billing_page.payout_messages.pay_success') : t('billing_page.payout_messages.save_success'));
       setEditingId(null);
     } catch (err) {
       console.error(err);
@@ -80,7 +82,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
 
   // Quick mark as paid without editing values (uses current values)
   const handleMarkAsPaid = async (payout: TeamPayout) => {
-    if (confirm(`Confirm payment of ${formatCurrency(payout.total)} RON to ${payout.teamMemberName}?`)) {
+    if (confirm(t('billing_page.payout_messages.confirm_pay', { amount: formatCurrency(payout.total), name: payout.teamMemberName }))) {
       setIsSaving(true);
       try {
         const payoutId = `payout_${year}_${String(month + 1).padStart(2, '0')}_${payout.teamMemberId}`;
@@ -99,7 +101,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
           updatedAt: serverTimestamp()
         }, { merge: true });
 
-        success("Payment marked as complete");
+        success(t('billing_page.payout_messages.pay_complete'));
       } catch (err) {
         console.error(err);
         error("Failed to mark as paid");
@@ -124,10 +126,10 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-12 text-center">
         <Users className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
         <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
-          No team members found
+          {t('billing_page.no_team_members')}
         </h3>
         <p className="text-neutral-500">
-          Add team members in the Team section to calculate payouts.
+          {t('billing_page.no_team_description')}
         </p>
       </div>
     );
@@ -140,14 +142,14 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
           <table className="w-full text-left text-sm">
             <thead className="bg-neutral-50 dark:bg-neutral-800/50 text-neutral-500 font-medium">
               <tr>
-                <th className="px-6 py-3">Team Member</th>
-                <th className="px-6 py-3 text-center">Activity</th>
-                <th className="px-6 py-3 text-right">Base Salary</th>
-                <th className="px-6 py-3 text-right w-32">Bonus</th>
-                <th className="px-6 py-3 text-right w-32">Deductions</th>
-                <th className="px-6 py-3 text-right">Total Payout</th>
-                <th className="px-6 py-3 text-center">Status</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3">{t('billing_page.table.team_member')}</th>
+                <th className="px-6 py-3 text-center">{t('billing_page.table.activity')}</th>
+                <th className="px-6 py-3 text-right">{t('billing_page.table.base_salary')}</th>
+                <th className="px-6 py-3 text-right w-32">{t('billing_page.table.bonus')}</th>
+                <th className="px-6 py-3 text-right w-32">{t('billing_page.table.deductions')}</th>
+                <th className="px-6 py-3 text-right">{t('billing_page.table.total_payout')}</th>
+                <th className="px-6 py-3 text-center">{t('billing_page.table.status')}</th>
+                <th className="px-6 py-3 text-right">{t('billing_page.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -173,7 +175,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
                         {payout.totalHours}h
                       </div>
                       <div className="text-xs text-neutral-400">
-                        {payout.sessions} sessions
+                        {payout.sessions} {t('evaluations.items')}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right text-neutral-700 dark:text-neutral-300">
@@ -235,7 +237,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
                           ? "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400" 
                           : "bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400"
                       )}>
-                        {isPaid ? "Paid" : "Pending"}
+                        {isPaid ? t('billing_page.status.paid') : t('billing_page.status.pending')}
                       </span>
                     </td>
 
@@ -247,7 +249,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
                               onClick={() => handleSave(payout)}
                               disabled={isSaving}
                               className="p-1.5 bg-success-100 text-success-700 rounded-lg hover:bg-success-200 transition-colors"
-                              title="Save changes"
+                              title={t('common.save')}
                             >
                               <Check className="w-4 h-4" />
                             </button>
@@ -255,7 +257,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
                               onClick={handleCancel}
                               disabled={isSaving}
                               className="p-1.5 bg-neutral-100 text-neutral-600 rounded-lg hover:bg-neutral-200 transition-colors"
-                              title="Cancel"
+                              title={t('common.cancel')}
                             >
                               <X className="w-4 h-4" />
                             </button>
@@ -266,7 +268,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
                               <button
                                 onClick={() => handleEdit(payout)}
                                 className="p-1.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
-                                title="Edit Adjustments"
+                                title={t('common.edit')}
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
@@ -282,9 +284,9 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
                               )}
                             >
                               {isPaid ? (
-                                <><CheckCircle className="w-3 h-3" /> Paid</>
+                                <><CheckCircle className="w-3.5 h-3.5" /> {t('billing_page.status.paid')}</>
                               ) : (
-                                <><DollarSign className="w-3 h-3" /> Pay</>
+                                <><DollarSign className="w-3.5 h-3.5" /> {t('common.save')}</>
                               )}
                             </button>
                           </>
@@ -298,7 +300,7 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
             <tfoot className="bg-neutral-50 dark:bg-neutral-800/50 font-medium">
               <tr>
                 <td className="px-6 py-4 text-neutral-700 dark:text-neutral-300">
-                  Monthly Total
+                  {t('billing_page.table.monthly_total')}
                 </td>
                 <td colSpan={4}></td>
                 <td className="px-6 py-4 text-right">

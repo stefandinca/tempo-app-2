@@ -1,0 +1,130 @@
+{
+  "id": "N",
+  "title": "REGULI DE GRUP",
+  "items": [
+    {
+      "id": "N1",
+      "text": "Respecta regulile zilnice",
+      "objective": "Isi pune haina in cuier, isi desface pachetul cu mancare de acasa, etc.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Respectă regulile zilnice 50% din oportunități." },
+        { "score": 2, "text": "Respectă regulile zilnice 100% din oportunități." }
+      ]
+    },
+    {
+      "id": "N2",
+      "text": "Lucreaza independent - activitati preferate (ex. puzzle)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Lucrează independent 5 minute." },
+        { "score": 2, "text": "Lucrează independent 10 minute." },
+        { "score": 3, "text": "Lucrează independent 15 minute." },
+        { "score": 4, "text": "Lucrează independent 20 de minute." }
+      ]
+    },
+    {
+      "id": "N3",
+      "text": "Asteapta adecvat in timpul tranzitiei (de la o activitate de la alta)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Asteapta 30 de secunde." },
+        { "score": 2, "text": "Asteapta 2 minute." }
+      ]
+    },
+    {
+      "id": "N4",
+      "text": "Realizeaza tranzitia de o activitate la alta",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Realizeaza tranzitia de o activitate la alta în 50% din oportunități." },
+        { "score": 2, "text": "Realizeaza tranzitia de o activitate la alta independent." }
+      ]
+    },
+    {
+      "id": "N5",
+      "text": "Asteapta sa îl vina randul (ex., sa se spele pe maini)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Așteaptă independent pana la 30 de secunde." },
+        { "score": 2, "text": "Așteaptă independent pana la 2 minute." }
+      ]
+    },
+    {
+      "id": "N6",
+      "text": "Asteapta in sir indian",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Așteaptă independent în proporție de 50% din oportunități." },
+        { "score": 2, "text": "Așteaptă independent în șir indian." }
+      ]
+    },
+    {
+      "id": "N7",
+      "text": "Lucreaza independent - activitati academice",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Lucreaza independent 5 minute." },
+        { "score": 2, "text": "Lucreaza independent 10 minute." },
+        { "score": 3, "text": "Lucreaza independent 15 minute." },
+        { "score": 4, "text": "Lucreaza independent 20 de minute." }
+      ]
+    },
+    {
+      "id": "N8",
+      "text": "Își ia și își pune la loc materialele de lucru",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Își ia și își pune la loc materialele de lucru 50% din oportunități." },
+        { "score": 2, "text": "Își ia și își pune la loc materialele de lucru independent." }
+      ]
+    },
+    {
+      "id": "N9",
+      "text": "Completeaza o fisa/plansa si o duce la educatoare",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Completeaza o fisa/plansa si o duce la educatoare în 50% din oportunități." },
+        { "score": 2, "text": "Completeaza o fisa/plansa si o duce la educatoare independent." }
+      ]
+    },
+    {
+      "id": "N10",
+      "text": "Asteapta in picioare adecvat in timpul tranzitiei de la o activitate de alta",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Asteapta in picioare adecvat in timpul tranzitiei de la o activitate de alta in 50% din oportunități." },
+        { "score": 2, "text": "Asteapta in picioare adecvat in timpul tranzitiei de la o activitate de alta independent." }
+      ]
+    }
+  ]
+}

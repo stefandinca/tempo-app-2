@@ -1,11 +1,13 @@
+import { AbllsItem, AbllsCategory } from "@/data/ablls-r-protocol";
+
 // ABLLS and other evaluation types
 
 export type EvaluationType = 'ABLLS' | 'VB-MAPP' | 'OTHER';
 export type EvaluationStatus = 'in_progress' | 'completed';
-export type ScoreValue = 0 | 1 | 2;
+export type ScoreValue = 0 | 1 | 2 | 3 | 4;
 
 export interface ItemScore {
-  score: ScoreValue;
+  score: number; // Changed from ScoreValue to support up to 4
   note?: string;
   isNA?: boolean;
   updatedAt: string;
@@ -51,23 +53,8 @@ export interface Evaluation {
   previousEvaluationId?: string;
 }
 
-// ABLLS Category structure
-export interface ABLLSItem {
-  id: string;
-  text: string;
-}
-
-export interface ABLLSCategory {
-  key: string;
-  name: string;
-  items: ABLLSItem[];
-}
-
-// ABLLS data from JSON
-export type ABLLSData = Record<string, ABLLSItem[]>;
-
-// Score labels for UI
-export const SCORE_LABELS: Record<ScoreValue, { label: string; description: string; color: string }> = {
+// Score labels for UI (Default descriptions, protocol has specific ones)
+export const SCORE_LABELS: Record<number, { label: string; description: string; color: string }> = {
   0: {
     label: '0',
     description: 'Not observed or unable to perform',
@@ -75,63 +62,57 @@ export const SCORE_LABELS: Record<ScoreValue, { label: string; description: stri
   },
   1: {
     label: '1',
-    description: 'Emerging - performs with prompts or inconsistently',
+    description: 'Emerging - minimal performance',
     color: 'warning'
   },
   2: {
     label: '2',
-    description: 'Mastered - performs independently and consistently',
+    description: 'Emerging - partial performance',
+    color: 'warning'
+  },
+  3: {
+    label: '3',
+    description: 'Near mastery',
+    color: 'success'
+  },
+  4: {
+    label: '4',
+    description: 'Mastered - independent and consistent',
     color: 'success'
   }
 };
 
-// Helper to parse ABLLS JSON into structured categories
-export function parseABLLSData(data: ABLLSData): ABLLSCategory[] {
-  return Object.entries(data).map(([name, items]) => {
-    // Extract category key from first item ID (e.g., "A1" -> "A")
-    const key = items[0]?.id?.charAt(0) || name.charAt(0);
-    return {
-      key,
-      name,
-      items
-    };
-  });
-}
-
-// Helper to compute category summary
+// Helper to compute category summary using full ABLLS-R protocol
 export function computeCategorySummary(
-  categoryKey: string,
-  categoryName: string,
-  items: ABLLSItem[],
+  category: AbllsCategory,
   scores: Record<string, ItemScore>
 ): CategorySummary {
-  let totalItems = items.length;
   let scoredItems = 0;
   let totalScore = 0;
-  let naItems = 0;
+  let maxPossibleScore = 0;
+  let naItemsCount = 0;
 
-  items.forEach(item => {
+  category.items.forEach(item => {
     const itemScore = scores[item.id];
-    if (itemScore !== undefined) {
-      if (itemScore.isNA) {
-        naItems++;
-      } else {
+    if (itemScore !== undefined && itemScore.isNA) {
+      naItemsCount++;
+    } else {
+      maxPossibleScore += item.maxScore;
+      if (itemScore !== undefined) {
         scoredItems++;
         totalScore += itemScore.score;
       }
     }
   });
 
-  const adjustedTotalItems = totalItems - naItems;
-  const maxPossibleScore = adjustedTotalItems * 2; // Max score is 2 per item
   const percentage = maxPossibleScore > 0
     ? Math.round((totalScore / maxPossibleScore) * 100)
     : 0;
 
   return {
-    categoryKey,
-    categoryName,
-    totalItems: adjustedTotalItems,
+    categoryKey: category.id,
+    categoryName: category.title,
+    totalItems: category.items.length - naItemsCount,
     scoredItems,
     totalScore,
     maxPossibleScore,
@@ -141,7 +122,7 @@ export function computeCategorySummary(
 
 // Helper to compute overall evaluation summary
 export function computeOverallSummary(
-  categories: ABLLSCategory[],
+  categories: AbllsCategory[],
   scores: Record<string, ItemScore>
 ): {
   categorySummaries: Record<string, CategorySummary>;
@@ -154,13 +135,8 @@ export function computeOverallSummary(
   let overallMaxScore = 0;
 
   categories.forEach(category => {
-    const summary = computeCategorySummary(
-      category.key,
-      category.name,
-      category.items,
-      scores
-    );
-    categorySummaries[category.key] = summary;
+    const summary = computeCategorySummary(category, scores);
+    categorySummaries[category.id] = summary;
     overallScore += summary.totalScore;
     overallMaxScore += summary.maxPossibleScore;
   });
@@ -176,3 +152,4 @@ export function computeOverallSummary(
     overallMaxScore
   };
 }
+

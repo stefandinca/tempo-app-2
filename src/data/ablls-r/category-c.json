@@ -1,0 +1,758 @@
+{
+  "id": "C",
+  "title": "LIMBAJ RECEPTIV",
+  "items": [
+    {
+      "id": "C1",
+      "text": "Răspunde la nume",
+      "objective": "Se uită și se orientează spre cel care îl strigă.",
+      "sd": "'Nume'",
+      "response": "Se uită, vine și întreabă 'Ce?' de la diferite distanțe",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Are nevoie de prompt pentru a raspunde." },
+        { "score": 2, "text": "Se uită și se indreaptă spre cel care îl strigă." }
+      ]
+    },
+    {
+      "id": "C2",
+      "text": "Răspunde la instrucții care implică realizarea unor acțiuni preferate în context",
+      "objective": "Realizează cel puțin 3 activități preferate la cerere",
+      "sd": "'Du-te la ...' Copilul stă langă obiectul/itemul necesar pentru completarea sarcinii.",
+      "response": "Răspunde la cererea de a realiza o acțiune în activitatea preferată.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează 3 sau multe activități doar cu prompt fizic partial." },
+        { "score": 2, "text": "Realizează 3 sau mai multe activități, fără prompt fizic parțial, doar prin modelare." },
+        { "score": 3, "text": "Realizează 3 sau mai multe activități doar cu prompt indicativ sau prompt verbal." },
+        { "score": 4, "text": "Realizează 3 activități fără prompt." }
+      ]
+    },
+    {
+      "id": "C3",
+      "text": "Se uită la un item preferat",
+      "objective": "Se uită la un obiect preferat prezentat în diferite poziții de adult.",
+      "sd": "Ia uite/Uită-te la (nume)",
+      "response": "Se uita la obiectul prezentat",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Se uită la item dar are nevoie uneori de prompt pentru a se uita sau pentru a se uita în 3 secunde de la cerere." },
+        { "score": 2, "text": "Se uită indiferent de poziție (sus, jos, stânga, dreapta) în 3 secunde." }
+      ]
+    },
+    {
+      "id": "C4",
+      "text": "Atinge un obiect preferat în diferite poziții",
+      "objective": "Atinge un obiect preferat prezentat în diferite poziții de adult.",
+      "sd": "Atinge (nume)/Arată (nume)",
+      "response": "Atinge obiectul prezentat",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Atinge sau apucă obiectul când obiectul este ținut în fata lui" },
+        { "score": 2, "text": "Atinge sau apucă obiectul indiferent de poziție (sus, jos, stânga, dreapta) în 3 secunde." }
+      ]
+    },
+    {
+      "id": "C5",
+      "text": "Atinge un obiect comun în diferite poziții",
+      "objective": "Atinge un obiect comun prezentat în diferite poziții de adult.",
+      "sd": "Atinge (nume)/Arată (nume)",
+      "response": "Atinge obiectul prezentat",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Atinge sau apucă obiectul când obiectul este ținut în fata lui." },
+        { "score": 2, "text": "Atinge sau apucă obiectul indiferent de poziție (sus, jos, stânga, dreapta) în 3 secunde." }
+      ]
+    },
+    {
+      "id": "C6",
+      "text": "Răspunde la instrucții care implică realizarea unor acțiuni preferate în afara contextului",
+      "objective": "Realizează 3 actiuni preferate in afara contextului (ex., fiind într-o activitate de colorat adultul îi cere copilului să se ducă să sară pe trambulină).",
+      "sd": "'Du-te și (acțiune specifică)'.",
+      "response": "Își întrerupe activitatea și realizează acțiunea cerută.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează 3 sau multe activități doar cu prompt fizic partial." },
+        { "score": 2, "text": "Realizează 3 sau mai multe activități, fără prompt fizic parțial, doar prin modelare." },
+        { "score": 3, "text": "Realizează 3 sau mai multe activități doar cu prompt indicativ sau prompt verbal." },
+        { "score": 4, "text": "Realizează 3 activități fără prompt." }
+      ]
+    },
+    {
+      "id": "C7",
+      "text": "Realizează acțiuni în situații de rutină",
+      "objective": "Realizează 3 acțiuni in situații de rutină (ex., după ce a fost la toaletă adultul îi cere să se spele pe mâini).",
+      "sd": "'/(Acțiune specifică)'",
+      "response": "Realizează acțiunea",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează 3 sau multe activități doar cu prompt fizic partial." },
+        { "score": 2, "text": "Realizează 3 sau mai multe activități, fără prompt fizic parțial, doar prin modelare." },
+        { "score": 3, "text": "Realizează 3 sau mai multe activități doar cu prompt indicativ sau prompt verbal." },
+        { "score": 4, "text": "Realizează 3 activități, fără prompt." }
+      ]
+    },
+    {
+      "id": "C8",
+      "text": "Oferă un obiect comun",
+      "objective": "Oferă un obiect în situații de rutină (ex., după ce a fost ajutat să încalțe un pantof, adultul îl cere și celălalt pantof).",
+      "sd": "Dă-mi (nume)",
+      "response": "Oferă obiectul",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Oferă un obiect, de obicei având nevoie de prompt." },
+        { "score": 2, "text": "Oferă, de obicei, un obiect în 3 secunde." }
+      ]
+    },
+    {
+      "id": "C9",
+      "text": "Realizează diferite acțiuni motorii",
+      "objective": "Realizează 4 acțiuni în 10 secunde.",
+      "sd": "'/(Acțiune specifică)'",
+      "response": "Realizeaza acțiunea",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 instrucții fără prompt." },
+        { "score": 2, "text": "Răspunde la 4 instrucții fără prompt." },
+        { "score": 3, "text": "Răspunde la 6 instrucții fără prompt." },
+        { "score": 4, "text": "Răspunde la 6 instrucții fără prompt și reușește sa realizeze 4 acțiuni în 10 secunde." }
+      ]
+    },
+    {
+      "id": "C10",
+      "text": "Arată un obiect comun (un obiect comun vs un distractor)",
+      "objective": "Caută cu privirea si arată independent un obiect tinut în orice pozitie.",
+      "sd": "Arată/Unde este 'obiect'? + îi prezintă obiectul target și un distractor (ex., mâna întinsă, dar fără obiect; obiectul target într-o mână și un cub în cealaltă mână)",
+      "response": "Arată obiectul comun.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Atinge un obiect dacă este ținut în fața lui." },
+        { "score": 2, "text": "Atinge obiectul în orice poziție, în 3 secunde." }
+      ]
+    },
+    {
+      "id": "C11",
+      "text": "Arată un obiect preferat (un obiect preferat vs un obiect comun)",
+      "objective": "Arată obiectul preferat în 3 secunde când adultul îi prezintă două obiecte (unul preferat și unul comun).",
+      "sd": "Arată/Unde este 'obiect' + îi prezintă un obiect preferat și un distractor",
+      "response": "Arată obiectul preferat.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Atinge un obiect dacă este ținut în fața lui." },
+        { "score": 2, "text": "Atinge obiectul în orice poziție, în 3 secunde." }
+      ]
+    },
+    {
+      "id": "C12",
+      "text": "Arată un obiect preferat (un obiect preferat vs un obiect preferat)",
+      "objective": "Arată obiectul preferat în 3 secunde când adultul îi prezintă două obiecte (două obiecte preferate).",
+      "sd": "Arată/Unde este 'obiect'? + îi prezintă două obiecte preferate.",
+      "response": "Arată obiectul.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Atinge un obiect dacă este ținut în fața lui." },
+        { "score": 2, "text": "Atinge obiectul în orice poziție, în 3 secunde." }
+      ]
+    },
+    {
+      "id": "C13",
+      "text": "Arată un obiect comun (un obiect comun vs un obiect comun)",
+      "objective": "Arată un obiect în 3 secunde când adultul îi prezintă două obiecte (două obiecte comune).",
+      "sd": "Arată/Unde este 'obiect'? + îi prezintă două obiecte comune.",
+      "response": "Arată obiectul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 obiecte." },
+        { "score": 2, "text": "Arată 10 obiecte." },
+        { "score": 3, "text": "Arată 25 de obiecte." },
+        { "score": 4, "text": "Arată 50 sau mai multe obiecte și poate identifica mai multe exemplare pentru aceste obiecte." }
+      ]
+    },
+    {
+      "id": "C14",
+      "text": "Arată un obiect comun în câmp de 2 imagini",
+      "objective": "Arată imaginea unui obiect în 3 secunde când adultul îi prezintă două imagini cu obiecte comune.",
+      "sd": "Arată/Unde este 'obiect'? + îi prezintă două imagini cu obiecte comune.",
+      "response": "Arată imaginea corectă.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 obiecte." },
+        { "score": 2, "text": "Arată 10 obiecte." },
+        { "score": 3, "text": "Arată 25 de obiecte." },
+        { "score": 4, "text": "Arată 50 sau mai multe obiecte și poate identifica mai multe exemplare pentru aceste obiecte." }
+      ]
+    },
+    {
+      "id": "C15",
+      "text": "Identifică părțile corpului",
+      "objective": "Arată, la cerere, 10 părți ale corpului.",
+      "sd": "Arată 'parte a corpului'.",
+      "response": "Arată 'partea corpului' cerută.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 părți ale corpului." },
+        { "score": 2, "text": "Arată 4 părți ale corpului." },
+        { "score": 3, "text": "Arată 6 părți ale corpului." },
+        { "score": 4, "text": "Arată 10 sau mai multe părți ale corpului." }
+      ]
+    },
+    {
+      "id": "C16",
+      "text": "Identifică 100 de obiecte comune",
+      "objective": "Arată 100 de obiecte când adultul îi prezintă 6 sau mai multe obiecte comune.",
+      "sd": "Arată/Unde este 'obiect'? + îi prezintă 6 obiecte comune.",
+      "response": "Arată obiectul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată 5 obiecte, în câmp de 3 obiecte pe masă" },
+        { "score": 2, "text": "Arată 10 obiecte, în câmp de 3 obiecte pe masă" },
+        { "score": 3, "text": "Arată 50 de obiecte, în câmp de 3 obiecte pe masă" },
+        { "score": 4, "text": "Arată 100 de obiecte și poate identifica mai multe exemplare pentru aceste obiecte, în câmp de 6 sau mai multe obiecte pe masă." }
+      ]
+    },
+    {
+      "id": "C17",
+      "text": "Identifică 100 de obiecte comune în imagini",
+      "objective": "Arată 100 de obiecte, în imagini, când adultul îi prezintă 6 sau mai multe obiecte comune.",
+      "sd": "Arată/Unde este 'obiect'? + îi prezintă 6 imagini ale unor obiecte comune.",
+      "response": "Arată obiectul.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată 5 obiecte, în câmp de 3 sau mai multe imagini pe masă" },
+        { "score": 2, "text": "Arată 10 obiecte, în câmp de 3 obiecte pe masă" },
+        { "score": 3, "text": "Arată 50 de obiecte, în câmp de 3 obiecte pe masă" },
+        { "score": 4, "text": "Arată 100 de obiecte și poate identifica mai multe exemplare pentru aceste obiecte, în câmp de 6 sau mai multe imagini pe masă." }
+      ]
+    },
+    {
+      "id": "C18",
+      "text": "Învață un obiect fără training direct",
+      "objective": "Învață rapid să arate mai mulți itemi noi după ce adultul îi cere să-i selecteze de 5 ori.",
+      "sd": "Dă-mi 'obiect'/Arată-mi 'obiect'.",
+      "response": "Oferă/arată obiectul sau imaginea obiectului.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Învață un obiect în mai puțin de 10 repetiții." },
+        { "score": 2, "text": "Învață un obiect în mai puțin de 5 repetiții." }
+      ]
+    },
+    {
+      "id": "C19",
+      "text": "Arată obiectele cu fluență",
+      "objective": "Arată în succesiune rapidă 10 obiecte în 30 de secunde.",
+      "sd": "Dă-mi 'obiect'/Arată 'obiect'.",
+      "response": "Oferă/arată obiectul sau imaginea obiectului.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Arată 5 itemi în 15 secunde." },
+        { "score": 2, "text": "Arată 10 itemi în 30 de secunde." }
+      ]
+    },
+    {
+      "id": "C20",
+      "text": "Răspunde la o varietate de cereri",
+      "objective": "Selectează sau arată obiecte sau imagini ale obiectelor învățate folosind orice tip de răspuns când adultul variază cererile.",
+      "sd": "Dă-mi/Arată-mi/Atinge/Ridică/Ia/Întoarce 'obiect'.",
+      "response": "Variabil.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Selectează obiecte sau imagini pentru 2 tipuri de SD-uri (poate folosi orice tip de răspuns)." },
+        { "score": 2, "text": "Selectează obiecte sau imagini pentru 5 tipuri de SD-uri (orice tip de răspuns este acceptat)." }
+      ]
+    },
+    {
+      "id": "C21",
+      "text": "Arată părțile corpului pe ceilalți sau în imagini",
+      "objective": "Arată, la cerere, 10 părți ale corpului.",
+      "sd": "Arată 'parte a corpului'.",
+      "response": "Arată 'partea corpului' cerută.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 părți ale corpului." },
+        { "score": 2, "text": "Arată 4 părți ale corpului." },
+        { "score": 3, "text": "Arată 6 părți ale corpului." },
+        { "score": 4, "text": "Arată 10 sau mai multe părți ale corpului." }
+      ]
+    },
+    {
+      "id": "C22",
+      "text": "Își arată îmbrăcămintea",
+      "objective": "Identifică pe el/ea 4 sau multe articole de îmbrăcăminte.",
+      "sd": "Arată-mi 'articol de îmbrăcăminte'.",
+      "response": "Arată pe el/ea 'articol de îmbrăcăminte'.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 articole de îmbrăcăminte." },
+        { "score": 2, "text": "Arată 4 sau mai multe articole de îmbrăcăminte." }
+      ]
+    },
+    {
+      "id": "C23",
+      "text": "Atinge părți ale obiectelor",
+      "objective": "Arată 3 părți componente pe 10 obiecte (ex., arată acoperișul, ușa și fereastra de la o casă).",
+      "sd": "Arată-mi 'prima parte', 'a doua parte', 'a treia parte'.",
+      "response": "Arată fiecare parte componentă.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 părți componente pentru 2 obiecte." },
+        { "score": 2, "text": "Arată 2 părți componente pentru 4 obiecte." },
+        { "score": 3, "text": "Arată 3 părți componente pentru 6 obiecte." },
+        { "score": 4, "text": "Arată 3 părți componente pentru 10 obiecte." }
+      ]
+    },
+    {
+      "id": "C24",
+      "text": "Identifică adjectivele",
+      "objective": "Identifică 20 de adjective.",
+      "sd": "Care este 'adjectiv'? + 2 obiecte sau imagini",
+      "response": "Arată obiectul corespunzător adjectivului.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică un adjectiv." },
+        { "score": 2, "text": "Identifică 5 adjective (pot fi toate culori)." },
+        { "score": 3, "text": "Identifică 10 adjective (5 pot fi culori)." },
+        { "score": 4, "text": "Identifică 20 de adjective (3 culori, 2 forme, 2 mărimi, etc)." }
+      ]
+    },
+    {
+      "id": "C25",
+      "text": "Identifică un obiect după privirea adultului",
+      "objective": "Urmărește privirea adultului și selectează un obiect din 3 obiecte prezentate.",
+      "sd": "'Dă-mi-l pe acesta'/ Ia-l pe 'acesta'/Vreau 'asta' + se uită la un obiect.",
+      "response": "Ia obiectul la care se uită adultul.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Selectează un obiect din 2 prezentate pe masă." },
+        { "score": 2, "text": "Selectează un obiect din 3 prezentate pe masă." }
+      ]
+    },
+    {
+      "id": "C26",
+      "text": "Răspunde la gesturi",
+      "objective": "Răspunde la 5 gesturi.",
+      "sd": "'Gest'",
+      "response": "Răspunde corect la gestul adultului.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 gesturi." },
+        { "score": 2, "text": "Răspunde la 3 gesturi." },
+        { "score": 3, "text": "Răspunde la 4 gesturi." },
+        { "score": 4, "text": "Răspunde la 5 gesturi." }
+      ]
+    },
+    {
+      "id": "C27",
+      "text": "Se duce la o persoană",
+      "objective": "Se duce, la cerere, la cel puțin 4 persoane.",
+      "sd": "Du-te la 'persoană'.",
+      "response": "Se duce la persoana numită.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Se duce la 2 persoane." },
+        { "score": 2, "text": "Se duce la 4 persoane." }
+      ]
+    },
+    {
+      "id": "C28",
+      "text": "Ia un obiect și îl oferă unei persoane",
+      "objective": "Se duce, la cerere, la 2 persoane și în două locații pentru a da/lăsa un obiect.",
+      "sd": "Du-te la 'persoană/locație'",
+      "response": "Se duce la 'persoană/locație'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Se duce la o persoană sau într-o locație cu un singur prompt verbal." },
+        { "score": 2, "text": "Se duce la 2 persoane sau în 2 locații cu un singur prompt verbal." },
+        { "score": 3, "text": "Se duce la 2 persoane sau în 2 locații fără prompt verbal." },
+        { "score": 4, "text": "Se duce la 2 persoane și 2 locații și oferă/lasă un obiect." }
+      ]
+    },
+    {
+      "id": "C29",
+      "text": "Se duce la o persoană și ia un obiect",
+      "objective": "Se duce, la cerere, la 2 persoane și în două locații pentru a lua un obiect.",
+      "sd": "Du-te la 'persoană/locație' și ia un 'obiect'.",
+      "response": "Se duce la 'persoană/locație' și ia un 'obiect'.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Se duce la o persoana sau într-o locație cu un singur prompt verbal." },
+        { "score": 2, "text": "Se duce la 2 persoane sau 2 locații cu un singur prompt verbal." },
+        { "score": 3, "text": "Se duce la 2 persoane sau 2 locații fără prompt verbal." },
+        { "score": 4, "text": "Se duce la 2 persoane și în 2 locații și ia un obiect." }
+      ]
+    },
+    {
+      "id": "C30",
+      "text": "Se duce la o persoană și realizează o acțiune",
+      "objective": "Se duce, la cerere, la 3 persoane și realizează 3 acțiuni.",
+      "sd": "Du-te la 'persoană/locație' și ia 'acțiune'.",
+      "response": "Se duce la 'persoană' și realizează acțiunea cerută.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Se duce la o persoana și realizează o acțiune." },
+        { "score": 2, "text": "Se duce la 2 persoane și realizează o acțiune." },
+        { "score": 3, "text": "Se duce la 2 persoane și realizează 2 acțiuni." },
+        { "score": 4, "text": "Se duce la 3 persoane și realizează 2 acțiuni." }
+      ]
+    },
+    {
+      "id": "C31",
+      "text": "Oferă răspunsuri specifice în sarcinile receptive",
+      "objective": "Folosește 5 tipuri de răspunsuri motorii în sarcinile receptive (ex., arată cu degetul, oferă, întoarce, acoperă).",
+      "sd": "Arată/Dă-mi/Ia/Întoarce/Unde este?/Găsește/Caută/Ridică 'obiect'.",
+      "response": "Variabil.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 tipuri de răspunsuri motorii." },
+        { "score": 2, "text": "Folosește 3 tipuri de răspunsuri motorii." },
+        { "score": 3, "text": "Folosește 4 tipuri de răspunsuri motorii." },
+        { "score": 4, "text": "Folosește 5 tipuri de răspunsuri motorii." }
+      ]
+    },
+    {
+      "id": "C32",
+      "text": "Demonstrează o acțiune specifică cu un obiect",
+      "objective": "Realizează 5 acțiuni cu obiecte.",
+      "sd": "Arată-mi cum 'acțiune' + 3 obiecte prezente.",
+      "response": "Ia obiectul potrivit și realizează acțiunea cerută.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Realizează 2 acțiuni cu prompt verbal sau prompt indicativ." },
+        { "score": 2, "text": "Realizează 5 acțiuni fără prompt." }
+      ]
+    },
+    {
+      "id": "C33",
+      "text": "Demonstreaza acțiuni multiple cu un obiect",
+      "objective": "Realizează 4 acțiuni cu cel puțin 4 obiecte (cal - aleargă, bea, sare, doarme, mănâncă).",
+      "sd": "Arată-mi cum 'acțiune' 'obiect' / 'Obiect' 'acțiune' (ex., Calul bea)",
+      "response": "Ia obiectul menționat și realizeaza acțiunea cerută.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Realizează 2 actiuni cu 2 obiecte." },
+        { "score": 2, "text": "Realizează 2 actiuni cu 4 obiecte." },
+        { "score": 3, "text": "Realizează 3 actiuni cu 4 obiecte." },
+        { "score": 4, "text": "Realizează 4 actiuni cu 4 obiecte." }
+      ]
+    },
+    {
+      "id": "C34",
+      "text": "Se preface că ...",
+      "objective": "Mimează 5 acțiuni.",
+      "sd": "Arată-mi cum 'acțiune' (ex., arată-mi cum dormi).",
+      "response": "Se preface că 'acțiune'.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Realizează 2 acțiuni cu prompt verbal sau prompt indicativ." },
+        { "score": 2, "text": "Realizează 5 acțiuni fără prompt." }
+      ]
+    },
+    {
+      "id": "C35",
+      "text": "Identifică diferite acțiuni în câmp de 3 imagini",
+      "objective": "Identifică 20 de acțiuni și poate identifica multiple exemplare ale aceleiași acțiuni.",
+      "sd": "Arată-mi/Da-mi/Ia/Unde 'acțiune'?",
+      "response": "Arată/oferă acțiunea cerută.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică 2 acțiuni." },
+        { "score": 2, "text": "Identifică 5 acțiuni." },
+        { "score": 3, "text": "Identifică 10 acțiuni." },
+        { "score": 4, "text": "Identifică 20 de acțiuni si poate identifica multiple exemplare ale aceleiași acțiuni." }
+      ]
+    },
+    {
+      "id": "C36",
+      "text": "Identifică imaginea pereche dintr-o asociere logică",
+      "objective": "Selectează 2 imagini pentru un item formând astfel o asociere logică (ex., albină - stup, miere).",
+      "sd": "Cu ce se potrivește 'item'?",
+      "response": "Arată itemul cu care se potrivește.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Arată o imagine pentru 5 itemi." },
+        { "score": 2, "text": "Arată o imagine pentru 10 itemi." },
+        { "score": 3, "text": "Arată 2 imagini pentru 10 itemi." },
+        { "score": 4, "text": "Arată 2 imagini pentru 20 de itemi." }
+      ]
+    },
+    {
+      "id": "C37",
+      "text": "Identifică un obiect după funcție",
+      "objective": "Selectează 25 de itemi după funcție.",
+      "sd": "Cu ce 'acțiune'?",
+      "response": "Arată itemul corect.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică 2 itemi, în câmp de 3 imagini/obiecte." },
+        { "score": 2, "text": "Identifică 5 itemi, în câmp de 3 imagini/obiecte." },
+        { "score": 3, "text": "Identifică 25 de itemi, în câmp de 3 imagini/obiecte." },
+        { "score": 4, "text": "Identifică 25 de itemi și selectează 2 sau mai multi itemi cu aceeasi funcție când pe masă sunt 6 imagini/obiecte." }
+      ]
+    },
+    {
+      "id": "C38",
+      "text": "Identifică un obiect după o caracteristică",
+      "objective": "Selectează 25 de itemi după caracteristică.",
+      "sd": "Dă-mi ceva care are 'caracteristică'.",
+      "response": "Arată itemul corect.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică o caracteristica pentru 2 itemi." },
+        { "score": 2, "text": "Identifică o caracteristica pentru 5 itemi." },
+        { "score": 3, "text": "Identifică 2 caracteristice pentru 25 de itemi." },
+        { "score": 4, "text": "Identifică 2 caracteristici pentru 25 de itemi și selectează 2 itemi cu aceeasi caracteristică când pe masă sunt 6 imagini/obiecte." }
+      ]
+    },
+    {
+      "id": "C39",
+      "text": "Identifică un obiect după categorie",
+      "objective": "Selectează 5 itemi din 4 categorii.",
+      "sd": "Dă-mi 'categorie'",
+      "response": "Oferă elementele din categoria indicată.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Selectează 5 itemi dintr-o categorie." },
+        { "score": 2, "text": "Selectează 5 itemi din 2 categorii." },
+        { "score": 3, "text": "Selectează 5 itemi din 4 categorii." },
+        { "score": 4, "text": "Selectează 5 itemi din 4 categorii și selecteaza 2 itemi din aceeasi categorie când pe masă sunt 6 imagini/obiecte." }
+      ]
+    },
+    {
+      "id": "C40",
+      "text": "Selectează 2 itemi dintr-un set mai mare",
+      "objective": "Selectează 2 obiecte dintr-un set mai mare de obiecte.",
+      "sd": "Dă-mi 'obiect' și 'obiect'.",
+      "response": "Oferă obiectele numite.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 obiecte din 4 obiecte prezentate." },
+        { "score": 2, "text": "Oferă 2 obiecte din 10 sau mai multe obiecte prezentate." }
+      ]
+    },
+    {
+      "id": "C41",
+      "text": "Selectează dintr-un set mai mare 2 itemi în ordine",
+      "objective": "Selectează 2 obiecte, în ordinea cerută, dintr-un set mai mare de obiecte.",
+      "sd": "Dă-mi 'obiect' și 'obiect'.",
+      "response": "Oferă obiectele numite.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 obiecte din 4 obiecte prezentate." },
+        { "score": 2, "text": "Oferă 2 obiecte din 10 sau mai multe obiecte prezentate." }
+      ]
+    },
+    {
+      "id": "C42",
+      "text": "Identifică meseriile",
+      "objective": "Identifică 4 meserii.",
+      "sd": "Unde este 'meserie'?",
+      "response": "Arată persoana numită.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică o meserie." },
+        { "score": 2, "text": "Identifică 2 meserii." },
+        { "score": 3, "text": "Identifică 3 meserii." },
+        { "score": 4, "text": "Identifică 4 meserii." }
+      ]
+    },
+    {
+      "id": "C43",
+      "text": "Localizează obiecte în imagini complexe",
+      "objective": "Identifică toți itemii dintr-o imagine complexă.",
+      "sd": "Găsește toți 'itemii'.",
+      "response": "Identifică toți itemii din imagine.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 din 4 itemi dintr-o imagine care mai contine alți 5 itemi." },
+        { "score": 2, "text": "Arată 3 din 4 itemi dintr-o imagine care mai contine alți 10 itemi." }
+      ]
+    },
+    {
+      "id": "C44",
+      "text": "Localizează obiecte parțiale în imagini complexe",
+      "objective": "Identifică toți itemii dintr-o imagine complexă chiar dacă o parte din itemi sunt parțiali vizibili.",
+      "sd": "Găsește toți 'itemii'.",
+      "response": "Identifică toți itemii din imagine.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Arată 2 din 4 itemi dintr-o imagine care mai contine alți 5 itemi." },
+        { "score": 2, "text": "Arată 3 din 4 itemi dintr-o imagine care mai contine alți 10 itemi." }
+      ]
+    },
+    {
+      "id": "C45",
+      "text": "Identifică sunetele din mediu",
+      "objective": "Identifică 8 sunete din mediu.",
+      "sd": "'Sunet' + 3/6 itemi pe masă.",
+      "response": "Arată itemul corespunzător sunetului.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică 2 sunete." },
+        { "score": 2, "text": "Identifică 4 sunete." },
+        { "score": 3, "text": "Identifică 6 sunete." },
+        { "score": 4, "text": "Identifică 8 sunete." }
+      ]
+    },
+    {
+      "id": "C46",
+      "text": "Selectează toate exemplarele unui obiect",
+      "objective": "Selectează toți itemii similari dintr-un set mai mare.",
+      "sd": "Dă-mi toți 'item' (ex., Dă-mi toate pisicile)",
+      "response": "Strânge toți itemii și îi oferă adultului.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 itemi din 4 itemi pe masă." },
+        { "score": 2, "text": "Oferă 3 itemi din 6 itemi prezentați pe masă." },
+        { "score": 3, "text": "Oferă 3 itemi din 10 itemi prezentați pe masă." },
+        { "score": 4, "text": "Oferă 6 itemi din 15 itemi prezentați pe masă." }
+      ]
+    },
+    {
+      "id": "C47",
+      "text": "Selectează un item după 2 caracteristici",
+      "objective": "Selectează 20 de itemi după 2 caracteristici.",
+      "sd": "Dă-mi 'obiect' 'prima caracteristică' 'a doua caracteristică'.",
+      "response": "Oferă obiectul corect.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 itemi cu 2 combinații de caracteristici." },
+        { "score": 2, "text": "Oferă 5 itemi cu 2 combinații de caracteristici." },
+        { "score": 3, "text": "Oferă 10 itemi cu 2 combinații de caracteristici." },
+        { "score": 4, "text": "Oferă 20 itemi cu 2 combinații de caracteristici." }
+      ]
+    },
+    {
+      "id": "C48",
+      "text": "Selectează un set de itemi după o caracteristică specifică",
+      "objective": "Selectează 20 de seturi de obiecte formate după o caracteristică specifică (ex., obiecte mici și roșii).",
+      "sd": "Dă-mi 'obiect' 'caracteristică'.",
+      "response": "Oferă toți itemii cu această caracteristică.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă un set de itemi grupați după un adjectiv." },
+        { "score": 2, "text": "Oferă seturi de itemi grupați după un 5 adjective (pot fi toate culori)." },
+        { "score": 3, "text": "Oferă seturi de itemi grupați după un 10 adjective (pot fi 5 culori)." },
+        { "score": 4, "text": "Oferă seturi de itemi grupați după un 20 de adjective (3 culori, 2 forme, 2 mărimi)." }
+      ]
+    },
+    {
+      "id": "C49",
+      "text": "Selectează un set de itemi după 2 caracteristici specifice",
+      "objective": "Selectează 20 de seturi de obiecte formate după 2 caracteristici specifice (ex., obiecte mici și roșii).",
+      "sd": "Dă-mi 'obiect' 'prima caracteristica' 'a doua caracteristică'.",
+      "response": "Oferă toți itemii cu aceste caracteristici.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 itemi cu 2 combinații de caracteristici." },
+        { "score": 2, "text": "Oferă 5 itemi cu 2 combinații de caracteristici." },
+        { "score": 3, "text": "Oferă 10 itemi cu 2 combinații de caracteristici." },
+        { "score": 4, "text": "Oferă 20 itemi cu 2 combinații de caracteristici." }
+      ]
+    },
+    {
+      "id": "C50",
+      "text": "Selectează 3 obiecte respectând ordinea în care au fost cerute",
+      "objective": "Selectează 3 itemi în ordinea cerută de adult.",
+      "sd": "Dă-mi 'item 1' 'item 2' 'item 3'",
+      "response": "Oferă în ordine itemii ceruți.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Selecteaza 2 itemi dupa ce toți itemii sunt numiți." },
+        { "score": 2, "text": "Selecteaza 3 itemi după ce toți itemii sunt numiți." }
+      ]
+    },
+    {
+      "id": "C51",
+      "text": "Identifică prepozițiile",
+      "objective": "Răspunde la instrucții care implică 6 prepoziții (ex., Du-te după ușă/sub masă/pune mingea în coș).",
+      "sd": "Du-te/Pune item 'prepoziție'",
+      "response": "Se duce/așează un item în locația corectă.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică 2 prepoziții." },
+        { "score": 2, "text": "Identifică 3 prepoziții." },
+        { "score": 3, "text": "Identifică 5 prepoziții." },
+        { "score": 4, "text": "Identifică 6 prepoziții." }
+      ]
+    },
+    {
+      "id": "C52",
+      "text": "Identifică pronumele",
+      "objective": "Identifică 8 pronume personale și/sau posesive.",
+      "sd": "Arată 'parte a corpului' 'pronume'/Dă-i 'item' 'pronume'",
+      "response": "Arată 'parte a corpului' a unui item prezent",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică 2 pronume." },
+        { "score": 2, "text": "Identifică 3 pronume." },
+        { "score": 3, "text": "Identifică 4 pronume." },
+        { "score": 4, "text": "Identifică 8 pronume." }
+      ]
+    },
+    {
+      "id": "C53",
+      "text": "Selectează imagini reprezentând o locație sau o activitate",
+      "objective": "Identifică 4 locații (ex., plajă, petrecere, teatru).",
+      "sd": "Arată-mi 'locatie'.",
+      "response": "Arată locația corectă.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică 2 locații." },
+        { "score": 2, "text": "Identifică 4 locații." }
+      ]
+    },
+    {
+      "id": "C54",
+      "text": "Identifică emoțiile",
+      "objective": "Identifică 4 emoții.",
+      "sd": "Arată-mi/Unde este .../Poți să-mi arăți 'emoție'",
+      "response": "Arată emoția corect.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică o emoție." },
+        { "score": 2, "text": "Identifică 2 emoții." },
+        { "score": 3, "text": "Identifică 3 emoții." },
+        { "score": 4, "text": "Identifică 4 emoții." }
+      ]
+    },
+    {
+      "id": "C55",
+      "text": "Selectează 'la fel' și 'diferit'",
+      "objective": "Selectează itemi 'la fel' și 'diferit' în câmp de 2 obiecte sau imagini care prezintă o singură caracteristică diferită",
+      "sd": "Hai să vedem care sunt la fel și care sunt diferite. Dă-mi-l pe cel la fel ca acesta - adultul îi prezintă un duplicat al unui item.",
+      "response": "Oferă itemul identic sau diferit de cel prezentat de adult",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Identifică 'la fel' și 'diferit' atunci când cei doi itemi prezentați au două sau mai multe caracteristici diferite." },
+        { "score": 2, "text": "Identifică 'la fel' și 'diferit' când cei doi itemi prezentați diferă doar printr-o caracteristică." }
+      ]
+    },
+    {
+      "id": "C56",
+      "text": "Selectează non-exemplare",
+      "objective": "Selectează 3 non-exemplare din 10 categorii.",
+      "sd": "Care nu este 'categorie'? - în câmp de 4 (3 itemi dintr-o categorie și un item din afara categoriei)",
+      "response": "Arată itemul din afara categoriei.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică 3 exemplare din 2 categorii." },
+        { "score": 2, "text": "Identifică 3 exemplare din 3 categorii." },
+        { "score": 3, "text": "Identifică 3 exemplare din 5 categorii." },
+        { "score": 4, "text": "Identifică 3 exemplare din 10 categorii." }
+      ]
+    },
+    {
+      "id": "C57",
+      "text": "Selectează imagini reprezentând diferite interacțiuni sociale",
+      "objective": "Recunoaște 4 situații sociale (ex., este rușinat, se ceartă, vorbesc).",
+      "sd": "În care imagine oamenii/copii 'interacțiune socială'? - în câmp de 3 imagini",
+      "response": "Arată imaginea reprezentativă.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Identifică o interactiune socială." },
+        { "score": 2, "text": "Identifică 2 situații." },
+        { "score": 3, "text": "Identifică 3 situații." },
+        { "score": 4, "text": "Identifică 4 situații." }
+      ]
+    }
+  ]
+}

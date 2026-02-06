@@ -1,0 +1,679 @@
+{
+  "id": "H",
+  "title": "INTRAVERBAL",
+  "items": [
+    {
+      "id": "H1",
+      "text": "Completează diferite cântece",
+      "objective": "Completează 3 fraze și realizează acțiunile din cântec.",
+      "sd": "Adultul începe să cânte și se oprește înainte de cuvintele target.",
+      "response": "Completează cântecul și realizează mișcările din cântec.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Completează un cuvânt din 2 cântece." },
+        { "score": 2, "text": "Completează 2 cuvinte din 2 cântece." },
+        { "score": 3, "text": "Completează 3 cuvinte din 3 cântece." },
+        { "score": 4, "text": "Completează 3 fraze din 6 cântece." }
+      ]
+    },
+    {
+      "id": "H2",
+      "text": "Completează expresii distractive",
+      "objective": "Completează 10 fraze distractive.",
+      "sd": "Adultul începe expresia",
+      "response": "Completează expresia",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Completează o expresie." },
+        { "score": 2, "text": "Completează 2 expresii." },
+        { "score": 3, "text": "Completează 5 expresii." },
+        { "score": 4, "text": "Completează 10 sau mai multe expresii." }
+      ]
+    },
+    {
+      "id": "H3",
+      "text": "Folosește limbajul semnelor",
+      "objective": "Folosește 25 de semne în comunicare.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Folosește 2 semne." },
+        { "score": 2, "text": "Folosește 5 semne." },
+        { "score": 3, "text": "Folosește 15 semne." },
+        { "score": 4, "text": "Folosește 25 de semne." }
+      ]
+    },
+    {
+      "id": "H4",
+      "text": "Recunoaște animalele după sunetele produse",
+      "objective": "Denumește 8 animale după sunetele produse și emite 8 sunete de animale.",
+      "sd": "'Animal' face ..../ 'Sunet' face ...",
+      "response": "Completează propoziția cu numele animalului sau sunetul produs de acesta.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Completează propoziții cu 2 sunete sau nume." },
+        { "score": 2, "text": "Completează propoziții cu 4 sunete sau nume." },
+        { "score": 3, "text": "Completează propoziții cu 6 sunete sau nume." },
+        { "score": 4, "text": "Completează propoziții cu 8 sunete și 8 nume." }
+      ]
+    },
+    {
+      "id": "H5",
+      "text": "Răspunde la întrebări personale",
+      "objective": "Răspunde la 8 întrebări personale.",
+      "sd": "Întrebare specific personală (ex., 'Cum te cheamă?', 'Câți ani ai?').",
+      "response": "Răspunde la întrebare.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la o intrebare." },
+        { "score": 2, "text": "Răspunde la 2 întrebări." },
+        { "score": 3, "text": "Răspunde la 3 întrebări." },
+        { "score": 4, "text": "Răspunde la 4 întrebări." }
+      ]
+    },
+    {
+      "id": "H6",
+      "text": "Completează diferite fraze în timpul activităților zilnice",
+      "objective": "Completează 10 fraze în timpul unor activități în progres (ex., în timp ce îl ajută să se spele pe mâini adultul spune 'Mă spăl pe .....' - imediat copilul spune 'mâini').",
+      "sd": "Adultul începe fraza",
+      "response": "Completează cu un cuvânt",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 1 răspuns." },
+        { "score": 2, "text": "Oferă 2 răspunsuri." },
+        { "score": 3, "text": "Oferă 5 răspunsuri." },
+        { "score": 4, "text": "Oferă 10 răspunsuri." }
+      ]
+    },
+    {
+      "id": "H7",
+      "text": "Oferă răspunsuri care completează o asociere logică",
+      "objective": "Numește 2 itemi pentru 20 de obiecte/ființe formând astfel o asociere logică.",
+      "sd": "'Obiect/Ființă'/ Ce se potrivește cu 'obiect/ființă'/'Obiect/Ființă' și ...",
+      "response": "Numește 2 itemi",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește 1 item pentru 5 asocieri." },
+        { "score": 2, "text": "Numește 1 item pentru 10 asocieri." },
+        { "score": 3, "text": "Numește 2 itemi pentru fiecare dintre cele 10 asocieri." },
+        { "score": 4, "text": "Numește 2 itemi pentru 20 sau mai multe asocieri." }
+      ]
+    },
+    {
+      "id": "H8",
+      "text": "Completează o frază cu numele obiectului când este numită funcția",
+      "objective": "Completează 20 de fraze cu 2 răspunsuri.",
+      "sd": "'Acțiune' cu .... (ex., Tai hârtia cu ....)",
+      "response": "Item (ex., Foarfecă)",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Completează 2 fraze." },
+        { "score": 2, "text": "Completează 5 fraze." },
+        { "score": 3, "text": "Completează 10 fraze cu 2 răspunsuri diferite." },
+        { "score": 4, "text": "Completează 20 de fraze cu 2 răspunsuri diferite." }
+      ]
+    },
+    {
+      "id": "H9",
+      "text": "Completează o frază cu funcția obiectului când este numit obiectul",
+      "objective": "Completează 20 de fraze cu 2 răspunsuri.",
+      "sd": "'Cu 'item'...' (ex., Cu foarfeca)",
+      "response": "'Acțiune (ex., Tai)",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Completează 2 fraze." },
+        { "score": 2, "text": "Completează 5 fraze." },
+        { "score": 3, "text": "Completează 10 fraze cu 2 răspunsuri diferite." },
+        { "score": 4, "text": "Completează 20 de fraze cu 2 răspunsuri diferite." }
+      ]
+    },
+    {
+      "id": "H10",
+      "text": "Răspunde la întrebarea 'Ce?' pentru obiectele din casă",
+      "objective": "Răspunde la 30 de întrebări oferind cel puțin 3 răspunsuri pentru cel puțin 5 locații.",
+      "sd": "Ce avem în 'cameră'?/Ce vazi în 'cameră'?/Ce găsim în 'cameră'?",
+      "response": "3 răspunsuri pentru 5 camere",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări (un răspuns/per întrebare)." },
+        { "score": 2, "text": "Răspunde la 10 întrebări (un răspuns/per întrebare)." },
+        { "score": 3, "text": "Răspunde la 15 întrebări (un răspuns/per întrebare)." },
+        { "score": 4, "text": "Răspunde la 30 de întrebări sau mai multe (cu 3 răspunsuri pentru 5 locații: baie, dormitor, bucătărie, debara, frigider)." }
+      ]
+    },
+    {
+      "id": "H11",
+      "text": "Răspunde la întrebarea 'Ce?' pentru funcțiile obiectelor",
+      "objective": "Răspunde la 50 de întrebări legate de funcțiile obiectelor.",
+      "sd": "Ce faci cu 'item'?",
+      "response": "'Acțiune'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 25 întrebări." },
+        { "score": 4, "text": "Răspunde la 50 întrebări." }
+      ]
+    },
+    {
+      "id": "H12",
+      "text": "Răspunde la întrebarea 'Unde?' pentru obiectele din casă sau de la grădiniță",
+      "objective": "Răspunde la 50 de intrebări legate de obiectele din casă sau de la grădiniță/școală.",
+      "sd": "'Unde ...?'/'De unde ...?'",
+      "response": "Din 'locație'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 15 întrebări." },
+        { "score": 4, "text": "Răspunde la 30 întrebări." }
+      ]
+    },
+    {
+      "id": "H13",
+      "text": "Răspunde la întrebarea 'Unde?' pentru activitățile de acasă sau de la grădiniță",
+      "objective": "Răspunde la 50 de întrebări legate de activitățile de acasă și de la grădiniță/școală.",
+      "sd": "'Unde 'acțiune'?",
+      "response": "În 'locație'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 15 întrebări." },
+        { "score": 4, "text": "Răspunde la 30 de întrebări." }
+      ]
+    },
+    {
+      "id": "H14",
+      "text": "Completează o frază cu numele obiectului când i se spune categoria",
+      "objective": "Numește cel puțin 2 itemi pentru 20 de categorii.",
+      "sd": "'Categoria' este ...",
+      "response": "'Item'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări (cu 2 răspunsuri/întrebare)." },
+        { "score": 4, "text": "Răspunde la 20 întrebări (cu 2 răspunsuri/întrebare)." }
+      ]
+    },
+    {
+      "id": "H15",
+      "text": "Oferă răspunsuri multiple la o categorie",
+      "objective": "Numește 4 itemi pentru 20 de categorii.",
+      "sd": "'Categoria' sunt...",
+      "response": "Item, item, item și item",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 categorii cu 2 răspunsuri." },
+        { "score": 2, "text": "Răspunde la 5 categorii cu 2 răspunsuri." },
+        { "score": 3, "text": "Răspunde la 10 categorii cu 3 răspunsuri." },
+        { "score": 4, "text": "Răspunde la 20 de categorii cu 4 răspunsuri." }
+      ]
+    },
+    {
+      "id": "H16",
+      "text": "Completează o frază cu o caracteristică când i se spune obiectul",
+      "objective": "Oferă două caracteristici pentru 20 de itemi.",
+      "sd": "'Item' are ...",
+      "response": "'Caracteristică'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări (cu 2 răspunsuri/întrebare)." },
+        { "score": 4, "text": "Răspunde la 20 de întrebări (cu 2 răspunsuri/întrebare)." }
+      ]
+    },
+    {
+      "id": "H17",
+      "text": "Completează o frază cu numele obiectului când i se spune o caracteristică",
+      "objective": "Numește doi itemi pentru 20 de caracteristici.",
+      "sd": "'Caracteristică' are ...",
+      "response": "'Item'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări (cu 2 răspunsuri/întrebare)." },
+        { "score": 4, "text": "Răspunde la 20 de întrebări (cu 2 răspunsuri/întrebare)." }
+      ]
+    },
+    {
+      "id": "H18",
+      "text": "Completează o frază cu categoria când i se spune obiectul",
+      "objective": "Completează 20 de fraze cu câte 2 itemi.",
+      "sd": "'Element din categorie' este ...",
+      "response": "Categorie",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări (cu 2 răspunsuri/întrebare)." },
+        { "score": 4, "text": "Răspunde la 20 de întrebări (cu 2 răspunsuri/întrebare)." }
+      ]
+    },
+    {
+      "id": "H19",
+      "text": "Numește itemi observați anterior",
+      "objective": "Numește 2 sau mai mulți itemi după o oră de la observarea acestora.",
+      "sd": "'Ce ai vazut în 'locație'?'",
+      "response": "Numește itemii văzuți în acea locație",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește un item imediat după observație." },
+        { "score": 2, "text": "Numește un item după 5 minute." },
+        { "score": 3, "text": "Numește un item după 10 minute." },
+        { "score": 4, "text": "Numește 2 sau mai mulți itemi după o oră." }
+      ]
+    },
+    {
+      "id": "H20",
+      "text": "Numește activitățile observate anterior",
+      "objective": "Numește o activitate după o oră de la observarea acesteia.",
+      "sd": "'Ce s-a întâmplat 'locație'?'",
+      "response": "Numește activitatea observată în acea locație",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește activitatea imediat după observație." },
+        { "score": 2, "text": "Numește activitatea după 5 minute." },
+        { "score": 3, "text": "Numește activitatea după 10 minute." },
+        { "score": 4, "text": "Numește activitatea după o oră." }
+      ]
+    },
+    {
+      "id": "H21",
+      "text": "Numește o persoană observată anterior",
+      "objective": "Numește 2 sau mai multe persoane după o oră de la observarea acestora.",
+      "sd": "'Pe cine ai văzut în 'locatie'?'",
+      "response": "Numește persoanele văzute în acea locație",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește o persoană imediat după observație." },
+        { "score": 2, "text": "Numește o persoană după 5 minute." },
+        { "score": 3, "text": "Numește o persoană după 10 minute." },
+        { "score": 4, "text": "Numește 2 sau mai multe persoane după o oră." }
+      ]
+    },
+    {
+      "id": "H22",
+      "text": "Face diferite comentarii când i se prezintă o imagine",
+      "objective": "Extinde sau oferă comentarii pe 20 de imagini.",
+      "sd": "Spune-mi ce se întâmpla în această imagine",
+      "response": "Face 4 comentarii",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Face comentarii pe o imagine." },
+        { "score": 2, "text": "Face comentarii pe 5 imagini." },
+        { "score": 3, "text": "Face comentarii pe 10 imagini." },
+        { "score": 4, "text": "Face comentarii pe 20 de imagini." }
+      ]
+    },
+    {
+      "id": "H23",
+      "text": "Răspunde la întrebarea 'Ce?' pentru itemi din comunitate",
+      "objective": "Răspunde la 20 de întrebări legate de obiectele observate în comunitate.",
+      "sd": "Ce vezi în 'locație'?",
+      "response": "Item",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări." },
+        { "score": 4, "text": "Răspunde la 20 de întrebări." }
+      ]
+    },
+    {
+      "id": "H24",
+      "text": "Răspunde la întrebarea 'Ce?' pentru activitățile din comunitate",
+      "objective": "Răspunde la 20 de întrebări legate de activitățile desfășurate în comunitate.",
+      "sd": "'Ce faci în 'locație'?",
+      "response": "'Acțiune'",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări." },
+        { "score": 4, "text": "Răspunde la 20 de întrebări." }
+      ]
+    },
+    {
+      "id": "H25",
+      "text": "Răspunde la întrebarea 'Unde?' pentru activitățile din comunitate",
+      "objective": "Răspunde la 30 de întrebări legate de activitățile din comunitate.",
+      "sd": "Unde vezi 'item'?/ Unde găsești un 'item'?/ Unde 'acțiune'?",
+      "response": "Locație",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 15 întrebări." },
+        { "score": 4, "text": "Răspunde la 30 de întrebări." }
+      ]
+    },
+    {
+      "id": "H26",
+      "text": "Oferă multiple răspunsuri legate de comunitate",
+      "objective": "Oferă 3 itemi pentru 20 de activități din comunitate.",
+      "sd": "Spune-mi cât mai multe lucruri despre ...",
+      "response": "Oferă 3 răspunsuri pentru o activitate",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 categorii cu 2 răspunsuri." },
+        { "score": 2, "text": "Răspunde la 5 categorii cu 2 răspunsuri." },
+        { "score": 3, "text": "Răspunde la 10 categorii cu 3 răspunsuri." },
+        { "score": 4, "text": "Răspunde la 20 de categorii cu 3 răspunsuri." }
+      ]
+    },
+    {
+      "id": "H27",
+      "text": "Identifică categoria când i se spun două sau mai multe elemente",
+      "objective": "Numește categoria când i se spun două sau mai multe elemente.",
+      "sd": "'Item' și 'item' sunt ....",
+      "response": "Categorie",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește o categorie când i se spune 2 elemente." },
+        { "score": 2, "text": "Numește 5 categorii." },
+        { "score": 3, "text": "Numește 10 categorii." },
+        { "score": 4, "text": "Numește 20 de categorii când i se spun 2 sau mai multe elemente." }
+      ]
+    },
+    {
+      "id": "H28",
+      "text": "Răspunde la întrebarea 'Cine?'/'Ale cui?'",
+      "objective": "Răspunde la 50 de întrebări.",
+      "sd": "Cine? Ale cui ..? Cine are ...?",
+      "response": "Item",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 25 întrebări." },
+        { "score": 4, "text": "Răspunde la 50 întrebări." }
+      ]
+    },
+    {
+      "id": "H29",
+      "text": "Răspunde la întrebarea 'Când?'",
+      "objective": "Răspunde la 50 de întrebări.",
+      "sd": "Când 'acțiune'?",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 25 întrebări." },
+        { "score": 4, "text": "Răspunde la 50 întrebări." }
+      ]
+    },
+    {
+      "id": "H30",
+      "text": "Răspunde la WH Questions pentru item și activități",
+      "objective": "Răspunde la 4 tipuri de întrebări legate de un item sau de o activitate.",
+      "sd": "Adultul îi oferă posibilitatea să aleagă un subiect din 2 propuse și aleator pune 4 întrebări pe subiectul ales.",
+      "response": "Răspuns corect la toate întrebările.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Oferă două răspunsuri corecte la 2 întrebări diferite." },
+        { "score": 2, "text": "Oferă 4 răspunsuri corecte la 4 întrebări diferite." }
+      ]
+    },
+    {
+      "id": "H31",
+      "text": "Răspunde la întrebarea 'Care?'",
+      "objective": "Răspunde la 50 de întrebări.",
+      "sd": "Care este (categorie) item 1 sau item 2?/ Care este (caracteristică/acțiune) item 1 sau item 2?",
+      "response": "Item",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 25 întrebări." },
+        { "score": 4, "text": "Răspunde la 50 întrebări." }
+      ]
+    },
+    {
+      "id": "H32",
+      "text": "Răspunde la întrebarea 'Cum?'",
+      "objective": "Răspunde la 50 de întrebări.",
+      "sd": "Cum faci 'activitate'?",
+      "response": "Descrie pașii activității",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 25 întrebări." },
+        { "score": 4, "text": "Răspunde la 50 întrebări." }
+      ]
+    },
+    {
+      "id": "H33",
+      "text": "Răspunde la întrebarea 'De ce?'",
+      "objective": "Răspunde la 50 de întrebări.",
+      "sd": "De ce 'acțiune'?",
+      "response": "Răspunde la întrebare",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 25 întrebări." },
+        { "score": 4, "text": "Răspunde la 50 întrebări." }
+      ]
+    },
+    {
+      "id": "H34",
+      "text": "Descrie etapele unei activități zilnice",
+      "objective": "Descrie 2 activități cu cel puțin 5 pași fiecare.",
+      "sd": "Spune-mi cum 'activitate'?/ Care sunt pașii ca să 'activitate'?",
+      "response": "Descrie activitatea",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Descrie 2 etape dintr-o activitate." },
+        { "score": 2, "text": "Descrie 3 etape dintr-o activitate." },
+        { "score": 3, "text": "Descrie 4 etape dintr-o activitate." },
+        { "score": 4, "text": "Descrie 5 etape pentru 2 activități." }
+      ]
+    },
+    {
+      "id": "H35",
+      "text": "Identifică o activitate când adultul îi descrie etapele",
+      "objective": "Numește activitatea când adultul îi descrie pașii.",
+      "sd": "Adultul numește activitatea în 3-5 pași",
+      "response": "Numește activitatea",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări." },
+        { "score": 4, "text": "Răspunde la 20 întrebări." }
+      ]
+    },
+    {
+      "id": "H36",
+      "text": "Identifică obiectul când i se spune categoria, funcția sau caracteristica obiectului",
+      "objective": "Răspunde la 20 de întrebări.",
+      "sd": "Adultul descrie mai multe aspecte ale unui item.",
+      "response": "Numește itemul",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 întrebări." },
+        { "score": 2, "text": "Răspunde la 5 întrebări." },
+        { "score": 3, "text": "Răspunde la 10 întrebări." },
+        { "score": 4, "text": "Răspunde la 20 întrebări." }
+      ]
+    },
+    {
+      "id": "H37",
+      "text": "Răspunde cu 'Da'/'Nu' la situații posibile sau imposibile",
+      "objective": "Răspunde la 50 de întrebări.",
+      "sd": "Poate..?/Face..?",
+      "response": "Răspunde la întrebare",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 5 întrebări." },
+        { "score": 2, "text": "Răspunde la 10 întrebări." },
+        { "score": 3, "text": "Răspunde la 25 întrebări." },
+        { "score": 4, "text": "Răspunde la 50 întrebări." }
+      ]
+    },
+    {
+      "id": "H38",
+      "text": "Răspunde corect când întrebarea conține 2 informații esențiale",
+      "objective": "Oferă 4 răspunsuri la 5 întrebări care conțin 2 criterii.",
+      "sd": "Spune-mi cât mai multe lucruri care ...",
+      "response": "4 itemi",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 răspunsuri la o întrebare." },
+        { "score": 2, "text": "Oferă 2 răspunsuri la 3 întrebări." },
+        { "score": 3, "text": "Oferă 3 răspunsuri la 4 întrebări." },
+        { "score": 4, "text": "Oferă 4 răspunsuri la 5 întrebări." }
+      ]
+    },
+    {
+      "id": "H39",
+      "text": "Răspunde corect când întrebarea conține 3 informații esențiale",
+      "objective": "Oferă 4 răspunsuri la 5 întrebări care conțin 3 criterii.",
+      "sd": "Spune-mi cât mai multe lucruri care ...",
+      "response": "4 itemi",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 răspunsuri la o întrebare." },
+        { "score": 2, "text": "Oferă 2 răspunsuri la 3 întrebări." },
+        { "score": 3, "text": "Oferă 3 răspunsuri la 4 întrebări." },
+        { "score": 4, "text": "Oferă 4 răspunsuri la 5 întrebări." }
+      ]
+    },
+    {
+      "id": "H40",
+      "text": "Descrie itemi",
+      "objective": "Descrie 20 de itemi oferind 3 sau mai multe detalii despre fiecare item.",
+      "sd": "Spune-mi despre..../Descrie ...",
+      "response": "Descrie un item incluzând funcția și categoria",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Descrie 10 obiecte cu cel puțin 2 detalii (nu se numără numele itemului)." },
+        { "score": 2, "text": "Descrie 20 de obiecte cu cel puțin 3 detalii (nu se numără numele itemului)." }
+      ]
+    },
+    {
+      "id": "H41",
+      "text": "Descrie ce s-a întâmplat înainte sau după un eveniment",
+      "objective": "Numește pașii care trebuie realizați înainte și după o activitate.",
+      "sd": "Ce faci înainte de ...? Ce faci după ce ...?",
+      "response": "Numește pașul anterior activității/Numește pasul care urmează după activitate.",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Numește un singur pas anterior unei activității." },
+        { "score": 2, "text": "Numește un singur pas anterior sau un pas care urmează după 2 activități." },
+        { "score": 3, "text": "Numește câțiva pași anteriori și pași care urmează după 5 activități." },
+        { "score": 4, "text": "Numește câțiva pași anteriori și pași care urmează după 10 activități." }
+      ]
+    },
+    {
+      "id": "H42",
+      "text": "Răspunde la întrebări legate de evenimente din trecut sau din viitor",
+      "objective": "Răspunde la 4 întrebări legate de evenimente din trecut și din viitor (i.e.. activități care vor avea loc într-o lună).",
+      "sd": "Ce ai făcut ...? Ce o să faci ...?",
+      "response": "Răspunde la întrebări",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 răspunsuri pentru evenimente din trecut sau din viitor (realizabile în aceeași zi)." },
+        { "score": 2, "text": "Oferă 2 răspunsuri pentru evenimente din trecut sau din viitor (petrecute în acea săptămână)." },
+        { "score": 3, "text": "Oferă 3 răspunsuri pentru evenimente din trecut sau din viitor (la o lună distanță)." },
+        { "score": 4, "text": "Oferă 2 răspunsuri pentru evenimente din trecut și din viitor (la o lună distanță)." }
+      ]
+    },
+    {
+      "id": "H43",
+      "text": "Menține o conversație cu un copil sau cu un adult",
+      "objective": "Susține 5 schimburi conversaționale pe 10 subiecte.",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Face 3 schimburi conversaționale pe 5 subiecte." },
+        { "score": 2, "text": "Face 5 schimburi conversaționale pe 10 subiecte (se urmărește și dacă face un comentariu nou sau pune o întrebare nouă)." }
+      ]
+    },
+    {
+      "id": "H44",
+      "text": "Răspunde la întrebări noi",
+      "objective": "Răspunde la 20 de întrebări cunoscute dar prezentate într-o formă diferită.",
+      "sd": "Întrebare",
+      "response": "Răspunde independent",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Oferă 2 răspunsuri noi." },
+        { "score": 2, "text": "Oferă 5 răspunsuri noi." },
+        { "score": 3, "text": "Oferă 10 răspunsuri noi." },
+        { "score": 4, "text": "Oferă 20 de răspunsuri noi." }
+      ]
+    },
+    {
+      "id": "H45",
+      "text": "Răspunde la întrebări legate de evenimentele curente",
+      "objective": "Răspunde la 20 de întrebări relevante pentru comunitate lui.",
+      "sd": "Întrebare",
+      "response": "Răspunde independent",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "2 răspunsuri noi" },
+        { "score": 2, "text": "5 răspunsuri noi" },
+        { "score": 3, "text": "10 răspunsuri noi" },
+        { "score": 4, "text": "20 răspunsuri noi" }
+      ]
+    },
+    {
+      "id": "H46",
+      "text": "Oferă răspunsuri multiple la evenimente curente",
+      "objective": "Răspunde la 3 întrebări pentru 20 de activități/evenimente.",
+      "sd": "Activitate/Eveniment",
+      "response": "Oferă 3 răspunsuri",
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Răspunde la 2 categorii cu 1 sau 2 răspunsuri." },
+        { "score": 2, "text": "Răspunde la 5 categorii cu 2 răspunsuri." },
+        { "score": 3, "text": "Răspunde la 10 categorii cu 3 răspunsuri." },
+        { "score": 4, "text": "Răspunde la 20 de categorii cu 3 răspunsuri." }
+      ]
+    },
+    {
+      "id": "H47",
+      "text": "Oferă răspunsuri multiple în grup",
+      "objective": "Oferă 2 comentarii pe cel puțin 3 subiecte într-un interval de 20 de minute.",
+      "sd": "Adultul discută în grup despre evenimentele sau activitățile anterioare.",
+      "response": "Oferă răspunsuri multiple în grup.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Face 1 comentariu pe 2 subiecte în 10 minute de conversație." },
+        { "score": 2, "text": "Face 2 comentarii pe 3 subiecte în 20 de minute de conversație." }
+      ]
+    },
+    {
+      "id": "H48",
+      "text": "Își descrie experiențele. Spune povești",
+      "objective": "Descrie 5 detalii despre un eveniment sau o poveste care conține cel puțin 5 componente.",
+      "sd": "Spune-mi povestea.../Și apoi .../ Ce s-a întâmplat apoi?/ Spune-mi mai mult",
+      "response": "Desenează, creează fraze și descrie povestea unui coleg.",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Descrie un eveniment sau o poveste cu cel puțin 3 componente." },
+        { "score": 2, "text": "Realizează 5 descrieri de evenimente sau povești cu cel puțin 5 componente." }
+      ]
+    },
+    {
+      "id": "H49",
+      "text": "Conversație spontană",
+      "objective": "Face comentarii într-o conversație în progres de cel puțin 10 ori pe zi.",
+      "sd": "Variabil",
+      "response": "Variabil",
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Spontan adaugă sau face comentarii intr-o conversație în progres - de 10 ori pe săptămână (fără prompt)." },
+        { "score": 2, "text": "Spontan adaugă sau face comentarii intr-o conversație în progres - de 10 ori pe zi (fără prompt)." }
+      ]
+    }
+  ]
+}

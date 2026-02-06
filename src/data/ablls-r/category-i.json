@@ -1,0 +1,124 @@
+{
+  "id": "I",
+  "title": "VOCALIZĂRI SPONTANE",
+  "items": [
+    {
+      "id": "I1",
+      "text": "Vocalizează",
+      "objective": "Emite sunete sau cuvinte spontan.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Emite sunete cel puțin 10 min/zi." },
+        { "score": 2, "text": "Emite sunete cel puțin 2 min/oră." },
+        { "score": 3, "text": "Emite sunete cel puțin 5 min/oră." },
+        { "score": 4, "text": "Emite sunete sau cuvinte sau cel putin 10 min/oră." }
+      ]
+    },
+    {
+      "id": "I2",
+      "text": "Spontan emite cuvinte sau aproximări de cuvinte",
+      "objective": "Emite o varietate de cuvinte sau aproximări de cuvinte.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Emite cel puțin 5 cuvinte/zi." },
+        { "score": 2, "text": "Emite cel puțin 1 cuvant/ora." },
+        { "score": 3, "text": "Emite cel putin 10 cuvinte/ora." },
+        { "score": 4, "text": "Emite cel putin 30 cuvinte/ora (cel putin 5 cuvinte diferite)." }
+      ]
+    },
+    {
+      "id": "I3",
+      "text": "Spontan emite fraze",
+      "objective": "Spune o varietate de fraze.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Spune cel putin o fraza/zi." },
+        { "score": 2, "text": "Spune cel putin 5 fraze/zi." },
+        { "score": 3, "text": "Spune cel putin 10 fraze/zi." },
+        { "score": 4, "text": "Spune cel putin 30 fraze/zi (cel putin 5 fraze diferite)." }
+      ]
+    },
+    {
+      "id": "I4",
+      "text": "Cântă atunci când are un model (ex., cântă cineva lângă el, se uită la desene)",
+      "objective": "Canta odata cu ceilalti copii, in timp ce se uita la videoclipuri sau ascultand muzică la radio.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Spune 1 cuvant dintr-un cantec." },
+        { "score": 2, "text": "Spune cate 1 fraza din 2 cantece." },
+        { "score": 3, "text": "Spune cate 1 fraza din 5 cantece." },
+        { "score": 4, "text": "Spune cel putin cate 2 fraze din 5 cantece." }
+      ]
+    },
+    {
+      "id": "I5",
+      "text": "Începe să cânte spontan",
+      "objective": "Cântă fără nici un model.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Spune 1 cuvant dintr-un cantec." },
+        { "score": 2, "text": "Spune cate 1 fraza din 2 cantece." },
+        { "score": 3, "text": "Spune cate 1 fraza din 5 cantece." },
+        { "score": 4, "text": "Spune cel putin cate 2 fraze din 5 cantece." }
+      ]
+    },
+    {
+      "id": "I6",
+      "text": "Imită spontan cuvinte auzite la ceilalți",
+      "objective": "Copilul repeta cuvinte auzite la adulții/copiii din jurul lui.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Repetă cuvinte de cel putin 5 ori/saptamana." },
+        { "score": 2, "text": "Repetă cuvinte de cel putin 5 ori/zi." }
+      ]
+    },
+    {
+      "id": "I7",
+      "text": "Cere spontan itemi, acțiuni sau activități",
+      "objective": "Copilul cere obiecte, actiuni sau activitati.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Cere cel putin 10 obiecte sau actiuni/saptamana." },
+        { "score": 2, "text": "Cere cel putin 10 obiecte sau actiuni/zi." }
+      ]
+    },
+    {
+      "id": "I8",
+      "text": "Numește spontan itemi, acțiuni sau evenimente",
+      "objective": "Copilul numeste obiecte, actiuni sau evenimente.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Numește obiecte, acțiuni sau evenimente de cel puțin 10 ori/săptămână." },
+        { "score": 2, "text": "Numește obiecte, acțiuni sau evenimente de cel puțin 10 ori/zi." }
+      ]
+    },
+    {
+      "id": "I9",
+      "text": "Participă spontan în conversații",
+      "objective": "Adaugă sau face comentarii potrivite în timpul unei conversații sau discuții.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Adaugă sau face comentarii în timpul unei conversații de cel putin de 10 ori/saptamana." },
+        { "score": 2, "text": "Adaugă sau face comentarii în timpul unei conversații de cel putin de 10 ori/zi." }
+      ]
+    }
+  ]
+}

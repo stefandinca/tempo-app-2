@@ -6,6 +6,7 @@ import { useToast } from "@/context/ToastContext";
 import { User, Bell, Shield, Moon, LogOut, Check, CreditCard, Monitor, Loader2, Globe, Camera } from "lucide-react";
 import { clsx } from "clsx";
 import BillingConfigTab from "@/components/settings/BillingConfigTab";
+import TranslationManager from "@/components/settings/TranslationManager";
 import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 import { doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -149,6 +150,7 @@ export default function SettingsPage() {
   if (isAdmin) {
     menuItems.push(
       { id: "billing", label: t('settings.tabs.billing'), icon: CreditCard },
+      { id: "translations", label: "Translations", icon: Globe },
       { id: "system", label: t('settings.tabs.system'), icon: Monitor }
     );
   }
@@ -392,6 +394,7 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "billing" && isAdmin && <BillingConfigTab />}
+          {activeTab === "translations" && isAdmin && <TranslationManager />}
           
           {activeTab === "system" && isAdmin && (
             <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

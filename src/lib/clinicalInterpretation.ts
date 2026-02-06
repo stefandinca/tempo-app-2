@@ -161,6 +161,14 @@ export const PARENT_FRIENDLY_NAMES: Record<string, string> = {
   'P': 'Reading Skills',
   'Q': 'Math Skills',
   'R': 'Writing Skills',
+  'S': 'Spelling',
+  'T': 'Language Arts',
+  'U': 'Dressing',
+  'V': 'Eating',
+  'W': 'Grooming',
+  'X': 'Toileting',
+  'Y': 'Gross Motor',
+  'Z': 'Fine Motor',
   // VB-MAPP Additional
   'MAND': 'Requesting',
   'TACT': 'Labeling Objects',
@@ -199,10 +207,12 @@ export function getBarrierRecommendation(barrierId: string): string {
  * ABLLS Domain Groupings for clinical reporting
  */
 export const ABLLS_DOMAINS = {
-  'Language & Communication': ['D', 'E', 'F', 'G', 'H'],
-  'Academic Readiness': ['M', 'N', 'O', 'P', 'Q', 'R'],
-  'Foundational Skills': ['A', 'B', 'C', 'I', 'J'],
-  'Social & Play': ['K', 'L']
+  'Language & Communication': ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'T'],
+  'Academic Readiness': ['M', 'N', 'O', 'P', 'Q', 'R', 'S'],
+  'Foundational Skills': ['A', 'B', 'C'],
+  'Social & Play': ['K', 'L'],
+  'Self-Help & Independence': ['U', 'V', 'W', 'X'],
+  'Motor Skills': ['Y', 'Z']
 } as const;
 
 /**

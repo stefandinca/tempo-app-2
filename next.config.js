@@ -4,10 +4,10 @@ const isProd = process.env.NODE_ENV === 'production';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Only enable Static Export and Base Path in Production
-  output: isProd ? 'export' : undefined,
+  // Disable Static Export to run as a Node.js server
+  // output: 'export',
   basePath: '',
-  trailingSlash: isProd,
+  trailingSlash: true,
   
   images: {
     unoptimized: true,

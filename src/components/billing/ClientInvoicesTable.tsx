@@ -24,6 +24,7 @@ import { db } from "@/lib/firebase";
 import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { createNotificationsBatch, notifyParentInvoiceGenerated } from "@/lib/notificationService";
+import { useTranslation } from "react-i18next";
 
 interface ClientInvoicesTableProps {
   invoices: ClientInvoice[];
@@ -38,6 +39,7 @@ export default function ClientInvoicesTable({
   onMarkAsPaid,
   onMarkAsPending
 }: ClientInvoicesTableProps) {
+  const { t } = useTranslation();
   const { data: settings } = useSystemSettings();
   const { success, error } = useToast();
   const { user: authUser } = useAuth();
@@ -229,19 +231,19 @@ export default function ClientInvoicesTable({
       case "paid":
         return {
           icon: CheckCircle,
-          label: "Paid",
+          label: t('billing_page.status.paid'),
           classes: "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400"
         };
       case "overdue":
         return {
           icon: AlertTriangle,
-          label: "Overdue",
+          label: t('billing_page.status.overdue'),
           classes: "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400"
         };
       default:
         return {
           icon: Clock,
-          label: "Pending",
+          label: t('billing_page.status.pending'),
           classes: "bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400"
         };
     }
@@ -260,10 +262,10 @@ export default function ClientInvoicesTable({
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-12 text-center">
         <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
         <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
-          No billable sessions
+          {t('billing_page.no_billable_sessions')}
         </h3>
         <p className="text-neutral-500">
-          There are no completed sessions to bill for this period.
+          {t('billing_page.no_sessions_description')}
         </p>
       </div>
     );
@@ -277,12 +279,12 @@ export default function ClientInvoicesTable({
             <thead className="bg-neutral-50 dark:bg-neutral-800/50 text-neutral-500 font-medium">
               <tr>
                 <th className="px-6 py-3 w-8"></th>
-                <th className="px-6 py-3">Client</th>
-                <th className="px-6 py-3 text-center">Sessions</th>
-                <th className="px-6 py-3 text-center">Hours</th>
-                <th className="px-6 py-3 text-right">Amount</th>
-                <th className="px-6 py-3 text-center">Status</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3">{t('billing_page.table.client')}</th>
+                <th className="px-6 py-3 text-center">{t('billing_page.table.sessions')}</th>
+                <th className="px-6 py-3 text-center">{t('billing_page.table.hours')}</th>
+                <th className="px-6 py-3 text-right">{t('billing_page.table.amount')}</th>
+                <th className="px-6 py-3 text-center">{t('billing_page.table.status')}</th>
+                <th className="px-6 py-3 text-right">{t('billing_page.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -324,7 +326,7 @@ export default function ClientInvoicesTable({
                         {invoice.billableSessions}
                         {invoice.excusedSessions > 0 && (
                           <span className="text-xs text-neutral-400 ml-1">
-                            (+{invoice.excusedSessions} excused)
+                            {t('billing_page.table.excused_info', { count: invoice.excusedSessions })}
                           </span>
                         )}
                       </td>
@@ -337,7 +339,7 @@ export default function ClientInvoicesTable({
                         </span>
                         {invoice.discount > 0 && (
                           <span className="block text-xs text-success-600">
-                            -{formatCurrency(invoice.discount)} discount
+                            {t('billing_page.table.discount_info', { amount: formatCurrency(invoice.discount) })}
                           </span>
                         )}
                       </td>
@@ -378,7 +380,7 @@ export default function ClientInvoicesTable({
                         <td colSpan={7} className="px-6 py-4 bg-neutral-50 dark:bg-neutral-800/20">
                           <div className="pl-8 space-y-2">
                             <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">
-                              Session Breakdown
+                              {t('billing_page.table.session_breakdown')}
                             </p>
                             <div className="grid gap-2">
                               {invoice.lineItems.map((item, idx) => (
@@ -411,9 +413,9 @@ export default function ClientInvoicesTable({
                                         item.attendance === "absent" && "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400",
                                         item.attendance === "excused" && "bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400"
                                       )}>
-                                        {item.attendance === "present" && "Present"}
-                                        {item.attendance === "absent" && "No-show"}
-                                        {item.attendance === "excused" && "Excused"}
+                                        {item.attendance === "present" && t('attendance.present')}
+                                        {item.attendance === "absent" && t('attendance.absent')}
+                                        {item.attendance === "excused" && t('attendance.excused')}
                                       </span>
                                     )}
                                   </div>
@@ -425,7 +427,7 @@ export default function ClientInvoicesTable({
                                   )}>
                                     {item.isBillable
                                       ? `${formatCurrency(item.amount)} RON`
-                                      : "Not billed"
+                                      : t('billing_page.table.not_billed')
                                     }
                                   </span>
                                 </div>
@@ -433,7 +435,7 @@ export default function ClientInvoicesTable({
                             </div>
                             {invoice.discount > 0 && (
                               <div className="flex items-center justify-between py-2 px-3 mt-2 border-t border-neutral-200 dark:border-neutral-700">
-                                <span className="text-sm text-neutral-500">Subtotal</span>
+                                <span className="text-sm text-neutral-500">{t('common.subtotal') || 'Subtotal'}</span>
                                 <span className="text-sm text-neutral-700 dark:text-neutral-300">
                                   {formatCurrency(invoice.subtotal)} RON
                                 </span>
@@ -481,7 +483,7 @@ export default function ClientInvoicesTable({
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors font-medium"
             >
               <Download className="w-4 h-4" />
-              Generate Invoice
+              {t('billing_page.generate_invoice')}
             </button>
 
             <div className="my-1 border-t border-neutral-100 dark:border-neutral-700" />
@@ -495,7 +497,7 @@ export default function ClientInvoicesTable({
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
               >
                 <Clock className="w-4 h-4" />
-                Mark Pending
+                {t('billing_page.mark_pending')}
               </button>
             ) : (
               <button
@@ -515,7 +517,7 @@ export default function ClientInvoicesTable({
                 )}
               >
                 <CheckCircle className="w-4 h-4" />
-                Mark as Paid
+                {t('billing_page.mark_as_paid')}
               </button>
             )}
             <button
@@ -523,7 +525,7 @@ export default function ClientInvoicesTable({
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
             >
               <FileText className="w-4 h-4" />
-              View Details
+              {t('billing_page.view_details')}
             </button>
           </div>
         </>,

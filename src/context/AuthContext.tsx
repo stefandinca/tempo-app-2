@@ -7,9 +7,10 @@ import {
   signInWithEmailAndPassword, 
   signOut as firebaseSignOut,
   updateEmail,
-  updatePassword
+  updatePassword,
+  signInAnonymously as firebaseSignInAnonymously
 } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, IS_DEMO } from "@/lib/firebase";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import i18n from "@/lib/i18n";
@@ -20,6 +21,7 @@ interface AuthContextType {
   userRole: 'Admin' | 'Coordinator' | 'Therapist' | 'Parent' | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInAnonymous: () => Promise<void>;
   signOut: () => Promise<void>;
   changeEmail: (newEmail: string) => Promise<void>;
   changePassword: (newPassword: string) => Promise<void>;
@@ -67,6 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                if (clientSnap.exists()) {
                  setUserData(clientSnap.data());
                  setUserRole('Parent');
+               } else if (IS_DEMO && authUser.isAnonymous) {
+                 // Mock data for demo users so they can see the app
+                 setUserData({
+                   name: "Demo Admin",
+                   email: "demo@tempoapp.ro",
+                   role: "Admin",
+                   initials: "DA",
+                   color: "#4A90E2"
+                 });
+                 setUserRole("Admin");
                } else {
                  setUserData(null);
                  setUserRole(null);
@@ -92,6 +104,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
+  const signInAnonymous = async () => {
+    await firebaseSignInAnonymously(auth);
+  };
+
   const signOut = async () => {
     await firebaseSignOut(auth);
     router.push("/login");
@@ -108,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userData, userRole, loading, signIn, signOut, changeEmail, changePassword }}>
+    <AuthContext.Provider value={{ user, userData, userRole, loading, signIn, signInAnonymous, signOut, changeEmail, changePassword }}>
       {!loading && children}
     </AuthContext.Provider>
   );

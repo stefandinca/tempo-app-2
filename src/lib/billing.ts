@@ -48,7 +48,10 @@ export interface BillingSummary {
   totalRevenue: number;
   pendingAmount: number;
   paidAmount: number;
+  staffCosts: number;
+  otherExpenses: number;
   totalExpenses: number;
+  profit: number;
   pendingCount: number;
   paidCount: number;
 }
@@ -254,18 +257,20 @@ export function aggregateTeamPayouts(
 }
 
 /**
- * Calculate billing summary from invoices AND payouts
+ * Calculate billing summary from invoices, payouts, and general expenses
  */
 export function calculateBillingSummary(
   invoices: ClientInvoice[],
-  payouts: TeamPayout[] = []
+  payouts: TeamPayout[] = [],
+  expenses: any[] = []
 ): BillingSummary {
   let totalRevenue = 0;
   let pendingAmount = 0;
   let paidAmount = 0;
   let pendingCount = 0;
   let paidCount = 0;
-  let totalExpenses = 0;
+  let staffCosts = 0;
+  let otherExpenses = 0;
 
   invoices.forEach(invoice => {
     totalRevenue += invoice.total;
@@ -279,16 +284,25 @@ export function calculateBillingSummary(
   });
 
   payouts.forEach(payout => {
-    if (payout.status === 'paid') {
-      totalExpenses += payout.total;
-    }
+    // Staff costs include everything committed for the month
+    staffCosts += payout.total;
   });
+
+  expenses.forEach(expense => {
+    otherExpenses += expense.amount;
+  });
+
+  const totalExpenses = staffCosts + otherExpenses;
+  const profit = totalRevenue - totalExpenses;
 
   return {
     totalRevenue,
     pendingAmount,
     paidAmount,
+    staffCosts,
+    otherExpenses,
     totalExpenses,
+    profit,
     pendingCount,
     paidCount
   };

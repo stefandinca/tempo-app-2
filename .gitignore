@@ -333,3 +333,7 @@ node_modules
 .next/types/app/(dashboard)/team/page.ts
 .next/types/app/layout.ts
 /.next
+.env.live
+.env.demo
+*.zip
+/.next

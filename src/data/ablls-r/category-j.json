@@ -1,0 +1,247 @@
+{
+  "id": "J",
+  "title": "SINTAXĂ ȘI GRAMATICĂ",
+  "items": [
+    {
+      "id": "J1",
+      "text": "Vorbește în propoziții formate din cel puțin 5 cuvinte",
+      "objective": "Vorbește în propoziții de cel puțin 5 cuvinte.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Vorbește în propoziții de 2 cuvinte." },
+        { "score": 2, "text": "Vorbește în propoziții de 3 cuvinte." },
+        { "score": 3, "text": "Vorbește în propoziții de 4 cuvinte." },
+        { "score": 4, "text": "Vorbește în propoziții de cel puțin 5 cuvinte." }
+      ]
+    },
+    {
+      "id": "J2",
+      "text": "Ordonează corect cuvintele în propoziție (i.e., topica propoziției)",
+      "objective": "Combină cuvinte în propoziții utilizând ordinea corectă a cuvintelor (ex. substantiv + adjectiv: copil vesel; substantiv + verb: copilul râde).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Uneori folosește propoziții de 2 cuvinte în ordinea corectă." },
+        { "score": 2, "text": "Uneori folosește propoziții de 3 cuvinte în ordinea corectă." },
+        { "score": 3, "text": "Uneori folosește propoziții de 4 cuvinte în ordinea corectă." },
+        { "score": 4, "text": "De obicei folosește propoziții de cel puțin 4 cuvinte în ordinea corectă." }
+      ]
+    },
+    {
+      "id": "J3",
+      "text": "Folosește articolul hotărât și nehotărât",
+      "objective": "Copilul foloseste articole în propoziții (ex. un, o, -a, -ul).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește corect articolul hotărât și nehotărât ocazional." },
+        { "score": 2, "text": "Deseori folosește corect articolul hotărât și nehotărât." }
+      ]
+    },
+    {
+      "id": "J4",
+      "text": "Folosește verbe la modul gerunziu (ex., cântând, dansând)",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește corect verbele la modul gerunziu ocazional." },
+        { "score": 2, "text": "Deseori folosește corect verbele la modul gerunziu." }
+      ]
+    },
+    {
+      "id": "J5",
+      "text": "Folosește pluralul substantivelor corect",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește corect pluralul substantivelor ocazional." },
+        { "score": 2, "text": "Deseori foloseste corect pluralul substantivelor." }
+      ]
+    },
+    {
+      "id": "J6",
+      "text": "Folosește verbe la timpul trecut (pers. I, II, III - singular si plural)",
+      "objective": "Copilul foloseste corect verbe la timpul trecut.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește corect verbele la timpul trecut ocazional." },
+        { "score": 2, "text": "Deseori folosește corect verbele la timpul trecut." }
+      ]
+    },
+    {
+      "id": "J7",
+      "text": "Folosește contopirea vocalelor în rostirea unor cuvinte (ex., te-ai dus, i-oi spune, le-ai dat).",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Contopește corect vocalele în rostirea unor cuvinte ocazional." },
+        { "score": 2, "text": "Deseori contopește corect vocalele în rostirea unor cuvinte." }
+      ]
+    },
+    {
+      "id": "J8",
+      "text": "Folosește verbe la timpul prezent (pers. I, II, III - singular si plural)",
+      "objective": "Copilul foloseste corect verbe la timpul prezent.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește corect verbele la timpul prezent ocazional." },
+        { "score": 2, "text": "Deseori folosește corect verbele la timpul prezent." }
+      ]
+    },
+    {
+      "id": "J9",
+      "text": "Conjugă verbul la timpul trecut",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Conjugă corect verbele la timpul trecut ocazional." },
+        { "score": 2, "text": "Deseori conjugă corect verbele la timpul trecut." }
+      ]
+    },
+    {
+      "id": "J10",
+      "text": "Folosește substantivele si complementele la cazul genitiv și dativ",
+      "objective": "Folosește corect cuvinte care indică posesia (ex. Al tau, ale lor, masina tatalui).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește corect posesia ocazional." },
+        { "score": 2, "text": "Deseori folosește corect posesia." }
+      ]
+    },
+    {
+      "id": "J11",
+      "text": "Folosește negația în vorbire",
+      "objective": "Folosește corect negația în propoziții (ex. Nu; nu mai..; nimic).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește corect negația ocazional." },
+        { "score": 2, "text": "Deseori foloseste corect negația." }
+      ]
+    },
+    {
+      "id": "J12",
+      "text": "Folosește adverbe de loc",
+      "objective": "Folosește locativele (ex. aici, acolo).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește adverbele de loc ocazional." },
+        { "score": 2, "text": "Deseori folosește adverbele de loc." }
+      ]
+    },
+    {
+      "id": "J13",
+      "text": "Folosește verbe la timpul viitor",
+      "objective": "Foloseste corect verbe la timpul viitor.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Ocazional folosește corect verbele la timpul viitor." },
+        { "score": 2, "text": "Deseori foloseste corect verbele la timpul viitor." }
+      ]
+    },
+    {
+      "id": "J14",
+      "text": "Folosește conjuncțiile",
+      "objective": "Foloseste corect conjunctii pentru a combina cuvinte si propozitii (ex. si, dar, ca, sa, de, sau, pentru ca, deci).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Ocazional folosește corect conjuncțiile." },
+        { "score": 2, "text": "Deseori foloseste corect conjuncțiile." }
+      ]
+    },
+    {
+      "id": "J15",
+      "text": "NA",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 0,
+      "criteria": []
+    },
+    {
+      "id": "J16",
+      "text": "Folosește gradele de comparație",
+      "objective": "Foloseste corect gradele de comparatie (ex. mai bun, tot la fel de bun, mai putin bun, cel mai bun, excelent).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Ocazional folosește corect gradele de comparatie." },
+        { "score": 2, "text": "Deseori foloseste corect gradele de comparatie." }
+      ]
+    },
+    {
+      "id": "J17",
+      "text": "Folosește articolul demonstrativ",
+      "objective": "Indica obiecte folosind articolul demonstrativ cand vorbeste in propozitii (ex. acesta, acela, aestea, acelea).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Ocazional folosește corect articolul demonstrativ." },
+        { "score": 2, "text": "Deseori foloseste corect articolul demonstrativ." }
+      ]
+    },
+    {
+      "id": "J18",
+      "text": "Folosește expresii precum 'Sunt convins că../Eu cred.../Eu știu..'",
+      "objective": "Foloseste cuvinte pentru a sustine verbal finalizarea unei sarcini (ex. Cred ca, se pare ca, sunt convins ca, ma gandesc ca).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Foloseste aceste cuvinte ocazional." },
+        { "score": 2, "text": "Deseori foloseste aceste cuvinte." }
+      ]
+    },
+    {
+      "id": "J19",
+      "text": "Cuantifică un răspuns folosind expresii precum 'Întotdeauna/niciodată/câteodată/toate/câteva'",
+      "objective": "Foloseste cuvinte pentru a cuantifica un raspuns verbal (ex. toate, cateva, cateodata, niciodata, intotdeauna).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Foloseste aceste cuvinte ocazional." },
+        { "score": 2, "text": "Deseori foloseste aceste cuvinte." }
+      ]
+    },
+    {
+      "id": "J20",
+      "text": "Numește stările emoționale asociate unui răspuns vocal (i.e., Empatie)",
+      "objective": "Folosește cuvinte sau propoziții pentru a descrie o stare emoțională în legatură cu altă persoană și oferă suport verbal (ex. Îmi pare rău că ești bolnav; Regret, dar nu pot să te ajut; Sunt bucuros că ai venit).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Folosește astfel de cuvinte ocazional." },
+        { "score": 2, "text": "Deseori foloseste aceste cuvinte." }
+      ]
+    }
+  ]
+}

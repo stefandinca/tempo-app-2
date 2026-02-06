@@ -1,0 +1,145 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions (Strict expression syntax)
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAnonymous() {
+      return isSignedIn() && request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+    
+    function hasRole(role) {
+      return isSignedIn() && (
+             isAnonymous() || 
+             (exists(/databases/$(database)/documents/team_members/$(request.auth.uid)) && 
+              get(/databases/$(database)/documents/team_members/$(request.auth.uid)).data.role == role)
+      );
+    }
+    
+    function isAdmin() {
+      return isAnonymous() || hasRole('Admin') || hasRole('admin');
+    }
+    
+    function isCoordinator() {
+      return isAnonymous() || hasRole('Coordinator');
+    }
+    
+    function isTherapist() {
+      return isAnonymous() || hasRole('Therapist');
+    }
+    
+    function isParent(clientId) {
+      return isAnonymous() || (
+        isSignedIn() && (
+          request.auth.uid == clientId || 
+          (exists(/databases/$(database)/documents/clients/$(clientId)) && 
+           get(/databases/$(database)/documents/clients/$(clientId)).data.parentUids.hasAny([request.auth.uid]))
+        )
+      );
+    }
+
+    // --- Collections ---
+
+    match /team_members/{memberId} {
+      allow read: if true; 
+      allow write: if isAdmin();
+    }
+
+    match /clients/{clientId} {
+      allow list: if true;
+      allow get: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow create: if isAdmin() || isCoordinator();
+      allow update: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow delete: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true; 
+      allow create: if isAdmin() || isCoordinator() || isTherapist();
+      allow update: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
+      allow delete: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
+    }
+
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /programs/{programId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /system_settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /invoices/{invoiceId} {
+      allow read: if true; 
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+    }
+
+    match /payouts/{payoutId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && (isAnonymous() || resource.data.recipientId == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isAnonymous() || resource.data.recipientId == request.auth.uid);
+      allow delete: if isSignedIn() && (isAnonymous() || resource.data.recipientId == request.auth.uid);
+    }
+    
+    match /clients/{clientId}/evaluations/{evalId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow write: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
+    match /clients/{clientId}/vbmapp_evaluations/{evalId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow write: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
+    match /clients/{clientId}/interventionPlans/{planId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow write: if isAdmin() || isCoordinator();
+    }
+
+    match /clients/{clientId}/documents/{documentId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() ||
+                    (isParent(clientId) && resource.data.sharedWithParent == true);
+      allow create: if isAdmin() || isCoordinator() || isTherapist();
+      allow update: if isAdmin() || isCoordinator() || isTherapist();
+      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
+    match /fcm_tokens/{userId} {
+      allow read, write: if isSignedIn() && (isAnonymous() || request.auth.uid == userId);
+    }
+
+    match /threads/{threadId} {
+      allow get, list, create, update: if isSignedIn();
+
+      match /messages/{messageId} {
+        allow read, create: if isSignedIn();
+      }
+    }
+
+    match /evaluation_protocols/{protocolId=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /potential_clients/{leadId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

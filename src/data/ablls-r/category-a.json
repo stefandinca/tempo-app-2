@@ -1,0 +1,404 @@
+{
+  "id": "A",
+  "title": "COOPERARE SI EFICIENTA RECOMPENSELOR",
+  "items": [
+    {
+      "id": "A1",
+      "text": "Ia un obiect preferat sau o recompensă când adultul îi oferă",
+      "objective": "Ia în 3 secunde o recompensă oferită de adult în 5 din 5 ocazii.",
+      "sd": "Adultul îi întinde recompensa.",
+      "response": "Ia recompensa în 3 secunde.",
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Nu ia întotdeauna sau îi ia mai mult de 3 secunde să răspundă."
+        },
+        {
+          "score": 2,
+          "text": "Ia în 3 secunde recompensele oferite."
+        }
+      ]
+    },
+    {
+      "id": "A2",
+      "text": "Alege un obiect preferat sau o recompensă (discriminare pe 2 obiecte)",
+      "objective": "Ia în 3 secunde o recompensă când adultul îi prezintă recompensa alături de un obiect neutru în 5 din 5 ocazii.",
+      "sd": "Adultul îi prezintă, în același timp, o recompensă și un obiect neutru.",
+      "response": "Ia recompensa în 3 secunde.",
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Nu ia întotdeauna sau nu ia obiectul în 3 secunde."
+        },
+        {
+          "score": 2,
+          "text": "Ia în 3 secunde recompensele oferite."
+        }
+      ]
+    },
+    {
+      "id": "A3",
+      "text": "Se uită la un obiect neutru",
+      "objective": "Se uită sau ia un item din diferite poziții.",
+      "sd": "Ia uite ...../Ia ....",
+      "response": "Se uită sau ia itemul când este prezentat sus/jos/stânga/dreapta.",
+      "maxScore": 4,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Se uita la obiect dar are nevoie de prompt pentru a se uita la obiect sau îi ia mai mult de 3 secunde sa se uite la obiect."
+        },
+        {
+          "score": 2,
+          "text": "Urmărește un obiect în fiecare din cele 4 pozitii (sus, jos, stanga, dreapta), în 3 secunde."
+        },
+        {
+          "score": 3,
+          "text": "Urmărește mișcarea unui obiect în 4 pozitii, în 10 secunde."
+        },
+        {
+          "score": 4,
+          "text": "Urmarește mișcarea unui obiect în 6 pozitii, într-un interval de 10 secunde."
+        }
+      ]
+    },
+    {
+      "id": "A4",
+      "text": "Ia un obiect comun",
+      "objective": "Ia în 3 secunde un item oferit de adult în 5 din 5 ocazii.",
+      "sd": "Adultul îi întinde un obiect neutru.",
+      "response": "Ia obiectul în 3 secunde.",
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Nu intotdeauna ia obiectul sau îi ia mai mult de 3 secunde să răspundă."
+        },
+        {
+          "score": 2,
+          "text": "Ia întotdeauna obiectul în 3 secunde."
+        }
+      ]
+    },
+    {
+      "id": "A5",
+      "text": "Se apropie de adult și răspunde la o instrucție pentu a obține o recompensă",
+      "objective": "Se apropie, se aseaza la masa si ofera mai multe raspunsuri pentru a accesa recompensa (fiecare raspuns este recompensat).",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Se apropie ocazional si realizeaza cel putin un raspuns pentru recompensa."
+        },
+        {
+          "score": 2,
+          "text": "In mod repetat vine repede și raspunde la o varietate de cereri cunoscute (răspunsuri singulare)."
+        },
+        {
+          "score": 3,
+          "text": "Se apropie si ofera mai multe raspunsuri simple intr-un sitting (fiecare raspuns este recompensat)."
+        },
+        {
+          "score": 4,
+          "text": "Se apropie, se aseaza la masa si ofera mai multe raspunsuri pentru a accesa recompensa (fiecare raspuns este recompensat)."
+        }
+      ]
+    },
+    {
+      "id": "A6",
+      "text": "Îi raspunde adultului cand acesta controleaza recompensele",
+      "objective": "Recompensele alimentare si tangibile rămân la aceeași valoare după 5 răspunsuri pe achizitii, când după fiecare răspuns i se oferă aceeași recompensă.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Oferă 3 răspunsuri din mentinere pentru 3 prezentări ale aceleiași recompense."
+        },
+        {
+          "score": 2,
+          "text": "Oferă 5 răspunsuri din menținere pentru 5 prezentari ale aceleiași recompense."
+        },
+        {
+          "score": 3,
+          "text": "Oferă 2 răspunsuri pe achiziții & 3 răspunsuri pe mențineri pentru 5 prezentări ale aceleiași recompense."
+        },
+        {
+          "score": 4,
+          "text": "Oferă 5 răspunsuri pe achizitii pentru 5 prezentări ale aceleiași recompense."
+        }
+      ]
+    },
+    {
+      "id": "A7",
+      "text": "Răspunde la diverse persoane",
+      "objective": "Copilul demonstrează abilitățile învățate anterior când interacționează cu un nou adult.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Răspunde ușor la 3 sau mai mulți adulți (cu aproximativ acelasi ritm, rată și rapiditate în învățare)."
+        },
+        {
+          "score": 2,
+          "text": "Răspunde ușor la 3 sau mai mulți adulți cunoscuți și necunoscuți (cu acelasi ritm, rată și rapiditate în învățare demonstrată cu adulții cunoscuți)."
+        }
+      ]
+    },
+    {
+      "id": "A8",
+      "text": "Așteaptă fără să atingă obiectele",
+      "objective": "Așteaptă calm, rămâne în general orientat către adult și către materiale si nu pune mâna pe materiale până când adultul nu începe activitate (i.e., îi cere ceva).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Are nevoie de un prompt pentru a sta în picioare/pe scaun adecvat și/sau a nu pune mâna pe materialele de lucru."
+        },
+        {
+          "score": 2,
+          "text": "Așteaptă adecvat în picioare/pe scaun, în fața materialelor de lucru."
+        }
+      ]
+    },
+    {
+      "id": "A9",
+      "text": "Scanează materialele de lucru și se uită la adult înainte de cerință",
+      "objective": "Dupa ce scaneaza materialele prezentate se uită la adult fără ca acesta să îi spună 'Uita-te la mine'.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Dupa ce scaneaza materialele de lucru are nevoie de un singur prompt pentru a se uita la adult."
+        },
+        {
+          "score": 2,
+          "text": "Dupa ce scaneaza materialele se uita aproape de fiecare dată la adult."
+        }
+      ]
+    },
+    {
+      "id": "A10",
+      "text": "Scanează materialele înainte să răspundă",
+      "objective": "Dupa ce a ascultat cerința scanează materialele și apoi răspunde (ex., daca adultul îi cere 'da-mi pantoful' copilul scaneaza toata aria pana când vede pantoful).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Scanează 3 obiecte în 3 secunde (înainte de a răspunde)."
+        },
+        {
+          "score": 2,
+          "text": "Scanează 6 obiecte în 3 secunde (înainte de a răspunde)."
+        }
+      ]
+    },
+    {
+      "id": "A11",
+      "text": "Răspunde repede la cerințe instructionale",
+      "objective": "Răspunde în 3 secunde la cerintele instrucționale cunoscute.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Răspunde în 5 secunde la cerințele instrucționale."
+        },
+        {
+          "score": 2,
+          "text": "Răspunde în 3 secunde la cerințele instrucționale."
+        }
+      ]
+    },
+    {
+      "id": "A12",
+      "text": "Are variație în recompense non-alimentare",
+      "objective": "Are o varietate de recompense (vizuale, auditive, sociale, jucarii, tactile, activitati, calculator, puzzle).",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Are cel puțin 5 itemi sau activități recompensatorii."
+        },
+        {
+          "score": 2,
+          "text": "Are 10 itemi sau activități recompensatorii."
+        }
+      ]
+    },
+    {
+      "id": "A13",
+      "text": "Lucrează pentru recompense tangibile intermitente",
+      "objective": "Oferă 5 răspunsuri pe un item nou pentru a avea acces la o recompensă.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Oferă 2 răspunsuri din mențineri pentru o recompensa tangibila sau alimentara."
+        },
+        {
+          "score": 2,
+          "text": "Oferă 4 raspunsuri din mențineri pentru o recompensa tangibila sau alimentara."
+        },
+        {
+          "score": 3,
+          "text": "Oferă 2 răspunsuri pe achiziție și 3 răspunsuri din mențineri pentru o recompensă."
+        },
+        {
+          "score": 4,
+          "text": "Oferă 5 răspunsuri pe achiziție pentru o recompensă."
+        }
+      ]
+    },
+    {
+      "id": "A14",
+      "text": "Lucrează pentru interacțiunea cu adultul (i.e., interacțiunea cu adultul funcționează ca recompensă)",
+      "objective": "Copilul raspunde in sitting pentru ca la final sa se joace sau sa cante cu adultul (ex., să se joace 'hai la groapa cu furnici' sau să cânte 'Daca vesel se traieste').",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Oferă 2 răspunsuri din mențineri pentru interacțiunea cu adultul."
+        },
+        {
+          "score": 2,
+          "text": "Oferă 4 răspunsuri din mențineri pentru interacțiunea cu adultul."
+        },
+        {
+          "score": 3,
+          "text": "Oferă 2 răspunsuri din achiziții și 3 răspunsuri din menținere pentru interacțiunea cu adultul."
+        },
+        {
+          "score": 4,
+          "text": "Oferă 5 răspunsuri din achiziții pentru interacțiunea cu adultul."
+        }
+      ]
+    },
+    {
+      "id": "A15",
+      "text": "Urmărește expresiile faciale și schimbările în tonalitatea vocii adultului",
+      "objective": "Urmareste expresiile faciale si tonalitatea adultului si se ghideaza dupa ele pentru a își evalua răspunsul.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Se uită ocazional la adult pentru feedback după ce răspunde (fără ca adultul să exagereze lauda doar pentru a-l face pe copil să se uite la el după ce răspunde)."
+        },
+        {
+          "score": 2,
+          "text": "Se uita la adult pentru feedback în proportie de 70%."
+        }
+      ]
+    },
+    {
+      "id": "A16",
+      "text": "Răspunde la recompensele sociale",
+      "objective": "Încurajarea socială (lauda) are funcție de recompensă.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Oferă 3 răspunsuri (raspuns-lauda-raspuns-lauda-raspuns-lauda) înainte de a avea acces la o recompensă tangibilă."
+        },
+        {
+          "score": 2,
+          "text": "Stă în activitate 5 minute înainte de avea acces la o recompensă tangibilă (este lăudat în timpul activității)."
+        },
+        {
+          "score": 3,
+          "text": "Stă în activitate 15 minute înainte de a avea acces la o recompensă tangibilă (este lăudat în timpul activității)."
+        },
+        {
+          "score": 4,
+          "text": "Stă în activitate 15 minute fără back-up (fără altă recompensă)."
+        }
+      ]
+    },
+    {
+      "id": "A17",
+      "text": "Așteaptă adecvat când recompensa este amânată",
+      "objective": "Așteaptă adecvat recompensa când aceasta este amânată.",
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Așteaptă 5 secunde"
+        },
+        {
+          "score": 2,
+          "text": "Așteaptă 10 secunde"
+        },
+        {
+          "score": 3,
+          "text": "Așteaptă 1 minut"
+        },
+        {
+          "score": 4,
+          "text": "Așteaptă 5 minute"
+        }
+      ]
+    },
+    {
+      "id": "A18",
+      "text": "Caută aprobarea adultului după finalizarea unei sarcini",
+      "objective": "Cauta recunoasterea adultului dupa ce finalizeaza o sarcina.",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Se uită să vadă dacă ceilalți au văzut ce a făcut el/ea."
+        },
+        {
+          "score": 2,
+          "text": "Le cere celorlalți să îi arate ce au făcut."
+        }
+      ]
+    },
+    {
+      "id": "A19",
+      "text": "Finalizarea sarcinii funcționează ca recompensă",
+      "objective": "Finalizarea sarcinii are functia de recompensa?",
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        {
+          "score": 1,
+          "text": "Stă în activitate 5 minute (lauda este singura formă de recompensă)."
+        },
+        {
+          "score": 2,
+          "text": "Stă în activitate 10 minute (scopul este de a termina sarcina) - pentru ca adultul sa aprecieze faptul că el a terminat sarcina dată."
+        }
+      ]
+    }
+  ]
+}

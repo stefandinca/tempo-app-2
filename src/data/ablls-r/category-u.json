@@ -1,0 +1,188 @@
+{
+  "id": "U",
+  "title": "ÎMBRĂCAT/DEZBRĂCAT",
+  "items": [
+    {
+      "id": "U1",
+      "text": "Își dă jos pantalonii/Își ridică pantalonii",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa traga sau doar sa isi ridice pantalonii." },
+        { "score": 2, "text": "Trage si isi ridica pantalonii." }
+      ]
+    },
+    {
+      "id": "U2",
+      "text": "Se încalță/Se descalță",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa se incalte sau doar sa se descalte." },
+        { "score": 2, "text": "Se incalta si se descalta." }
+      ]
+    },
+    {
+      "id": "U3",
+      "text": "Se îmbracă cu bluza/Își dă jos bluza",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa se imbrace sau sa se dezbrace." },
+        { "score": 2, "text": "Se imbraca si se dezbraca." }
+      ]
+    },
+    {
+      "id": "U4",
+      "text": "Se închide la nasturi/Deschide nasturi",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa inchida sau sa deschida nasturi" },
+        { "score": 2, "text": "Închide si deschide nasturi" }
+      ]
+    },
+    {
+      "id": "U5",
+      "text": "Își pune pantalonii/Își dă pantalonii jos",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa isi puna sau sa dea jos pantalonii" },
+        { "score": 2, "text": "Pune si isi da jos pantalonii" }
+      ]
+    },
+    {
+      "id": "U6",
+      "text": "Își pune șosetele/Își dă jos șosetele",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa scoata sau sa isi puna sosetele" },
+        { "score": 2, "text": "Pune si scoate sosetele" }
+      ]
+    },
+    {
+      "id": "U7",
+      "text": "Își pune haina/Își dă haina jos",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa isi puna sau sa scoata haina" },
+        { "score": 2, "text": "Pune si isi da haina jos" }
+      ]
+    },
+    {
+      "id": "U8",
+      "text": "Își desface fermoarul la rucsac",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa desfaca fermoarul deja tras un pic de adult; are nevoie de prompt verbal sau gestual" },
+        { "score": 2, "text": "Își desface fermoarul independent." }
+      ]
+    },
+    {
+      "id": "U9",
+      "text": "Își închide fermoarul la rucsac",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa inchida fermoarul deja tras un pic de adult; are nevoie de prompt verbal sau gestual" },
+        { "score": 2, "text": "Își inchide fermoarul independent." }
+      ]
+    },
+    {
+      "id": "U10",
+      "text": "Își închide/desface fermoarul la haină",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa inchida fermoarul deja tras un pic de adult." },
+        { "score": 2, "text": "Își inchide/desface fermoarul la haină independent." }
+      ]
+    },
+    {
+      "id": "U11",
+      "text": "Închide nasturii hainelor de pe el",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
+      "criteria": [
+        { "score": 1, "text": "Desface nasturi mari, dar nu pe haine." },
+        { "score": 2, "text": "Desface nasturi mici de la o cămașă." },
+        { "score": 3, "text": "Închide nasturi mari, dar nu pe hainele de pe el." },
+        { "score": 4, "text": "Închide nasturii de la o cămașă." }
+      ]
+    },
+    {
+      "id": "U12",
+      "text": "Închide/deschide capse",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "poate sa inchisa sau sa deschida capse, dar nu pe haine" },
+        { "score": 2, "text": "inchide si deschide capse pe haine" }
+      ]
+    },
+    {
+      "id": "U13",
+      "text": "Închide/deschide o cataramă",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate sa inchida sau sa deschida o catarama, dar nu pe haine" },
+        { "score": 2, "text": "Închide si deschide o catarama pe haine" }
+      ]
+    },
+    {
+      "id": "U14",
+      "text": "Își aranjează hainele",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Își aranjeaza hainele cand este promptat verbal." },
+        { "score": 2, "text": "Își aranjează hainele independent." }
+      ]
+    },
+    {
+      "id": "U15",
+      "text": "Își leagă șireturile",
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 2,
+      "criteria": [
+        { "score": 1, "text": "Poate realiza cel putin un pas din acest proces" },
+        { "score": 2, "text": "Își leagă șireturile independent" }
+      ]
+    }
+  ]
+}
