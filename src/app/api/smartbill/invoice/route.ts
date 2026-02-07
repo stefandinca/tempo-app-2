@@ -6,7 +6,7 @@ const SMARTBILL_API_URL = 'https://api.smartbill.ro/biz/eu/v1';
 
 export async function POST(req: NextRequest) {
   try {
-    const { invoiceId, clientId, items, total, series, cif, clinicCif } = await req.json();
+    const { invoiceId, clientId, items, total, series, clinicCif } = await req.json();
 
     // 1. Basic Validation
     if (!invoiceId || !clientId) {
@@ -20,6 +20,14 @@ export async function POST(req: NextRequest) {
     
     const vatRate = settings.invoicing?.vatRate ?? 0;
     
+    // 2. Fetch Client Data
+    const clientRef = doc(db, "clients", clientId);
+    const clientSnap = await getDoc(clientRef);
+    if (!clientSnap.exists()) {
+      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+    }
+    const client = clientSnap.data();
+
     // Prioritize Firestore credentials over env variables
     const user = settings.integrations?.smartbill?.user || process.env.SMARTBILL_USER;
     const token = settings.integrations?.smartbill?.token || process.env.SMARTBILL_TOKEN;

@@ -337,3 +337,6 @@ node_modules
 .env.demo
 *.zip
 /.next
+/documentation
+/documentation/old documentation
+/documentation

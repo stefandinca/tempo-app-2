@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useClient } from "@/hooks/useClient";
 import ClientProfileHeader from "@/components/clients/ClientProfileHeader";
+import ClientStatsCards from "@/components/clients/ClientStatsCards";
 import ClientOverviewTab from "@/components/clients/ClientOverviewTab";
 import ClientProgramsTab from "@/components/clients/ClientProgramsTab";
 import ClientPlanTab from "@/components/clients/ClientPlanTab";
@@ -83,6 +84,8 @@ function ClientProfileContent() {
         onTabChange={setActiveTab}
         onEdit={() => setIsEditModalOpen(true)} 
       />
+
+      <ClientStatsCards client={client} />
 
       <div className="pt-2">
         {activeTab === "overview" && (

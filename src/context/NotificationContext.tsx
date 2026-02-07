@@ -103,15 +103,14 @@ export function NotificationProvider({
             throw new Error("Missing NEXT_PUBLIC_FIREBASE_VAPID_KEY");
         }
         
-        console.log("[NotificationContext] Registering service worker manually...");
-        // Handle basePath for production
-        const basePath = window.location.pathname.startsWith('/v2') ? '/v2' : '';
-        const swUrl = `${basePath}/firebase-messaging-sw.js`;
+        console.log("[NotificationContext] Getting service worker registration...");
+        let registration = await navigator.serviceWorker.getRegistration();
         
-        const registration = await navigator.serviceWorker.register(swUrl, {
-          scope: `${basePath}/`
-        });
-        console.log("[NotificationContext] Service worker registered with scope:", registration.scope);
+        if (!registration) {
+          console.log("[NotificationContext] No registration found, registering...");
+          const basePath = window.location.pathname.startsWith('/v2') ? '/v2' : '';
+          registration = await navigator.serviceWorker.register(`${basePath}/sw.js`);
+        }
 
         console.log("[NotificationContext] Getting token...");
         const token = await getToken(messaging, {

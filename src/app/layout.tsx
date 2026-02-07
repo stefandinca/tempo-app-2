@@ -21,10 +21,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ['400', '500', '600', '700', '800'],
 });
 
-export const viewport: Viewport = {
-  themeColor: "#4A90E2",
-};
-
 export const metadata: Metadata = {
   title: "TempoApp - Therapy Management",
   description: "Modern management for therapy centers",
@@ -34,6 +30,17 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "TempoApp",
   },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#4A90E2",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

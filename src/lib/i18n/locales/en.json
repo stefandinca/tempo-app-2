@@ -11,7 +11,8 @@
     "you": "You",
     "actions": "Actions",
     "status": "Status",
-    "role": "Role"
+    "role": "Role",
+    "level": "Level"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -42,6 +43,7 @@
       "full_name": "Full Name",
       "email": "Email Address",
       "phone": "Phone Number",
+      "birth_date": "Birth Date",
       "password": "New Password",
       "password_placeholder": "Leave blank to keep current",
       "avatar": "Avatar",
@@ -275,12 +277,45 @@
     "restore_client": "Restore Client",
     "archive_client": "Archive Client",
     "under_development": "This section is currently under development.",
+    "personal_info": "Personal Information",
+    "medical_notes": "Medical Information & Notes",
+    "assigned_team": "Assigned Therapy Team",
+    "clinical_actions": "Clinical Actions",
+    "upcoming_schedule": "Upcoming Schedule",
+    "fields": {
+      "full_name": "Full Name",
+      "birth_date": "Birth Date",
+      "phone": "Phone Number",
+      "parent_email": "Parent Email",
+      "parent_name": "Parent Name",
+      "diagnosis": "Primary Diagnosis",
+      "diagnosis_date": "Diagnosis Date",
+      "support_level": "Support Level (DSM-5)",
+      "medical_info": "Medical Info",
+      "billing_address": "Billing Address",
+      "cif_cui": "CIF / CUI",
+      "reg_no": "Reg. No.",
+      "assigned_therapist": "Assigned Therapist"
+    },
     "tabs": {
       "overview": "Overview",
       "evaluations": "Evaluations",
       "programs": "Programs",
       "plan": "Plan",
       "docs": "Docs"
+    }
+  },
+  "reports": {
+    "client": {
+      "title": "Client Progress Report",
+      "generated_on": "Generated on",
+      "system_subtitle": "Clinical Management Systems",
+      "sessions_label": "sessions",
+      "no_activity": "No activity recorded.",
+      "progress_label": "Progress",
+      "evaluation_chart_desc": "Graphical representation of skills across all categories. Refer to the detailed evaluation report for domain analysis.",
+      "manager_signature": "Clinical Manager",
+      "gdpr_notice": "This document contains sensitive clinical information and is intended for use by authorized personnel and parents/guardians only. Please handle according to GDPR and data protection standards."
     }
   },
   "evaluations": {
@@ -569,5 +604,46 @@
     "sessions_week": "{{count}} Sessions / week",
     "message": "Message",
     "edit_profile": "Edit Profile"
+  },
+  "command_palette": {
+    "placeholder": "Search or type a command...",
+    "no_results": "No results found for \"{{query}}\"",
+    "categories": {
+      "action": "Quick Actions",
+      "navigation": "Navigation",
+      "client_action": "Client Actions",
+      "client": "Clients",
+      "team": "Team Members"
+    },
+    "actions": {
+      "send_message": { "label": "Send Message", "desc": "Chat with a team member" },
+      "new_event": { "label": "New Event", "desc": "Schedule a new therapy session" },
+      "new_client": { "label": "New Client", "desc": "Add a new client to the system" },
+      "new_team": { "label": "New Team Member", "desc": "Add a therapist or staff member" },
+      "new_invoice": { "label": "New Invoice", "desc": "Create a billing invoice" },
+      "new_service": { "label": "New Service", "desc": "Add a new service type" },
+      "new_evaluation": { "label": "New Evaluation", "desc": "Schedule a client evaluation" }
+    },
+    "client_actions": {
+      "view_profile": "View {{name}}'s profile",
+      "view_profile_desc": "Open client profile page",
+      "view_calendar": "View {{name}}'s schedule",
+      "view_calendar_desc": "View calendar filtered by this client",
+      "schedule_session": "Schedule session for {{name}}",
+      "schedule_session_desc": "Create a new therapy session",
+      "new_evaluation": "New Evaluation for {{name}}",
+      "new_evaluation_desc": "Schedule a client evaluation",
+      "create_plan": "Create new Plan for {{name}}",
+      "create_plan_desc": "Create a new intervention plan",
+      "generate_report": "Generate report for {{name}}",
+      "generate_report_desc": "Generate a client progress report",
+      "view_docs": "View {{name}}'s documents",
+      "view_docs_desc": "Browse client documents"
+    },
+    "hints": {
+      "navigate": "navigate",
+      "select": "select",
+      "close": "close"
+    }
   }
 }

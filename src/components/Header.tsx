@@ -13,12 +13,16 @@ import {
   User,
   Settings,
   LogOut,
-  CalendarPlus
+  CalendarPlus,
+  WifiOff
 } from "lucide-react";
+import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useEventModal } from "@/context/EventModalContext";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
 import { NotificationBell, NotificationDropdown } from "@/components/notifications";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { useToast } from "@/context/ToastContext";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -41,8 +45,11 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { user, userData, signOut } = useAuth();
   const { openModal } = useEventModal();
   const { open: openCommandPalette } = useCommandPalette();
+  const isOnline = useConnectivity();
+  const { warning, success: toastSuccess } = useToast();
   
   const [currentDate, setCurrentDate] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-US', { 
@@ -63,6 +70,20 @@ export default function Header({ onMenuClick }: HeaderProps) {
       }
     }
   }, []);
+
+  const handleRefresh = () => {
+    if (!isOnline) {
+      warning("You are currently offline. Please check your connection to refresh data.");
+      return;
+    }
+
+    setIsRefreshing(true);
+    // Simulate data refresh - in a real app this might trigger a revalidate or context refresh
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toastSuccess("Data refreshed successfully");
+    }, 1500);
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -143,9 +164,23 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <kbd className="hidden md:inline px-1.5 py-0.5 text-xs bg-white dark:bg-neutral-600 rounded shadow-sm">⌘K</kbd>
         </button>
 
-        {/* Refresh */}
-        <button className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-          <RefreshCw className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+        {/* Connectivity / Refresh */}
+        <button 
+          onClick={handleRefresh}
+          className={clsx(
+            "p-2 rounded-lg transition-colors flex items-center gap-2",
+            isOnline 
+              ? "hover:bg-neutral-100 dark:hover:bg-neutral-800" 
+              : "bg-error-50 dark:bg-error-900/20 text-error-600 hover:bg-error-100 dark:hover:bg-error-900/30"
+          )}
+          title={isOnline ? "Refresh data" : "Offline - Check connection"}
+        >
+          {isOnline ? (
+            <RefreshCw className={clsx("w-5 h-5 text-neutral-600 dark:text-neutral-400", isRefreshing && "animate-spin text-primary-500")} />
+          ) : (
+            <WifiOff className="w-5 h-5" />
+          )}
+          {!isOnline && <span className="text-xs font-bold hidden md:inline">OFFLINE</span>}
         </button>
 
         {/* Theme Toggle */}

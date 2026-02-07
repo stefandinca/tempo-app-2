@@ -13,6 +13,26 @@ const resources = {
   ro: { translation: ro },
 };
 
+const isObject = (item: any) => (item && typeof item === 'object' && !Array.isArray(item));
+
+function deepMerge(target: any, source: any): any {
+  const output = { ...target };
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] });
+        } else {
+          output[key] = deepMerge(target[key], source[key]);
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+  return output;
+}
+
 // Custom backend to fetch translations from Firestore
 const firestoreBackend = {
   type: 'backend' as const,
@@ -26,7 +46,10 @@ const firestoreBackend = {
         const firestoreData = docSnap.data().data;
         // Merge: JSON (Base) + Firestore (Overrides)
         const baseTranslations = resources[language as keyof typeof resources]?.translation || {};
-        const merged = { ...baseTranslations, ...firestoreData };
+        const merged = deepMerge(baseTranslations, firestoreData);
+        
+        console.log(`[i18n] Merged translations for ${language}. Reports keys:`, merged.reports?.client ? 'Present' : 'MISSING');
+        
         callback(null, merged);
       } else {
         // Fallback to local JSON if Firestore is empty

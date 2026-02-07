@@ -116,6 +116,14 @@ service cloud.firestore {
       allow delete: if isAdmin() || isCoordinator() || isTherapist();
     }
 
+    match /clients/{clientId}/reports/{reportId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() ||
+                    (isParent(clientId) && resource.data.sharedWithParent == true);
+      allow create: if isAdmin() || isCoordinator() || isTherapist();
+      allow update: if isAdmin() || isCoordinator() || isTherapist();
+      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
     match /fcm_tokens/{userId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }

@@ -18,7 +18,8 @@
     "confirm": "Confirmă",
     "success": "Succes",
     "error": "Eroare",
-    "required_field": "Acest câmp este obligatoriu"
+    "required_field": "Acest câmp este obligatoriu",
+    "level": "Nivel"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -49,6 +50,7 @@
       "full_name": "Nume Complet",
       "email": "Adresă Email",
       "phone": "Număr Telefon",
+      "birth_date": "Data Nașterii",
       "password": "Parolă Nouă",
       "password_placeholder": "Lăsați gol pentru a nu schimba",
       "avatar": "Avatar",
@@ -136,10 +138,6 @@
       "save_success": "Ședință actualizată cu succes",
       "delete_success": "Ședință ștearsă",
       "error_permission": "Nu ai permisiunea de a edita acest eveniment."
-      
-
-     
-
     }
   },
   "attendance": {
@@ -239,7 +237,7 @@
       "no_docs_subtitle": "Rapoartele și evaluările vor apărea aici când vor fi partajate de echipa de terapie.",
       "no_matching": "Niciun document potrivit",
       "no_matching_subtitle": "Încercați să selectați o altă categorie.",
-      "recently_uploaded": "Încărcat recent",
+      "recently_uploaded": "Încărcă",
       "download": "Descarcă"
     }
   },
@@ -286,12 +284,45 @@
     "restore_client": "Restaurează Clientul",
     "archive_client": "Arhivează Clientul",
     "under_development": "Această secțiune este în curs de dezvoltare.",
+    "personal_info": "Informații Personale",
+    "medical_notes": "Informații Medicale și Note",
+    "assigned_team": "Echipa de Terapie Alocată",
+    "clinical_actions": "Acțiuni Clinice",
+    "upcoming_schedule": "Programări Viitoare",
+    "fields": {
+      "full_name": "Nume Complet",
+      "birth_date": "Data Nașterii",
+      "phone": "Telefon",
+      "parent_email": "Email Părinte",
+      "parent_name": "Nume Părinte",
+      "diagnosis": "Diagnostic Principal",
+      "diagnosis_date": "Data Diagnosticului",
+      "support_level": "Nivel Suport (DSM-5)",
+      "medical_info": "Informații Medicale",
+      "billing_address": "Adresă Facturare",
+      "cif_cui": "CIF / CUI",
+      "reg_no": "Nr. Reg. Com.",
+      "assigned_therapist": "Terapeut Alocat"
+    },
     "tabs": {
       "overview": "Prezentare Generală",
       "evaluations": "Evaluări",
       "programs": "Programe",
       "plan": "Plan",
       "docs": "Documente"
+    }
+  },
+  "reports": {
+    "client": {
+      "title": "Raport de Progres Client",
+      "generated_on": "Generat la data de",
+      "system_subtitle": "Sisteme de Management Clinic",
+      "sessions_label": "şedințe",
+      "no_activity": "Nicio activitate înregistrată.",
+      "progress_label": "Progres",
+      "evaluation_chart_desc": "Reprezentare grafică a abilităților pe toate categoriile. Consultați raportul detaliat al evaluării pentru analiza pe domenii.",
+      "manager_signature": "Manager Clinic",
+      "gdpr_notice": "Acest document conține informații clinice sensibile și este destinat exclusiv utilizării de către personalul autorizat și părinți/tutori. Vă rugăm să manipulați conform standardelor GDPR."
     }
   },
   "evaluations": {
@@ -581,5 +612,46 @@
     "sessions_week": "{{count}} Ședințe / săptămână",
     "message": "Mesaj",
     "edit_profile": "Editează Profil"
+  },
+  "command_palette": {
+    "placeholder": "Caută sau tastează o comandă...",
+    "no_results": "Nu s-au găsit rezultate pentru \"{{query}}\"",
+    "categories": {
+      "action": "Acțiuni Rapide",
+      "navigation": "Navigare",
+      "client_action": "Acțiuni Client",
+      "client": "Clienți",
+      "team": "Membri Echipă"
+    },
+    "actions": {
+      "send_message": { "label": "Trimite Mesaj", "desc": "Chat cu un membru al echipei" },
+      "new_event": { "label": "Ședință Nouă", "desc": "Programează o nouă ședință de terapie" },
+      "new_client": { "label": "Client Nou", "desc": "Adaugă un client nou în sistem" },
+      "new_team": { "label": "Membru Nou", "desc": "Adaugă un terapeut sau membru staff" },
+      "new_invoice": { "label": "Factură Nouă", "desc": "Creează o factură de plată" },
+      "new_service": { "label": "Serviciu Nou", "desc": "Adaugă un tip nou de serviciu" },
+      "new_evaluation": { "label": "Evaluare Nouă", "desc": "Programează o evaluare pentru client" }
+    },
+    "client_actions": {
+      "view_profile": "Vezi profilul lui {{name}}",
+      "view_profile_desc": "Deschide pagina de profil a clientului",
+      "view_calendar": "Vezi programul lui {{name}}",
+      "view_calendar_desc": "Vezi calendarul filtrat pentru acest client",
+      "schedule_session": "Programează ședință pentru {{name}}",
+      "schedule_session_desc": "Creează o nouă ședință de terapie",
+      "new_evaluation": "Evaluare nouă pentru {{name}}",
+      "new_evaluation_desc": "Programează o evaluare pentru client",
+      "create_plan": "Creează Plan nou pentru {{name}}",
+      "create_plan_desc": "Creează un nou plan de intervenție",
+      "generate_report": "Generează raport pentru {{name}}",
+      "generate_report_desc": "Generează un raport de progres pentru client",
+      "view_docs": "Vezi documentele lui {{name}}",
+      "view_docs_desc": "Gestionează documentele clientului"
+    },
+    "hints": {
+      "navigate": "navighează",
+      "select": "selectează",
+      "close": "închide"
+    }
   }
 }

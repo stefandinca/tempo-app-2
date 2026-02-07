@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { clsx } from "clsx";
 import {
   Search,
-  X,
   Calendar,
   CalendarPlus,
   Users,
@@ -19,12 +19,9 @@ import {
   FileText,
   ClipboardList,
   Briefcase,
-  Plus,
   ArrowRight,
-  Command,
   MessageSquare,
   Eye,
-  FilePlus,
   FileBarChart,
   Stethoscope,
   Target
@@ -42,10 +39,11 @@ interface CommandItem {
   category: "action" | "navigation" | "client" | "client-action" | "team";
   shortcut?: string;
   action: () => void;
-  clientId?: string; // For client-action items
+  clientId?: string; 
 }
 
 export default function CommandPalette() {
+  const { t } = useTranslation();
   const { isOpen, close } = useCommandPalette();
   const { openModal: openEventModal } = useEventModal();
   const { clients, teamMembers } = useData();
@@ -57,7 +55,6 @@ export default function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Reset state when opening
   useEffect(() => {
     if (isOpen) {
       setQuery("");
@@ -66,23 +63,20 @@ export default function CommandPalette() {
     }
   }, [isOpen]);
 
-  // Navigation helper
   const navigateTo = useCallback((path: string, action?: string) => {
     close();
     if (action) {
-      // Store action in sessionStorage for the target page to pick up
       sessionStorage.setItem("commandPaletteAction", action);
     }
     router.push(path);
   }, [close, router]);
 
-  // Define all commands
   const allCommands: CommandItem[] = useMemo(() => {
     const actions: CommandItem[] = [
       {
         id: "send-message",
-        label: "Send Message",
-        description: "Chat with a team member",
+        label: t('command_palette.actions.send_message.label'),
+        description: t('command_palette.actions.send_message.desc'),
         icon: <MessageSquare className="w-4 h-4" />,
         category: "action",
         shortcut: "M",
@@ -90,8 +84,8 @@ export default function CommandPalette() {
       },
       {
         id: "new-event",
-        label: "New Event",
-        description: "Schedule a new therapy session",
+        label: t('command_palette.actions.new_event.label'),
+        description: t('command_palette.actions.new_event.desc'),
         icon: <CalendarPlus className="w-4 h-4" />,
         category: "action",
         shortcut: "N",
@@ -102,8 +96,8 @@ export default function CommandPalette() {
       },
       {
         id: "new-client",
-        label: "New Client",
-        description: "Add a new client to the system",
+        label: t('command_palette.actions.new_client.label'),
+        description: t('command_palette.actions.new_client.desc'),
         icon: <UserPlus className="w-4 h-4" />,
         category: "action",
         shortcut: "C",
@@ -111,37 +105,37 @@ export default function CommandPalette() {
       },
       {
         id: "new-team-member",
-        label: "New Team Member",
-        description: "Add a therapist or staff member",
+        label: t('command_palette.actions.new_team.label'),
+        description: t('command_palette.actions.new_team.desc'),
         icon: <UserCircle className="w-4 h-4" />,
         category: "action",
         action: () => navigateTo("/team", "add-member")
       },
       {
         id: "new-invoice",
-        label: "New Invoice",
-        description: "Create a billing invoice",
+        label: t('command_palette.actions.new_invoice.label'),
+        description: t('command_palette.actions.new_invoice.desc'),
         icon: <FileText className="w-4 h-4" />,
         category: "action",
         action: () => navigateTo("/billing", "new-invoice")
       },
       {
         id: "new-service",
-        label: "New Service",
-        description: "Add a new service type",
+        label: t('command_palette.actions.new_service.label'),
+        description: t('command_palette.actions.new_service.desc'),
         icon: <Briefcase className="w-4 h-4" />,
         category: "action",
         action: () => navigateTo("/services", "add-service")
       },
       {
         id: "new-evaluation",
-        label: "New Evaluation",
-        description: "Schedule a client evaluation",
+        label: t('command_palette.actions.new_evaluation.label'),
+        description: t('command_palette.actions.new_evaluation.desc'),
         icon: <ClipboardList className="w-4 h-4" />,
         category: "action",
         action: () => {
           close();
-          openEventModal(); // Opens event modal - user can select "Evaluation" type
+          openEventModal();
         }
       }
     ];
@@ -149,8 +143,8 @@ export default function CommandPalette() {
     const navigation: CommandItem[] = [
       {
         id: "nav-dashboard",
-        label: "Dashboard",
-        description: "Go to dashboard",
+        label: t('nav.dashboard'),
+        description: t('command_palette.categories.navigation'),
         icon: <LayoutDashboard className="w-4 h-4" />,
         category: "navigation",
         shortcut: "G D",
@@ -158,8 +152,8 @@ export default function CommandPalette() {
       },
       {
         id: "nav-calendar",
-        label: "Calendar",
-        description: "View calendar",
+        label: t('nav.calendar'),
+        description: t('command_palette.categories.navigation'),
         icon: <Calendar className="w-4 h-4" />,
         category: "navigation",
         shortcut: "G C",
@@ -167,8 +161,8 @@ export default function CommandPalette() {
       },
       {
         id: "nav-clients",
-        label: "Clients",
-        description: "Manage clients",
+        label: t('nav.clients'),
+        description: t('command_palette.categories.navigation'),
         icon: <Users className="w-4 h-4" />,
         category: "navigation",
         shortcut: "G L",
@@ -176,8 +170,8 @@ export default function CommandPalette() {
       },
       {
         id: "nav-team",
-        label: "Team",
-        description: "Manage team members",
+        label: t('nav.team'),
+        description: t('command_palette.categories.navigation'),
         icon: <UserCircle className="w-4 h-4" />,
         category: "navigation",
         shortcut: "G T",
@@ -185,8 +179,8 @@ export default function CommandPalette() {
       },
       {
         id: "nav-billing",
-        label: "Billing",
-        description: "Invoices and payments",
+        label: t('nav.billing'),
+        description: t('command_palette.categories.navigation'),
         icon: <CreditCard className="w-4 h-4" />,
         category: "navigation",
         shortcut: "G B",
@@ -194,24 +188,24 @@ export default function CommandPalette() {
       },
       {
         id: "nav-analytics",
-        label: "Analytics",
-        description: "View reports and insights",
+        label: t('nav.analytics'),
+        description: t('command_palette.categories.navigation'),
         icon: <BarChart2 className="w-4 h-4" />,
         category: "navigation",
         action: () => navigateTo("/analytics")
       },
       {
         id: "nav-services",
-        label: "Services",
-        description: "Manage service types",
+        label: t('nav.services'),
+        description: t('command_palette.categories.navigation'),
         icon: <Briefcase className="w-4 h-4" />,
         category: "navigation",
         action: () => navigateTo("/services")
       },
       {
         id: "nav-settings",
-        label: "Settings",
-        description: "App settings",
+        label: t('nav.settings'),
+        description: t('command_palette.categories.navigation'),
         icon: <Settings className="w-4 h-4" />,
         category: "navigation",
         shortcut: "G S",
@@ -219,51 +213,48 @@ export default function CommandPalette() {
       },
       {
         id: "nav-notifications",
-        label: "Notifications",
-        description: "View all notifications",
+        label: t('notifications.title'),
+        description: t('command_palette.categories.navigation'),
         icon: <Bell className="w-4 h-4" />,
         category: "navigation",
         action: () => navigateTo("/notifications")
       }
     ];
 
-    // Find evaluation service for "New Evaluation" action
     const evaluationService = services.find(s =>
       s.label?.toLowerCase().includes('evaluation') ||
       s.label?.toLowerCase().includes('evaluare')
     );
 
-    // Dynamic client search results - now with contextual actions
     const clientItems: CommandItem[] = [];
 
     (clients.data || []).forEach(client => {
-      // View Profile action
+      const name = client.name;
+      
       clientItems.push({
         id: `client-view-${client.id}`,
-        label: `View ${client.name}'s profile`,
-        description: "Open client profile page",
+        label: t('command_palette.client_actions.view_profile', { name }),
+        description: t('command_palette.client_actions.view_profile_desc'),
         icon: <Eye className="w-4 h-4" />,
         category: "client-action" as const,
         clientId: client.id,
         action: () => navigateTo(`/clients/profile?id=${client.id}`)
       });
 
-      // View Schedule action
       clientItems.push({
         id: `client-calendar-${client.id}`,
-        label: `View ${client.name}'s schedule`,
-        description: "View calendar filtered by this client",
+        label: t('command_palette.client_actions.view_calendar', { name }),
+        description: t('command_palette.client_actions.view_calendar_desc'),
         icon: <Calendar className="w-4 h-4" />,
         category: "client-action" as const,
         clientId: client.id,
         action: () => navigateTo(`/calendar?clientId=${client.id}`)
       });
 
-      // Schedule Session action
       clientItems.push({
         id: `client-schedule-${client.id}`,
-        label: `Schedule session for ${client.name}`,
-        description: "Create a new therapy session",
+        label: t('command_palette.client_actions.schedule_session', { name }),
+        description: t('command_palette.client_actions.schedule_session_desc'),
         icon: <CalendarPlus className="w-4 h-4" />,
         category: "client-action" as const,
         clientId: client.id,
@@ -273,11 +264,10 @@ export default function CommandPalette() {
         }
       });
 
-      // New Evaluation action
       clientItems.push({
         id: `client-evaluation-${client.id}`,
-        label: `New Evaluation for ${client.name}`,
-        description: "Schedule a client evaluation",
+        label: t('command_palette.client_actions.new_evaluation', { name }),
+        description: t('command_palette.client_actions.new_evaluation_desc'),
         icon: <Stethoscope className="w-4 h-4" />,
         category: "client-action" as const,
         clientId: client.id,
@@ -291,33 +281,30 @@ export default function CommandPalette() {
         }
       });
 
-      // Create Plan action
       clientItems.push({
         id: `client-plan-${client.id}`,
-        label: `Create new Plan for ${client.name}`,
-        description: "Create a new intervention plan",
+        label: t('command_palette.client_actions.create_plan', { name }),
+        description: t('command_palette.client_actions.create_plan_desc'),
         icon: <Target className="w-4 h-4" />,
         category: "client-action" as const,
         clientId: client.id,
         action: () => navigateTo(`/clients/profile?id=${client.id}&tab=plan&action=create-plan`)
       });
 
-      // Generate Report action
       clientItems.push({
         id: `client-report-${client.id}`,
-        label: `Generate report for ${client.name}`,
-        description: "Generate a client progress report",
+        label: t('command_palette.client_actions.generate_report', { name }),
+        description: t('command_palette.client_actions.generate_report_desc'),
         icon: <FileBarChart className="w-4 h-4" />,
         category: "client-action" as const,
         clientId: client.id,
         action: () => navigateTo(`/clients/profile?id=${client.id}&action=generate-report`)
       });
 
-      // View Documents action
       clientItems.push({
         id: `client-docs-${client.id}`,
-        label: `View ${client.name}'s documents`,
-        description: "Browse client documents",
+        label: t('command_palette.client_actions.view_docs', { name }),
+        description: t('command_palette.client_actions.view_docs_desc'),
         icon: <FileText className="w-4 h-4" />,
         category: "client-action" as const,
         clientId: client.id,
@@ -325,54 +312,41 @@ export default function CommandPalette() {
       });
     });
 
-    // Dynamic team member search results
     const teamItems: CommandItem[] = (teamMembers.data || []).map(member => ({
       id: `team-${member.id}`,
       label: member.name,
-      description: member.role || "Team Member",
+      description: member.role || t('command_palette.categories.team'),
       icon: <UserCircle className="w-4 h-4" />,
       category: "team" as const,
       action: () => navigateTo("/team")
     }));
 
     return [...actions, ...navigation, ...clientItems, ...teamItems];
-  }, [clients.data, teamMembers.data, services, close, openEventModal, navigateTo]);
+  }, [clients.data, teamMembers.data, services, close, openEventModal, navigateTo, t]);
 
-  // Filter commands based on query
   const filteredCommands = useMemo(() => {
     if (!query.trim()) {
-      // Show actions and navigation when no query
       return allCommands.filter(cmd =>
         cmd.category === "action" || cmd.category === "navigation"
       );
     }
-
     const lowerQuery = query.toLowerCase();
-
-    // Find matching clients to limit their actions
     const matchingClients: string[] = [];
     (clients.data || []).forEach(client => {
       if (client.name.toLowerCase().includes(lowerQuery)) {
         matchingClients.push(client.id);
       }
     });
-
-    // Limit to first 3 matching clients for client-action results
     const limitedClientIds = new Set(matchingClients.slice(0, 3));
-
     return allCommands.filter(cmd => {
-      // For client actions, only show for limited matching clients
       if (cmd.category === "client-action") {
         return cmd.clientId ? limitedClientIds.has(cmd.clientId) : false;
       }
-
-      // For other commands, use standard filtering
       return cmd.label.toLowerCase().includes(lowerQuery) ||
         cmd.description?.toLowerCase().includes(lowerQuery);
     });
   }, [allCommands, query, clients.data]);
 
-  // Group filtered commands by category
   const groupedCommands = useMemo(() => {
     const groups: { [key: string]: CommandItem[] } = {
       action: [],
@@ -381,20 +355,16 @@ export default function CommandPalette() {
       client: [],
       team: []
     };
-
     filteredCommands.forEach(cmd => {
       groups[cmd.category].push(cmd);
     });
-
     return groups;
   }, [filteredCommands]);
 
-  // Reset selected index when filtered results change
   useEffect(() => {
     setSelectedIndex(0);
   }, [query]);
 
-  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -414,7 +384,6 @@ export default function CommandPalette() {
     }
   };
 
-  // Scroll selected item into view
   useEffect(() => {
     const selectedElement = listRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
     selectedElement?.scrollIntoView({ block: "nearest" });
@@ -423,11 +392,11 @@ export default function CommandPalette() {
   if (!isOpen) return null;
 
   const categoryLabels: { [key: string]: string } = {
-    action: "Quick Actions",
-    navigation: "Navigation",
-    "client-action": "Client Actions",
-    client: "Clients",
-    team: "Team Members"
+    action: t('command_palette.categories.action'),
+    navigation: t('command_palette.categories.navigation'),
+    "client-action": t('command_palette.categories.client_action'),
+    client: t('command_palette.categories.client'),
+    team: t('command_palette.categories.team')
   };
 
   const categoryOrder = ["action", "client-action", "navigation", "client", "team"];
@@ -435,16 +404,9 @@ export default function CommandPalette() {
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={close}
-      />
-
-      {/* Modal */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={close} />
       <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-full max-w-lg mx-4">
         <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          {/* Search Input */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-200 dark:border-neutral-700">
             <Search className="w-5 h-5 text-neutral-400 flex-shrink-0" />
             <input
@@ -453,7 +415,7 @@ export default function CommandPalette() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search or type a command..."
+              placeholder={t('command_palette.placeholder')}
               className="flex-1 bg-transparent border-none outline-none text-neutral-900 dark:text-white placeholder-neutral-400 text-sm"
               autoComplete="off"
             />
@@ -462,21 +424,16 @@ export default function CommandPalette() {
             </kbd>
           </div>
 
-          {/* Results */}
-          <div
-            ref={listRef}
-            className="max-h-80 overflow-y-auto p-2"
-          >
+          <div ref={listRef} className="max-h-80 overflow-y-auto p-2">
             {filteredCommands.length === 0 ? (
               <div className="px-4 py-8 text-center text-neutral-500">
                 <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No results found for &quot;{query}&quot;</p>
+                <p>{t('command_palette.no_results', { query })}</p>
               </div>
             ) : (
               categoryOrder.map(category => {
                 const items = groupedCommands[category];
                 if (items.length === 0) return null;
-
                 return (
                   <div key={category}>
                     <div className="px-2 py-1.5 text-xs font-semibold text-neutral-500 uppercase tracking-wide">
@@ -485,7 +442,6 @@ export default function CommandPalette() {
                     {items.map(item => {
                       const itemIndex = globalIndex++;
                       const isSelected = itemIndex === selectedIndex;
-
                       return (
                         <button
                           key={item.id}
@@ -499,23 +455,15 @@ export default function CommandPalette() {
                               : "hover:bg-neutral-100 dark:hover:bg-neutral-700/50"
                           )}
                         >
-                          <div className={clsx(
-                            "flex-shrink-0",
-                            isSelected ? "text-primary-500" : "text-neutral-400"
-                          )}>
+                          <div className={clsx("flex-shrink-0", isSelected ? "text-primary-500" : "text-neutral-400")}>
                             {item.icon}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className={clsx(
-                              "text-sm font-medium truncate",
-                              isSelected ? "" : "text-neutral-700 dark:text-neutral-200"
-                            )}>
+                            <div className={clsx("text-sm font-medium truncate", isSelected ? "" : "text-neutral-700 dark:text-neutral-200")}>
                               {item.label}
                             </div>
                             {item.description && (
-                              <div className="text-xs text-neutral-500 truncate">
-                                {item.description}
-                              </div>
+                              <div className="text-xs text-neutral-500 truncate">{item.description}</div>
                             )}
                           </div>
                           {item.shortcut && (
@@ -523,9 +471,7 @@ export default function CommandPalette() {
                               {item.shortcut}
                             </kbd>
                           )}
-                          {isSelected && (
-                            <ArrowRight className="w-4 h-4 text-primary-500 flex-shrink-0" />
-                          )}
+                          {isSelected && <ArrowRight className="w-4 h-4 text-primary-500 flex-shrink-0" />}
                         </button>
                       );
                     })}
@@ -535,20 +481,19 @@ export default function CommandPalette() {
             )}
           </div>
 
-          {/* Footer hint */}
           <div className="px-4 py-2 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50">
             <div className="flex items-center gap-4 text-xs text-neutral-500">
               <span className="flex items-center gap-1">
                 <kbd className="px-1 py-0.5 bg-neutral-200 dark:bg-neutral-700 rounded">↑↓</kbd>
-                navigate
+                {t('command_palette.hints.navigate')}
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-1 py-0.5 bg-neutral-200 dark:bg-neutral-700 rounded">↵</kbd>
-                select
+                {t('command_palette.hints.select')}
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-1 py-0.5 bg-neutral-200 dark:bg-neutral-700 rounded">esc</kbd>
-                close
+                {t('command_palette.hints.close')}
               </span>
             </div>
           </div>
