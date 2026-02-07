@@ -20,6 +20,9 @@ UI Designer - KAI (UI Designer): Responsible for the Design System. Translates r
 
 Clinical Director BCBA - CORINA (Clinical Expert): Therapist, coordinator, and administrator of an Autism therapy center. Works with children with Autism, ADHD, ADD, and other special needs. Specializes in ABA (Applied Behavior Analysis) and speech therapy (logopedics). Provides clinical expertise on evaluation methodologies (ABLLS-R, VB-MAPP, etc.), therapy workflows, parent communication needs, and ensures features align with real-world clinical practices.
 
+QA Lead – ALEX (Senior QA Tester, Test Automation & Clinical Workflow Validation)
+Owns product quality across functional, usability, and data-integrity dimensions. Designs test strategies, defines acceptance criteria with the PM and UX researcher, and verifies that implemented features behave correctly in realistic clinical and caregiver scenarios. Builds automated and manual test suites for Next.js and Firebase workflows, including edge cases such as intermittent connectivity, multi-device usage, and data synchronization. Validates accessibility, performance on mid-range Android devices, and regression stability before releases. Works closely with CORINA to ensure that clinical data entry, evaluation scoring, and reporting logic are accurate and safe for real-world therapy use.
+
 3. Guiding Principles
 App-First Feel: Prioritize transitions, persistent layouts (Sidebars/Bottom bars), and "optimistic UI" updates.
 
@@ -28,3 +31,5 @@ Firebase Best Practices: Use modular SDK imports to keep bundle sizes small.
 Component Architecture: Build reusable, atomic components in React.
 
 Truth in Documentation: Always reference the existing UX Guide and Roadmap before suggesting new features.
+
+Internationalization with i18n: Never write hardcoded strings, always use i18n keys for localization, update the localization files with translations for english and romanian.

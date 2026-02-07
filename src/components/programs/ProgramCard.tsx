@@ -5,6 +5,7 @@ import { MoreVertical, Edit, Trash2, BookOpen } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export interface Program {
   id: string;
@@ -18,6 +19,7 @@ interface ProgramCardProps {
 }
 
 export default function ProgramCard({ program, onEdit }: ProgramCardProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -35,17 +37,15 @@ export default function ProgramCard({ program, onEdit }: ProgramCardProps) {
 
   const handleDelete = async () => {
     if (
-      !confirm(
-        `Are you sure you want to delete "${program.title}"? This action cannot be undone.`
-      )
+      !confirm(t('programs.delete_confirm', { name: program.title }))
     ) {
       return;
     }
     try {
       await deleteDoc(doc(db, "programs", program.id));
-      success("Program deleted");
+      success(t('programs.deleted'));
     } catch (err) {
-      error("Failed to delete program");
+      error(t('programs.delete_error'));
     }
   };
 
@@ -84,14 +84,14 @@ export default function ProgramCard({ program, onEdit }: ProgramCardProps) {
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
               >
                 <Edit className="w-4 h-4" />
-                Edit
+                {t('common.edit')}
               </button>
               <button
                 onClick={handleDelete}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                Delete
+                {t('common.delete')}
               </button>
             </div>
           )}
@@ -113,7 +113,7 @@ export default function ProgramCard({ program, onEdit }: ProgramCardProps) {
           onClick={onEdit}
           className="w-full text-center py-2 px-3 text-sm font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-xl hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 transition-all"
         >
-          Edit Program
+          {t('programs.edit_program')}
         </button>
       </div>
     </div>

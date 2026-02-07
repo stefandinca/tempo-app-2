@@ -5,6 +5,7 @@ import { X, Loader2, Briefcase } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useTranslation } from "react-i18next";
 
 interface AddServiceModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface AddServiceModalProps {
 }
 
 export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,7 +46,7 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
     e.preventDefault();
 
     if (!formData.id || !formData.label) {
-      error("Please fill in all required fields");
+      error(t('services.add_modal.validation_error'));
       return;
     }
 
@@ -60,7 +62,7 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
       };
 
       await setDoc(doc(db, "services", formData.id), payload);
-      success("Service created successfully");
+      success(t('services.add_modal.success'));
       setFormData({
         id: "",
         label: "",
@@ -71,7 +73,7 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to create service");
+      error(t('services.add_modal.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -97,10 +99,10 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
             </div>
             <div>
               <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
-                Add New Service
+                {t('services.add_modal.title')}
               </h2>
               <p className="text-xs text-neutral-500">
-                Create a new service type
+                {t('services.add_modal.subtitle')}
               </p>
             </div>
           </div>
@@ -116,12 +118,12 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
           {/* Service Name */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Service Name <span className="text-error-500">*</span>
+              {t('services.add_modal.service_name')} <span className="text-error-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Terapie ocupationala"
+              placeholder={t('services.add_modal.service_name_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
               value={formData.label}
               onChange={(e) => handleLabelChange(e.target.value)}
@@ -131,18 +133,18 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
           {/* Service ID */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Service ID <span className="text-error-500">*</span>
+              {t('services.add_modal.service_id')} <span className="text-error-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="auto-generated-from-name"
+              placeholder={t('services.add_modal.service_id_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 font-mono text-sm"
               value={formData.id}
               onChange={(e) => setFormData({ ...formData, id: e.target.value })}
             />
             <p className="text-xs text-neutral-500 mt-1">
-              Unique identifier (auto-generated from name)
+              {t('services.add_modal.id_hint')}
             </p>
           </div>
 
@@ -150,10 +152,10 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
           <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
             <div>
               <p className="font-medium text-neutral-900 dark:text-white">
-                Billable Service
+                {t('services.billable_service')}
               </p>
               <p className="text-xs text-neutral-500 mt-0.5">
-                This service will be charged to clients
+                {t('services.billable_description')}
               </p>
             </div>
             <button
@@ -179,7 +181,7 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
           {formData.isBillable && (
             <div className="animate-in slide-in-from-top-2">
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-                Base Price (RON)
+                {t('services.base_price_ron')}
               </label>
               <input
                 type="number"
@@ -199,10 +201,10 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
           <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
             <div>
               <p className="font-medium text-neutral-900 dark:text-white">
-                Requires Time Slot
+                {t('services.requires_time')}
               </p>
               <p className="text-xs text-neutral-500 mt-0.5">
-                This service needs a scheduled time and duration
+                {t('services.requires_time_description')}
               </p>
             </div>
             <button
@@ -231,7 +233,7 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
               onClick={onClose}
               className="flex-1 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 font-bold transition-colors"
             >
-              Cancel
+              {t('services.add_modal.cancel')}
             </button>
             <button
               type="submit"
@@ -241,7 +243,7 @@ export default function AddServiceModal({ isOpen, onClose }: AddServiceModalProp
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Create Service"
+                t('services.add_modal.submit')
               )}
             </button>
           </div>

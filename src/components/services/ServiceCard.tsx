@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
 import { doc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export interface Service {
   id: string;
@@ -21,6 +22,7 @@ interface ServiceCardProps {
 }
 
 export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,17 +40,15 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
 
   const handleDelete = async () => {
     if (
-      !confirm(
-        `Are you sure you want to delete "${service.label}"? This action cannot be undone.`
-      )
+      !confirm(t('services.delete_confirm', { name: service.label }))
     ) {
       return;
     }
     try {
       await deleteDoc(doc(db, "services", service.id));
-      success("Service deleted");
+      success(t('services.deleted'));
     } catch (err) {
-      error("Failed to delete service");
+      error(t('services.delete_error'));
     }
   };
 
@@ -98,14 +98,14 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
               >
                 <Edit className="w-4 h-4" />
-                Edit
+                {t('common.edit')}
               </button>
               <button
                 onClick={handleDelete}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-                Delete
+                {t('common.delete')}
               </button>
             </div>
           )}
@@ -116,7 +116,7 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
       <div className="space-y-3">
         {/* Billable Status */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-500">Status</span>
+          <span className="text-sm text-neutral-500">{t('common.status')}</span>
           <div
             className={clsx(
               "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold",
@@ -128,12 +128,12 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
             {service.isBillable ? (
               <>
                 <CheckCircle className="w-3.5 h-3.5" />
-                Billable
+                {t('services.billable')}
               </>
             ) : (
               <>
                 <XCircle className="w-3.5 h-3.5" />
-                Non-Billable
+                {t('services.non_billable')}
               </>
             )}
           </div>
@@ -141,7 +141,7 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
 
         {/* Price */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-500">Base Price</span>
+          <span className="text-sm text-neutral-500">{t('services.base_price')}</span>
           <span
             className={clsx(
               "text-lg font-bold",
@@ -158,7 +158,7 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
 
         {/* Requires Time */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-neutral-500">Requires Time Slot</span>
+          <span className="text-sm text-neutral-500">{t('services.requires_time')}</span>
           <span
             className={clsx(
               "text-sm font-medium",
@@ -167,7 +167,7 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
                 : "text-neutral-400"
             )}
           >
-            {service.requiresTime ? "Yes" : "No"}
+            {service.requiresTime ? t('services.yes') : t('services.no')}
           </span>
         </div>
       </div>
@@ -178,7 +178,7 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
           onClick={onEdit}
           className="w-full text-center py-2 px-3 text-sm font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-xl hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 transition-all"
         >
-          Edit Service
+          {t('services.edit_service')}
         </button>
       </div>
     </div>

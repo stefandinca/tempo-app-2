@@ -5,6 +5,7 @@ import { X, Loader2, BookOpen } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useTranslation } from "react-i18next";
 
 interface AddProgramModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface AddProgramModalProps {
 }
 
 export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -24,7 +26,7 @@ export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProp
     e.preventDefault();
 
     if (!formData.title) {
-      error("Please fill in all required fields");
+      error(t('programs.add_modal.validation_error'));
       return;
     }
 
@@ -39,12 +41,12 @@ export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProp
       }
 
       await addDoc(collection(db, "programs"), payload);
-      success("Program created successfully");
+      success(t('programs.add_modal.success'));
       setFormData({ title: "", description: "" });
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to create program");
+      error(t('programs.add_modal.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,10 +72,10 @@ export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProp
             </div>
             <div>
               <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
-                Add New Program
+                {t('programs.add_modal.title')}
               </h2>
               <p className="text-xs text-neutral-500">
-                Create a new therapy program
+                {t('programs.add_modal.subtitle')}
               </p>
             </div>
           </div>
@@ -89,12 +91,12 @@ export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProp
           {/* Program Title */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Program Title <span className="text-error-500">*</span>
+              {t('programs.add_modal.program_title')} <span className="text-error-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Terapie ABA"
+              placeholder={t('programs.add_modal.title_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
               value={formData.title}
               onChange={(e) =>
@@ -106,11 +108,11 @@ export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProp
           {/* Description */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Description
+              {t('programs.add_modal.description')}
             </label>
             <textarea
               rows={3}
-              placeholder="Optional description of the program"
+              placeholder={t('programs.add_modal.description_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 resize-none"
               value={formData.description}
               onChange={(e) =>
@@ -126,7 +128,7 @@ export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProp
               onClick={onClose}
               className="flex-1 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 font-bold transition-colors"
             >
-              Cancel
+              {t('programs.add_modal.cancel')}
             </button>
             <button
               type="submit"
@@ -136,7 +138,7 @@ export default function AddProgramModal({ isOpen, onClose }: AddProgramModalProp
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Create Program"
+                t('programs.add_modal.submit')
               )}
             </button>
           </div>

@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { usePrograms, InterventionPlan } from "@/hooks/useCollections";
+import { useTranslation } from "react-i18next";
 
 interface CreatePlanModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function CreatePlanModal({
   clientId,
   existingPlan
 }: CreatePlanModalProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const { data: programs, loading: programsLoading } = usePrograms();
 
@@ -77,14 +79,20 @@ export default function CreatePlanModal({
     }));
   };
 
+  const statusLabels: Record<string, string> = {
+    active: t('clients.plan_modal.status_active'),
+    draft: t('clients.plan_modal.status_draft'),
+    completed: t('clients.plan_modal.status_completed')
+  };
+
   const validateForm = (): string | null => {
-    if (!formData.name.trim()) return "Plan name is required";
-    if (!formData.startDate) return "Start date is required";
-    if (!formData.endDate) return "End date is required";
+    if (!formData.name.trim()) return t('clients.plan_modal.validation.name_required');
+    if (!formData.startDate) return t('clients.plan_modal.validation.start_date_required');
+    if (!formData.endDate) return t('clients.plan_modal.validation.end_date_required');
     if (new Date(formData.endDate) <= new Date(formData.startDate)) {
-      return "End date must be after start date";
+      return t('clients.plan_modal.validation.end_after_start');
     }
-    if (formData.programIds.length === 0) return "Select at least one program";
+    if (formData.programIds.length === 0) return t('clients.plan_modal.validation.select_program');
     return null;
   };
 
@@ -114,17 +122,17 @@ export default function CreatePlanModal({
         // Update existing plan
         const planRef = doc(db, "clients", clientId, "interventionPlans", existingPlan.id);
         await updateDoc(planRef, payload);
-        success("Plan updated successfully");
+        success(t('clients.plan_modal.success_edit'));
       } else {
         // Create new plan
         await addDoc(collection(db, "clients", clientId, "interventionPlans"), payload);
-        success("Plan created successfully");
+        success(t('clients.plan_modal.success_create'));
       }
 
       onClose();
     } catch (err) {
       console.error(err);
-      error(existingPlan ? "Failed to update plan" : "Failed to create plan");
+      error(existingPlan ? t('clients.plan_modal.error_edit') : t('clients.plan_modal.error_create'));
     } finally {
       setIsSubmitting(false);
     }
@@ -132,16 +140,16 @@ export default function CreatePlanModal({
 
   const handleDelete = async () => {
     if (!existingPlan) return;
-    if (!confirm(`Delete "${existingPlan.name}"? This action cannot be undone.`)) return;
+    if (!confirm(t('clients.plan_modal.delete_confirm', { name: existingPlan.name }))) return;
 
     setIsDeleting(true);
     try {
       await deleteDoc(doc(db, "clients", clientId, "interventionPlans", existingPlan.id));
-      success("Plan deleted");
+      success(t('clients.plan_modal.deleted'));
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to delete plan");
+      error(t('clients.plan_modal.delete_error'));
     } finally {
       setIsDeleting(false);
     }
@@ -167,10 +175,10 @@ export default function CreatePlanModal({
             </div>
             <div>
               <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
-                {existingPlan ? "Edit Intervention Plan" : "Create Intervention Plan"}
+                {existingPlan ? t('clients.plan_modal.title_edit') : t('clients.plan_modal.title_create')}
               </h2>
               <p className="text-xs text-neutral-500">
-                {existingPlan ? "Modify plan details" : "Set up programs for this client"}
+                {existingPlan ? t('clients.plan_modal.subtitle_edit') : t('clients.plan_modal.subtitle_create')}
               </p>
             </div>
           </div>
@@ -186,12 +194,12 @@ export default function CreatePlanModal({
           {/* Plan Name */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Plan Name <span className="text-error-500">*</span>
+              {t('clients.plan_modal.plan_name')} <span className="text-error-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Q1 2026 Intervention"
+              placeholder={t('clients.plan_modal.plan_name_placeholder')}
               className="w-full px-3 py-2.5 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -202,7 +210,7 @@ export default function CreatePlanModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-                Start Date <span className="text-error-500">*</span>
+                {t('clients.plan_modal.start_date')} <span className="text-error-500">*</span>
               </label>
               <input
                 type="date"
@@ -214,7 +222,7 @@ export default function CreatePlanModal({
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-                End Date <span className="text-error-500">*</span>
+                {t('clients.plan_modal.end_date')} <span className="text-error-500">*</span>
               </label>
               <input
                 type="date"
@@ -230,7 +238,7 @@ export default function CreatePlanModal({
           {existingPlan && (
             <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-                Status
+                {t('clients.plan_modal.status')}
               </label>
               <div className="flex gap-2">
                 {(["active", "draft", "completed"] as const).map((status) => (
@@ -239,7 +247,7 @@ export default function CreatePlanModal({
                     type="button"
                     onClick={() => setFormData({ ...formData, status })}
                     className={clsx(
-                      "flex-1 py-2 rounded-lg text-sm font-medium transition-all border capitalize",
+                      "flex-1 py-2 rounded-lg text-sm font-medium transition-all border",
                       formData.status === status
                         ? status === "active"
                           ? "bg-success-500 border-success-600 text-white"
@@ -249,7 +257,7 @@ export default function CreatePlanModal({
                         : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
                     )}
                   >
-                    {status}
+                    {statusLabels[status]}
                   </button>
                 ))}
               </div>
@@ -259,9 +267,9 @@ export default function CreatePlanModal({
           {/* Programs Selection */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Select Programs <span className="text-error-500">*</span>
+              {t('clients.plan_modal.select_programs')} <span className="text-error-500">*</span>
               <span className="ml-2 text-xs text-neutral-500 font-normal">
-                ({formData.programIds.length} selected)
+                {t('clients.plan_modal.selected_count', { count: formData.programIds.length })}
               </span>
             </label>
 
@@ -270,7 +278,7 @@ export default function CreatePlanModal({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               <input
                 type="text"
-                placeholder="Search programs..."
+                placeholder={t('clients.plan_modal.search_programs')}
                 className="w-full pl-9 pr-4 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 text-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -285,7 +293,7 @@ export default function CreatePlanModal({
                 </div>
               ) : filteredPrograms.length === 0 ? (
                 <p className="text-center py-4 text-sm text-neutral-500">
-                  No programs found
+                  {t('clients.plan_modal.no_programs')}
                 </p>
               ) : (
                 filteredPrograms.map((prog) => {
@@ -346,7 +354,7 @@ export default function CreatePlanModal({
               onClick={onClose}
               className="flex-1 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 font-bold transition-colors"
             >
-              Cancel
+              {t('clients.plan_modal.cancel')}
             </button>
             <button
               type="submit"
@@ -356,9 +364,9 @@ export default function CreatePlanModal({
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : existingPlan ? (
-                "Save Changes"
+                t('clients.plan_modal.submit_edit')
               ) : (
-                "Create Plan"
+                t('clients.plan_modal.submit_create')
               )}
             </button>
           </div>

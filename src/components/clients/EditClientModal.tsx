@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTeamMembers } from "@/hooks/useCollections";
 import { notifyClientAssigned } from "@/lib/notificationService";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 interface EditClientModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface EditClientModalProps {
 }
 
 export default function EditClientModal({ isOpen, onClose, client }: EditClientModalProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const { user: authUser } = useAuth();
   const { data: teamMembers } = useTeamMembers();
@@ -82,7 +84,7 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
       };
 
       await updateDoc(clientRef, payload);
-      success("Profile updated successfully");
+      success(t('clients.edit_modal.success'));
 
       // Send notification if therapist changed
       if (formData.assignedTherapistId && formData.assignedTherapistId !== client.assignedTherapistId && authUser) {
@@ -96,7 +98,7 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to update profile");
+      error(t('clients.edit_modal.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -118,8 +120,8 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
               <Save className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Edit Profile</h2>
-              <p className="text-xs text-neutral-500">Update information for {client?.name}</p>
+              <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{t('clients.edit_modal.title')}</h2>
+              <p className="text-xs text-neutral-500">{t('clients.edit_modal.subtitle', { name: client?.name })}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800">
@@ -131,18 +133,18 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
           {/* Basic Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Child Name</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.child_name')}</label>
               <input
                 type="text"
                 required
-                placeholder="e.g. John Doe"
+                placeholder={t('clients.form.child_name_placeholder')}
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Birth Date</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.birth_date')}</label>
               <input
                 type="date"
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
@@ -155,17 +157,17 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
           {/* Clinical Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Primary Diagnosis</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.primary_diagnosis')}</label>
               <input
                 type="text"
-                placeholder="e.g. Autism Spectrum Disorder"
+                placeholder={t('clients.form.diagnosis_placeholder')}
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                 value={formData.primaryDiagnosis}
                 onChange={e => setFormData({...formData, primaryDiagnosis: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Diagnosis Date</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.diagnosis_date')}</label>
               <input
                 type="date"
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
@@ -174,15 +176,15 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Support Level (DSM-5)</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.support_level')}</label>
               <select
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                 value={formData.diagnosisLevel}
                 onChange={e => setFormData({...formData, diagnosisLevel: e.target.value})}
               >
-                <option value="1">Level 1 (Requiring Support)</option>
-                <option value="2">Level 2 (Substantial Support)</option>
-                <option value="3">Level 3 (Very Substantial Support)</option>
+                <option value="1">{t('clients.form.level_1')}</option>
+                <option value="2">{t('clients.form.level_2')}</option>
+                <option value="3">{t('clients.form.level_3')}</option>
               </select>
             </div>
           </div>
@@ -190,11 +192,11 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
           {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Phone Number <span className="text-neutral-400 font-normal">(optional)</span>
+              {t('clients.form.phone')} <span className="text-neutral-400 font-normal">{t('clients.form.optional')}</span>
             </label>
             <input
               type="tel"
-              placeholder="e.g. 0721 234 567"
+              placeholder={t('clients.form.phone_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
               value={formData.phone}
               onChange={e => setFormData({...formData, phone: e.target.value})}
@@ -205,11 +207,11 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-                Parent Name <span className="text-neutral-400 font-normal">(optional)</span>
+                {t('clients.form.parent_name')} <span className="text-neutral-400 font-normal">{t('clients.form.optional')}</span>
               </label>
               <input
                 type="text"
-                placeholder="e.g. Robert Doe"
+                placeholder={t('clients.form.parent_name_placeholder')}
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                 value={formData.parentName}
                 onChange={e => setFormData({...formData, parentName: e.target.value})}
@@ -217,11 +219,11 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-                Parent Email <span className="text-neutral-400 font-normal">(optional)</span>
+                {t('clients.form.parent_email')} <span className="text-neutral-400 font-normal">{t('clients.form.optional')}</span>
               </label>
               <input
                 type="email"
-                placeholder="parent@example.com"
+                placeholder={t('clients.form.parent_email_placeholder')}
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                 value={formData.parentEmail}
                 onChange={e => setFormData({...formData, parentEmail: e.target.value})}
@@ -231,13 +233,13 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
 
           {/* Billing Info */}
           <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800">
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">Billing Information (SmartBill)</h3>
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">{t('clients.form.billing_section')}</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Billing Address</label>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.billing_address')}</label>
                 <input
                   type="text"
-                  placeholder="Street, Number, City, County"
+                  placeholder={t('clients.form.billing_address_placeholder')}
                   className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                   value={formData.billingAddress}
                   onChange={e => setFormData({...formData, billingAddress: e.target.value})}
@@ -245,20 +247,20 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">CIF / CUI</label>
+                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.cif_cui')}</label>
                   <input
                     type="text"
-                    placeholder="RO12345678"
+                    placeholder={t('clients.form.cif_placeholder')}
                     className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                     value={formData.billingCif}
                     onChange={e => setFormData({...formData, billingCif: e.target.value})}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Reg. No. (optional)</label>
+                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.reg_no')} <span className="text-neutral-400 font-normal">{t('clients.form.optional')}</span></label>
                   <input
                     type="text"
-                    placeholder="J40/123/2020"
+                    placeholder={t('clients.form.reg_no_placeholder')}
                     className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
                     value={formData.billingRegNo}
                     onChange={e => setFormData({...formData, billingRegNo: e.target.value})}
@@ -270,25 +272,25 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
 
           {/* Therapist Assignment */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Assigned Therapist</label>
+            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.assigned_therapist')}</label>
             <select
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
               value={formData.assignedTherapistId}
               onChange={e => setFormData({...formData, assignedTherapistId: e.target.value})}
             >
-              <option value="">Select a therapist...</option>
-              {teamMembers.map(t => (
-                <option key={t.id} value={t.id}>{t.name} ({t.role})</option>
+              <option value="">{t('clients.form.select_therapist')}</option>
+              {teamMembers.map(tm => (
+                <option key={tm.id} value={tm.id}>{tm.name} ({tm.role})</option>
               ))}
             </select>
           </div>
 
           {/* Medical Info */}
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Medical Info / Notes</label>
-            <textarea 
+            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.medical_info')}</label>
+            <textarea
               rows={3}
-              placeholder="Allergies, specific diagnosis notes..."
+              placeholder={t('clients.form.medical_info_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 resize-none transition-colors"
               value={formData.medicalInfo}
               onChange={e => setFormData({...formData, medicalInfo: e.target.value})}
@@ -302,14 +304,14 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
               onClick={onClose}
               className="flex-1 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 font-bold transition-colors"
             >
-              Cancel
+              {t('clients.edit_modal.cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20"
             >
-              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t('clients.edit_modal.submit')}
             </button>
           </div>
         </form>

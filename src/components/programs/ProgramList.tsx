@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useData } from "@/context/DataContext";
 import ProgramCard, { Program } from "./ProgramCard";
 import { Search, Plus, BookOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ProgramListProps {
   onAdd: () => void;
@@ -11,6 +12,7 @@ interface ProgramListProps {
 }
 
 export default function ProgramList({ onAdd, onEdit }: ProgramListProps) {
+  const { t } = useTranslation();
   const { programs: programsState } = useData();
   const loading = programsState.loading;
   const programs = programsState.data as Program[];
@@ -31,9 +33,9 @@ export default function ProgramList({ onAdd, onEdit }: ProgramListProps) {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Programs</h1>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('programs.title')}</h1>
             <p className="text-sm text-neutral-500 mt-1">
-              Manage therapy programs
+              {t('programs.subtitle')}
             </p>
           </div>
         </div>
@@ -64,9 +66,9 @@ export default function ProgramList({ onAdd, onEdit }: ProgramListProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Programs</h1>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t('programs.title')}</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Manage therapy programs
+            {t('programs.subtitle')}
           </p>
         </div>
       </div>
@@ -77,7 +79,7 @@ export default function ProgramList({ onAdd, onEdit }: ProgramListProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
           <input
             type="text"
-            placeholder="Search programs..."
+            placeholder={t('programs.search_placeholder')}
             className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all shadow-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -89,7 +91,7 @@ export default function ProgramList({ onAdd, onEdit }: ProgramListProps) {
           className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Program</span>
+          <span>{t('programs.new_program')}</span>
         </button>
       </div>
 
@@ -100,19 +102,19 @@ export default function ProgramList({ onAdd, onEdit }: ProgramListProps) {
             <BookOpen className="w-8 h-8 text-neutral-400" />
           </div>
           <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-            No programs found
+            {t('programs.no_results')}
           </h3>
           <p className="text-neutral-500 max-w-xs mt-1">
             {search
-              ? "Try a different search term"
-              : "No programs yet. Add your first program to get started."}
+              ? t('programs.no_results_subtitle')
+              : t('programs.no_programs_yet')}
           </p>
           {search && (
             <button
               onClick={() => setSearch("")}
               className="mt-4 text-primary-600 font-bold hover:underline"
             >
-              Clear search
+              {t('programs.clear_search')}
             </button>
           )}
         </div>

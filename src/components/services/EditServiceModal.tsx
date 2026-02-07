@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { Service } from "./ServiceCard";
+import { useTranslation } from "react-i18next";
 
 interface EditServiceModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function EditServiceModal({
   service,
   onClose,
 }: EditServiceModalProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,7 +46,7 @@ export default function EditServiceModal({
     e.preventDefault();
 
     if (!service || !formData.label) {
-      error("Please fill in all required fields");
+      error(t('services.edit_modal.validation_error'));
       return;
     }
 
@@ -59,11 +61,11 @@ export default function EditServiceModal({
       };
 
       await updateDoc(doc(db, "services", service.id), payload);
-      success("Service updated successfully");
+      success(t('services.edit_modal.success'));
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to update service");
+      error(t('services.edit_modal.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +91,7 @@ export default function EditServiceModal({
             </div>
             <div>
               <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
-                Edit Service
+                {t('services.edit_modal.title')}
               </h2>
               <p className="text-xs text-neutral-500 font-mono">{service.id}</p>
             </div>
@@ -106,12 +108,12 @@ export default function EditServiceModal({
           {/* Service Name */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Service Name <span className="text-error-500">*</span>
+              {t('services.edit_modal.service_name')} <span className="text-error-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Terapie ocupationala"
+              placeholder={t('services.edit_modal.service_name_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
               value={formData.label}
               onChange={(e) =>
@@ -124,10 +126,10 @@ export default function EditServiceModal({
           <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
             <div>
               <p className="font-medium text-neutral-900 dark:text-white">
-                Billable Service
+                {t('services.billable_service')}
               </p>
               <p className="text-xs text-neutral-500 mt-0.5">
-                This service will be charged to clients
+                {t('services.billable_description')}
               </p>
             </div>
             <button
@@ -153,7 +155,7 @@ export default function EditServiceModal({
           {formData.isBillable && (
             <div className="animate-in slide-in-from-top-2">
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-                Base Price (RON)
+                {t('services.base_price_ron')}
               </label>
               <input
                 type="number"
@@ -173,10 +175,10 @@ export default function EditServiceModal({
           <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
             <div>
               <p className="font-medium text-neutral-900 dark:text-white">
-                Requires Time Slot
+                {t('services.requires_time')}
               </p>
               <p className="text-xs text-neutral-500 mt-0.5">
-                This service needs a scheduled time and duration
+                {t('services.requires_time_description')}
               </p>
             </div>
             <button
@@ -205,7 +207,7 @@ export default function EditServiceModal({
               onClick={onClose}
               className="flex-1 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 font-bold transition-colors"
             >
-              Cancel
+              {t('services.edit_modal.cancel')}
             </button>
             <button
               type="submit"
@@ -215,7 +217,7 @@ export default function EditServiceModal({
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Save Changes"
+                t('services.edit_modal.submit')
               )}
             </button>
           </div>

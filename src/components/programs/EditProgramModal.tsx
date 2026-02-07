@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { Program } from "./ProgramCard";
+import { useTranslation } from "react-i18next";
 
 interface EditProgramModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function EditProgramModal({
   program,
   onClose,
 }: EditProgramModalProps) {
+  const { t } = useTranslation();
   const { success, error } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,7 +42,7 @@ export default function EditProgramModal({
     e.preventDefault();
 
     if (!program || !formData.title) {
-      error("Please fill in all required fields");
+      error(t('programs.edit_modal.validation_error'));
       return;
     }
 
@@ -57,11 +59,11 @@ export default function EditProgramModal({
       }
 
       await updateDoc(doc(db, "programs", program.id), payload);
-      success("Program updated successfully");
+      success(t('programs.edit_modal.success'));
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to update program");
+      error(t('programs.edit_modal.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -87,7 +89,7 @@ export default function EditProgramModal({
             </div>
             <div>
               <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
-                Edit Program
+                {t('programs.edit_modal.title')}
               </h2>
               <p className="text-xs text-neutral-500 font-mono">{program.id}</p>
             </div>
@@ -104,12 +106,12 @@ export default function EditProgramModal({
           {/* Program Title */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Program Title <span className="text-error-500">*</span>
+              {t('programs.edit_modal.program_title')} <span className="text-error-500">*</span>
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Terapie ABA"
+              placeholder={t('programs.edit_modal.title_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
               value={formData.title}
               onChange={(e) =>
@@ -121,11 +123,11 @@ export default function EditProgramModal({
           {/* Description */}
           <div>
             <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
-              Description
+              {t('programs.edit_modal.description')}
             </label>
             <textarea
               rows={3}
-              placeholder="Optional description of the program"
+              placeholder={t('programs.edit_modal.description_placeholder')}
               className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 resize-none"
               value={formData.description}
               onChange={(e) =>
@@ -141,7 +143,7 @@ export default function EditProgramModal({
               onClick={onClose}
               className="flex-1 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 font-bold transition-colors"
             >
-              Cancel
+              {t('programs.edit_modal.cancel')}
             </button>
             <button
               type="submit"
@@ -151,7 +153,7 @@ export default function EditProgramModal({
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Save Changes"
+                t('programs.edit_modal.submit')
               )}
             </button>
           </div>
