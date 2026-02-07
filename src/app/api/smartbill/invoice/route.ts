@@ -13,28 +13,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const user = process.env.SMARTBILL_USER;
-    const token = process.env.SMARTBILL_TOKEN;
+    // 2.5 Fetch Invoicing Settings for VAT Rate and Credentials
+    const settingsRef = doc(db, "system_settings", "config");
+    const settingsSnap = await getDoc(settingsRef);
+    const settings = settingsSnap.exists() ? settingsSnap.data() : {};
+    
+    const vatRate = settings.invoicing?.vatRate ?? 0;
+    
+    // Prioritize Firestore credentials over env variables
+    const user = settings.integrations?.smartbill?.user || process.env.SMARTBILL_USER;
+    const token = settings.integrations?.smartbill?.token || process.env.SMARTBILL_TOKEN;
 
     if (!user || !token) {
       return NextResponse.json({ error: 'SmartBill credentials not configured' }, { status: 500 });
     }
-
-    // 2. Fetch Client Data for additional billing info
-    const clientRef = doc(db, "clients", clientId);
-    const clientSnap = await getDoc(clientRef);
-    
-    if (!clientSnap.exists()) {
-      return NextResponse.json({ error: 'Client not found' }, { status: 404 });
-    }
-
-    const client = clientSnap.data();
-
-    // 2.5 Fetch Invoicing Settings for VAT Rate
-    const settingsRef = doc(db, "system_settings", "config");
-    const settingsSnap = await getDoc(settingsRef);
-    const settings = settingsSnap.exists() ? settingsSnap.data() : {};
-    const vatRate = settings.invoicing?.vatRate ?? 0;
 
     // 3. Prepare SmartBill Payload
     // Referencing: https://api.smartbill.ro/#!/Invoices/createInvoice

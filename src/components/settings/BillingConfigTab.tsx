@@ -5,7 +5,7 @@ import { useSystemSettings } from "@/hooks/useCollections";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
-import { Loader2, Save, Building, FileText, Mail } from "lucide-react";
+import { Loader2, Save, Building, FileText, Mail, Share2, Key } from "lucide-react";
 
 export default function BillingConfigTab() {
   const { data: settings, loading } = useSystemSettings();
@@ -13,7 +13,7 @@ export default function BillingConfigTab() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Local state for the form
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     clinic: {
       name: "",
       cui: "",
@@ -34,15 +34,25 @@ export default function BillingConfigTab() {
     emailTemplates: {
       subject: "Invoice #{series}-{number} from {clinic_name}",
       body: "Dear {client_name},\n\nPlease find attached the invoice for {month}.\n\nTotal Amount: {amount} RON\nDue Date: {due_date}\n\nThank you,\n{clinic_name}",
+    },
+    integrations: {
+      smartbill: {
+        user: "",
+        token: "",
+      }
     }
   });
 
   // Populate form when data loads
   useEffect(() => {
     if (settings) {
-      setFormData(prev => ({
+      setFormData((prev: any) => ({
         ...prev,
-        ...settings
+        ...settings,
+        integrations: {
+          ...prev.integrations,
+          ...(settings.integrations || {})
+        }
       }));
     }
   }, [settings]);
@@ -84,7 +94,7 @@ export default function BillingConfigTab() {
             <Building className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Clinic Identity</h3>
+            <h3 className="text-lg font-bold text-neutral-900 dark:text-white font-display">Clinic Identity</h3>
             <p className="text-sm text-neutral-500">Legal details for invoice headers.</p>
           </div>
         </div>
@@ -97,7 +107,7 @@ export default function BillingConfigTab() {
               placeholder="e.g. SC TEMPO THERAPY SRL"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.clinic.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, name: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, name: e.target.value } }))}
             />
           </div>
 
@@ -108,7 +118,7 @@ export default function BillingConfigTab() {
               placeholder="e.g. RO12345678"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.clinic.cui}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, cui: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, cui: e.target.value } }))}
             />
           </div>
 
@@ -119,7 +129,7 @@ export default function BillingConfigTab() {
               placeholder="e.g. J40/123/2020"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.clinic.regNo}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, regNo: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, regNo: e.target.value } }))}
             />
           </div>
 
@@ -130,7 +140,7 @@ export default function BillingConfigTab() {
               placeholder="Full legal address"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all resize-none"
               value={formData.clinic.address}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, address: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, address: e.target.value } }))}
             />
           </div>
 
@@ -141,7 +151,7 @@ export default function BillingConfigTab() {
               placeholder="e.g. Banca Transilvania"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.clinic.bank}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, bank: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, bank: e.target.value } }))}
             />
           </div>
 
@@ -152,7 +162,7 @@ export default function BillingConfigTab() {
               placeholder="RO98 BTRL..."
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all font-mono text-sm"
               value={formData.clinic.iban}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, iban: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, iban: e.target.value } }))}
             />
           </div>
           
@@ -163,7 +173,7 @@ export default function BillingConfigTab() {
               placeholder="billing@tempo.com"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.clinic.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, email: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, email: e.target.value } }))}
             />
           </div>
 
@@ -174,7 +184,7 @@ export default function BillingConfigTab() {
               placeholder="+40 7..."
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.clinic.phone}
-              onChange={(e) => setFormData(prev => ({ ...prev, clinic: { ...prev.clinic, phone: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, phone: e.target.value } }))}
             />
           </div>
         </div>
@@ -187,7 +197,7 @@ export default function BillingConfigTab() {
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Invoice Parameters</h3>
+            <h3 className="text-lg font-bold text-neutral-900 dark:text-white font-display">Invoice Parameters</h3>
             <p className="text-sm text-neutral-500">Defaults for automated generation.</p>
           </div>
         </div>
@@ -200,7 +210,7 @@ export default function BillingConfigTab() {
               placeholder="e.g. TMP"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all uppercase"
               value={formData.invoicing.seriesPrefix}
-              onChange={(e) => setFormData(prev => ({ ...prev, invoicing: { ...prev.invoicing, seriesPrefix: e.target.value.toUpperCase() } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, invoicing: { ...prev.invoicing, seriesPrefix: e.target.value.toUpperCase() } }))}
             />
           </div>
 
@@ -210,7 +220,7 @@ export default function BillingConfigTab() {
               type="number" 
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.invoicing.currentNumber}
-              onChange={(e) => setFormData(prev => ({ ...prev, invoicing: { ...prev.invoicing, currentNumber: parseInt(e.target.value) || 0 } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, invoicing: { ...prev.invoicing, currentNumber: parseInt(e.target.value) || 0 } }))}
             />
             <p className="text-xs text-neutral-500 mt-1">Will increment automatically.</p>
           </div>
@@ -221,7 +231,7 @@ export default function BillingConfigTab() {
               type="number" 
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.invoicing.defaultDueDays}
-              onChange={(e) => setFormData(prev => ({ ...prev, invoicing: { ...prev.invoicing, defaultDueDays: parseInt(e.target.value) || 0 } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, invoicing: { ...prev.invoicing, defaultDueDays: parseInt(e.target.value) || 0 } }))}
             />
           </div>
           
@@ -231,7 +241,7 @@ export default function BillingConfigTab() {
               type="number" 
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.invoicing.vatRate}
-              onChange={(e) => setFormData(prev => ({ ...prev, invoicing: { ...prev.invoicing, vatRate: parseFloat(e.target.value) || 0 } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, invoicing: { ...prev.invoicing, vatRate: parseFloat(e.target.value) || 0 } }))}
             />
           </div>
           
@@ -242,7 +252,7 @@ export default function BillingConfigTab() {
               placeholder="e.g. Thank you for your business!"
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.invoicing.footerNotes}
-              onChange={(e) => setFormData(prev => ({ ...prev, invoicing: { ...prev.invoicing, footerNotes: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, invoicing: { ...prev.invoicing, footerNotes: e.target.value } }))}
             />
           </div>
         </div>
@@ -255,7 +265,7 @@ export default function BillingConfigTab() {
             <Mail className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Email Template</h3>
+            <h3 className="text-lg font-bold text-neutral-900 dark:text-white font-display">Email Template</h3>
             <p className="text-sm text-neutral-500">Customize the email sent to parents.</p>
           </div>
         </div>
@@ -267,7 +277,7 @@ export default function BillingConfigTab() {
               type="text" 
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
               value={formData.emailTemplates?.subject}
-              onChange={(e) => setFormData(prev => ({ ...prev, emailTemplates: { ...prev.emailTemplates, subject: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, emailTemplates: { ...prev.emailTemplates, subject: e.target.value } }))}
             />
           </div>
 
@@ -277,10 +287,73 @@ export default function BillingConfigTab() {
               rows={6}
               className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all resize-none font-mono text-sm"
               value={formData.emailTemplates?.body}
-              onChange={(e) => setFormData(prev => ({ ...prev, emailTemplates: { ...prev.emailTemplates, body: e.target.value } }))}
+              onChange={(e) => setFormData((prev: any) => ({ ...prev, emailTemplates: { ...prev.emailTemplates, body: e.target.value } }))}
             />
             <p className="text-xs text-neutral-500 mt-2">
               Available variables: <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">{`{client_name}`}</code>, <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">{`{month}`}</code>, <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">{`{amount}`}</code>, <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">{`{due_date}`}</code>, <code className="bg-neutral-100 dark:bg-neutral-800 px-1 rounded">{`{clinic_name}`}</code>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Section 4: External Integrations */}
+      <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600">
+            <Share2 className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-neutral-900 dark:text-white font-display">External Integrations</h3>
+            <p className="text-sm text-neutral-500">Connect with third-party services.</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <div className="flex items-center gap-2 mb-4">
+              <img src="https://static.smartbill.ro/favicon.ico" className="w-4 h-4" alt="SmartBill" />
+              <h4 className="font-bold text-neutral-900 dark:text-white text-sm">SmartBill API</h4>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase mb-1.5">SmartBill User (Email)</label>
+                <input 
+                  type="email" 
+                  placeholder="user@email.com"
+                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all text-sm"
+                  value={formData.integrations?.smartbill?.user}
+                  onChange={(e) => setFormData((prev: any) => ({ 
+                    ...prev, 
+                    integrations: { 
+                      ...prev.integrations, 
+                      smartbill: { ...(prev.integrations?.smartbill || {}), user: e.target.value } 
+                    } 
+                  }))}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-neutral-500 uppercase mb-1.5">SmartBill API Token</label>
+                <div className="relative">
+                  <input 
+                    type="password" 
+                    placeholder="••••••••••••"
+                    className="w-full pl-9 pr-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all text-sm font-mono"
+                    value={formData.integrations?.smartbill?.token}
+                    onChange={(e) => setFormData((prev: any) => ({ 
+                      ...prev, 
+                      integrations: { 
+                        ...prev.integrations, 
+                        smartbill: { ...(prev.integrations?.smartbill || {}), token: e.target.value } 
+                      } 
+                    }))}
+                  />
+                  <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                </div>
+              </div>
+            </div>
+            <p className="text-[10px] text-neutral-500 mt-3 italic">
+              * Note: Credentials are saved securely in your private clinic configuration. These are required for official invoice synchronization.
             </p>
           </div>
         </div>
@@ -290,7 +363,7 @@ export default function BillingConfigTab() {
         <button 
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-600/20 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isSaving ? (
             <Loader2 className="w-5 h-5 animate-spin" />
