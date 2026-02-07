@@ -4,5 +4,9 @@ export interface ClientInfo {
   birthDate?: string;
   primaryDiagnosis?: string;
   diagnosisLevel?: number;
-  // Add other fields as needed
+  // Billing Info for SmartBill
+  billingAddress?: string;
+  billingCif?: string; // CUI / CIF
+  billingRegNo?: string; // Nr. Reg. Com.
+  [key: string]: any;
 }

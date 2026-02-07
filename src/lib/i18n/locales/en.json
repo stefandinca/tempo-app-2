@@ -401,11 +401,13 @@
     "no_team_description": "Add team members in the Team section to calculate payouts.",
     "paid": "Paid",
     "pending": "Pending",
-    "overdue": "Overdue",
+    "create": "Create",
+    "synced": "Synced to Smartbill",
     "status": {
       "paid": "Paid",
       "pending": "Pending",
-      "overdue": "Overdue"
+      "create": "Create",
+      "synced": "Synced to Smartbill"
     },
     "payout_messages": {
       "save_success": "Payout updated",

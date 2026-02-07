@@ -33,6 +33,9 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
     parentEmail: "",
     medicalInfo: "",
     assignedTherapistId: "",
+    billingAddress: "",
+    billingCif: "",
+    billingRegNo: "",
   });
 
   // Load client data when modal opens
@@ -49,6 +52,9 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
         parentEmail: client.parentEmail || "",
         medicalInfo: client.medicalInfo || "",
         assignedTherapistId: client.assignedTherapistId || "",
+        billingAddress: client.billingAddress || "",
+        billingCif: client.billingCif || "",
+        billingRegNo: client.billingRegNo || "",
       });
     }
   }, [client, isOpen]);
@@ -70,6 +76,9 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
         parentEmail: formData.parentEmail,
         medicalInfo: formData.medicalInfo,
         assignedTherapistId: formData.assignedTherapistId,
+        billingAddress: formData.billingAddress,
+        billingCif: formData.billingCif,
+        billingRegNo: formData.billingRegNo,
       };
 
       await updateDoc(clientRef, payload);
@@ -217,6 +226,45 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
                 value={formData.parentEmail}
                 onChange={e => setFormData({...formData, parentEmail: e.target.value})}
               />
+            </div>
+          </div>
+
+          {/* Billing Info */}
+          <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800">
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">Billing Information (SmartBill)</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Billing Address</label>
+                <input
+                  type="text"
+                  placeholder="Street, Number, City, County"
+                  className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                  value={formData.billingAddress}
+                  onChange={e => setFormData({...formData, billingAddress: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">CIF / CUI</label>
+                  <input
+                    type="text"
+                    placeholder="RO12345678"
+                    className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                    value={formData.billingCif}
+                    onChange={e => setFormData({...formData, billingCif: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Reg. No. (optional)</label>
+                  <input
+                    type="text"
+                    placeholder="J40/123/2020"
+                    className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
+                    value={formData.billingRegNo}
+                    onChange={e => setFormData({...formData, billingRegNo: e.target.value})}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

@@ -412,11 +412,13 @@
     "no_team_description": "Adăugați membri în secțiunea Echipă pentru a calcula plățile.",
     "paid": "Plătită",
     "pending": "În așteptare",
-    "overdue": "Restantă",
+    "create": "Creează",
+    "synced": "Sincronizată SmartBill",
     "status": {
       "paid": "Plătită",
       "pending": "În așteptare",
-      "overdue": "Restantă"
+      "create": "Creează",
+      "synced": "Sincronizată SmartBill"
     },
     "payout_messages": {
       "save_success": "Plată actualizată",

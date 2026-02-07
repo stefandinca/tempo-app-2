@@ -141,5 +141,13 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
+
+    match /expenses/{expenseId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /recurring_expenses/{configId} {
+      allow read, write: if isAdmin();
+    }
   }
 }

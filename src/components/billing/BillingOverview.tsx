@@ -105,7 +105,7 @@ export default function BillingOverview({ summary, loading }: BillingOverviewPro
             )}
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{card.label}</span>
+              <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{card.label}</span>
               <div className={clsx("p-2 rounded-lg", colors.bg, colors.text)}>
                 <Icon className="w-4 h-4" />
               </div>
@@ -116,7 +116,7 @@ export default function BillingOverview({ summary, loading }: BillingOverviewPro
               ) : (
                 <>
                   <h3 className={clsx(
-                    "text-2xl font-bold",
+                    "text-2xl font-bold font-display",
                     card.label === "Profit" && (card.value >= 0 ? "text-success-600" : "text-error-600"),
                     card.label !== "Profit" && "text-neutral-900 dark:text-white"
                   )}>

@@ -259,13 +259,13 @@ function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendC
   return (
     <div className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
       <div className="flex justify-between items-start mb-2">
-        <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{title}</span>
+        <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 font-display">{title}</span>
         <div className={`p-2 rounded-lg ${iconBg} group-hover:scale-110 transition-transform`}>
           <Icon className={`w-4 h-4 ${iconColor}`} />
         </div>
       </div>
       <div>
-        <h3 className="text-2xl font-bold text-neutral-900 dark:text-white">{value}</h3>
+        <h3 className="text-2xl font-bold text-neutral-900 dark:text-white font-display tracking-tight">{value}</h3>
         <p className={`text-sm flex items-center gap-1 mt-1 ${trendColor}`}>
           <TrendIcon className="w-3 h-3" />
           {trend}

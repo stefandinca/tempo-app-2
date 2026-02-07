@@ -12,7 +12,8 @@ import {
   MoreVertical,
   Loader2,
   Download,
-  Save
+  Save,
+  RefreshCw
 } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
@@ -20,8 +21,8 @@ import { ClientInvoice } from "@/lib/billing";
 import { useSystemSettings } from "@/hooks/useCollections";
 import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
 import { useToast } from "@/context/ToastContext";
-import { db } from "@/lib/firebase";
-import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where } from "firebase/firestore";
+import { db, IS_DEMO } from "@/lib/firebase";
+import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where, getDoc } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { createNotificationsBatch, notifyParentInvoiceGenerated } from "@/lib/notificationService";
 import { useTranslation } from "react-i18next";
@@ -47,9 +48,10 @@ export default function ClientInvoicesTable({
   
   // Dropdown Logic
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
-  const [activeInvoice, setActiveInvoice] = useState<ClientInvoice | null>(null);
+  const [activeInvoice, setActiveInvoice] = useState<any>(null);
   
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const [smartBillSyncingId, setSmartBillSyncingId] = useState<string | null>(null);
 
   const toggleRow = (clientId: string) => {
     const newExpanded = new Set(expandedRows);
@@ -64,11 +66,17 @@ export default function ClientInvoicesTable({
   const handleMenuClick = (e: React.MouseEvent, invoice: ClientInvoice) => {
     e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
+    
+    // We need the ACTUAL firestore document data if it exists
+    // to check for sync status. Since 'invoices' prop is aggregated
+    // we'll look for it in the aggregated data first.
     setActiveInvoice(invoice);
+    
     // Position menu below the button, aligned right
+    // Using FIXED positioning coordinates (relative to viewport)
     setMenuPosition({
-      top: rect.bottom + window.scrollY + 4,
-      right: window.innerWidth - rect.right - window.scrollX
+      top: rect.bottom + 4,
+      right: window.innerWidth - rect.right
     });
   };
 
@@ -98,6 +106,61 @@ export default function ClientInvoicesTable({
     });
   };
 
+  const handleSyncToSmartBill = async (invoice: ClientInvoice) => {
+    if (IS_DEMO) {
+      error("SmartBill sync is disabled in Demo mode.");
+      return;
+    }
+
+    if (!invoice.invoiceId) {
+      error("Please generate a local invoice first.");
+      return;
+    }
+
+    setSmartBillSyncingId(invoice.clientId);
+    closeMenu();
+
+    try {
+      // 1. Fetch the actual invoice document from Firestore
+      const invRef = doc(db, "invoices", invoice.invoiceId);
+      const invSnap = await getDoc(invRef);
+      
+      if (!invSnap.exists()) throw new Error("Local invoice not found");
+      const invData = invSnap.data();
+
+      // 2. Preview Payload (For Testing)
+      const payload = {
+        invoiceId: invoice.invoiceId,
+        clientId: invoice.clientId,
+        items: invData.items,
+        total: invData.total,
+        series: invData.series,
+        clinicCif: settings?.clinic?.cui
+      };
+      console.log("PREVIEW: SmartBill Sync Payload:", payload);
+
+      // 3. Call our API Route
+      const response = await fetch('/api/smartbill/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Sync failed");
+      }
+
+      success(`Successfully synced to SmartBill: #${result.result.series}${result.result.number}`);
+    } catch (err: any) {
+      console.error(err);
+      error("SmartBill Sync Error: " + err.message);
+    } finally {
+      setSmartBillSyncingId(null);
+    }
+  };
+
   const handleGenerateInvoice = async (invoice: ClientInvoice) => {
     if (!settings?.clinic) {
       error("Please configure clinic details in Settings > Billing Config first.");
@@ -108,6 +171,10 @@ export default function ClientInvoicesTable({
     closeMenu();
 
     try {
+      // Fetch full client data for billing info
+      const clientSnap = await getDoc(doc(db, "clients", invoice.clientId));
+      const clientData = clientSnap.exists() ? clientSnap.data() : {};
+
       const invoiceData = await runTransaction(db, async (transaction) => {
         const settingsRef = doc(db, "system_settings", "config");
         const settingsDoc = await transaction.get(settingsRef);
@@ -119,6 +186,7 @@ export default function ClientInvoicesTable({
         const currentSettings = settingsDoc.data();
         const nextNumber = (currentSettings.invoicing?.currentNumber || 0) + 1;
         const series = currentSettings.invoicing?.seriesPrefix || "INV";
+        const vatRate = currentSettings.invoicing?.vatRate || 0;
 
         const today = new Date();
         const dueDate = new Date();
@@ -141,7 +209,9 @@ export default function ClientInvoicesTable({
           },
           client: {
             name: invoice.clientName,
-            address: "Client Address Placeholder",
+            cif: clientData.billingCif || "",
+            regNo: clientData.billingRegNo || "",
+            address: clientData.billingAddress || "Client Address Placeholder",
           },
           items: invoice.lineItems.map(item => ({
             description: `${item.serviceLabel} (${formatDate(item.date)})`,
@@ -151,7 +221,8 @@ export default function ClientInvoicesTable({
             amount: item.amount
           })),
           total: invoice.total,
-          currency: "RON"
+          currency: "RON",
+          vatRate: vatRate
         };
 
         const newInvoiceRef = doc(collection(db, "invoices"));
@@ -228,23 +299,29 @@ export default function ClientInvoicesTable({
 
   const getStatusConfig = (status: string) => {
     switch (status) {
+      case "synced":
+        return {
+          icon: CheckCircle,
+          label: t('billing_page.status.synced'),
+          classes: "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
+        };
       case "paid":
         return {
           icon: CheckCircle,
           label: t('billing_page.status.paid'),
           classes: "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400"
         };
-      case "overdue":
-        return {
-          icon: AlertTriangle,
-          label: t('billing_page.status.overdue'),
-          classes: "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400"
-        };
-      default:
+      case "pending":
         return {
           icon: Clock,
           label: t('billing_page.status.pending'),
           classes: "bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400"
+        };
+      default:
+        return {
+          icon: FileText,
+          label: t('billing_page.status.create'),
+          classes: "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400"
         };
     }
   };
@@ -357,7 +434,7 @@ export default function ClientInvoicesTable({
                       <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={(e) => handleMenuClick(e, invoice)}
-                          disabled={isGenerating}
+                          disabled={isGenerating || smartBillSyncingId === invoice.clientId}
                           className={clsx(
                             "p-2 rounded-lg transition-colors disabled:opacity-50",
                             activeInvoice?.clientId === invoice.clientId 
@@ -365,7 +442,7 @@ export default function ClientInvoicesTable({
                               : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                           )}
                         >
-                          {isGenerating ? (
+                          {isGenerating || smartBillSyncingId === invoice.clientId ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
                             <MoreVertical className="w-4 h-4" />
@@ -480,15 +557,37 @@ export default function ClientInvoicesTable({
           >
             <button
               onClick={() => handleGenerateInvoice(activeInvoice)}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors font-medium"
+              disabled={activeInvoice.status !== 'create'}
+              className={clsx(
+                "w-full flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors",
+                activeInvoice.status === 'create'
+                  ? "text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                  : "text-neutral-400 cursor-not-allowed"
+              )}
             >
               <Download className="w-4 h-4" />
               {t('billing_page.generate_invoice')}
             </button>
 
+            {!IS_DEMO && activeInvoice.invoiceId && (
+              <button
+                onClick={() => handleSyncToSmartBill(activeInvoice)}
+                disabled={activeInvoice.status === 'synced'}
+                className={clsx(
+                  "w-full flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors border-t border-neutral-50 dark:border-neutral-700",
+                  activeInvoice.status !== 'synced'
+                    ? "text-success-600 hover:bg-success-50 dark:hover:bg-success-900/20"
+                    : "text-neutral-400 cursor-not-allowed"
+                )}
+              >
+                <RefreshCw className="w-4 h-4" />
+                {activeInvoice.status === 'synced' ? "Already Synced" : "Sync to SmartBill"}
+              </button>
+            ) /* ... rest same ... */ }
+
             <div className="my-1 border-t border-neutral-100 dark:border-neutral-700" />
 
-            {activeInvoice.status === "paid" ? (
+            {['paid', 'synced'].includes(activeInvoice.status) ? (
               <button
                 onClick={() => {
                   onMarkAsPending?.(activeInvoice.clientId);
@@ -502,16 +601,16 @@ export default function ClientInvoicesTable({
             ) : (
               <button
                 onClick={() => {
-                  if (activeInvoice.status !== 'pending') {
+                  if (activeInvoice.status !== 'create') {
                     onMarkAsPaid?.(activeInvoice.clientId);
                     closeMenu();
                   }
                 }}
-                disabled={activeInvoice.status === 'pending'}
-                title={activeInvoice.status === 'pending' ? "Generate Invoice first" : "Mark as Paid"}
+                disabled={activeInvoice.status === 'create'}
+                title={activeInvoice.status === 'create' ? "Generate Invoice first" : "Mark as Paid"}
                 className={clsx(
                   "w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors",
-                  activeInvoice.status === 'pending' 
+                  activeInvoice.status === 'create' 
                     ? "text-neutral-400 cursor-not-allowed" 
                     : "text-success-600 hover:bg-success-50 dark:hover:bg-success-900/20"
                 )}

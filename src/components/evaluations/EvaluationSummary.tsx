@@ -243,7 +243,7 @@ export default function EvaluationSummary({
                     <div className="flex items-baseline gap-3">
                       <span
                         className={clsx(
-                          "text-5xl font-bold",
+                          "text-5xl font-bold font-display",
                           evaluation.overallPercentage >= 70
                             ? "text-success-600"
                             : evaluation.overallPercentage >= 40
@@ -345,7 +345,7 @@ export default function EvaluationSummary({
                             key={area.key}
                             className="inline-flex items-center gap-1 px-2 py-1 bg-white dark:bg-neutral-800 rounded-lg text-sm border border-amber-200 dark:border-amber-700"
                           >
-                            <span className="font-bold text-amber-700 dark:text-amber-400">{area.key}</span>
+                            <span className="font-bold text-amber-700 dark:text-amber-400 font-display">{area.key}</span>
                             <span className="text-neutral-600 dark:text-neutral-300">{area.name}</span>
                             <span className="text-xs text-neutral-500">({area.percentage}%)</span>
                           </span>

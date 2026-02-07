@@ -50,10 +50,10 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="h-16 flex items-center gap-3 px-6 border-b border-neutral-200 dark:border-neutral-800">
         <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-lg">T</span>
+          <span className="text-white font-bold text-lg font-display">T</span>
         </div>
         <div>
-          <h1 className="font-bold text-lg text-neutral-900 dark:text-white">TempoApp</h1>
+          <h1 className="font-bold text-lg text-neutral-900 dark:text-white font-display">TempoApp</h1>
           <p className="text-xs text-neutral-500">Therapy Management</p>
         </div>
       </div>
@@ -83,12 +83,12 @@ export default function Sidebar() {
               )}
             >
               <item.icon className="w-5 h-5" />
-              <span>{item.name}</span>
+              <span className="font-medium">{item.name}</span>
               {badgeContent && (
                 <span className={clsx(
-                  "ml-auto px-2 py-0.5 text-xs rounded-full",
+                  "ml-auto px-2 py-0.5 text-xs rounded-full font-bold",
                   item.name === "Messages" 
-                    ? "bg-error-100 dark:bg-error-900 text-error-600 dark:text-error-400 font-bold"
+                    ? "bg-error-100 dark:bg-error-900 text-error-600 dark:text-error-400"
                     : "bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400"
                 )}>
                   {badgeContent}
@@ -101,7 +101,7 @@ export default function Sidebar() {
         {(userRole === 'Admin' || userRole === 'Coordinator') && (
           <>
             <div className="pt-6 pb-2">
-              <p className="px-3 text-xs font-semibold text-neutral-400 uppercase tracking-wide">
+              <p className="px-3 text-xs font-semibold text-neutral-400 uppercase tracking-wider font-display">
                 Management
               </p>
             </div>
@@ -122,7 +122,7 @@ export default function Sidebar() {
                     )}
                   >
                     <item.icon className="w-5 h-5" />
-                    <span>{item.name}</span>
+                    <span className="font-medium">{item.name}</span>
                   </Link>
                 );
               })}

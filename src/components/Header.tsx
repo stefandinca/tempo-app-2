@@ -111,7 +111,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
       {/* Left: Page Title & Subtitle (Desktop) */}
       <div className="flex flex-col justify-center">
-        <h2 className="font-semibold text-lg leading-tight text-neutral-900 dark:text-white">
+        <h2 className="font-semibold text-lg leading-tight text-neutral-900 dark:text-white font-display">
           {pageInfo.title}
         </h2>
         <p className="text-xs text-neutral-500 dark:text-neutral-400 hidden sm:block">

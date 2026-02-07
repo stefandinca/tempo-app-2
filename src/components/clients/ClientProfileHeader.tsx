@@ -86,7 +86,7 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
             <ArrowLeft className="w-5 h-5 text-neutral-500" />
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{client.name}</h1>
+            <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white font-display">{client.name}</h1>
             {client.isArchived && (
               <span className="px-2 py-0.5 bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400 text-[10px] font-bold uppercase rounded-md flex items-center gap-1">
                 <Archive className="w-3 h-3" />

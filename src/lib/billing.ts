@@ -27,7 +27,7 @@ export interface ClientInvoice {
   subtotal: number;
   discount: number;
   total: number;
-  status: "pending" | "issued" | "paid" | "overdue";
+  status: "create" | "pending" | "paid" | "synced";
 }
 
 export interface TeamPayout {
@@ -149,7 +149,23 @@ export function aggregateClientInvoices(
     const total = subtotal - discount;
 
     const existingInvoice = existingInvoices.find(inv => inv.clientId === clientId);
-    const status = existingInvoice ? (existingInvoice.status as any) : "pending";
+    
+    // Logic for new statuses:
+    // 1. If no invoice exists -> "create"
+    // 2. If exists and synced to smartbill -> "synced"
+    // 3. If exists and status is 'paid' -> "paid"
+    // 4. If exists and status is 'issued' -> "pending"
+    let status: "create" | "pending" | "paid" | "synced" = "create";
+    
+    if (existingInvoice) {
+      if (existingInvoice.syncedToSmartBill) {
+        status = "synced";
+      } else if (existingInvoice.status === "paid") {
+        status = "paid";
+      } else {
+        status = "pending";
+      }
+    }
 
     invoices.push({
       clientId,

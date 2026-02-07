@@ -19,7 +19,8 @@ export interface InvoiceData {
   client: {
     name: string;
     address?: string;
-    cui?: string; // If company
+    cif?: string; // CUI / CIF
+    regNo?: string;
   };
   items: {
     description: string;
@@ -30,80 +31,122 @@ export interface InvoiceData {
   }[];
   total: number;
   currency: string;
+  vatRate?: number;
 }
 
-export const generateInvoicePDF = (data: InvoiceData): Blob => {
-  const doc = new jsPDF();
+/**
+ * Normalizes Romanian diacritics to their "standard" forms if the font 
+ * still has trouble with the specific comma-below (ș, ț) vs cedilla (ş, ţ) variants.
+ */
+const normalizeDiacritics = (text: string = "") => {
+  return text
+    .replace(/ș/g, "s")
+    .replace(/ț/g, "t")
+    .replace(/Ș/g, "S")
+    .replace(/Ț/g, "T")
+    .replace(/ă/g, "a")
+    .replace(/î/g, "i")
+    .replace(/â/g, "a")
+    .replace(/Ă/g, "A")
+    .replace(/Î/g, "I")
+    .replace(/Â/g, "A");
+};
 
-  // --- Header ---
+export const generateInvoicePDF = (data: InvoiceData): Blob => {
+  // We use a small trick: if we can't embed a full font right now,
+  // we will use the built-in fonts but replace the characters that the PDF 
+  // viewer cannot render with their non-diacritic equivalents.
+  // This is a "Safety First" approach so the invoice is readable.
+  
+  const doc = new jsPDF();
+  const vatRate = data.vatRate || 0;
+
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
-  doc.text("INVOICE", 150, 20);
+  doc.text("FACTURA", 150, 20); // Removed diacritic from title for safety
 
   doc.setFontSize(10);
-  doc.text(`Series: ${data.series}`, 150, 30);
-  doc.text(`Number: ${data.number}`, 150, 35);
-  doc.text(`Date: ${data.date}`, 150, 40);
-  doc.text(`Due Date: ${data.dueDate}`, 150, 45);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Serie: ${data.series}`, 150, 30);
+  doc.text(`Numar: ${data.number}`, 150, 35);
+  doc.text(`Data: ${data.date}`, 150, 40);
+  doc.text(`Scadenta: ${data.dueDate}`, 150, 45);
 
-  // Clinic Info (Left)
+  // Clinic Info (Furnizor)
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text(data.clinic.name, 14, 20);
+  doc.text("Furnizor:", 14, 20);
+  doc.text(normalizeDiacritics(data.clinic.name), 14, 26);
+  
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   
-  const clinicY = 25;
-  let currentY = clinicY;
+  let currentY = 31;
   const lineHeight = 5;
 
-  doc.text(data.clinic.address, 14, currentY += lineHeight, { maxWidth: 80 });
-  // Approximate height of address
-  const addressLines = doc.splitTextToSize(data.clinic.address, 80).length;
-  currentY += (addressLines - 1) * lineHeight;
+  const cleanAddress = normalizeDiacritics(data.clinic.address);
+  doc.text(cleanAddress, 14, currentY, { maxWidth: 80 });
+  const addressLines = doc.splitTextToSize(cleanAddress, 80).length;
+  currentY += (addressLines) * lineHeight;
 
-  doc.text(`CUI: ${data.clinic.cui}`, 14, currentY += lineHeight);
+  doc.text(`CUI: ${data.clinic.cui}`, 14, currentY);
   doc.text(`Reg. Com: ${data.clinic.regNo}`, 14, currentY += lineHeight);
-  doc.text(`Bank: ${data.clinic.bank}`, 14, currentY += lineHeight);
-  doc.text(`IBAN: ${data.clinic.iban}`, 14, currentY += lineHeight);
+  doc.text(`Cont: ${data.clinic.iban}`, 14, currentY += lineHeight);
+  doc.text(`Banca: ${normalizeDiacritics(data.clinic.bank)}`, 14, currentY += lineHeight);
   doc.text(`Email: ${data.clinic.email}`, 14, currentY += lineHeight);
 
-  // --- Bill To (Right, below invoice details) ---
+  // Client Info (Cumparator)
   const billToY = 60;
   doc.setFont("helvetica", "bold");
-  doc.text("Bill To:", 150, billToY);
+  doc.text("Cumparator:", 150, billToY);
+  doc.text(normalizeDiacritics(data.client.name), 150, billToY + 6);
+  
   doc.setFont("helvetica", "normal");
-  doc.text(data.client.name, 150, billToY + 5);
+  doc.text(`CIF/CNP: ${data.client.cif || "—"}`, 150, billToY + 11);
+  if (data.client.regNo) {
+    doc.text(`Reg. Com: ${data.client.regNo}`, 150, billToY + 16);
+  }
   if (data.client.address) {
-    doc.text(data.client.address, 150, billToY + 10, { maxWidth: 50 });
+    doc.text(normalizeDiacritics(data.client.address), 150, billToY + 21, { maxWidth: 50 });
   }
 
   // --- Table ---
-  const tableY = Math.max(currentY + 15, 90);
+  const tableY = Math.max(currentY + 15, 95);
   
+  const subtotal = data.items.reduce((sum, item) => sum + item.amount, 0);
+  const vatTotal = subtotal * (vatRate / 100);
+
   autoTable(doc, {
     startY: tableY,
-    head: [["Description", "Qty", "Unit", "Price", "Amount"]],
-    body: data.items.map(item => [
-      item.description,
-      item.quantity,
+    head: [["Nr.", "Denumire servicii", "U.M.", "Cantitate", "Pret unitar", "Valoare", "TVA"]],
+    body: data.items.map((item, index) => [
+      index + 1,
+      normalizeDiacritics(item.description),
       item.unit,
+      item.quantity.toFixed(2),
       item.price.toFixed(2),
-      item.amount.toFixed(2)
+      item.amount.toFixed(2),
+      vatRate > 0 ? `${(item.amount * (vatRate/100)).toFixed(2)} (${vatRate}%)` : "0% (Scutit)"
     ]),
     theme: 'striped',
-    headStyles: { fillColor: [74, 144, 226] }, // Primary color
-    foot: [["", "", "", "Total", `${data.total.toFixed(2)} ${data.currency}`]],
-    footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' }
+    headStyles: { fillColor: [74, 144, 226] },
+    styles: { font: "helvetica" },
+    foot: [
+      ["", "", "", "", "", "Subtotal:", `${subtotal.toFixed(2)} RON`],
+      ["", "", "", "", "", `TVA (${vatRate}%):`, `${vatTotal.toFixed(2)} RON`],
+      ["", "", "", "", "", "Total de plata:", `${data.total.toFixed(2)} RON`]
+    ],
+    footStyles: { fillColor: [245, 245, 245], textColor: [0, 0, 0], fontStyle: 'bold' }
   });
 
   // --- Footer ---
   const finalY = (doc as any).lastAutoTable.finalY + 20;
   
   doc.setFontSize(10);
-  doc.text("Thank you for your business!", 14, finalY);
+  doc.text("Va multumim pentru colaborare!", 14, finalY);
   
   doc.setFontSize(8);
-  doc.text("This invoice was generated automatically by TempoApp.", 14, 280);
+  doc.text("Aceasta factura a fost generata automat prin platforma TempoApp.", 14, 280);
 
   return doc.output("blob");
 };

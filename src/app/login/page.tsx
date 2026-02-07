@@ -155,9 +155,9 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/20 mb-6">
-            <span className="text-white font-bold text-3xl">T</span>
+            <span className="text-white font-bold text-3xl font-display">T</span>
           </div>
-          <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+          <h2 className="text-3xl font-semibold text-neutral-900 dark:text-white tracking-tight font-display">
             {IS_DEMO ? "TempoApp Demo" : t('auth.sign_in_title')}
           </h2>
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
@@ -202,7 +202,7 @@ export default function LoginPage() {
                 /* Lead Capture Form */
                 <form onSubmit={handleLeadSubmit} className="space-y-4">
                   <div className="text-center mb-6">
-                    <h3 className="font-bold text-neutral-900 dark:text-white">Acces Demo</h3>
+                    <h3 className="font-semibold text-neutral-900 dark:text-white font-display">Acces Demo</h3>
                     <p className="text-xs text-neutral-500">Vă rugăm să introduceți câteva detalii pentru a continua.</p>
                   </div>
 
