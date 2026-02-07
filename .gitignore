@@ -340,3 +340,6 @@ node_modules
 /documentation
 /documentation/old documentation
 /documentation
+documentation/old documentation/interview3.md
+public/sw.js
+tsconfig.tsbuildinfo
