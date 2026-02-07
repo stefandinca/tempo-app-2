@@ -101,6 +101,7 @@ export default function CreatePlanModal({
 
     try {
       const payload = {
+        clientId: clientId, // Denormalize clientId for collectionGroup security rules
         name: formData.name.trim(),
         startDate: formData.startDate,
         endDate: formData.endDate,

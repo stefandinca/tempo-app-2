@@ -198,9 +198,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
 export default function ParentLayout({ children }: { children: React.ReactNode }) {
   return (
     <ParentAuthProvider>
-      <NotificationProvider>
-        <ParentLayoutContent>{children}</ParentLayoutContent>
-      </NotificationProvider>
+      <ParentLayoutContent>{children}</ParentLayoutContent>
     </ParentAuthProvider>
   );
 }

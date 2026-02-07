@@ -67,7 +67,7 @@ service cloud.firestore {
     
     match /programs/{programId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() || isCoordinator() || isTherapist();
     }
     
     match /system_settings/{settingId} {
@@ -158,6 +158,13 @@ service cloud.firestore {
     match /potential_clients/{leadId} {
       allow create: if true;
       allow read, update, delete: if isAdmin();
+    }
+
+    // --- Collection Group Rules (required for collectionGroup queries) ---
+    
+    match /{path=**}/interventionPlans/{planId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || 
+                  (isSignedIn() && resource.data.clientId != null && isParent(resource.data.clientId));
     }
   }
 }
