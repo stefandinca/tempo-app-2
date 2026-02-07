@@ -144,7 +144,8 @@ export function aggregateClientInvoices(
     const billableItems = lineItems.filter(item => item.isBillable);
     const excusedCount = lineItems.filter(item => !item.isBillable).length;
     const subtotal = billableItems.reduce((sum, item) => sum + item.amount, 0);
-    const discountRate = client.discountRate || 0;
+    const rawDiscountRate = client.discountRate || 0;
+    const discountRate = Math.max(0, Math.min(1, rawDiscountRate)); // Clamp to 0-1
     const discount = subtotal * discountRate;
     const total = subtotal - discount;
 

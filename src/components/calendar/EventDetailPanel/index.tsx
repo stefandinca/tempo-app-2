@@ -170,7 +170,8 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
     try {
       // Reconstruct start/end times based on new date/time input
       const newStart = new Date(`${date}T${time}:00`);
-      const newEnd = new Date(newStart.getTime() + event.duration * 60000);
+      const duration = typeof event.duration === 'number' && event.duration > 0 ? event.duration : 60;
+      const newEnd = new Date(newStart.getTime() + duration * 60000);
 
       const eventRef = doc(db, "events", event.id);
       await updateDoc(eventRef, {

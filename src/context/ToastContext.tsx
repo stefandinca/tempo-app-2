@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import Toast, { ToastType, ToastProps } from "@/components/ui/Toast";
 
@@ -37,8 +37,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const warning = useCallback((msg: string, duration?: number) => showToast(msg, "warning", duration), [showToast]);
   const info = useCallback((msg: string, duration?: number) => showToast(msg, "info", duration), [showToast]);
 
+  const value = useMemo(() => ({ showToast, success, error, warning, info }), [showToast, success, error, warning, info]);
+
   return (
-    <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
+    <ToastContext.Provider value={value}>
       {children}
       
       {/* Portal Toast Container to Body to escape all stacking contexts */}

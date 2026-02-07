@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, Calendar } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
+import TrendSparkline from "./TrendSparkline";
 
 export interface ProgramScores {
   minus: number;
@@ -26,10 +28,10 @@ interface ProgramProgressCardProps {
 }
 
 const SCORE_CONFIG = [
-  { key: "minus" as const, label: "−", color: "error", description: "Incorrect" },
-  { key: "zero" as const, label: "0", color: "neutral", description: "No Response" },
-  { key: "prompted" as const, label: "P", color: "warning", description: "Prompted" },
-  { key: "plus" as const, label: "+", color: "success", description: "Correct" },
+  { key: "minus" as const, label: "\u2212", color: "error" },
+  { key: "zero" as const, label: "0", color: "neutral" },
+  { key: "prompted" as const, label: "P", color: "warning" },
+  { key: "plus" as const, label: "+", color: "success" },
 ];
 
 function calculateSuccessRate(scores: ProgramScores): number {
@@ -41,7 +43,6 @@ function calculateSuccessRate(scores: ProgramScores): number {
 function calculateTrend(history: SessionScore[]): "improving" | "stable" | "declining" | "insufficient" {
   if (history.length < 2) return "insufficient";
 
-  // Compare average of last 3 sessions to previous 3 sessions
   const recent = history.slice(-3);
   const previous = history.slice(-6, -3);
 
@@ -74,21 +75,25 @@ export default function ProgramProgressCard({
   programDescription,
   sessionHistory,
 }: ProgramProgressCardProps) {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Sort history by date (most recent first for display)
   const sortedHistory = [...sessionHistory].sort((a, b) => b.date.getTime() - a.date.getTime());
   const latestSession = sortedHistory[0];
   const latestScores = latestSession?.scores || { minus: 0, zero: 0, prompted: 0, plus: 0 };
 
-  // Calculate aggregated totals
   const totalScores = aggregateScores(sessionHistory);
   const totalTrials = totalScores.minus + totalScores.zero + totalScores.prompted + totalScores.plus;
   const overallSuccessRate = calculateSuccessRate(totalScores);
-  const latestSuccessRate = calculateSuccessRate(latestScores);
 
-  // Calculate trend
   const trend = calculateTrend(sessionHistory);
+
+  // Sparkline data: success rate per session (chronological order)
+  const sparklineData = [...sessionHistory]
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .slice(-6)
+    .map((s) => calculateSuccessRate(s.scores));
 
   const getButtonColors = (color: string, value: number) => {
     const colors: Record<string, { bg: string; activeBg: string; text: string }> = {
@@ -119,17 +124,18 @@ export default function ProgramProgressCard({
   const getTrendInfo = () => {
     switch (trend) {
       case "improving":
-        return { icon: TrendingUp, label: "Improving", color: "text-success-600", bg: "bg-success-50 dark:bg-success-900/20" };
+        return { icon: TrendingUp, label: t("parent_portal.progress.improving"), color: "text-success-600", bg: "bg-success-50 dark:bg-success-900/20" };
       case "declining":
-        return { icon: TrendingDown, label: "Needs Focus", color: "text-warning-600", bg: "bg-warning-50 dark:bg-warning-900/20" };
+        return { icon: TrendingDown, label: t("parent_portal.progress.needs_attention"), color: "text-warning-600", bg: "bg-warning-50 dark:bg-warning-900/20" };
       case "stable":
-        return { icon: Minus, label: "Stable", color: "text-primary-600", bg: "bg-primary-50 dark:bg-primary-900/20" };
+        return { icon: Minus, label: t("parent_portal.progress.stable"), color: "text-primary-600", bg: "bg-primary-50 dark:bg-primary-900/20" };
       default:
         return null;
     }
   };
 
   const trendInfo = getTrendInfo();
+  const sparklineColor = trend === "improving" ? "#22c55e" : trend === "declining" ? "#f59e0b" : "#6366f1";
 
   return (
     <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
@@ -142,24 +148,29 @@ export default function ProgramProgressCard({
               <p className="text-xs text-neutral-500 mt-0.5 line-clamp-2">{programDescription}</p>
             )}
           </div>
-          {trendInfo && (
-            <div className={clsx("flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold", trendInfo.bg, trendInfo.color)}>
-              <trendInfo.icon className="w-3.5 h-3.5" />
-              {trendInfo.label}
-            </div>
-          )}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {sparklineData.length >= 2 && (
+              <TrendSparkline data={sparklineData} color={sparklineColor} width={48} height={20} />
+            )}
+            {trendInfo && (
+              <div className={clsx("flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold", trendInfo.bg, trendInfo.color)}>
+                <trendInfo.icon className="w-3.5 h-3.5" />
+                {trendInfo.label}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Latest Scores Display */}
       <div className="p-4">
         <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">
-          Latest Session Scores
+          {t("parent_portal.progress.score_labels.correct")}
         </p>
 
         {/* Score Buttons (Read-only) */}
         <div className="grid grid-cols-4 gap-2 mb-3">
-          {SCORE_CONFIG.map(({ key, label, color, description }) => {
+          {SCORE_CONFIG.map(({ key, label, color }) => {
             const value = latestScores[key];
             const colors = getButtonColors(color, value);
 
@@ -170,7 +181,6 @@ export default function ProgramProgressCard({
                   "h-14 rounded-xl border-2 flex flex-col items-center justify-center select-none",
                   value > 0 ? colors.activeBg + " text-white" : colors.bg + " " + colors.text
                 )}
-                title={description}
               >
                 <span className="text-lg font-bold leading-none">{label}</span>
                 <span className="text-xs font-medium mt-0.5 opacity-80">{value}</span>
@@ -183,14 +193,14 @@ export default function ProgramProgressCard({
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-3">
             <span className="text-neutral-500">
-              Sessions: <span className="font-bold text-neutral-700 dark:text-neutral-300">{sessionHistory.length}</span>
+              {t("parent_portal.progress.sessions_label")}: <span className="font-bold text-neutral-700 dark:text-neutral-300">{sessionHistory.length}</span>
             </span>
             <span className="text-neutral-500">
-              Total Trials: <span className="font-bold text-neutral-700 dark:text-neutral-300">{totalTrials}</span>
+              {t("parent_portal.progress.total_trials")}: <span className="font-bold text-neutral-700 dark:text-neutral-300">{totalTrials}</span>
             </span>
           </div>
           <span className="text-neutral-500">
-            Overall: <span className={clsx(
+            {t("parent_portal.progress.overall_label")}: <span className={clsx(
               "font-bold",
               overallSuccessRate >= 80 ? "text-success-600" :
               overallSuccessRate >= 50 ? "text-warning-600" :
@@ -222,7 +232,7 @@ export default function ProgramProgressCard({
             className="w-full px-4 py-3 flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
           >
             <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-              Session History ({sessionHistory.length})
+              {t("parent_portal.progress.session_history")} ({sessionHistory.length})
             </span>
             {isExpanded ? (
               <ChevronUp className="w-4 h-4 text-neutral-400" />
@@ -251,7 +261,7 @@ export default function ProgramProgressCard({
                       <Calendar className="w-4 h-4 text-neutral-400" />
                       <div>
                         <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                          {session.date.toLocaleDateString("en-US", {
+                          {session.date.toLocaleDateString(currentLang, {
                             month: "short",
                             day: "numeric",
                             year: session.date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined
@@ -264,7 +274,7 @@ export default function ProgramProgressCard({
                     <div className="flex items-center gap-4">
                       {/* Mini score indicators */}
                       <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-bold text-error-500">−{session.scores.minus}</span>
+                        <span className="text-[10px] font-bold text-error-500">{"\u2212"}{session.scores.minus}</span>
                         <span className="text-[10px] font-bold text-neutral-400">0:{session.scores.zero}</span>
                         <span className="text-[10px] font-bold text-warning-500">P{session.scores.prompted}</span>
                         <span className="text-[10px] font-bold text-success-500">+{session.scores.plus}</span>

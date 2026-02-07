@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useEventsByMonth, useInvoicesByMonth, useClients, useTeamMembers, useServices } from "./useCollections";
-import { GLOBAL_GOAL_DATA } from "@/components/analytics/mockData";
 
 export function useAnalyticsData(year: number, month: number) {
   const { data: events, loading: eventsLoading } = useEventsByMonth(year, month);
@@ -144,13 +143,54 @@ export function useAnalyticsData(year: number, month: number) {
       sessionChartData,
       revenueMixData,
       teamUtilizationData,
-      attendanceData: [
-        { name: 'W1', rate: 90 },
-        { name: 'W2', rate: 92 },
-        { name: 'W3', rate: 88 },
-        { name: 'W4', rate: 95 },
-      ], // Placeholder for attendance logic
-      clinicalData: GLOBAL_GOAL_DATA, // Placeholder for clinical data
+      attendanceData: (() => {
+        // Calculate real attendance rates by week from event data
+        const weeklyAttendance = [
+          { total: 0, present: 0 },
+          { total: 0, present: 0 },
+          { total: 0, present: 0 },
+          { total: 0, present: 0 },
+        ];
+        events.forEach(e => {
+          if (!e.attendance) return; // Skip events without attendance logged
+          const day = new Date(e.startTime).getDate();
+          const weekIdx = Math.min(Math.floor((day - 1) / 7), 3);
+          weeklyAttendance[weekIdx].total++;
+          if (e.attendance === 'present') {
+            weeklyAttendance[weekIdx].present++;
+          }
+        });
+        return weeklyAttendance.map((week, i) => ({
+          name: `W${i + 1}`,
+          rate: week.total > 0 ? Math.round((week.present / week.total) * 100) : 0
+        }));
+      })(),
+      clinicalData: (() => {
+        // Calculate real clinical progress from programScores on events
+        // programScores: { [programId]: { minus, zero, prompted, plus } }
+        const weeklyProgress = [
+          { totalTrials: 0, successTrials: 0 },
+          { totalTrials: 0, successTrials: 0 },
+          { totalTrials: 0, successTrials: 0 },
+          { totalTrials: 0, successTrials: 0 },
+        ];
+        events.forEach(e => {
+          if (!e.programScores || !e.attendance || e.attendance !== 'present') return;
+          const day = new Date(e.startTime).getDate();
+          const weekIdx = Math.min(Math.floor((day - 1) / 7), 3);
+          Object.values(e.programScores).forEach((scores: any) => {
+            if (!scores) return;
+            const total = (scores.minus || 0) + (scores.zero || 0) + (scores.prompted || 0) + (scores.plus || 0);
+            const success = (scores.prompted || 0) + (scores.plus || 0);
+            weeklyProgress[weekIdx].totalTrials += total;
+            weeklyProgress[weekIdx].successTrials += success;
+          });
+        });
+        return weeklyProgress.map((week, i) => ({
+          month: `W${i + 1}`,
+          rate: week.totalTrials > 0 ? Math.round((week.successTrials / week.totalTrials) * 100) : 0
+        }));
+      })(),
       predictive: {
         highRiskClients
       }

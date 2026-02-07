@@ -31,6 +31,8 @@
     "analytics": "Analize",
     "services": "Servicii",
     "settings": "Setări",
+    "profile": "Profil",
+    "admin": "Admin",
     "sign_out": "Deconectare"
   },
   "settings": {
@@ -200,18 +202,48 @@
     "absent": "Absent",
     "excused": "Motivat"
   },
+  "parent_nav": {
+    "home": "Acasă",
+    "schedule": "Program",
+    "progress": "Progres",
+    "messages": "Mesaje",
+    "more": "Mai mult",
+    "billing": "Facturare",
+    "docs": "Documente",
+    "profile": "Profil",
+    "homework": "Teme",
+    "sign_out": "Deconectare",
+    "portal": "Portal",
+    "parent_portal": "Portal Părinți"
+  },
   "parent_portal": {
-    "welcome": "👋 Bine ai revenit, {{name}}!",
+    "welcome": "Bine ai revenit, {{name}}!",
     "viewing_for": "Portal pentru: ",
     "dashboard": {
       "next_session": "Următoarea Ședință",
       "no_upcoming": "Nu sunt ședințe programate.",
       "balance_due": "Sold de Plată",
-      "overall_progress": "Progres General",
+      "overall_progress": "Progres",
+      "attendance": "Prezență",
+      "sessions_done": "Finalizate",
       "sessions_month": "Ședințe ({{month}})",
       "completed": "finalizate",
       "with": "cu",
-      "assigned_therapist": "Terapeut alocat"
+      "assigned_therapist": "Terapeut alocat",
+      "parent": "Părinte",
+      "load_error": "Nu s-au putut încărca datele.",
+      "starting_soon": "Începe curând",
+      "in_hours": "în {{count}}h",
+      "in_days": "în {{count}} zile",
+      "tomorrow_at": "Mâine la {{time}}",
+      "view_details": "Vezi Detalii",
+      "message_therapist": "Mesaj",
+      "quick_message": "Mesaj",
+      "quick_schedule": "Program",
+      "quick_progress": "Progres",
+      "quick_billing": "Facturi",
+      "balance_alert": "Aveți {{amount}} RON de plată",
+      "view_invoices": "Vezi facturile"
     },
     "alerts": {
       "title": "Alerte Recente",
@@ -225,22 +257,42 @@
       "enable": "Activează",
       "sync": "Sincronizează"
     },
+    "activity": {
+      "title": "Activitate Recentă",
+      "just_now": "Chiar acum",
+      "mins_ago": "acum {{count}} min",
+      "hours_ago": "acum {{count}}h",
+      "days_ago": "acum {{count}}z",
+      "no_activity": "Nicio activitate recentă",
+      "session_completed": "Ședință {{type}} finalizată",
+      "evaluation_added": "Evaluare {{type}} nouă disponibilă",
+      "invoice_issued": "Factură {{number}} emisă",
+      "therapy": "Terapie",
+      "evaluation": "evaluare"
+    },
     "calendar": {
       "title": "Programul Ședințelor",
       "subtitle": "Ședințe de terapie viitoare și trecute",
       "no_sessions": "Nu s-au găsit ședințe",
       "no_sessions_subtitle": "Detaliile programului vor apărea aici în curând.",
+      "no_sessions_day": "Nicio ședință astăzi",
+      "no_sessions_day_subtitle": "Bucurați-vă de ziua liberă!",
       "completed": "Finalizat",
       "past": "Trecut",
+      "upcoming": "Viitoare",
       "confirm": "Confirmă",
-      "min": "min"
+      "min": "min",
+      "today": "Azi",
+      "day_view": "Zi",
+      "list_view": "Listă"
     },
     "progress": {
       "title": "Monitorizare Progres",
       "subtitle": "Urmăriți progresul terapiei pentru {{name}}",
       "tabs": {
         "programs": "Programe",
-        "evaluations": "Evaluări"
+        "evaluations": "Evaluări",
+        "goals": "Obiective"
       },
       "stats": {
         "programs": "Programe",
@@ -257,6 +309,22 @@
         "no_response": "Niciun răspuns",
         "prompted": "Ajutat/Ghidat",
         "correct": "Corect/Independent"
+      },
+      "improving": "În creștere",
+      "stable": "Stabil",
+      "needs_attention": "Necesită atenție",
+      "sessions_label": "Ședințe",
+      "total_trials": "Total Încercări",
+      "overall_label": "General",
+      "session_history": "Istoric Ședințe",
+      "goals": {
+        "title": "Obiective Terapie",
+        "no_plan": "Niciun plan de intervenție activ",
+        "no_plan_subtitle": "Obiectivele vor apărea aici odată ce un plan de intervenție este configurat de echipa de terapie.",
+        "not_started": "Neînceput",
+        "in_progress": "În Desfășurare",
+        "achieved": "Realizat",
+        "from_plan": "Din planul: {{name}}"
       }
     },
     "billing": {
@@ -273,6 +341,13 @@
       "issued": "Emisă",
       "due": "Scadență",
       "unpaid": "Neplătită",
+      "overdue": "Restantă",
+      "paid": "Plătită",
+      "due_soon": "Scadentă curând",
+      "line_items": "Detalii Factură",
+      "quantity": "Cant",
+      "unit_price": "Preț Unitar",
+      "total": "Total",
       "disclaimer": "Plățile sunt sincronizate în termen de 24 de ore. Pentru probleme urgente de facturare, vă rugăm să contactați direct administrația clinicii.",
       "online_payments_soon": "Plățile online vor fi disponibile în curând.",
       "download_error": "Eroare la descărcarea facturii."
@@ -292,8 +367,84 @@
       "no_docs_subtitle": "Rapoartele și evaluările vor apărea aici când vor fi partajate de echipa de terapie.",
       "no_matching": "Niciun document potrivit",
       "no_matching_subtitle": "Încercați să selectați o altă categorie.",
-      "recently_uploaded": "Încărcă",
+      "recently_uploaded": "Încărcat recent",
       "download": "Descarcă"
+    },
+    "profile": {
+      "title": "Profil Copil",
+      "age": "{{count}} ani",
+      "start_date": "Data Începerii",
+      "diagnosis": "Diagnostic",
+      "support_level": "Nivel de Suport",
+      "intervention_plan": "Plan de Intervenție",
+      "no_plan": "Niciun plan activ",
+      "therapy_team": "Echipa de Terapie",
+      "message_therapist": "Mesaj",
+      "active_goals": "Obiective Active",
+      "documents": "Documente",
+      "view_documents": "Vezi toate documentele"
+    },
+    "homework": {
+      "title": "Teme",
+      "subtitle": "Activități de practică atribuite de echipa de terapie",
+      "active": "Active",
+      "completed_tab": "Finalizate",
+      "tabs": {
+        "active": "Active",
+        "completed": "Finalizate"
+      },
+      "no_homework": "Nicio temă atribuită încă",
+      "no_homework_subtitle": "Echipa de terapie va atribui activități de practică aici.",
+      "no_active": "Nicio temă activă",
+      "no_active_subtitle": "Totul la zi! Verificați tab-ul finalizate pentru temele rezolvate.",
+      "no_completed": "Nicio temă finalizată încă",
+      "no_completed_subtitle": "Temele finalizate vor apărea aici.",
+      "assigned_by": "Atribuită de",
+      "therapist": "Terapeut",
+      "daily": "Zilnic",
+      "weekly": "Săptămânal",
+      "three_times_week": "3x/săpt",
+      "as_needed": "La nevoie",
+      "frequency": {
+        "daily": "Zilnic",
+        "weekly": "Săptămânal",
+        "3x_week": "3x/săpt",
+        "as_needed": "La nevoie"
+      },
+      "due_date": "Scadentă",
+      "mark_complete": "Marchează Finalizat",
+      "notes": "Note",
+      "notes_placeholder": "Adaugă notele sau observațiile tale aici...",
+      "add_notes": "Adaugă note...",
+      "save_notes": "Salvează Notele",
+      "saving": "Se salvează...",
+      "completed_on": "Finalizat"
+    },
+    "more_menu": {
+      "title": "Mai mult"
+    },
+    "session_detail": {
+      "title": "Detalii Ședință",
+      "date": "Data",
+      "time": "Ora",
+      "attendance": "Status Prezență",
+      "therapist": "Terapeut",
+      "programs": "Programe și Progres",
+      "no_programs": "Niciun program specific urmărit.",
+      "notes": "Note Ședință",
+      "notes_processing": "Observațiile clinice sunt încă în curs de procesare.",
+      "close": "Închide Detalii",
+      "present": "Prezent",
+      "absent": "Absent",
+      "excused": "Motivat",
+      "scheduled": "Programat"
+    },
+    "login": {
+      "help_text": "Solicită codul unic de acces de la terapeutul sau coordonatorul clinicii."
+    },
+    "error": {
+      "title": "Eroare de Acces",
+      "back_to_login": "Înapoi la Autentificare"
     }
   },
   "clients": {
@@ -505,7 +656,8 @@
     "access_code": "Cod de Acces",
     "access_code_placeholder": "ex: JS-1234",
     "verifying": "Se verifică codul...",
-    "invalid_code": "Cod de acces invalid. Vă rugăm să verificați și să încercați din nou."
+    "invalid_code": "Cod de acces invalid. Vă rugăm să verificați și să încercați din nou.",
+    "too_many_attempts": "Prea multe încercări. Vă rugăm așteptați {{seconds}} secunde."
   },
   "chat": {
     "title": "Mesaje",

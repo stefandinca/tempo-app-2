@@ -6,7 +6,8 @@ import {
   useEffect,
   useState,
   useCallback,
-  useMemo
+  useMemo,
+  useRef
 } from "react";
 import {
   collection,
@@ -143,17 +144,21 @@ export function NotificationProvider({
     }
   }, [user]);
 
+  // Use ref to avoid circular dependency: useEffect -> requestPushPermission -> user -> useEffect
+  const requestPushPermissionRef = useRef(requestPushPermission);
+  requestPushPermissionRef.current = requestPushPermission;
+
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       console.log("[NotificationContext] Initial permission status:", Notification.permission);
       setPushPermissionStatus(Notification.permission);
-      
+
       // If already granted, ensure we have the token
       if (Notification.permission === 'granted' && user) {
-         requestPushPermission();
+         requestPushPermissionRef.current();
       }
     }
-  }, [user, requestPushPermission]); // Add user as dependency so it retries on login
+  }, [user]); // Only depend on user, access requestPushPermission via ref
 
   // Handle Foreground Messages
   // Note: We do NOT show browser notifications here to avoid duplicates.

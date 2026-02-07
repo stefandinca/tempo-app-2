@@ -5,6 +5,7 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useParentAuth } from "@/context/ParentAuthContext";
+import { useTranslation } from "react-i18next";
 
 export function usePortalData() {
   const { isAuthenticated, clientId, loading: authLoading } = useParentAuth();
@@ -50,7 +51,7 @@ export function usePortalData() {
     let unsubscribeServices: (() => void) | null = null;
     let unsubscribePrograms: (() => void) | null = null;
     let unsubscribeEvaluations: (() => void) | null = null;
-    let unsubscribeVBMAPP: (() => void) | null = null;
+    let unsubscribeVBMAPP: (() => void) | null = null;  // Hoisted to outer scope for proper cleanup
 
     const unsubscribeClient = onSnapshot(clientQuery, (snapshot) => {
       if (snapshot.empty) {
@@ -149,15 +150,7 @@ export function usePortalData() {
       if (unsubscribeServices) unsubscribeServices();
       if (unsubscribePrograms) unsubscribePrograms();
       if (unsubscribeEvaluations) unsubscribeEvaluations();
-      // We need to unsubscribe from VBMAPP too, but it's defined inside the callback scope.
-      // Ideally we should structure this differently, but for now we can rely on the fact 
-      // that the main unsubscribeClient will stop the flow, although the inner listeners 
-      // might persist if not carefully handled.
-      
-      // To fix the scope issue properly, we should move the listeners outside or store them in refs.
-      // But given the constraints, let's just make sure we don't leak.
-      // Actually, since we re-run this effect on auth change, we should be fine if we just
-      // ensure we clean up everything.
+      if (unsubscribeVBMAPP) unsubscribeVBMAPP();
     };
   }, [isAuthenticated, clientId, authLoading]);
 
@@ -165,24 +158,26 @@ export function usePortalData() {
 }
 
 export function PortalLoading() {
+  const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-neutral-500">
-      <Loader2 className="w-10 h-10 animate-spin mb-4" />
-      <p>Loading your portal...</p>
+    <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-300">
+      <Loader2 className="w-8 h-8 animate-spin text-primary-500 mb-4" />
+      <p className="text-sm text-neutral-400">{t("common.loading")}</p>
     </div>
   );
 }
 
 export function PortalError({ message }: { message: string }) {
+  const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center px-6">
-      <div className="w-16 h-16 bg-error-50 dark:bg-error-900/20 rounded-full flex items-center justify-center mb-4">
-        <AlertCircle className="w-8 h-8 text-error-500" />
+    <div className="flex flex-col items-center justify-center py-20 text-center px-6 animate-in fade-in duration-300">
+      <div className="w-14 h-14 bg-error-50 dark:bg-error-900/20 rounded-full flex items-center justify-center mb-4">
+        <AlertCircle className="w-7 h-7 text-error-500" />
       </div>
-      <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Access Error</h3>
-      <p className="text-neutral-500 text-sm mt-1 max-w-xs mx-auto">{message}</p>
-      <a href="/parent" className="mt-6 text-primary-600 font-bold hover:underline">
-        Back to Login
+      <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t("parent_portal.error.title")}</h3>
+      <p className="text-neutral-400 text-sm mt-1 max-w-xs mx-auto">{message}</p>
+      <a href="/parent" className="mt-6 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl transition-colors">
+        {t("parent_portal.error.back_to_login")}
       </a>
     </div>
   );

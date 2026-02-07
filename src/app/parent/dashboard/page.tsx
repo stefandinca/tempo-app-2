@@ -3,185 +3,269 @@
 import {
   Calendar,
   ChevronRight,
-  TrendingUp,
   Clock,
-  CreditCard
+  CreditCard,
+  MessageSquare,
+  BarChart2,
+  FileText,
+  AlertCircle,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers, useClientInvoices } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
-import ParentAlerts from "@/components/notifications/ParentAlerts";
+import ProgressRing from "@/components/parent/ProgressRing";
+import ActivityTimeline from "@/components/parent/ActivityTimeline";
 import { useState, useMemo } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 
 export default function ParentDashboard() {
   const { t, i18n } = useTranslation();
-  const currentLang = i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US';
-  const { data: client, sessions, loading: portalLoading, error: portalError } = usePortalData();
+  const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
+  const { data: client, sessions, evaluations, loading: portalLoading, error: portalError } = usePortalData();
   const { data: team } = useTeamMembers();
   const { data: invoices, loading: invoicesLoading } = useClientInvoices(client?.id || "");
-  
+
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [balanceDismissed, setBalanceDismissed] = useState(false);
 
   const loading = portalLoading || invoicesLoading;
   const error = portalError;
 
-  // Calculate Balance from Real Invoices
+  // Calculate Balance
   const displayBalance = useMemo(() => {
     return invoices
-      .filter(inv => inv.status === 'issued' || inv.status === 'overdue')
+      .filter((inv) => inv.status === "issued" || inv.status === "overdue")
       .reduce((sum, inv) => sum + inv.total, 0);
   }, [invoices]);
 
-  if (loading) return <PortalLoading />;
-  if (error || !client) return <PortalError message={error || "Could not load child data."} />;
+  const unpaidCount = useMemo(() => {
+    return invoices.filter((inv) => inv.status === "issued" || inv.status === "overdue").length;
+  }, [invoices]);
 
-  // Helper to parse dates
+  if (loading) return <PortalLoading />;
+  if (error || !client) return <PortalError message={error || t("parent_portal.dashboard.load_error")} />;
+
+  // Helpers
   const parseDate = (val: any) => {
     if (!val) return new Date(0);
     if (val.seconds) return new Date(val.seconds * 1000);
     return new Date(val);
   };
 
-  // Logic: Find next upcoming session
   const now = new Date();
+
+  // Next session
   const upcomingSessions = (sessions || [])
-    .filter(s => parseDate(s.startTime) >= now)
+    .filter((s) => parseDate(s.startTime) >= now)
     .sort((a, b) => parseDate(a.startTime).getTime() - parseDate(b.startTime).getTime());
-    
   const nextSession = upcomingSessions[0];
-  
-  const getTherapist = (id: string) => {
-    const found = (team || []).find(t => t.id === id);
-    return found;
-  };
+
+  const getTherapist = (id: string) => (team || []).find((t) => t.id === id);
   const nextTherapist = nextSession ? getTherapist(nextSession.therapistId) : null;
 
+  // Countdown text
+  const getCountdown = (session: any) => {
+    const sessTime = parseDate(session.startTime);
+    const diffMs = sessTime.getTime() - now.getTime();
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffHours < 1) return t("parent_portal.dashboard.starting_soon");
+    if (diffHours < 24) return t("parent_portal.dashboard.in_hours", { count: diffHours });
+    if (diffDays === 1) return t("parent_portal.dashboard.tomorrow_at", { time: sessTime.toLocaleTimeString(currentLang, { hour: "2-digit", minute: "2-digit" }) });
+    return t("parent_portal.dashboard.in_days", { count: diffDays });
+  };
+
   // Stats
-  const currentMonth = new Date().getMonth();
-  const sessionsThisMonth = (sessions || []).filter(s => parseDate(s.startTime).getMonth() === currentMonth);
-  const completedThisMonth = sessionsThisMonth.filter(s => s.status === 'completed');
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  const sessionsThisMonth = (sessions || []).filter((s) => {
+    const d = parseDate(s.startTime);
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  });
+  const completedThisMonth = sessionsThisMonth.filter((s) => s.status === "completed");
+  const presentThisMonth = sessionsThisMonth.filter((s) => s.attendance === "present").length;
+  const totalPastThisMonth = sessionsThisMonth.filter((s) => parseDate(s.startTime) < now).length;
+  const attendanceRate = totalPastThisMonth > 0 ? Math.round((presentThisMonth / totalPastThisMonth) * 100) : 100;
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans">
-      
-      {/* Welcome Section */}
-      <section className="px-4 py-6">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
-          {t('parent_portal.welcome', { name: client.parentName?.split(' ')[0] || 'Parent' })}
+    <div className="space-y-5 animate-in fade-in duration-300 font-sans pb-8">
+      {/* 1. Header / Greeting */}
+      <section className="px-4 pt-5">
+        <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
+          {t("parent_portal.welcome", { name: client.parentName?.split(" ")[0] || t("parent_portal.dashboard.parent") })}
         </h1>
-        <p className="text-neutral-500 text-sm mt-1">
-          {t('parent_portal.viewing_for')} <span className="font-bold text-primary-600">{client.name}</span>
+        <p className="text-neutral-400 text-sm mt-0.5">
+          {new Date().toLocaleDateString(currentLang, { weekday: "long", month: "long", day: "numeric" })}
         </p>
       </section>
 
-      {/* Upcoming Session Card */}
+      {/* 2. Next Session Hero Card */}
       <section className="px-4">
         {nextSession ? (
-          <div 
-            onClick={() => {
-              setSelectedEvent(nextSession);
-              setIsDetailOpen(true);
-            }}
-            className="bg-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-500/30 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
-          >
-            <div className="absolute top-0 right-0 p-4 opacity-20">
-              <Calendar className="w-24 h-24" />
+          <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-5 text-white shadow-lg shadow-primary-500/20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-3 opacity-10">
+              <Calendar className="w-20 h-20" />
             </div>
-            <p className="text-primary-100 text-xs font-bold uppercase tracking-wider mb-1">{t('parent_portal.dashboard.next_session')}</p>
-            <h2 className="text-xl font-bold mb-4">
-              {parseDate(nextSession.startTime).toLocaleDateString(currentLang, { weekday: 'long' })}, {parseDate(nextSession.startTime).toLocaleTimeString(currentLang, { hour: '2-digit', minute: '2-digit' })}
+
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-primary-200 text-xs font-semibold uppercase tracking-wider">
+                {t("parent_portal.dashboard.next_session")}
+              </span>
+              <span className="text-primary-200 text-xs">•</span>
+              <span className="text-primary-200 text-xs font-medium">
+                {getCountdown(nextSession)}
+              </span>
+            </div>
+
+            <h2 className="text-lg font-bold mb-3">
+              {parseDate(nextSession.startTime).toLocaleDateString(currentLang, { weekday: "long" })},{" "}
+              {parseDate(nextSession.startTime).toLocaleTimeString(currentLang, { hour: "2-digit", minute: "2-digit" })}
             </h2>
-            
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10">
-              <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
-                style={{ backgroundColor: nextTherapist?.color || 'rgba(255,255,255,0.2)' }}
+
+            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl p-3">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm"
+                style={{ backgroundColor: nextTherapist?.color || "rgba(255,255,255,0.2)" }}
               >
-                {nextTherapist?.initials || '??'}
+                {nextTherapist?.initials || "??"}
               </div>
-              <div>
-                <p className="text-sm font-bold">{nextSession.type}</p>
-                <p className="text-xs text-primary-100">
-                  {t('parent_portal.dashboard.with')} {nextTherapist?.name || t('parent_portal.dashboard.assigned_therapist')}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">{nextSession.type}</p>
+                <p className="text-xs text-primary-200">
+                  {t("parent_portal.dashboard.with")} {nextTherapist?.name || t("parent_portal.dashboard.assigned_therapist")}
                 </p>
               </div>
-              <div className="ml-auto p-2 bg-white text-primary-600 rounded-xl">
-                <ChevronRight className="w-5 h-5" />
-              </div>
+            </div>
+
+            {/* CTAs */}
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={() => {
+                  setSelectedEvent(nextSession);
+                  setIsDetailOpen(true);
+                }}
+                className="flex-1 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition-colors text-center"
+              >
+                {t("parent_portal.dashboard.view_details")}
+              </button>
+              <Link
+                href={`/parent/messages/?therapistId=${nextSession.therapistId}`}
+                className="flex-1 py-2 bg-white text-primary-600 hover:bg-primary-50 rounded-lg text-sm font-semibold transition-colors text-center"
+              >
+                {t("parent_portal.dashboard.message_therapist")}
+              </Link>
             </div>
           </div>
         ) : (
-          <div className="bg-neutral-100 dark:bg-neutral-800 rounded-3xl p-8 text-center border border-dashed border-neutral-300 dark:border-neutral-700">
-            <Clock className="w-10 h-10 text-neutral-400 mx-auto mb-2" />
-            <p className="text-neutral-500 font-medium">{t('parent_portal.dashboard.no_upcoming')}</p>
+          <div className="bg-neutral-100 dark:bg-neutral-800/50 rounded-2xl p-6 text-center border border-dashed border-neutral-300 dark:border-neutral-700">
+            <Clock className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
+            <p className="text-neutral-500 font-medium text-sm">{t("parent_portal.dashboard.no_upcoming")}</p>
           </div>
         )}
       </section>
 
-      {/* Stats Grid */}
-      <section className="px-4 grid grid-cols-2 gap-4">
-        {/* Balance Card - Highly visible if due */}
-        <Link 
-          href="/parent/billing/"
-          className={clsx(
-            "col-span-2 p-5 rounded-3xl border transition-all shadow-sm flex items-center justify-between group",
-            displayBalance > 0 
-              ? "bg-warning-50 border-warning-100 dark:bg-warning-900/10 dark:border-warning-900/30" 
-              : "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
-          )}
-        >
-          <div className="flex items-center gap-4">
-            <div className={clsx(
-              "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors",
-              displayBalance > 0 ? "bg-warning-100 text-warning-600" : "bg-neutral-100 text-neutral-400"
-            )}>
-              <CreditCard className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-neutral-500 text-xs font-medium uppercase tracking-widest">{t('parent_portal.dashboard.balance_due')}</p>
-              <h3 className="text-2xl font-black text-neutral-900 dark:text-white">
-                {displayBalance.toFixed(2)} RON
-              </h3>
-            </div>
+      {/* 3. Status Ring Row */}
+      <section className="px-4">
+        <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+          {/* Progress Ring */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[130px] flex flex-col items-center shadow-sm">
+            <ProgressRing value={client.progress || 0} size={64} strokeWidth={5} color="#22c55e">
+              <span className="text-sm font-bold text-neutral-900 dark:text-white">{client.progress || 0}%</span>
+            </ProgressRing>
+            <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
+              {t("parent_portal.dashboard.overall_progress")}
+            </p>
           </div>
-          <div className="p-2 bg-white dark:bg-neutral-800 rounded-xl shadow-sm group-hover:translate-x-1 transition-transform">
-            <ChevronRight className="w-5 h-5 text-neutral-400" />
-          </div>
-        </Link>
 
-        <div className="bg-white dark:bg-neutral-900 p-5 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-          <div className="w-10 h-10 bg-success-50 dark:bg-success-900/20 rounded-xl flex items-center justify-center text-success-600 mb-3">
-            <TrendingUp className="w-5 h-5" />
+          {/* Attendance */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[130px] flex flex-col items-center shadow-sm">
+            <ProgressRing value={attendanceRate} size={64} strokeWidth={5} color="#3b82f6">
+              <span className="text-sm font-bold text-neutral-900 dark:text-white">{attendanceRate}%</span>
+            </ProgressRing>
+            <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
+              {t("parent_portal.dashboard.attendance")}
+            </p>
           </div>
-          <p className="text-neutral-500 text-xs font-medium">{t('parent_portal.dashboard.overall_progress')}</p>
-          <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mt-1">{client.progress || 0}%</h3>
-          <p className="text-[10px] text-success-600 font-bold mt-1">+4% this month</p>
-        </div>
-        <div className="bg-white dark:bg-neutral-900 p-5 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-          <div className="w-10 h-10 bg-secondary-50 dark:bg-secondary-900/20 rounded-xl flex items-center justify-center text-secondary-600 mb-3">
-            <Calendar className="w-5 h-5" />
+
+          {/* Sessions Completed */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[130px] flex flex-col items-center shadow-sm">
+            <div className="w-16 h-16 flex items-center justify-center">
+              <span className="text-2xl font-black text-neutral-900 dark:text-white">{completedThisMonth.length}</span>
+            </div>
+            <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
+              {t("parent_portal.dashboard.sessions_done")}
+            </p>
           </div>
-          <p className="text-neutral-500 text-xs font-medium">
-            {t('parent_portal.dashboard.sessions_month', { month: new Date().toLocaleString(currentLang, { month: 'short' }) })}
-          </p>
-          <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mt-1">{sessionsThisMonth.length}</h3>
-          <p className="text-[10px] text-neutral-400 font-bold mt-1">{completedThisMonth.length} {t('parent_portal.dashboard.completed')}</p>
         </div>
       </section>
 
-      {/* Recent Alerts */}
-      <ParentAlerts clientName={client.name} />
+      {/* 4. Quick Actions */}
+      <section className="px-4">
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { href: "/parent/messages/", icon: MessageSquare, label: t("parent_portal.dashboard.quick_message"), color: "text-primary-500 bg-primary-50 dark:bg-primary-900/20" },
+            { href: "/parent/calendar/", icon: Calendar, label: t("parent_portal.dashboard.quick_schedule"), color: "text-teal-500 bg-teal-50 dark:bg-teal-900/20" },
+            { href: "/parent/progress/", icon: BarChart2, label: t("parent_portal.dashboard.quick_progress"), color: "text-purple-500 bg-purple-50 dark:bg-purple-900/20" },
+            { href: "/parent/billing/", icon: CreditCard, label: t("parent_portal.dashboard.quick_billing"), color: "text-warning-500 bg-warning-50 dark:bg-warning-900/20" },
+          ].map((action) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow transition-shadow"
+            >
+              <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center", action.color)}>
+                <action.icon className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-medium text-neutral-600 dark:text-neutral-400 text-center leading-tight">
+                {action.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-      <ParentEventDetailPanel 
+      {/* 5. Balance Alert Banner */}
+      {displayBalance > 0 && !balanceDismissed && (
+        <section className="px-4">
+          <div className="bg-warning-50 dark:bg-warning-900/10 border border-warning-200 dark:border-warning-900/30 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 bg-warning-100 dark:bg-warning-900/20 rounded-xl flex items-center justify-center text-warning-600 flex-shrink-0">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-warning-800 dark:text-warning-200">
+                {t("parent_portal.dashboard.balance_alert", { amount: displayBalance.toFixed(2) })}
+              </p>
+              <Link href="/parent/billing/" className="text-xs font-medium text-warning-600 hover:underline">
+                {t("parent_portal.dashboard.view_invoices")} →
+              </Link>
+            </div>
+            <button onClick={() => setBalanceDismissed(true)} className="p-1.5 text-warning-400 hover:text-warning-600 transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* 6. Recent Activity Timeline */}
+      <section className="px-4">
+        <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3 px-1">
+          {t("parent_portal.activity.title")}
+        </h2>
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-3">
+          <ActivityTimeline sessions={sessions} evaluations={evaluations} invoices={invoices} />
+        </div>
+      </section>
+
+      <ParentEventDetailPanel
         event={selectedEvent}
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
       />
-
     </div>
   );
 }

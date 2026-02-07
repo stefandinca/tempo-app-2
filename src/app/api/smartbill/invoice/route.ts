@@ -6,11 +6,33 @@ const SMARTBILL_API_URL = 'https://api.smartbill.ro/biz/eu/v1';
 
 export async function POST(req: NextRequest) {
   try {
-    const { invoiceId, clientId, items, total, series, clinicCif } = await req.json();
+    const { invoiceId, clientId, items, total, series, clinicCif, userRole } = await req.json();
+
+    // 0. Role Authorization - Only Admin and Coordinator can generate invoices
+    if (!userRole || !['Admin', 'Coordinator'].includes(userRole)) {
+      return NextResponse.json({ error: 'Unauthorized: insufficient permissions' }, { status: 403 });
+    }
 
     // 1. Basic Validation
     if (!invoiceId || !clientId) {
       return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+    }
+
+    // 1.5 Validate invoice items
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: 'Invoice must have at least one item' }, { status: 400 });
+    }
+
+    for (const item of items) {
+      if (!item.description || typeof item.description !== 'string') {
+        return NextResponse.json({ error: 'Each item must have a valid description' }, { status: 400 });
+      }
+      if (typeof item.quantity !== 'number' || item.quantity <= 0 || item.quantity > 10000) {
+        return NextResponse.json({ error: `Invalid quantity for item "${item.description}"` }, { status: 400 });
+      }
+      if (typeof item.price !== 'number' || item.price < 0 || item.price > 1000000) {
+        return NextResponse.json({ error: `Invalid price for item "${item.description}"` }, { status: 400 });
+      }
     }
 
     // 2.5 Fetch Invoicing Settings for VAT Rate and Credentials

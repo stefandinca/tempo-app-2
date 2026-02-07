@@ -18,6 +18,7 @@ import {
 import { clsx } from "clsx";
 import { useNotifications } from "@/context/NotificationContext";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
+import { useTranslation } from "react-i18next";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -25,22 +26,23 @@ interface MobileSidebarProps {
 }
 
 const navItems = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Calendar", href: "/calendar/", icon: Calendar },
-  { name: "Messages", href: "/messages/", icon: MessageSquare },
-  { name: "Clients", href: "/clients/", icon: Users },
-  { name: "Team", href: "/team/", icon: UserCircle },
+  { nameKey: "nav.dashboard", href: "/", icon: LayoutDashboard },
+  { nameKey: "nav.calendar", href: "/calendar/", icon: Calendar },
+  { nameKey: "nav.messages", href: "/messages/", icon: MessageSquare },
+  { nameKey: "nav.clients", href: "/clients/", icon: Users },
+  { nameKey: "nav.team", href: "/team/", icon: UserCircle },
 ];
 
 const adminItems = [
-  { name: "Billing", href: "/billing/", icon: CreditCard },
-  { name: "Analytics", href: "/analytics/", icon: BarChart2 },
-  { name: "Services", href: "/services/", icon: Briefcase },
-  { name: "Settings", href: "/settings/", icon: Settings },
+  { nameKey: "nav.billing", href: "/billing/", icon: CreditCard },
+  { nameKey: "nav.analytics", href: "/analytics/", icon: BarChart2 },
+  { nameKey: "nav.services", href: "/services/", icon: Briefcase },
+  { nameKey: "nav.settings", href: "/settings/", icon: Settings },
 ];
 
 export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const pathname = usePathname();
+  const { t } = useTranslation();
   const { unreadMessageCount } = useNotifications();
   const { open: openCommandPalette } = useCommandPalette();
 
@@ -86,21 +88,21 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             className="w-full flex items-center gap-3 px-3 py-2.5 mb-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
           >
             <Search className="w-5 h-5 text-primary-500" />
-            <span>Search...</span>
+            <span>{t('common.search')}</span>
           </button>
 
           {navItems.map((item) => {
             const isActive = pathname === item.href;
-            
+
             // Determine badge content
             let badgeContent = null;
-            if (item.name === "Messages" && unreadMessageCount > 0) {
+            if (item.nameKey === "nav.messages" && unreadMessageCount > 0) {
               badgeContent = unreadMessageCount;
             }
 
             return (
               <Link
-                key={item.name}
+                key={item.nameKey}
                 href={item.href}
                 onClick={onClose}
                 className={clsx(
@@ -111,7 +113,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                 )}
               >
                 <item.icon className="w-5 h-5" />
-                <span>{item.name}</span>
+                <span>{t(item.nameKey)}</span>
                 {badgeContent && (
                   <span className="ml-auto px-2 py-0.5 text-xs bg-error-100 dark:bg-error-900 text-error-600 dark:text-error-400 font-bold rounded-full">
                     {badgeContent}
@@ -123,7 +125,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
 
           <div className="pt-6 pb-2">
             <p className="px-3 text-xs font-semibold text-neutral-400 uppercase tracking-wide">
-              Admin
+              {t('nav.admin')}
             </p>
           </div>
 
@@ -131,7 +133,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             const isActive = pathname === item.href;
             return (
               <Link
-                key={item.name}
+                key={item.nameKey}
                 href={item.href}
                 onClick={onClose}
                 className={clsx(
@@ -142,7 +144,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
                 )}
               >
                 <item.icon className="w-5 h-5" />
-                <span>{item.name}</span>
+                <span>{t(item.nameKey)}</span>
               </Link>
             );
           })}

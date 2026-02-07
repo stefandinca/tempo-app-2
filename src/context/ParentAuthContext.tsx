@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { User, onAuthStateChanged, signInAnonymously, signOut as firebaseSignOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
@@ -31,9 +31,9 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
         setUser(authUser);
 
         // Check if we have stored session info
-        const storedClientId = localStorage.getItem("parent_client_id");
-        const storedClientName = localStorage.getItem("parent_client_name");
-        const storedParentUid = localStorage.getItem("parent_uid");
+        const storedClientId = sessionStorage.getItem("parent_client_id");
+        const storedClientName = sessionStorage.getItem("parent_client_name");
+        const storedParentUid = sessionStorage.getItem("parent_uid");
 
         if (storedClientId) {
           // If the UID has changed (e.g. new session), we need to re-register it with the client
@@ -45,7 +45,7 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
                 parentUids: arrayUnion(authUser.uid)
               });
               console.log("[ParentAuth] Re-registered successfully.");
-              localStorage.setItem("parent_uid", authUser.uid);
+              sessionStorage.setItem("parent_uid", authUser.uid);
             } catch (err) {
               console.error("[ParentAuth] Failed to re-register UID with client:", err);
               // We continue anyway, as the user might already be in the list
@@ -65,7 +65,7 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
       } else {
         // Not logged in (or not anonymous)
         // Check if we should auto-login based on stored credentials
-        const storedCode = localStorage.getItem("parent_client_code");
+        const storedCode = sessionStorage.getItem("parent_client_code");
         
         if (storedCode && !authUser) {
           console.log("[ParentAuth] No active session, but found stored code. Auto-logging in...");
@@ -107,11 +107,11 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
         parentUids: arrayUnion(currentUser.uid)
       });
 
-      // Store session info
-      localStorage.setItem("parent_uid", currentUser.uid);
-      localStorage.setItem("parent_client_id", validatedClientId);
-      localStorage.setItem("parent_client_name", validatedClientName);
-      localStorage.setItem("parent_client_code", validatedClientCode.toUpperCase());
+      // Store session info (sessionStorage - cleared when tab closes)
+      sessionStorage.setItem("parent_uid", currentUser.uid);
+      sessionStorage.setItem("parent_client_id", validatedClientId);
+      sessionStorage.setItem("parent_client_name", validatedClientName);
+      sessionStorage.setItem("parent_client_code", validatedClientCode.toUpperCase());
 
       setUser(currentUser);
       setClientId(validatedClientId);
@@ -126,11 +126,11 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
 
   const signOut = useCallback(async () => {
     try {
-      // Clear local storage
-      localStorage.removeItem("parent_uid");
-      localStorage.removeItem("parent_client_id");
-      localStorage.removeItem("parent_client_name");
-      localStorage.removeItem("parent_client_code");
+      // Clear session storage
+      sessionStorage.removeItem("parent_uid");
+      sessionStorage.removeItem("parent_client_id");
+      sessionStorage.removeItem("parent_client_name");
+      sessionStorage.removeItem("parent_client_code");
 
       // Sign out from Firebase
       await firebaseSignOut(auth);
@@ -144,6 +144,31 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const isAuthenticated = user !== null && clientId !== null;
+
+  // Idle timeout: auto sign-out after 30 minutes of inactivity
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const resetIdleTimer = () => {
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = setTimeout(() => {
+        console.log("[ParentAuth] Idle timeout reached. Signing out...");
+        signOut();
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    const events = ["mousedown", "keydown", "touchstart", "scroll"];
+    events.forEach(e => window.addEventListener(e, resetIdleTimer, { passive: true }));
+    resetIdleTimer(); // Start the timer
+
+    return () => {
+      events.forEach(e => window.removeEventListener(e, resetIdleTimer));
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, [isAuthenticated, signOut]);
 
   return (
     <ParentAuthContext.Provider

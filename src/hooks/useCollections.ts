@@ -31,8 +31,11 @@ export function useCollection<T = DocumentData>(
     }
     const q = query(collection(db, collectionName), ...finalConstraints);
 
-    const unsubscribe = onSnapshot(q, 
+    let cancelled = false;
+
+    const unsubscribe = onSnapshot(q,
       (snapshot) => {
+        if (cancelled) return;
         const items: T[] = [];
         snapshot.forEach((doc) => {
           items.push({ id: doc.id, ...doc.data() } as T);
@@ -41,13 +44,17 @@ export function useCollection<T = DocumentData>(
         setLoading(false);
       },
       (err) => {
+        if (cancelled) return;
         console.error(`Error fetching ${collectionName}:`, err);
         setError(err.message);
         setLoading(false);
       }
     );
 
-    return () => unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionName, limitCount]); // Added limitCount to dependencies
 
@@ -424,6 +431,60 @@ export function useExpensesByMonth(year: number, month: number) {
 
     return () => unsubscribe();
   }, [year, month]);
+
+  return { data, loading, error };
+}
+
+// Homework - subcollection under clients
+export interface HomeworkItem {
+  id: string;
+  title: string;
+  description?: string;
+  assignedBy: string;
+  frequency?: "daily" | "weekly" | "3x_week" | "as_needed";
+  dueDate?: string;
+  completed: boolean;
+  completedAt?: string | null;
+  parentNotes?: string;
+  createdAt: string;
+}
+
+export function useHomework(clientId: string) {
+  const [data, setData] = useState<HomeworkItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!clientId) {
+      setData([]);
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, "clients", clientId, "homework"),
+      orderBy("createdAt", "desc"),
+      limit(100)
+    );
+
+    const unsubscribe = onSnapshot(q,
+      (snapshot) => {
+        const items: HomeworkItem[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() } as HomeworkItem);
+        });
+        setData(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching homework:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [clientId]);
 
   return { data, loading, error };
 }

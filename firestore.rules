@@ -42,7 +42,8 @@ service cloud.firestore {
     }
 
     match /clients/{clientId} {
-      allow list: if isAdmin() || isCoordinator() || isTherapist();
+      // Staff can list all; signed-in users can list (needed for parent login code lookup)
+      allow list: if isSignedIn();
       allow get: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow create: if isAdmin() || isCoordinator();
       allow update: if isAdmin() || isCoordinator() || (
@@ -62,12 +63,12 @@ service cloud.firestore {
     }
 
     match /services/{serviceId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
-    
+
     match /programs/{programId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if isAdmin() || isCoordinator() || isTherapist();
     }
     
@@ -90,7 +91,7 @@ service cloud.firestore {
 
     match /notifications/{notificationId} {
       allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && (isAdmin() || isCoordinator() || isTherapist());
       allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
       allow delete: if isSignedIn() && resource.data.recipientId == request.auth.uid;
     }
@@ -108,6 +109,12 @@ service cloud.firestore {
     match /clients/{clientId}/interventionPlans/{planId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow write: if isAdmin() || isCoordinator();
+    }
+
+    match /clients/{clientId}/homework/{homeworkId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow create, delete: if isAdmin() || isCoordinator() || isTherapist();
+      allow update: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
     }
 
     match /clients/{clientId}/documents/{documentId} {
@@ -132,15 +139,15 @@ service cloud.firestore {
 
     match /threads/{threadId} {
       allow get: if isSignedIn() && (
-        (resource != null && request.auth.uid in resource.data.participants) ||
-        (resource == null)
+        resource != null && request.auth.uid in resource.data.participants
       );
       allow list: if isSignedIn() && request.auth.uid in resource.data.participants;
       allow create: if isSignedIn();
       allow update: if isSignedIn() && request.auth.uid in resource.data.participants;
 
       match /messages/{messageId} {
-        allow read, create: if isSignedIn();
+        allow read, create: if isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants;
       }
     }
 

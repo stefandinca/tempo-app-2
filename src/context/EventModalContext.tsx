@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from "react";
 import NewEventModal from "@/components/calendar/NewEventModal";
 
 interface EventModalOptions {
@@ -23,18 +23,20 @@ export function EventModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [initialData, setInitialData] = useState<EventModalOptions>({});
 
-  const openModal = (options?: EventModalOptions) => {
+  const openModal = useCallback((options?: EventModalOptions) => {
     setInitialData(options || {});
     setIsOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsOpen(false);
     setInitialData({});
-  };
+  }, []);
+
+  const value = useMemo(() => ({ openModal, closeModal }), [openModal, closeModal]);
 
   return (
-    <EventModalContext.Provider value={{ openModal, closeModal }}>
+    <EventModalContext.Provider value={value}>
       {children}
       <NewEventModal
         isOpen={isOpen}

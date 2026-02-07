@@ -24,6 +24,8 @@
     "analytics": "Analytics",
     "services": "Services",
     "settings": "Settings",
+    "profile": "Profile",
+    "admin": "Admin",
     "sign_out": "Sign Out"
   },
   "settings": {
@@ -193,18 +195,48 @@
     "absent": "Absent",
     "excused": "Excused"
   },
+  "parent_nav": {
+    "home": "Home",
+    "schedule": "Schedule",
+    "progress": "Progress",
+    "messages": "Messages",
+    "more": "More",
+    "billing": "Billing",
+    "docs": "Documents",
+    "profile": "Profile",
+    "homework": "Homework",
+    "sign_out": "Sign Out",
+    "portal": "Portal",
+    "parent_portal": "Parent Portal"
+  },
   "parent_portal": {
-    "welcome": "👋 Welcome back, {{name}}!",
+    "welcome": "Welcome back, {{name}}!",
     "viewing_for": "Viewing portal for: ",
     "dashboard": {
       "next_session": "Next Session",
       "no_upcoming": "No upcoming sessions scheduled.",
       "balance_due": "Balance Due",
-      "overall_progress": "Overall Progress",
+      "overall_progress": "Progress",
+      "attendance": "Attendance",
+      "sessions_done": "Completed",
       "sessions_month": "Sessions ({{month}})",
       "completed": "completed",
       "with": "with",
-      "assigned_therapist": "Assigned Therapist"
+      "assigned_therapist": "Assigned Therapist",
+      "parent": "Parent",
+      "load_error": "Could not load child data.",
+      "starting_soon": "Starting soon",
+      "in_hours": "in {{count}}h",
+      "in_days": "in {{count}} days",
+      "tomorrow_at": "Tomorrow at {{time}}",
+      "view_details": "View Details",
+      "message_therapist": "Message",
+      "quick_message": "Message",
+      "quick_schedule": "Schedule",
+      "quick_progress": "Progress",
+      "quick_billing": "Billing",
+      "balance_alert": "You have {{amount}} RON due",
+      "view_invoices": "View invoices"
     },
     "alerts": {
       "title": "Recent Alerts",
@@ -218,22 +250,42 @@
       "enable": "Enable",
       "sync": "Sync"
     },
+    "activity": {
+      "title": "Recent Activity",
+      "just_now": "Just now",
+      "mins_ago": "{{count}} min ago",
+      "hours_ago": "{{count}}h ago",
+      "days_ago": "{{count}}d ago",
+      "no_activity": "No recent activity",
+      "session_completed": "{{type}} session completed",
+      "evaluation_added": "New {{type}} evaluation available",
+      "invoice_issued": "Invoice {{number}} issued",
+      "therapy": "Therapy",
+      "evaluation": "evaluation"
+    },
     "calendar": {
       "title": "Session Schedule",
       "subtitle": "Upcoming and past therapy sessions",
       "no_sessions": "No sessions found",
       "no_sessions_subtitle": "Schedule details will appear here soon.",
+      "no_sessions_day": "No sessions today",
+      "no_sessions_day_subtitle": "Enjoy your free day!",
       "completed": "Completed",
       "past": "Past",
+      "upcoming": "Upcoming",
       "confirm": "Confirm",
-      "min": "min"
+      "min": "min",
+      "today": "Today",
+      "day_view": "Day",
+      "list_view": "List"
     },
     "progress": {
       "title": "Progress Tracking",
       "subtitle": "Monitor {{name}}'s therapy progress",
       "tabs": {
         "programs": "Programs",
-        "evaluations": "Evaluations"
+        "evaluations": "Evaluations",
+        "goals": "Goals"
       },
       "stats": {
         "programs": "Programs",
@@ -250,6 +302,22 @@
         "no_response": "No response",
         "prompted": "Prompted/Assisted",
         "correct": "Correct/Independent"
+      },
+      "improving": "Improving",
+      "stable": "Stable",
+      "needs_attention": "Needs Attention",
+      "sessions_label": "Sessions",
+      "total_trials": "Total Trials",
+      "overall_label": "Overall",
+      "session_history": "Session History",
+      "goals": {
+        "title": "Therapy Goals",
+        "no_plan": "No active intervention plan",
+        "no_plan_subtitle": "Goals will appear here once an intervention plan is set up by your therapy team.",
+        "not_started": "Not Started",
+        "in_progress": "In Progress",
+        "achieved": "Achieved",
+        "from_plan": "From plan: {{name}}"
       }
     },
     "billing": {
@@ -266,6 +334,13 @@
       "issued": "Issued",
       "due": "Due",
       "unpaid": "Unpaid",
+      "overdue": "Overdue",
+      "paid": "Paid",
+      "due_soon": "Due Soon",
+      "line_items": "Line Items",
+      "quantity": "Qty",
+      "unit_price": "Unit Price",
+      "total": "Total",
       "disclaimer": "Payments are synchronized within 24 hours. For urgent billing issues, please contact the clinic administration directly.",
       "online_payments_soon": "Online payments coming soon.",
       "download_error": "Failed to download invoice."
@@ -287,6 +362,82 @@
       "no_matching_subtitle": "Try selecting a different category.",
       "recently_uploaded": "Recently uploaded",
       "download": "Download"
+    },
+    "profile": {
+      "title": "Child Profile",
+      "age": "{{count}} years old",
+      "start_date": "Start Date",
+      "diagnosis": "Diagnosis",
+      "support_level": "Support Level",
+      "intervention_plan": "Intervention Plan",
+      "no_plan": "No active plan",
+      "therapy_team": "Therapy Team",
+      "message_therapist": "Message",
+      "active_goals": "Active Goals",
+      "documents": "Documents",
+      "view_documents": "View all documents"
+    },
+    "homework": {
+      "title": "Homework",
+      "subtitle": "Practice activities assigned by your therapy team",
+      "active": "Active",
+      "completed_tab": "Completed",
+      "tabs": {
+        "active": "Active",
+        "completed": "Completed"
+      },
+      "no_homework": "No homework assigned yet",
+      "no_homework_subtitle": "Your therapy team will assign practice activities here.",
+      "no_active": "No active homework",
+      "no_active_subtitle": "All caught up! Check completed tab for finished items.",
+      "no_completed": "No completed homework yet",
+      "no_completed_subtitle": "Completed items will appear here.",
+      "assigned_by": "Assigned by",
+      "therapist": "Therapist",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "three_times_week": "3x/week",
+      "as_needed": "As needed",
+      "frequency": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "3x_week": "3x/week",
+        "as_needed": "As needed"
+      },
+      "due_date": "Due",
+      "mark_complete": "Mark Complete",
+      "notes": "Notes",
+      "notes_placeholder": "Add your notes or observations here...",
+      "add_notes": "Add notes...",
+      "save_notes": "Save Notes",
+      "saving": "Saving...",
+      "completed_on": "Completed"
+    },
+    "more_menu": {
+      "title": "More"
+    },
+    "session_detail": {
+      "title": "Session Details",
+      "date": "Date",
+      "time": "Time",
+      "attendance": "Attendance Status",
+      "therapist": "Therapist",
+      "programs": "Programs & Progress",
+      "no_programs": "No specific programs tracked.",
+      "notes": "Session Notes",
+      "notes_processing": "Clinical observations are still being processed.",
+      "close": "Close Details",
+      "present": "Present",
+      "absent": "Absent",
+      "excused": "Excused",
+      "scheduled": "Scheduled"
+    },
+    "login": {
+      "help_text": "Ask your clinic therapist or coordinator for your unique parent access code."
+    },
+    "error": {
+      "title": "Access Error",
+      "back_to_login": "Back to Login"
     }
   },
   "clients": {
@@ -498,7 +649,8 @@
     "access_code": "Access Code",
     "access_code_placeholder": "e.g. JS-1234",
     "verifying": "Verifying code...",
-    "invalid_code": "Invalid access code. Please check and try again."
+    "invalid_code": "Invalid access code. Please check and try again.",
+    "too_many_attempts": "Too many attempts. Please wait {{seconds}} seconds."
   },
   "chat": {
     "title": "Messages",

@@ -63,7 +63,7 @@ export default function CreatePlanModal({
       });
     }
     setSearch("");
-  }, [existingPlan, isOpen]);
+  }, [existingPlan, isOpen, clientId]);
 
   const filteredPrograms = (programs || []).filter(prog =>
     prog.title.toLowerCase().includes(search.toLowerCase()) ||

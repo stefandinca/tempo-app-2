@@ -79,12 +79,8 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
           }
         }
 
-        // If found, update the thread cache for future use
-        if (phone && thread.id) {
-          await updateDoc(doc(db, "threads", thread.id), {
-            [`participantDetails.${otherParticipantId}.phone`]: phone
-          });
-        }
+        // Note: Do NOT cache phone numbers in thread documents for privacy
+        // Phone numbers are fetched on-demand each time to prevent exposure to other participants
       } catch (err) {
         console.error("[ChatView] Error fetching phone number:", err);
       } finally {

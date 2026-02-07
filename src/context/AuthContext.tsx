@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { 
   User, 
   onAuthStateChanged, 
@@ -74,14 +74,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                if (clientSnap.exists()) {
                  setUserData(clientSnap.data());
                  setUserRole('Parent');
-               } else if (IS_DEMO && authUser.isAnonymous) {
-                 // Mock data for demo users so they can see the app
+               } else if (IS_DEMO && authUser.isAnonymous && process.env.NODE_ENV !== 'production') {
+                 // Mock data for demo users - only in non-production environments
                  setUserData({
                    name: "Demo Admin",
                    email: "demo@tempoapp.ro",
                    role: "Admin",
                    initials: "DA",
-                   color: "#4A90E2"
+                   color: "#4A90E2",
+                   isDemo: true
                  });
                  setUserRole("Admin");
                } else {
@@ -129,8 +130,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await updatePassword(auth.currentUser, newPassword);
   }, []);
 
+  const value = useMemo(() => ({
+    user, userData, userRole, loading, signIn, signInAnonymous, signOut, changeEmail, changePassword
+  }), [user, userData, userRole, loading, signIn, signInAnonymous, signOut, changeEmail, changePassword]);
+
   return (
-    <AuthContext.Provider value={{ user, userData, userRole, loading, signIn, signInAnonymous, signOut, changeEmail, changePassword }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );

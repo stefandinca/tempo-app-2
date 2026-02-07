@@ -27,12 +27,26 @@ service firebase.storage {
       allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
     }
 
+    // Helper: Check if user is a staff member (Admin, Coordinator, or Therapist)
+    function isStaff() {
+      return isSignedIn() &&
+             firestore.exists(/databases/(default)/documents/team_members/$(request.auth.uid));
+    }
+
+    // Helper: Check if user is a parent of the specific client
+    function isClientParent(clientId) {
+      return isSignedIn() &&
+             firestore.exists(/databases/(default)/documents/clients/$(clientId)) &&
+             request.auth.uid in firestore.get(/databases/(default)/documents/clients/$(clientId)).data.parentUids;
+    }
+
     // ============================================
     // CLIENT DOCUMENTS
     // Path: clients/{clientId}/documents/{fileName}
     // ============================================
     match /clients/{clientId}/documents/{fileName} {
-      allow read, write: if isSignedIn();
+      allow read: if isAdmin() || isStaff() || isClientParent(clientId);
+      allow write: if isAdmin() || isStaff();
     }
 
     // ============================================
