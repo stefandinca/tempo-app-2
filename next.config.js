@@ -1,11 +1,20 @@
 const path = require('path');
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-  importScripts: ['/firebase-messaging-sw.js'],
-});
+
+let withPWA;
+try {
+  withPWA = require('next-pwa')({
+    dest: 'public',
+    disable: process.env.NODE_ENV === 'development',
+    register: true,
+    skipWaiting: true,
+    importScripts: ['/firebase-messaging-sw.js'],
+  });
+} catch (e) {
+  // If next-pwa is not installed (e.g. on server with limited node_modules), 
+  // provide a fallback that just returns the config
+  console.warn("next-pwa not found, continuing without PWA support.");
+  withPWA = (config) => config;
+}
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -18,6 +27,10 @@ const nextConfig = {
   
   images: {
     unoptimized: true,
+  },
+
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts', 'firebase', 'jspdf', 'jspdf-autotable'],
   },
 
   // Transpile firebase packages to ensure they are processed by Babel/SWC

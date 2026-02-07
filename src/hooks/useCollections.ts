@@ -8,14 +8,16 @@ import {
   getDoc, 
   DocumentData,
   where,
-  orderBy 
+  orderBy,
+  limit 
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 // ... existing generic hook ...
 export function useCollection<T = DocumentData>(
   collectionName: string, 
-  constraints: QueryConstraint[] = []
+  constraints: QueryConstraint[] = [],
+  limitCount?: number
 ) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +25,11 @@ export function useCollection<T = DocumentData>(
 
   useEffect(() => {
     setLoading(true);
-    const q = query(collection(db, collectionName), ...constraints);
+    const finalConstraints = [...constraints];
+    if (limitCount) {
+      finalConstraints.push(limit(limitCount));
+    }
+    const q = query(collection(db, collectionName), ...finalConstraints);
 
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
@@ -43,18 +49,18 @@ export function useCollection<T = DocumentData>(
 
     return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collectionName]); // Constraints omitted from dependency array to avoid loops, pass stable arrays if needed
+  }, [collectionName, limitCount]); // Added limitCount to dependencies
 
   return { data, loading, error };
 }
 
 // Specific Hooks
 export function useEvents() {
-  return useCollection<any>("events");
+  return useCollection<any>("events", [orderBy("startTime", "desc")], 100);
 }
 
 export function useClients() {
-  return useCollection<any>("clients");
+  return useCollection<any>("clients", [orderBy("name", "asc")], 500);
 }
 
 export interface TeamMember {
@@ -73,15 +79,15 @@ export interface TeamMember {
 }
 
 export function useTeamMembers() {
-  return useCollection<TeamMember>("team_members");
+  return useCollection<TeamMember>("team_members", [orderBy("name", "asc")], 100);
 }
 
 export function useServices() {
-  return useCollection<any>("services");
+  return useCollection<any>("services", [orderBy("label", "asc")]);
 }
 
 export function usePrograms() {
-  return useCollection<any>("programs");
+  return useCollection<any>("programs", [orderBy("title", "asc")]);
 }
 
 export function useClientEvents(clientId: string) {
@@ -98,7 +104,8 @@ export function useClientEvents(clientId: string) {
     const q = query(
       collection(db, "events"),
       where("clientId", "==", clientId),
-      orderBy("startTime", "asc")
+      orderBy("startTime", "desc"),
+      limit(100)
     );
 
     const unsubscribe = onSnapshot(q,
@@ -189,7 +196,8 @@ export function useInterventionPlans(clientId: string) {
 
     const q = query(
       collection(db, "clients", clientId, "interventionPlans"),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "desc"),
+      limit(50)
     );
 
     const unsubscribe = onSnapshot(q,
@@ -272,7 +280,8 @@ export function useClientInvoices(clientId: string) {
     const q = query(
       collection(db, "invoices"),
       where("clientId", "==", clientId),
-      orderBy("date", "desc")
+      orderBy("date", "desc"),
+      limit(50)
     );
 
     const unsubscribe = onSnapshot(q,
@@ -313,7 +322,8 @@ export function useInvoicesByMonth(year: number, month: number) {
       collection(db, "invoices"),
       where("date", ">=", startStr),
       where("date", "<=", endStr),
-      orderBy("date", "desc")
+      orderBy("date", "desc"),
+      limit(200)
     );
 
     const unsubscribe = onSnapshot(q,
@@ -350,7 +360,8 @@ export function usePayoutsByMonth(year: number, month: number) {
 
     const q = query(
       collection(db, "payouts"),
-      where("month", "==", monthStr)
+      where("month", "==", monthStr),
+      limit(100)
     );
 
     const unsubscribe = onSnapshot(q,
@@ -391,7 +402,8 @@ export function useExpensesByMonth(year: number, month: number) {
       collection(db, "expenses"),
       where("date", ">=", startStr),
       where("date", "<=", endStr),
-      orderBy("date", "desc")
+      orderBy("date", "desc"),
+      limit(100)
     );
 
     const unsubscribe = onSnapshot(q,

@@ -1,12 +1,13 @@
 "use client";
 
+import { memo } from "react";
 import { clsx } from "clsx";
 
 interface TherapistUtilizationChartProps {
   data: { name: string; billable: number; capacity: number }[];
 }
 
-export default function TherapistUtilizationChart({ data }: TherapistUtilizationChartProps) {
+function TherapistUtilizationChart({ data }: TherapistUtilizationChartProps) {
   // Sort by utilization percentage (descending)
   const sortedData = [...data].sort((a, b) => {
     const utilA = (a.billable / a.capacity) || 0;
@@ -63,3 +64,5 @@ export default function TherapistUtilizationChart({ data }: TherapistUtilization
     </div>
   );
 }
+
+export default memo(TherapistUtilizationChart);

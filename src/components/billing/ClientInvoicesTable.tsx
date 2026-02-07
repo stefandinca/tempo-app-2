@@ -34,6 +34,11 @@ interface ClientInvoicesTableProps {
   onMarkAsPending?: (clientId: string) => void;
 }
 
+const currencyFormatter = new Intl.NumberFormat("ro-RO", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
 export default function ClientInvoicesTable({
   invoices,
   loading,
@@ -86,10 +91,7 @@ export default function ClientInvoicesTable({
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ro-RO", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
+    return currencyFormatter.format(amount);
   };
 
   const formatDate = (dateStr: string) => {
@@ -274,7 +276,7 @@ export default function ClientInvoicesTable({
         }).catch(err => console.error("Failed to notify parents about invoice:", err));
       }
 
-      const pdfBlob = generateInvoicePDF({
+      const pdfBlob = await generateInvoicePDF({
         ...invoiceData.snapshot,
         date: new Date(invoiceData.snapshot.date).toLocaleDateString("ro-RO"),
         dueDate: new Date(invoiceData.snapshot.dueDate).toLocaleDateString("ro-RO")

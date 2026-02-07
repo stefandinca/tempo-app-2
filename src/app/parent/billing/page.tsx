@@ -52,7 +52,7 @@ export default function ParentBillingPage() {
         dueDate: new Date(invoice.dueDate).toLocaleDateString("ro-RO")
       };
 
-      const pdfBlob = generateInvoicePDF(prettyData);
+      const pdfBlob = await generateInvoicePDF(prettyData);
       
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');

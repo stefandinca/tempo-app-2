@@ -1,12 +1,13 @@
 "use client";
 
+import { memo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface AttendanceTrendChartProps {
   data: { name: string; rate: number }[];
 }
 
-export default function AttendanceTrendChart({ data }: AttendanceTrendChartProps) {
+function AttendanceTrendChart({ data }: AttendanceTrendChartProps) {
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
       <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-6">Attendance Trend (Current Month)</h3>
@@ -45,3 +46,5 @@ export default function AttendanceTrendChart({ data }: AttendanceTrendChartProps
     </div>
   );
 }
+
+export default memo(AttendanceTrendChart);

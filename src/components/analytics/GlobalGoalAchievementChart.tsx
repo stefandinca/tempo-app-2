@@ -1,12 +1,13 @@
 "use client";
 
+import { memo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface GlobalGoalAchievementChartProps {
   data: { month: string; rate: number }[];
 }
 
-export default function GlobalGoalAchievementChart({ data }: GlobalGoalAchievementChartProps) {
+function GlobalGoalAchievementChart({ data }: GlobalGoalAchievementChartProps) {
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
@@ -57,3 +58,5 @@ export default function GlobalGoalAchievementChart({ data }: GlobalGoalAchieveme
     </div>
   );
 }
+
+export default memo(GlobalGoalAchievementChart);

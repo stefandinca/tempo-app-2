@@ -30,6 +30,24 @@ export default function MonthView({
   onSlotClick
 }: MonthViewProps) {
   
+  // Create a map for O(1) team member lookup
+  const therapistMap = useMemo(() => {
+    const map = new Map<string, any>();
+    teamMembers.forEach(tm => map.set(tm.id, tm));
+    return map;
+  }, [teamMembers]);
+
+  // Pre-filter events by month bounds and group them by day for O(1) access during render
+  const eventsByDay = useMemo(() => {
+    const grouped: Record<string, Event[]> = {};
+    events.forEach(evt => {
+      const dateKey = evt.startTime.split('T')[0]; // Format: YYYY-MM-DD
+      if (!grouped[dateKey]) grouped[dateKey] = [];
+      grouped[dateKey].push(evt);
+    });
+    return grouped;
+  }, [events]);
+
   // Generate days for the Month View (6 weeks grid to cover all months)
   const monthDays = useMemo(() => {
     const d = new Date(currentDate);
@@ -47,6 +65,7 @@ export default function MonthView({
       current.setDate(startDate.getDate() + i);
       days.push({
         date: current,
+        dateKey: current.toISOString().split('T')[0], // For lookup
         isCurrentMonth: current.getMonth() === month,
         isToday: isSameDay(current, new Date())
       });
@@ -59,10 +78,6 @@ export default function MonthView({
            d1.getMonth() === d2.getMonth() &&
            d1.getFullYear() === d2.getFullYear();
   }
-
-  const getEventsForDay = (date: Date) => {
-    return events.filter(evt => isSameDay(new Date(evt.startTime), date));
-  };
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-neutral-900 overflow-hidden">
@@ -78,8 +93,8 @@ export default function MonthView({
 
       {/* Month Grid */}
       <div className="flex-1 grid grid-cols-7 grid-rows-6 auto-rows-fr">
-        {monthDays.map(({ date, isCurrentMonth, isToday }) => {
-          const dayEvents = getEventsForDay(date);
+        {monthDays.map(({ date, dateKey, isCurrentMonth, isToday }) => {
+          const dayEvents = eventsByDay[dateKey] || [];
           const maxVisible = 3;
           const visibleEvents = dayEvents.slice(0, maxVisible);
           const hiddenCount = dayEvents.length - maxVisible;
@@ -106,7 +121,7 @@ export default function MonthView({
 
               <div className="flex-1 space-y-1 overflow-hidden">
                 {visibleEvents.map(evt => {
-                  const therapist = teamMembers.find(t => t.id === evt.therapistId);
+                  const therapist = therapistMap.get(evt.therapistId);
                   const color = therapist?.color || "#94a3b8"; // Default neutral if not found
 
                   return (

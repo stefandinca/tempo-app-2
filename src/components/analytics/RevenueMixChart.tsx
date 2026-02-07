@@ -1,12 +1,13 @@
 "use client";
 
+import { memo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 interface RevenueMixChartProps {
   data: { name: string; value: number; color: string }[];
 }
 
-export default function RevenueMixChart({ data }: RevenueMixChartProps) {
+function RevenueMixChart({ data }: RevenueMixChartProps) {
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
       <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-6">Revenue Mix</h3>
@@ -37,3 +38,5 @@ export default function RevenueMixChart({ data }: RevenueMixChartProps) {
     </div>
   );
 }
+
+export default memo(RevenueMixChart);

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { 
   User, 
   onAuthStateChanged, 
@@ -38,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let unsubscribeFromData: (() => void) | null = null;
+    let unsubscribeFromClientData: (() => void) | null = null;
 
     const unsubscribeFromAuth = onAuthStateChanged(auth, async (authUser) => {
       setUser(authUser);
@@ -45,6 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (unsubscribeFromData) {
         unsubscribeFromData();
         unsubscribeFromData = null;
+      }
+      if (unsubscribeFromClientData) {
+        unsubscribeFromClientData();
+        unsubscribeFromClientData = null;
       }
 
       if (authUser) {
@@ -65,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else {
             // Check if parent (parents might be in a different collection or just clients)
             // For now, let's check clients collection for parent access
-            onSnapshot(doc(db, "clients", authUser.uid), (clientSnap) => {
+            unsubscribeFromClientData = onSnapshot(doc(db, "clients", authUser.uid), (clientSnap) => {
                if (clientSnap.exists()) {
                  setUserData(clientSnap.data());
                  setUserRole('Parent');
@@ -97,31 +102,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       unsubscribeFromAuth();
       if (unsubscribeFromData) unsubscribeFromData();
+      if (unsubscribeFromClientData) unsubscribeFromClientData();
     };
   }, [router]);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
-  };
+  }, []);
 
-  const signInAnonymous = async () => {
+  const signInAnonymous = useCallback(async () => {
     await firebaseSignInAnonymously(auth);
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await firebaseSignOut(auth);
     router.push("/login");
-  };
+  }, [router]);
 
-  const changeEmail = async (newEmail: string) => {
+  const changeEmail = useCallback(async (newEmail: string) => {
     if (!auth.currentUser) throw new Error("No user logged in");
     await updateEmail(auth.currentUser, newEmail);
-  };
+  }, []);
 
-  const changePassword = async (newPassword: string) => {
+  const changePassword = useCallback(async (newPassword: string) => {
     if (!auth.currentUser) throw new Error("No user logged in");
     await updatePassword(auth.currentUser, newPassword);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, userData, userRole, loading, signIn, signInAnonymous, signOut, changeEmail, changePassword }}>

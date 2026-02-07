@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { AlertTriangle } from "lucide-react";
 
 interface CancellationRiskWidgetProps {
@@ -11,7 +12,7 @@ interface CancellationRiskWidgetProps {
   }[];
 }
 
-export default function CancellationRiskWidget({ data }: CancellationRiskWidgetProps) {
+function CancellationRiskWidget({ data }: CancellationRiskWidgetProps) {
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
@@ -53,3 +54,5 @@ export default function CancellationRiskWidget({ data }: CancellationRiskWidgetP
     </div>
   );
 }
+
+export default memo(CancellationRiskWidget);

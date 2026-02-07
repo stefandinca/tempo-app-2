@@ -1,6 +1,3 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
 export interface InvoiceData {
   series: string;
   number: number;
@@ -52,7 +49,11 @@ const normalizeDiacritics = (text: string = "") => {
     .replace(/Â/g, "A");
 };
 
-export const generateInvoicePDF = (data: InvoiceData): Blob => {
+export const generateInvoicePDF = async (data: InvoiceData): Promise<Blob> => {
+  // Dynamically import jsPDF and autoTable to reduce initial bundle size
+  const { default: jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
+  
   // We use a small trick: if we can't embed a full font right now,
   // we will use the built-in fonts but replace the characters that the PDF 
   // viewer cannot render with their non-diacritic equivalents.

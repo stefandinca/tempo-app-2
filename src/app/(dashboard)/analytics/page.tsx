@@ -1,15 +1,30 @@
 "use client";
 
-import SessionVolumeChart from "@/components/analytics/SessionVolumeChart";
-import AttendanceTrendChart from "@/components/analytics/AttendanceTrendChart";
-import RevenueMixChart from "@/components/analytics/RevenueMixChart";
-import TherapistUtilizationChart from "@/components/analytics/TherapistUtilizationChart";
-import GlobalGoalAchievementChart from "@/components/analytics/GlobalGoalAchievementChart";
-import CancellationRiskWidget from "@/components/analytics/CancellationRiskWidget";
+import dynamic from "next/dynamic";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { TrendingUp, TrendingDown, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
+
+// Dynamic imports for heavy chart components
+const SessionVolumeChart = dynamic(() => import("@/components/analytics/SessionVolumeChart"), { 
+  loading: () => <div className="h-64 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-2xl" />
+});
+const AttendanceTrendChart = dynamic(() => import("@/components/analytics/AttendanceTrendChart"), {
+  loading: () => <div className="h-64 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-2xl" />
+});
+const RevenueMixChart = dynamic(() => import("@/components/analytics/RevenueMixChart"), {
+  loading: () => <div className="h-64 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-2xl" />
+});
+const TherapistUtilizationChart = dynamic(() => import("@/components/analytics/TherapistUtilizationChart"), {
+  loading: () => <div className="h-64 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-2xl" />
+});
+const GlobalGoalAchievementChart = dynamic(() => import("@/components/analytics/GlobalGoalAchievementChart"), {
+  loading: () => <div className="h-64 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-2xl" />
+});
+const CancellationRiskWidget = dynamic(() => import("@/components/analytics/CancellationRiskWidget"), {
+  loading: () => <div className="h-64 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-2xl" />
+});
 
 export default function AnalyticsPage() {
   const [currentDate] = useState(new Date());

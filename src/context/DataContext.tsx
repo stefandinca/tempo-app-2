@@ -8,7 +8,7 @@ import {
   useServices,
   usePrograms
 } from "@/hooks/useCollections";
-import { collection, query, onSnapshot } from "firebase/firestore";
+import { collection, query, onSnapshot, collectionGroup, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
 
@@ -52,64 +52,40 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [activePlans, setActivePlans] = useState<ActivePlansMap>({});
   const [activePlansLoading, setActivePlansLoading] = useState(true);
 
-  // Subscribe to all intervention plans across all clients
+  // Subscribe to all ACTIVE intervention plans across all clients via collectionGroup
   useEffect(() => {
-    if (clients.loading || clients.data.length === 0) {
-      setActivePlansLoading(clients.loading);
-      return;
-    }
+    // We use collectionGroup to fetch ALL active plans in one go
+    const q = query(
+      collectionGroup(db, "interventionPlans"),
+      where("status", "==", "active")
+    );
 
-    const unsubscribes: (() => void)[] = [];
-    const plansMap: ActivePlansMap = {};
-
-    // Initialize all clients with null
-    clients.data.forEach(client => {
-      plansMap[client.id] = null;
-    });
-
-    let loadedCount = 0;
-    const totalClients = clients.data.length;
-
-    clients.data.forEach(client => {
-      const q = query(collection(db, "clients", client.id, "interventionPlans"));
-
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const plans: any[] = [];
-          snapshot.forEach(doc => {
-            plans.push({ id: doc.id, ...doc.data() });
-          });
-
-          // Find active plan
-          const activePlan = plans.find(p => p.status === "active") || null;
-
-          setActivePlans(prev => ({
-            ...prev,
-            [client.id]: activePlan
-          }));
-
-          loadedCount++;
-          if (loadedCount >= totalClients) {
-            setActivePlansLoading(false);
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const plansMap: ActivePlansMap = {};
+        
+        // Map plans to their respective clients
+        snapshot.forEach(doc => {
+          const planData = { id: doc.id, ...doc.data() };
+          // The parent of the plan subcollection doc is the client doc
+          const clientId = doc.ref.parent.parent?.id;
+          if (clientId) {
+            plansMap[clientId] = planData;
           }
-        },
-        (err) => {
-          console.error(`Error fetching plans for ${client.id}:`, err);
-          loadedCount++;
-          if (loadedCount >= totalClients) {
-            setActivePlansLoading(false);
-          }
-        }
-      );
+        });
 
-      unsubscribes.push(unsubscribe);
-    });
+        setActivePlans(plansMap);
+        setActivePlansLoading(false);
+      },
+      (err) => {
+        console.error(`Error fetching intervention plans via collectionGroup:`, err);
+        setActivePlansLoading(false);
+      }
+    );
 
-    return () => {
-      unsubscribes.forEach(unsub => unsub());
-    };
-  }, [clients.data, clients.loading]);
+    return () => unsubscribe();
+  }, []);
 
   // Memoized helper functions
   const helpers = useMemo(() => ({
@@ -120,7 +96,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     getClientActivePlan: (clientId: string) => activePlans[clientId] || null,
   }), [teamMembers.data, clients.data, services.data, events.data, activePlans]);
 
-  const value: DataContextType = {
+  const value = useMemo(() => ({
     clients,
     teamMembers,
     events,
@@ -129,7 +105,16 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     activePlans,
     activePlansLoading,
     ...helpers
-  };
+  }), [
+    clients, 
+    teamMembers, 
+    events, 
+    services, 
+    programs, 
+    activePlans, 
+    activePlansLoading, 
+    helpers
+  ]);
 
   return (
     <DataContext.Provider value={value}>
