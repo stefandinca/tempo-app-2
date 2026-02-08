@@ -153,7 +153,7 @@ export default function ParentNotificationDropdown({ desktop = false }: ParentNo
             <button
               onClick={() => {
                 setDropdownOpen(false);
-                router.push("/parent/schedule/");
+                router.push("/parent/notifications/");
               }}
               className="text-sm font-medium text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
             >

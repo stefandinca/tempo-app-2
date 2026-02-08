@@ -19,8 +19,8 @@ import {
 import { clsx } from "clsx";
 import { signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { ParentAuthProvider, useParentAuth } from "@/context/ParentAuthContext";
-import { NotificationProvider, useNotifications } from "@/context/NotificationContext";
+import { useParentAuth } from "@/context/ParentAuthContext";
+import { useNotifications } from "@/context/NotificationContext";
 import ParentNotificationBell from "@/components/notifications/ParentNotificationBell";
 import ParentNotificationDropdown from "@/components/notifications/ParentNotificationDropdown";
 import MoreSheet from "@/components/parent/MoreSheet";
@@ -249,9 +249,5 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 export default function ParentLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <ParentAuthProvider>
-      <ParentLayoutContent>{children}</ParentLayoutContent>
-    </ParentAuthProvider>
-  );
+  return <ParentLayoutContent>{children}</ParentLayoutContent>;
 }

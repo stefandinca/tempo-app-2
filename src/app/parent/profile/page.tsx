@@ -1,19 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
-import { User, Calendar, Heart, Clipboard, MessageSquare, FileText, ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
+import { User, Calendar, Heart, Clipboard, MessageSquare, FileText, ChevronRight, Bell, Globe, LogOut, Check, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers, useInterventionPlans } from "@/hooks/useCollections";
+import { useNotifications } from "@/context/NotificationContext";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
+import { signOut as firebaseSignOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function ParentProfilePage() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, loading, error } = usePortalData();
   const { data: team } = useTeamMembers();
   const { activePlan } = useInterventionPlans(client?.id || "");
+  const { requestPushPermission, pushPermissionStatus, pushError } = useNotifications();
+  const [isChangingLang, setIsChangingLang] = useState(false);
 
   // Calculate age
   const age = useMemo(() => {
@@ -32,6 +39,21 @@ export default function ParentProfilePage() {
     const ids = client.therapistIds || (client.therapistId ? [client.therapistId] : []);
     return ids.map((id: string) => (team || []).find((t) => t.id === id)).filter(Boolean);
   }, [client, team]);
+
+  const handleSignOut = async () => {
+    sessionStorage.removeItem("parent_client_code");
+    sessionStorage.removeItem("parent_client_id");
+    sessionStorage.removeItem("parent_client_name");
+    sessionStorage.removeItem("parent_uid");
+    await firebaseSignOut(auth);
+    router.push("/parent/");
+  };
+
+  const changeLanguage = (lng: string) => {
+    setIsChangingLang(true);
+    i18n.changeLanguage(lng);
+    setTimeout(() => setIsChangingLang(false), 500);
+  };
 
   if (loading) return <PortalLoading />;
   if (error || !client) return <PortalError message={error || t("parent_portal.dashboard.load_error")} />;
@@ -98,9 +120,77 @@ export default function ParentProfilePage() {
         </div>
       </div>
 
+      {/* Portal Settings Section */}
+      <section className="space-y-3">
+        <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest px-1">
+          {t("parent_portal.profile.portal_settings") || "Portal Settings"}
+        </h2>
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm divide-y divide-neutral-100 dark:divide-neutral-800">
+          
+          {/* Push Notifications Toggle */}
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-500">
+                <Bell className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-neutral-900 dark:text-white">Push Notifications</p>
+                <p className="text-[10px] text-neutral-400">Receive alerts when app is closed</p>
+              </div>
+            </div>
+            <button 
+              onClick={requestPushPermission}
+              disabled={pushPermissionStatus === 'granted'}
+              className={clsx(
+                "w-12 h-6 rounded-full transition-colors relative flex-shrink-0",
+                pushPermissionStatus === 'granted' ? "bg-primary-500" : "bg-neutral-300 dark:bg-neutral-700"
+              )}
+            >
+              <div className={clsx(
+                "absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform shadow-sm",
+                pushPermissionStatus === 'granted' ? "translate-x-6" : "translate-x-0"
+              )} />
+            </button>
+          </div>
+
+          {/* Language Selector */}
+          <div className="p-4">
+             <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-secondary-50 dark:bg-secondary-900/20 flex items-center justify-center text-secondary-500">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-neutral-900 dark:text-white">{t("settings.appearance.language")}</p>
+                </div>
+             </div>
+             <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: 'ro', label: 'Română', flag: '🇷🇴' },
+                  { id: 'en', label: 'English', flag: '🇺🇸' }
+                ].map((lang) => (
+                  <button
+                    key={lang.id}
+                    onClick={() => changeLanguage(lang.id)}
+                    className={clsx(
+                      "px-3 py-2 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-all",
+                      i18n.language.startsWith(lang.id)
+                        ? "border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300" 
+                        : "border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    )}
+                  >
+                    <span>{lang.flag}</span>
+                    <span>{lang.label}</span>
+                    {i18n.language.startsWith(lang.id) && <Check className="w-3 h-3" />}
+                  </button>
+                ))}
+             </div>
+          </div>
+        </div>
+      </section>
+
       {/* Therapy Team */}
       {assignedTeam.length > 0 && (
-        <section className="space-y-3">
+        <section className="space-y-3 pt-2">
           <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest px-1">
             {t("parent_portal.profile.therapy_team")}
           </h2>
@@ -146,6 +236,17 @@ export default function ParentProfilePage() {
         </div>
         <ChevronRight className="w-5 h-5 text-neutral-300 group-hover:translate-x-0.5 transition-transform" />
       </Link>
+
+      {/* Logout Button */}
+      <div className="pt-4">
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center justify-center gap-3 p-4 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-error-600 font-bold shadow-sm active:scale-[0.98] transition-all"
+        >
+          <LogOut className="w-5 h-5" />
+          {t("nav.sign_out")}
+        </button>
+      </div>
     </div>
   );
 }
