@@ -23,7 +23,7 @@ import {
   calculateBillingSummary
 } from "@/lib/billing";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, getDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { createNotificationsBatch, getParentUids } from "@/lib/notificationService";
@@ -172,6 +172,16 @@ export default function BillingPage() {
     }
   };
 
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    try {
+      await deleteDoc(doc(db, "invoices", invoiceId));
+      success("Invoice deleted and rolled back.");
+    } catch (err) {
+      console.error(err);
+      error("Failed to delete invoice.");
+    }
+  };
+
   const tabs = [
     { id: "invoices" as const, label: t('billing_page.client_invoices'), icon: FileText, count: invoices.length },
     { id: "payouts" as const, label: t('billing_page.team_payouts'), icon: Users, count: payouts.length },
@@ -246,6 +256,7 @@ export default function BillingPage() {
             loading={loading}
             onMarkAsPaid={handleMarkAsPaid}
             onMarkAsPending={handleMarkAsPending}
+            onDeleteInvoice={handleDeleteInvoice}
           />
         )}
         {activeTab === "payouts" && (

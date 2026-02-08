@@ -93,11 +93,25 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
 
   const handleToggleReportShare = async (report: any) => {
     try {
+      const newSharedState = !report.sharedWithParent;
       await updateDoc(doc(db, "clients", client.id, "reports", report.id), {
-        sharedWithParent: !report.sharedWithParent
+        sharedWithParent: newSharedState
       });
-      success(report.sharedWithParent ? "Report hidden" : "Report shared");
+      
+      if (newSharedState) {
+        // Notify parent
+        const { notifyParentReportGenerated } = await import("@/lib/notificationService");
+        await notifyParentReportGenerated(client.id, {
+          reportType: report.type || "Report",
+          reportTitle: report.name || "Progress Report",
+          reportId: report.id,
+          triggeredByUserId: user?.uid || ""
+        });
+      }
+
+      success(newSharedState ? "Report shared" : "Report hidden");
     } catch (err) {
+      console.error("Error toggling report share:", err);
       showError("Failed to update share status");
     }
   };
@@ -118,13 +132,28 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
     if (!selectedFile || !docName.trim()) return;
     setIsUploading(true);
     try {
-      await uploadDocument(selectedFile, {
+      const metadata = {
         name: docName.trim(),
         category: docCategory as any,
         sharedWithParent: shareWithParent,
         uploadedBy: user?.uid || "",
         uploadedByName: userData?.name || user?.email || "Staff"
-      }, setUploadProgress);
+      };
+
+      const result = await uploadDocument(selectedFile, metadata, setUploadProgress);
+      
+      if (result && shareWithParent) {
+        // Notify parent
+        const { notifyParentDocumentShared } = await import("@/lib/notificationService");
+        await notifyParentDocumentShared(client.id, {
+          documentId: result.id,
+          documentName: metadata.name,
+          documentCategory: metadata.category,
+          sharedByName: metadata.uploadedByName,
+          triggeredByUserId: user?.uid || ""
+        });
+      }
+
       success(t('common.success'));
       setIsUploadModalOpen(false);
       setSelectedFile(null);
@@ -132,6 +161,30 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
       showError(t('common.error'));
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleToggleDocumentShare = async (docItem: any) => {
+    try {
+      const newSharedState = !docItem.sharedWithParent;
+      await toggleParentAccess(docItem.id, newSharedState);
+      
+      if (newSharedState) {
+        // Notify parent
+        const { notifyParentDocumentShared } = await import("@/lib/notificationService");
+        await notifyParentDocumentShared(client.id, {
+          documentId: docItem.id,
+          documentName: docItem.name,
+          documentCategory: docItem.category,
+          sharedByName: userData?.name || user?.email || "Staff",
+          triggeredByUserId: user?.uid || ""
+        });
+      }
+
+      success(newSharedState ? "Document shared" : "Document hidden");
+    } catch (err) {
+      console.error("Error toggling document share:", err);
+      showError("Failed to update share status");
     }
   };
 
@@ -261,7 +314,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                         <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-neutral-900 border border-neutral-200 rounded-xl shadow-xl z-20 py-1">
                           <button 
                             onClick={() => {
-                              item.isReport ? handleToggleReportShare(item) : toggleParentAccess(item.id, !item.sharedWithParent);
+                              item.isReport ? handleToggleReportShare(item) : handleToggleDocumentShare(item);
                               setActiveMenu(null);
                             }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50"

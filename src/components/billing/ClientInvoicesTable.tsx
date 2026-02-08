@@ -13,7 +13,9 @@ import {
   Loader2,
   Download,
   Save,
-  RefreshCw
+  RefreshCw,
+  Trash2,
+  Zap
 } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
@@ -22,7 +24,7 @@ import { useSystemSettings } from "@/hooks/useCollections";
 import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
 import { useToast } from "@/context/ToastContext";
 import { db, IS_DEMO } from "@/lib/firebase";
-import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where, getDoc } from "firebase/firestore";
+import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where, getDoc, deleteDoc } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { createNotificationsBatch, notifyParentInvoiceGenerated } from "@/lib/notificationService";
 import { useTranslation } from "react-i18next";
@@ -32,6 +34,7 @@ interface ClientInvoicesTableProps {
   loading?: boolean;
   onMarkAsPaid?: (clientId: string) => void;
   onMarkAsPending?: (clientId: string) => void;
+  onDeleteInvoice?: (invoiceId: string) => void;
 }
 
 const currencyFormatter = new Intl.NumberFormat("ro-RO", {
@@ -43,7 +46,8 @@ export default function ClientInvoicesTable({
   invoices,
   loading,
   onMarkAsPaid,
-  onMarkAsPending
+  onMarkAsPending,
+  onDeleteInvoice
 }: ClientInvoicesTableProps) {
   const { t } = useTranslation();
   const { data: settings } = useSystemSettings();
@@ -194,6 +198,27 @@ export default function ClientInvoicesTable({
         const dueDate = new Date();
         dueDate.setDate(today.getDate() + (currentSettings.invoicing?.defaultDueDays || 14));
 
+        const isSubscription = clientData.hasActiveSubscription === true;
+        const periodName = today.toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
+
+        const items = isSubscription 
+          ? [{
+              description: `Abonament Terapie - ${periodName}`,
+              quantity: 1,
+              unit: "buc",
+              price: clientData.subscriptionPrice || 0,
+              amount: clientData.subscriptionPrice || 0
+            }]
+          : invoice.lineItems.map(item => ({
+              description: `${item.serviceLabel} (${formatDate(item.date)})`,
+              quantity: item.duration / 60,
+              unit: "hour",
+              price: item.basePrice,
+              amount: item.amount
+            }));
+
+        const totalAmount = isSubscription ? (clientData.subscriptionPrice || 0) : invoice.total;
+
         const snapshot: InvoiceData = {
           series: series,
           number: nextNumber,
@@ -215,14 +240,8 @@ export default function ClientInvoicesTable({
             regNo: clientData.billingRegNo || "",
             address: clientData.billingAddress || "Client Address Placeholder",
           },
-          items: invoice.lineItems.map(item => ({
-            description: `${item.serviceLabel} (${formatDate(item.date)})`,
-            quantity: item.duration / 60,
-            unit: "hour",
-            price: item.basePrice,
-            amount: item.amount
-          })),
-          total: invoice.total,
+          items: items,
+          total: totalAmount,
           currency: "RON",
           vatRate: vatRate
         };
@@ -396,9 +415,15 @@ export default function ClientInvoicesTable({
                         <Link 
                           href={`/clients/profile?id=${invoice.clientId}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                          className="font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center gap-2"
                         >
                           {invoice.clientName}
+                          {invoice.hasActiveSubscription && (
+                            <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-[9px] font-bold uppercase rounded flex items-center gap-0.5">
+                              <Zap className="w-2.5 h-2.5" />
+                              Subscription
+                            </span>
+                          )}
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-center text-neutral-700 dark:text-neutral-300">
@@ -628,6 +653,31 @@ export default function ClientInvoicesTable({
               <FileText className="w-4 h-4" />
               {t('billing_page.view_details')}
             </button>
+
+            {activeInvoice.invoiceId && (
+              <button
+                onClick={async () => {
+                  if (confirm("Are you sure you want to delete this invoice? This will rollback the issue status and it will no longer be visible to the parent.")) {
+                    if (onDeleteInvoice) {
+                      onDeleteInvoice(activeInvoice.invoiceId!);
+                    } else {
+                      // Fallback: direct delete if prop not handled
+                      try {
+                        await deleteDoc(doc(db, "invoices", activeInvoice.invoiceId!));
+                        success("Invoice deleted successfully");
+                      } catch (err) {
+                        error("Failed to delete invoice");
+                      }
+                    }
+                    closeMenu();
+                  }
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors border-t border-neutral-100 dark:border-neutral-700"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Invoice (Storno)
+              </button>
+            )}
           </div>
         </>,
         document.body
