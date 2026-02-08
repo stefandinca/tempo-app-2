@@ -8,10 +8,14 @@ service cloud.firestore {
       return request.auth != null;
     }
     
+    function getRole() {
+      return get(/databases/$(database)/documents/team_members/$(request.auth.uid)).data.role;
+    }
+
     function hasRole(role) {
       return isSignedIn() && 
              exists(/databases/$(database)/documents/team_members/$(request.auth.uid)) && 
-             get(/databases/$(database)/documents/team_members/$(request.auth.uid)).data.role == role;
+             (getRole() == role || getRole() == role.lower());
     }
     
     function isAdmin() {
@@ -19,11 +23,11 @@ service cloud.firestore {
     }
     
     function isCoordinator() {
-      return hasRole('Coordinator');
+      return hasRole('Coordinator') || hasRole('coordinator');
     }
     
     function isTherapist() {
-      return hasRole('Therapist');
+      return hasRole('Therapist') || hasRole('therapist');
     }
     
     function isParent(clientId) {
@@ -82,6 +86,7 @@ service cloud.firestore {
                     (isSignedIn() && resource.data.clientId != null && isParent(resource.data.clientId));
       allow create: if isAdmin();
       allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /payouts/{payoutId} {
@@ -90,9 +95,18 @@ service cloud.firestore {
     }
 
     match /notifications/{notificationId} {
-      allow read: if isSignedIn() && resource.data.recipientId == request.auth.uid;
-      allow create: if isSignedIn() && (isAdmin() || isCoordinator() || isTherapist());
-      allow update: if isSignedIn() && resource.data.recipientId == request.auth.uid;
+      allow read: if isSignedIn() && (
+        resource.data.recipientId == request.auth.uid ||
+        (resource.data.clientId != null && isParent(resource.data.clientId))
+      );
+      allow create: if isSignedIn() && (
+        isAdmin() || isCoordinator() || isTherapist() ||
+        (request.resource.data.clientId != null && isParent(request.resource.data.clientId))
+      );
+      allow update: if isSignedIn() && (
+        resource.data.recipientId == request.auth.uid ||
+        (resource.data.clientId != null && isParent(resource.data.clientId))
+      );
       allow delete: if isSignedIn() && resource.data.recipientId == request.auth.uid;
     }
     
@@ -139,15 +153,25 @@ service cloud.firestore {
 
     match /threads/{threadId} {
       allow get: if isSignedIn() && (
-        resource != null && request.auth.uid in resource.data.participants
+        request.auth.uid in resource.data.participants ||
+        (resource.data.clientId != null && isParent(resource.data.clientId))
       );
-      allow list: if isSignedIn() && request.auth.uid in resource.data.participants;
+      allow list: if isSignedIn() && (
+        request.auth.uid in resource.data.participants ||
+        (resource.data.clientId != null && isParent(resource.data.clientId))
+      );
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && request.auth.uid in resource.data.participants;
+      allow update: if isSignedIn() && (
+        request.auth.uid in resource.data.participants ||
+        (resource.data.clientId != null && isParent(resource.data.clientId))
+      );
 
       match /messages/{messageId} {
-        allow read, create: if isSignedIn() &&
-          request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants;
+        allow read, create: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
+          (get(/databases/$(database)/documents/threads/$(threadId)).data.clientId != null && 
+           isParent(get(/databases/$(database)/documents/threads/$(threadId)).data.clientId))
+        );
       }
     }
 

@@ -12,6 +12,7 @@ import {
 interface CreateNotificationParams {
   recipientId: string;
   recipientRole: NotificationRecipientRole;
+  clientId?: string;
   type: NotificationType;
   category: NotificationCategory;
   title: string;
@@ -366,6 +367,7 @@ export async function notifyParentSessionCreated(
   const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
     recipientId: uid,
     recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
     type: "schedule_created" as NotificationType,
     category: "schedule" as NotificationCategory,
     title: "New Session Scheduled",
@@ -410,6 +412,7 @@ export async function notifyParentSessionRescheduled(
   const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
     recipientId: uid,
     recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
     type: "schedule_updated" as NotificationType,
     category: "schedule" as NotificationCategory,
     title: "Session Rescheduled",
@@ -450,6 +453,7 @@ export async function notifyParentSessionCancelled(
   const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
     recipientId: uid,
     recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
     type: "schedule_cancelled" as NotificationType,
     category: "schedule" as NotificationCategory,
     title: "Session Cancelled",
@@ -489,6 +493,7 @@ export async function notifyParentAttendanceLogged(
   const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
     recipientId: uid,
     recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
     type: "attendance_logged" as NotificationType,
     category: "attendance" as NotificationCategory,
     title: "Session Complete",
@@ -527,6 +532,7 @@ export async function notifyParentInvoiceGenerated(
   const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
     recipientId: uid,
     recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
     type: "billing_generated" as NotificationType,
     category: "billing" as NotificationCategory,
     title: "Invoice Ready",
@@ -566,6 +572,7 @@ export async function notifyParentReportGenerated(
   const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
     recipientId: uid,
     recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
     type: "report_ready" as NotificationType,
     category: "client" as NotificationCategory,
     title: `${context.reportType} Ready`,
@@ -608,6 +615,7 @@ export async function notifyParentDocumentShared(
   const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
     recipientId: uid,
     recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
     type: "document_shared" as NotificationType,
     category: "client" as NotificationCategory,
     title: "New Document Available",
@@ -639,6 +647,7 @@ export async function notifyMessageReceived(
     text: string;
     threadId: string;
     triggeredByUserId: string;
+    clientId?: string;
   }
 ): Promise<void> {
   if (recipientId === context.triggeredByUserId) return;
@@ -648,6 +657,7 @@ export async function notifyMessageReceived(
   await createNotification({
     recipientId,
     recipientRole,
+    clientId: context.clientId,
     type: "message_received",
     category: "message",
     title: `New Message from ${context.senderName}`,

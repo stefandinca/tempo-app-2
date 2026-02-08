@@ -27,7 +27,7 @@ import { notifyMessageReceived } from "@/lib/notificationService";
 import { NotificationRecipientRole } from "@/types/notifications";
 
 export function useThreads() {
-  const { user } = useAnyAuth();
+  const { user, isParent, clientId } = useAnyAuth();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,11 +37,19 @@ export function useThreads() {
       return;
     }
 
-    const q = query(
-      collection(db, "threads"),
-      where("participants", "array-contains", user.uid),
-      orderBy("updatedAt", "desc")
-    );
+    // For parents, we query by clientId so they see history even if UID changes
+    // For staff, we still query by participants
+    const q = (isParent && clientId)
+      ? query(
+          collection(db, "threads"),
+          where("clientId", "==", clientId),
+          orderBy("updatedAt", "desc")
+        )
+      : query(
+          collection(db, "threads"),
+          where("participants", "array-contains", user.uid),
+          orderBy("updatedAt", "desc")
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const threadList: ChatThread[] = [];
@@ -57,7 +65,7 @@ export function useThreads() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, isParent, clientId]);
 
   return { threads, loading };
 }
@@ -94,7 +102,7 @@ export function useMessages(threadId: string | null) {
 }
 
 export function useChatActions() {
-  const { user, isParent, role } = useAnyAuth();
+  const { user, isParent, role, clientId } = useAnyAuth();
   const staffAuth = useAuth();
   const parentAuth = useParentAuthOptional();
   const { data: client } = useClient(parentAuth?.clientId || "");
@@ -145,6 +153,9 @@ export function useChatActions() {
             senderName = myDetails?.name || staffAuth?.userData?.name || "Staff Member";
           }
 
+          // Use threadData.clientId as priority for parent notifications
+          const finalClientId = threadData.clientId || (isParent ? clientId : (otherUser.role === 'Parent' ? otherUser.clientId : undefined));
+
           await notifyMessageReceived(
             otherParticipantId,
             otherUser.role.toLowerCase() as NotificationRecipientRole,
@@ -152,7 +163,8 @@ export function useChatActions() {
               senderName,
               text: text.trim(),
               threadId,
-              triggeredByUserId: user.uid
+              triggeredByUserId: user.uid,
+              clientId: finalClientId || undefined
             }
           );
         }
@@ -165,109 +177,153 @@ export function useChatActions() {
   const createOrGetThread = async (otherUser: ChatParticipant) => {
     if (!user) return null;
 
-    // We check for an existing active (not archived) thread first
-    const q = query(
-      collection(db, "threads"),
-      where("participants", "array-contains", user.uid),
-      orderBy("updatedAt", "desc")
-    );
+    const targetClientId = isParent ? (parentAuth?.clientId || "") : (otherUser.role === 'Parent' ? otherUser.clientId : "");
     
-    const querySnap = await getDocs(q);
-    let activeThreadId: string | null = null;
+    console.log("[useChat] Starting chat with:", otherUser.id, "role:", otherUser.role, "targetClientId:", targetClientId);
 
-    querySnap.forEach(doc => {
-      const data = doc.data() as ChatThread;
-      // It's truly active if NO ONE has archived it and it has the other participant
-      if (data.participants.includes(otherUser.id) && (!data.archivedBy || data.archivedBy.length === 0)) {
-        activeThreadId = doc.id;
-      }
-    });
-
-    if (activeThreadId) {
-      // Thread exists, but let's make sure participantDetails are up to date 
-      const threadData = querySnap.docs.find(d => d.id === activeThreadId)?.data() as ChatThread;
-      const myDetails = threadData?.participantDetails[user.uid];
-      const otherDetailsInThread = threadData?.participantDetails[otherUser.id];
+    try {
+      // 1. First, try to find a thread where BOTH are participants
+      const q = query(
+        collection(db, "threads"),
+        where("participants", "array-contains", user.uid),
+        orderBy("updatedAt", "desc")
+      );
       
-      // Update OTHER user if we have more info now (like phone/clientId)
-      if (otherUser.phone && (!otherDetailsInThread?.phone || !otherDetailsInThread?.clientId)) {
-        await updateDoc(doc(db, "threads", activeThreadId), {
-          [`participantDetails.${otherUser.id}.phone`]: otherUser.phone,
-          [`participantDetails.${otherUser.id}.clientId`]: otherUser.clientId || otherDetailsInThread?.clientId || ""
+      const querySnap = await getDocs(q);
+      let activeThreadId: string | null = null;
+
+      querySnap.forEach(doc => {
+        const data = doc.data() as ChatThread;
+        // Check if the other participant matches
+        if (data.participants.includes(otherUser.id)) {
+          activeThreadId = doc.id;
+        }
+      });
+
+      // 2. If not found by participant and we have a clientId, try finding by clientId 
+      // (This handles cases where parent UID changed but thread exists for child)
+      if (!activeThreadId && targetClientId) {
+        // Staff can only query threads where they are participants
+        const qByClient = query(
+          collection(db, "threads"),
+          where("participants", "array-contains", user.uid),
+          where("clientId", "==", targetClientId),
+          orderBy("updatedAt", "desc")
+        );
+        const clientQuerySnap = await getDocs(qByClient);
+        
+        clientQuerySnap.forEach(doc => {
+          const data = doc.data() as ChatThread;
+          // Verify the other participant is indeed the one we're looking for
+          if (data.participants.includes(otherUser.id)) {
+            activeThreadId = doc.id;
+          }
         });
       }
 
-      if (!myDetails || myDetails.name === "Unknown" || myDetails.name === "Staff Member" || (isParent && myDetails.name === "Parent") || !myDetails.phone) {
-        let updatedMyDetails: ChatParticipant;
-        if (isParent) {
-          updatedMyDetails = {
-            id: user.uid,
-            name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
-            initials: "P",
-            color: "#4A90E2",
-            role: "Parent",
-            phone: client?.phone || "",
-            clientId: parentAuth?.clientId || ""
-          };
-        } else {
-          const userData = staffAuth?.userData;
-          updatedMyDetails = {
-            id: user.uid,
-            name: userData?.name || "Staff Member",
-            initials: userData?.initials || "S",
-            color: userData?.color || "#ccc",
-            role: role || "Staff",
-            phone: userData?.phone || ""
-          };
+      if (activeThreadId) {
+        console.log("[useChat] Found existing thread:", activeThreadId);
+        // Thread exists, but let's make sure participants and details are up to date 
+        const existingDoc = querySnap.docs.find(d => d.id === activeThreadId) || 
+                           (await getDoc(doc(db, "threads", activeThreadId)));
+        
+        const threadData = (existingDoc as any).data() as ChatThread;
+        
+        // Migration: Ensure current user is in participants list (handles parent UID changes)
+        if (!threadData.participants.includes(user.uid)) {
+          await updateDoc(doc(db, "threads", activeThreadId), {
+            participants: arrayUnion(user.uid)
+          });
         }
 
-        await updateDoc(doc(db, "threads", activeThreadId), {
-          [`participantDetails.${user.uid}`]: updatedMyDetails
-        });
+        const myDetails = threadData?.participantDetails[user.uid];
+        const otherDetailsInThread = threadData?.participantDetails[otherUser.id];
+        
+        // Update OTHER user if we have more info now (like phone/clientId)
+        if (otherUser.phone && (!otherDetailsInThread?.phone || !otherDetailsInThread?.clientId)) {
+          await updateDoc(doc(db, "threads", activeThreadId), {
+            [`participantDetails.${otherUser.id}.phone`]: otherUser.phone,
+            [`participantDetails.${otherUser.id}.clientId`]: otherUser.clientId || otherDetailsInThread?.clientId || ""
+          });
+        }
+
+        if (!myDetails || myDetails.name === "Unknown" || myDetails.name === "Staff Member" || (isParent && myDetails.name === "Parent") || !myDetails.phone) {
+          let updatedMyDetails: ChatParticipant;
+          if (isParent) {
+            updatedMyDetails = {
+              id: user.uid,
+              name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
+              initials: "P",
+              color: "#4A90E2",
+              role: "Parent",
+              phone: client?.phone || "",
+              clientId: parentAuth?.clientId || ""
+            };
+          } else {
+            const userData = staffAuth?.userData;
+            updatedMyDetails = {
+              id: user.uid,
+              name: userData?.name || "Staff Member",
+              initials: userData?.initials || "S",
+              color: userData?.color || "#ccc",
+              role: role || "Staff",
+              phone: userData?.phone || ""
+            };
+          }
+
+          await updateDoc(doc(db, "threads", activeThreadId), {
+            [`participantDetails.${user.uid}`]: updatedMyDetails
+          });
+        }
+        return activeThreadId;
       }
-      return activeThreadId;
+
+      // If no active thread, create a new one
+      console.log("[useChat] Creating new thread...");
+      const threadRef = doc(collection(db, "threads"));
+      const threadId = threadRef.id;
+
+      let currentUserParticipant: ChatParticipant;
+
+      if (isParent) {
+        currentUserParticipant = {
+          id: user.uid,
+          name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
+          initials: "P",
+          color: "#4A90E2",
+          role: "Parent",
+          phone: client?.phone || "",
+          clientId: parentAuth?.clientId || ""
+        };
+      } else {
+        const userData = staffAuth?.userData;
+        currentUserParticipant = {
+          id: user.uid,
+          name: userData?.name || "Staff Member",
+          initials: userData?.initials || "S",
+          color: userData?.color || "#ccc",
+          role: role || "Staff",
+          phone: userData?.phone || ""
+        };
+      }
+
+      await setDoc(threadRef, {
+        participants: [user.uid, otherUser.id],
+        participantDetails: {
+          [user.uid]: currentUserParticipant,
+          [otherUser.id]: otherUser
+        },
+        clientId: targetClientId || undefined,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        archivedBy: []
+      });
+
+      return threadId;
+    } catch (err) {
+      console.error("[useChat] Error in createOrGetThread:", err);
+      throw err;
     }
-
-    // If no active thread, create a new one with a unique ID
-    const threadRef = doc(collection(db, "threads"));
-    const threadId = threadRef.id;
-
-    let currentUserParticipant: ChatParticipant;
-
-    if (isParent) {
-      currentUserParticipant = {
-        id: user.uid,
-        name: parentAuth?.clientName ? `Parent of ${parentAuth.clientName}` : "Parent",
-        initials: "P",
-        color: "#4A90E2",
-        role: "Parent",
-        phone: client?.phone || "",
-        clientId: parentAuth?.clientId || ""
-      };
-    } else {
-      const userData = staffAuth?.userData;
-      currentUserParticipant = {
-        id: user.uid,
-        name: userData?.name || "Staff Member",
-        initials: userData?.initials || "S",
-        color: userData?.color || "#ccc",
-        role: role || "Staff",
-        phone: userData?.phone || ""
-      };
-    }
-
-    await setDoc(threadRef, {
-      participants: [user.uid, otherUser.id],
-      participantDetails: {
-        [user.uid]: currentUserParticipant,
-        [otherUser.id]: otherUser
-      },
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      archivedBy: []
-    });
-
-    return threadId;
   };
 
   const archiveThread = async (threadId: string) => {

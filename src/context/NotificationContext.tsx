@@ -23,7 +23,7 @@ import {
   startAfter,
   getDocs
 } from "firebase/firestore";
-import { getToken, onMessage } from "firebase/messaging";
+import { getToken, onMessage, isSupported } from "firebase/messaging";
 import { db, messaging } from "@/lib/firebase";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { useTranslation } from "react-i18next";
@@ -72,7 +72,7 @@ export function NotificationProvider({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation();
-  const { user, role } = useAnyAuth();
+  const { user, role, isParent, clientId } = useAnyAuth();
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0); // New State
   const [loading, setLoading] = useState(true);
@@ -85,9 +85,15 @@ export function NotificationProvider({
 
   const requestPushPermission = useCallback(async () => {
     setPushError(null);
-    if (!messaging || !user) {
-       const msg = `Messaging/User missing. Msg: ${!!messaging}, User: ${!!user}`;
+    
+    // Check if messaging is supported in this browser
+    const supported = await isSupported();
+    if (!supported || !messaging || !user) {
+       const msg = !supported 
+         ? "Push notifications are not supported in this browser."
+         : `Messaging/User missing. Msg: ${!!messaging}, User: ${!!user}`;
        console.log(msg);
+       if (!supported) setPushPermissionStatus('denied');
        setPushError(msg);
        return;
     }
@@ -110,7 +116,7 @@ export function NotificationProvider({
         if (!registration) {
           console.log("[NotificationContext] No registration found, registering...");
           const basePath = window.location.pathname.startsWith('/v2') ? '/v2' : '';
-          registration = await navigator.serviceWorker.register(`${basePath}/sw.js`);
+          registration = await navigator.serviceWorker.register(`${basePath}/firebase-messaging-sw.js`);
         }
 
         console.log("[NotificationContext] Getting token...");
@@ -184,12 +190,16 @@ export function NotificationProvider({
       return;
     }
 
-    // Listen to threads where user is a participant
-    // Note: We don't need the full message history, just the threads to check 'lastMessage.readBy'
-    const q = query(
-      collection(db, "threads"),
-      where("participants", "array-contains", user.uid)
-    );
+    // Listen to threads where user is a participant OR by clientId for parents
+    const q = (isParent && clientId)
+      ? query(
+          collection(db, "threads"),
+          where("clientId", "==", clientId)
+        )
+      : query(
+          collection(db, "threads"),
+          where("participants", "array-contains", user.uid)
+        );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       let count = 0;
@@ -205,7 +215,7 @@ export function NotificationProvider({
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, isParent, clientId]);
 
   // Real-time listener for notifications
   useEffect(() => {
@@ -227,17 +237,68 @@ export function NotificationProvider({
     // Real Firestore listener (active when USE_MOCK_NOTIFICATIONS = false)
     setLoading(true);
 
-    const q = query(
-      collection(db, "notifications"),
-      where("recipientId", "==", user.uid),
-      orderBy("createdAt", "desc"),
-      limit(PAGE_SIZE)
-    );
+    const q = (isParent && clientId)
+      ? query(
+          collection(db, "notifications"),
+          where("clientId", "==", clientId),
+          orderBy("createdAt", "desc"),
+          limit(PAGE_SIZE)
+        )
+      : query(
+          collection(db, "notifications"),
+          where("recipientId", "==", user.uid),
+          orderBy("createdAt", "desc"),
+          limit(PAGE_SIZE)
+        );
+
+    // For parents, we also want to catch anything sent specifically to their current UID 
+    // that might not have a clientId (like system alerts or old notifications)
+    let unsubscribeSecondary: (() => void) | null = null;
+    let primaryNotifs: NotificationData[] = [];
+    let secondaryNotifs: NotificationData[] = [];
+
+    const mergeAndSetNotifs = (p: NotificationData[], s: NotificationData[]) => {
+      const combined = [...p];
+      s.forEach(sn => {
+        if (!combined.some(pn => pn.id === sn.id)) {
+          combined.push(sn);
+        }
+      });
+      // Sort combined by date descending
+      combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      let finalNotifs = combined.slice(0, PAGE_SIZE);
+      
+      // Filter based on role
+      if (role !== 'Admin') {
+        finalNotifs = finalNotifs.filter(n => n.category !== 'billing');
+      }
+
+      setNotifications(finalNotifs);
+    };
+
+    if (isParent && clientId) {
+      const qSecondary = query(
+        collection(db, "notifications"),
+        where("recipientId", "==", user.uid),
+        orderBy("createdAt", "desc"),
+        limit(PAGE_SIZE)
+      );
+
+      unsubscribeSecondary = onSnapshot(qSecondary, (snap) => {
+        secondaryNotifs = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || doc.data().createdAt
+        })) as NotificationData[];
+        mergeAndSetNotifs(primaryNotifs, secondaryNotifs);
+      });
+    }
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        let notifs = snapshot.docs.map((doc) => ({
+        primaryNotifs = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
           createdAt:
@@ -245,12 +306,17 @@ export function NotificationProvider({
             doc.data().createdAt
         })) as NotificationData[];
 
-        // Filter based on role
-        if (role !== 'Admin') {
-          notifs = notifs.filter(n => n.category !== 'billing');
+        if (isParent && clientId) {
+          mergeAndSetNotifs(primaryNotifs, secondaryNotifs);
+        } else {
+          let notifs = [...primaryNotifs];
+          // Filter based on role
+          if (role !== 'Admin') {
+            notifs = notifs.filter(n => n.category !== 'billing');
+          }
+          setNotifications(notifs);
         }
 
-        setNotifications(notifs);
         setLoading(false);
         setError(null);
         setHasMore(snapshot.docs.length === PAGE_SIZE);
@@ -263,8 +329,11 @@ export function NotificationProvider({
       }
     );
 
-    return () => unsubscribe();
-  }, [user, role]);
+    return () => {
+      unsubscribe();
+      if (unsubscribeSecondary) unsubscribeSecondary();
+    };
+  }, [user, role, isParent, clientId]);
 
   // Computed unread count
   const unreadCount = useMemo(
@@ -371,13 +440,21 @@ export function NotificationProvider({
   const loadMore = useCallback(async () => {
     if (!user || !lastDoc || !hasMore || USE_MOCK_NOTIFICATIONS) return;
 
-    const q = query(
-      collection(db, "notifications"),
-      where("recipientId", "==", user.uid),
-      orderBy("createdAt", "desc"),
-      startAfter(lastDoc),
-      limit(PAGE_SIZE)
-    );
+    const q = (isParent && clientId)
+      ? query(
+          collection(db, "notifications"),
+          where("clientId", "==", clientId),
+          orderBy("createdAt", "desc"),
+          startAfter(lastDoc),
+          limit(PAGE_SIZE)
+        )
+      : query(
+          collection(db, "notifications"),
+          where("recipientId", "==", user.uid),
+          orderBy("createdAt", "desc"),
+          startAfter(lastDoc),
+          limit(PAGE_SIZE)
+        );
 
     const snapshot = await getDocs(q);
     let newNotifs = snapshot.docs.map((doc) => ({

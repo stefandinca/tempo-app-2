@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Calendar,
   CheckCircle,
@@ -9,10 +9,14 @@ import {
   User,
   Loader2,
   Bell,
-  Mail
+  Mail,
+  MessageSquare
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface CategoryPreference {
   id: string;
@@ -25,8 +29,10 @@ interface CategoryPreference {
 type EmailDigest = "instant" | "daily" | "weekly" | "never";
 
 export default function NotificationPreferences() {
-  const { success } = useToast();
+  const { user } = useAuth();
+  const { success, error } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [categories, setCategories] = useState<CategoryPreference[]>([
     {
@@ -41,6 +47,13 @@ export default function NotificationPreferences() {
       label: "Attendance & Scores",
       description: "Attendance logged and score updates",
       icon: CheckCircle,
+      enabled: true
+    },
+    {
+      id: "message",
+      label: "New Messages",
+      description: "Chat messages from team or parents",
+      icon: MessageSquare,
       enabled: true
     },
     {
@@ -68,6 +81,32 @@ export default function NotificationPreferences() {
 
   const [emailDigest, setEmailDigest] = useState<EmailDigest>("daily");
 
+  useEffect(() => {
+    async function loadPreferences() {
+      if (!user) return;
+      try {
+        const userDoc = await getDoc(doc(db, "team_members", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          if (data.notificationPreferences) {
+            setCategories(prev => prev.map(cat => ({
+              ...cat,
+              enabled: data.notificationPreferences.categories?.[cat.id] ?? cat.enabled
+            })));
+            if (data.notificationPreferences.emailDigest) {
+              setEmailDigest(data.notificationPreferences.emailDigest);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading preferences:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadPreferences();
+  }, [user]);
+
   const toggleCategory = (id: string) => {
     setCategories((prev) =>
       prev.map((cat) =>
@@ -77,12 +116,38 @@ export default function NotificationPreferences() {
   };
 
   const handleSave = async () => {
+    if (!user) return;
     setIsSaving(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setIsSaving(false);
-    success("Notification preferences saved");
+    try {
+      const prefs = {
+        categories: categories.reduce((acc, cat) => ({
+          ...acc,
+          [cat.id]: cat.enabled
+        }), {}),
+        emailDigest,
+        updatedAt: new Date().toISOString()
+      };
+
+      await updateDoc(doc(db, "team_members", user.uid), {
+        notificationPreferences: prefs
+      });
+      
+      success("Notification preferences saved");
+    } catch (err) {
+      console.error("Error saving preferences:", err);
+      error("Failed to save preferences");
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

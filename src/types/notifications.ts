@@ -45,6 +45,7 @@ export interface Notification {
   id: string;
   recipientId: string;
   recipientRole: NotificationRecipientRole;
+  clientId?: string; // Associated client (child) for parent portal notifications
 
   // Content
   type: NotificationType;
