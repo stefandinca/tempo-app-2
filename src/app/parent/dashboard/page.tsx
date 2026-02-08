@@ -17,12 +17,15 @@ import { useTeamMembers, useClientInvoices } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
 import ProgressRing from "@/components/parent/ProgressRing";
 import ActivityTimeline from "@/components/parent/ActivityTimeline";
+import { ParentAlerts } from "@/components/notifications";
+import { useNotifications } from "@/context/NotificationContext";
 import { useState, useMemo } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 
 export default function ParentDashboard() {
   const { t, i18n } = useTranslation();
+  const { unreadMessageCount } = useNotifications();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, sessions, evaluations, loading: portalLoading, error: portalError } = usePortalData();
   const { data: team } = useTeamMembers();
@@ -204,23 +207,29 @@ export default function ParentDashboard() {
         </div>
       </section>
 
-      {/* 4. Quick Actions */}
+      {/* 4. Alerts / Push Prompt */}
+      <ParentAlerts clientName={client.name} />
+
+      {/* 5. Quick Actions */}
       <section className="px-4">
         <div className="grid grid-cols-4 gap-2">
           {[
-            { href: "/parent/messages/", icon: MessageSquare, label: t("parent_portal.dashboard.quick_message"), color: "text-primary-500 bg-primary-50 dark:bg-primary-900/20" },
-            { href: "/parent/calendar/", icon: Calendar, label: t("parent_portal.dashboard.quick_schedule"), color: "text-teal-500 bg-teal-50 dark:bg-teal-900/20" },
-            { href: "/parent/progress/", icon: BarChart2, label: t("parent_portal.dashboard.quick_progress"), color: "text-purple-500 bg-purple-50 dark:bg-purple-900/20" },
-            { href: "/parent/billing/", icon: CreditCard, label: t("parent_portal.dashboard.quick_billing"), color: "text-warning-500 bg-warning-50 dark:bg-warning-900/20" },
+            { key: 'messages', href: "/parent/messages/", icon: MessageSquare, label: t("parent_portal.dashboard.quick_message"), color: "text-primary-500 bg-primary-50 dark:bg-primary-900/20" },
+            { key: 'calendar', href: "/parent/calendar/", icon: Calendar, label: t("parent_portal.dashboard.quick_schedule"), color: "text-teal-500 bg-teal-50 dark:bg-teal-900/20" },
+            { key: 'progress', href: "/parent/progress/", icon: BarChart2, label: t("parent_portal.dashboard.quick_progress"), color: "text-purple-500 bg-purple-50 dark:bg-purple-900/20" },
+            { key: 'billing', href: "/parent/billing/", icon: CreditCard, label: t("parent_portal.dashboard.quick_billing"), color: "text-warning-500 bg-warning-50 dark:bg-warning-900/20" },
           ].map((action) => (
             <Link
               key={action.href}
               href={action.href}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow transition-shadow"
+              className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow transition-shadow relative"
             >
               <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center", action.color)}>
                 <action.icon className="w-5 h-5" />
               </div>
+              {action.key === 'messages' && unreadMessageCount > 0 && (
+                <span className="absolute top-2 right-2 w-3 h-3 bg-error-500 border-2 border-white dark:border-neutral-900 rounded-full" />
+              )}
               <span className="text-[10px] font-medium text-neutral-600 dark:text-neutral-400 text-center leading-tight">
                 {action.label}
               </span>
