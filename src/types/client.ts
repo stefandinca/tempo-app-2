@@ -8,5 +8,7 @@ export interface ClientInfo {
   billingAddress?: string;
   billingCif?: string; // CUI / CIF
   billingRegNo?: string; // Nr. Reg. Com.
+  hasActiveSubscription?: boolean;
+  subscriptionPrice?: number;
   [key: string]: any;
 }

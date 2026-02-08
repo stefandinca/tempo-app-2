@@ -10,12 +10,15 @@ import ClientProgramsTab from "@/components/clients/ClientProgramsTab";
 import ClientPlanTab from "@/components/clients/ClientPlanTab";
 import ClientDocsTab from "@/components/clients/ClientDocsTab";
 import ClientEvaluationsTab from "@/components/clients/ClientEvaluationsTab";
+import ClientBillingTab from "@/components/clients/ClientBillingTab";
 import EditClientModal from "@/components/clients/EditClientModal";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/context/AuthContext";
 
 function ClientProfileContent() {
   const { t } = useTranslation();
+  const { userRole } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
@@ -26,12 +29,17 @@ function ClientProfileContent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<string | null>(actionParam);
 
+  const isAdmin = userRole === 'Admin';
+
   // Sync tab with URL parameter
   useEffect(() => {
-    if (tabParam && ["overview", "programs", "plan", "evaluations", "docs"].includes(tabParam)) {
+    const validTabs = ["overview", "programs", "plan", "evaluations", "docs"];
+    if (isAdmin) validTabs.push("billing");
+
+    if (tabParam && validTabs.includes(tabParam)) {
       setActiveTab(tabParam);
     }
-  }, [tabParam]);
+  }, [tabParam, isAdmin]);
 
   // Handle pending actions from URL
   useEffect(() => {
@@ -105,7 +113,8 @@ function ClientProfileContent() {
         )}
         {activeTab === "docs" && <ClientDocsTab client={client} />}
         {activeTab === "evaluations" && <ClientEvaluationsTab client={client} />}
-        {!["overview", "programs", "plan", "docs", "evaluations"].includes(activeTab) && (
+        {activeTab === "billing" && isAdmin && <ClientBillingTab client={client} />}
+        {!["overview", "programs", "plan", "docs", "evaluations", "billing"].includes(activeTab) && (
           <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800">
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white capitalize">{activeTab} Section</h3>
             <p className="text-neutral-500 mt-1">{t('clients.under_development')}</p>

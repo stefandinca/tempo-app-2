@@ -38,6 +38,10 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
     { id: "docs", label: t('clients.tabs.docs') },
   ];
 
+  if (isAdmin) {
+    TABS.push({ id: "billing", label: t('clients.tabs.billing') || "Billing" });
+  }
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

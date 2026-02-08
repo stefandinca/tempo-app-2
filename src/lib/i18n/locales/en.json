@@ -508,7 +508,8 @@
       "evaluations": "Evaluations",
       "programs": "Programs",
       "plan": "Plan",
-      "docs": "Docs"
+      "docs": "Docs",
+      "billing": "Billing"
     },
     "form": {
       "child_name": "Child Name",
