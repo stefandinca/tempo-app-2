@@ -724,108 +724,108 @@
     "items": {
       "1": {
         "title": "Relaționarea cu Oamenii",
-        "d1": "Comportament adecvat vârstei. Comportamentul copilului este consistent cu vârsta sa.",
-        "d2": "Relații ușor anormale. Copilul poate evita privirea adultului sau poate prezenta o anumită rezistență la a fi ținut în brațe.",
-        "d3": "Relații moderat anormale. Copilul pare distant sau nu răspunde la interacțiunea cu adulții.",
-        "d4": "Relații sever anormale. Copilul este constant distant sau nu răspunde la ceea ce face adultul."
+        "d1": "Nu există o dovadă a vreunei dificultăţi sau anormalităţi în relaţionarea cu oamenii. Comportamentul copilului este adecvat vârstei sale. Se observă o oarecare timiditate, supărare sau enervare la momentul spunerii a ceea ce are de făcut, dar nu într-un grad ieşit din comun.",
+        "d2": "Relaţii uşor anormale. Copilul poate evita să privească adultul în ochi, evită adultul sau devine agitat dacă interacţiunea este forţată, este excesiv de timid, nu răspunde la fel ca un copil normal de aceeaşi vârstă adultului sau se agaţă de părinţi ceva mai mult decât majoritatea copiilor de aceeaşi vârstă.",
+        "d3": "Relaţii moderat anormale. Copilul arată răceală (este distant) uneori (pare inabordabil). Este necesară o insistenţă din partea adultului pentru a atrage atenţia copilului. Copilul iniţiază contact minim.",
+        "d4": "Relaţii sever anormale. Copilul este în permanenţă distant sau inconştient de ceea ce face adultul. El/ea aproape niciodată nu răspunde sau iniţiază contactul cu adultul. Numai cele mai persistente încercări de a atrage atenţia au vreun efect."
       },
       "2": {
         "title": "Imitația",
-        "d1": "Imitație adecvată. Copilul poate imita sunete, cuvinte și mișcări.",
-        "d2": "Imitație ușor anormală. Copilul imită comportamente simple de cele mai multe ori, deși uneori cu întârziere.",
-        "d3": "Imitație moderat anormală. Copilul imită doar parțial și necesită multă persistență din partea adultului.",
-        "d4": "Imitație sever anormală. Copilul imită rar sau deloc sunete, cuvinte sau mișcări."
+        "d1": "Imitaţie adecvată. Copilul poate imita sunete, cuvinte şi mişcări care sunt adecvate nivelului său de dezvoltare.",
+        "d2": "Imitaţie uşor anormală. Copilul imită comportamente simple cum ar fi aplaudatul sau sunete verbale unice de cele mai multe ori; ocazional, imită numai după o oarecare insistenţă sau după o întârziere.",
+        "d3": "Imitaţie moderat anormală. Copilul imită doar o parte din timp și necesită o mare cantitate de persistenţă şi ajutor din partea adultului; frecvent imită doar după o întârziere.",
+        "d4": "Imitaţie sever anormală. Copilul rar sau niciodată imită sunete, cuvinte sau mişcări chiar şi cu insistenţe și ajutor din partea adultului."
       },
       "3": {
         "title": "Răspunsul Emoțional",
-        "d1": "Răspuns emoțional adecvat vârstei. Răspunsurile sunt potrivite situației.",
-        "d2": "Răspuns emoțional ușor anormal. Uneori prezintă tipuri sau grade inadecvate de răspuns emoțional.",
-        "d3": "Răspuns emoțional moderat anormal. Prezintă semne clare de răspunsuri emoționale inadecvate.",
-        "d4": "Răspuns emoțional sever anormal. Răspunsurile sunt rareori adecvate situației; stări de spirit extreme."
+        "d1": "Răspuns emoţional adecvat vârstei şi situaţiei. Copilul arată tipul şi gradul adecvat de răspuns emoţional, indicat de schimbarea expresiei faciale, postură şi manieră.",
+        "d2": "Răspuns emoţional uşor anormal. Copilul ocazional arată un tip sau grad oarecum nepotrivit de reacţie emoţională. Reacţiile sunt uneori fără legătură cu obiectele sau evenimentele înconjurătoare.",
+        "d3": "Răspuns emoţional moderat anormal. Copilul arată semne clare de tip şi/sau grad nepotrivit de răspuns emoţional. Reacţiile pot fi destul de inhibate sau excesive şi fără legătură cu situaţia; poate face grimase, râde sau devine rigid chiar dacă nu sunt prezente obiecte sau evenimente care produc emoţia.",
+        "d4": "Răspuns emoţional sever anormal. Răspunsurile sunt rar adecvate situaţiei; odată ce copilul intră într-o anumită stare, este foarte dificil să o schimbe. Dimpotrivă, copilul poate arăta emoţii extrem de diferite atunci când nimic nu s-a schimbat."
       },
       "4": {
         "title": "Utilizarea Corpului",
-        "d1": "Utilizare a corpului adecvată vârstei. Se mișcă cu aceeași ușurință și coordonare ca un copil de aceeași vârstă.",
-        "d2": "Utilizare a corpului ușor anormală. Unele mici particularități (ex: stângăcie, mișcări repetitive).",
-        "d3": "Utilizare a corpului moderat anormală. Mișcări clar ciudate sau neobișnuite (ex: fluturarea degetelor, posturi bizare).",
-        "d4": "Utilizare a corpului sever anormală. Mișcări intense sau frecvente de tipul celor enumerate mai sus."
+        "d1": "Utilizarea corpului adecvată vârstei. Copilul se mișcă cu aceeaşi uşurinţă, agilitate şi coordonare ca un copil normal de aceeaşi vârstă.",
+        "d2": "Utilizarea corpului uşor anormală. Pot fi prezente unele particularităţi minore, cum ar fi stângăcia, mişcările repetitive, coordonarea slabă, sau apariția rară a mișcărilor neobișnuite.",
+        "d3": "Utilizarea corpului moderat anormală. Comportamentele care sunt clar ciudate sau neobișnuite pot include mişcări ciudate ale degetelor, posturi ciudate ale corpului, autoagresiunea, legănarea, învârtirea, mersul pe vârfuri.",
+        "d4": "Utilizarea corpului sever anormală. Mişcările intense sau frecvente sunt semne ale utilizării sever anormale a corpului. Aceste comportamente pot persista în ciuda încercărilor de a-l implica în alte activităţi."
       },
       "5": {
         "title": "Utilizarea Obiectelor",
-        "d1": "Interes și utilizare adecvată a obiectelor. Interes normal pentru jucării și alte obiecte.",
-        "d2": "Interes sau utilizare ușor anormală a obiectelor. Poate manifesta un interes neobișnuit pentru o jucărie sau se poate juca cu ea inadecvat.",
-        "d3": "Interes sau utilizare moderat anormală a obiectelor. Copilul poate manifesta foarte puțin interes pentru jucării sau obiecte.",
-        "d4": "Interes sau utilizare sever anormală a obiectelor. Poate fi preocupat de anumite obiecte sau de utilizarea lor repetitivă."
+        "d1": "Utilizarea adecvată şi interes pentru jucării şi alte obiecte. Copilul arată un interes normal pentru jucării şi alte obiecte adecvate nivelului său de dezvoltare.",
+        "d2": "Utilizarea şi interesul uşor anormale. Copilul poate arăta un interes atipic pentru o jucărie sau se poate juca cu ea într-un mod imatur (ex: izbeşte jucăria sau o suge).",
+        "d3": "Utilizarea şi interesul moderat anormale. Copilul poate arăta puţin interes pentru jucării sau poate fi preocupat să le folosească într-un mod ciudat. Se poate concentra pe o parte nesemnificativă a jucăriei sau pe lumina reflectată.",
+        "d4": "Utilizarea şi interesul sever anormale. Copilul se poate angaja în aceleaşi comportamente ca mai sus, dar cu o frecvenţă şi intensitate mai mare. Este dificil de distras din aceste activităţi."
       },
       "6": {
         "title": "Adaptarea la Schimbare",
-        "d1": "Răspuns adecvat la schimbare. Deși observă schimbările în rutină, le acceptă fără stres nejustificat.",
-        "d2": "Adaptare la schimbare ușor anormală. Când adultul încearcă să schimbe sarcina, copilul poate continua aceeași activitate.",
-        "d3": "Adaptare la schimbare moderat anormală. Copilul rezistă activ schimbărilor de rutină; devine stresat.",
-        "d4": "Adaptare la schimbare sever anormală. Prezintă reacții severe la schimbare; devine extrem de stresat."
+        "d1": "Răspuns la schimbare adecvat vârstei. Copilul poate observa schimbările în rutină, dar le acceptă fără supărare excesivă.",
+        "d2": "Adaptarea la schimbare uşor anormală. Când un adult încearcă să schimbe sarcinile, copilul poate continua aceeaşi activitate sau utiliza aceleaşi materiale.",
+        "d3": "Adaptarea la schimbare moderat anormală. Copilul rezistă activ la schimbările în rutină, încearcă să continue vechea activitate şi este dificil de distras. Poate deveni nefericit când o rutină stabilită este alterată.",
+        "d4": "Adaptarea la schimbare sever anormală. Copilul arată reacţii severe la schimbare. Dacă o schimbare este forţată, el/ea poate deveni extrem de furios sau necooperant şi poate face o criză de furie."
       },
       "7": {
         "title": "Răspunsul Vizual",
-        "d1": "Răspuns vizual adecvat vârstei. Comportamentul vizual este normal și adecvat vârstei.",
-        "d2": "Răspuns vizual ușor anormal. Trebuie să i se reamintească să privească obiectele; se poate uita în gol.",
-        "d3": "Răspuns vizual moderat anormal. Copilului trebuie să i se reamintească frecvent să privească ceea ce face.",
-        "d4": "Răspuns vizual sever anormal. Evitarea persistentă a contactului vizual; particularități extreme."
+        "d1": "Răspuns vizual adecvat vârstei. Comportamentul vizual al copilului este normal şi adecvat pentru vârsta sa. Vederea este utilizată împreună cu alte simţuri.",
+        "d2": "Răspuns vizual uşor anormal. Copilul trebuie să i se reamintească ocazional să privească la obiecte. Poate fi mai interesat de oglinzi sau lumini, poate privi în gol sau evita contactul vizual.",
+        "d3": "Răspuns vizual moderat anormal. Copilului trebuie să i se reamintească frecvent să privească ceea ce face. Poate evita privirea în ochi, privi din unghiuri neobișnuite sau ține obiectele foarte aproape de ochi.",
+        "d4": "Răspuns vizual sever anormal. Copilul evită constant contactul vizual, privește fix obiectele, le ține aproape de față sau le privește periferic. Are un comportament vizual extrem de ciudat."
       },
       "8": {
         "title": "Răspunsul Auditiv",
-        "d1": "Răspuns auditiv adecvat vârstei. Comportament auditiv normal pentru vârstă.",
-        "d2": "Răspuns auditiv ușor anormal. Poate exista o lipsă de răspuns sau o reacție ușoară exagerată la anumite sunete.",
-        "d3": "Răspuns auditiv moderat anormal. Răspunsurile la sunete variază; poate ignora un sunet sau se poate speria de el.",
-        "d4": "Răspuns auditiv sever anormal. Reacționează exagerat sau insuficient la sunete într-un grad extrem."
+        "d1": "Răspuns auditiv adecvat vârstei. Comportamentul auditiv al copilului este normal şi adecvat pentru vârsta sa. Auzul este utilizat împreună cu alte simţuri.",
+        "d2": "Răspuns auditiv uşor anormal. Poate exista o lipsă de răspuns sau o reacţie uşoară exagerată la anumite sunete. Reacţiile pot fi întârziate sau necesită repetiţie.",
+        "d3": "Răspuns auditiv moderat anormal. Răspunsurile la sunete variază; adesea ignoră un sunet primele câteva ori, poate fi speriat sau îşi poate acoperi urechile la sunete de zi cu zi.",
+        "d4": "Răspuns auditiv sever anormal. Copilul reacţionează exagerat şi/sau sub-reacţionează la sunete într-un grad extrem, indiferent de tipul sunetului."
       },
       "9": {
         "title": "Gust, Miros și Tactil",
-        "d1": "Utilizare și răspuns normal la gust, miros și atingere. Explorează obiecte noi într-un mod adecvat vârstei.",
-        "d2": "Utilizare ușor anormală a gustului, mirosului sau atingerii. Poate persista în a duce obiectele la gură; poate mirosi obiectele.",
-        "d3": "Utilizare moderat anormală a gustului, mirosului sau atingerii. Poate fi moderat preocupat de miros/gust/atingere.",
-        "d4": "Utilizare sever anormală a gustului, mirosului sau atingerii. Preocupat de mirosul, gustul sau pipăirea obiectelor."
+        "d1": "Utilizarea şi răspunsul normal la gust, miros şi atingere. Explorează noi obiecte într-un mod adecvat vârstei. Când reacţionează la durere mică de zi cu zi, copilul îşi exprimă disconfortul dar nu reacţionează exagerat.",
+        "d2": "Utilizarea şi răspunsul uşor anormale. Copilul poate persista în a pune obiecte în gură; poate mirosi sau gusta obiecte inedite. Poate ignora sau reacţiona exagerat la o durere uşoară.",
+        "d3": "Utilizarea şi răspunsul moderat anormale. Copilul poate fi moderat preocupat de atingerea, mirosirea sau gustarea obiectelor sau a oamenilor. Poate reacţiona prea mult sau prea puţin.",
+        "d4": "Utilizarea şi răspunsul sever anormale. Copilul este preocupat de mirosirea, gustarea sau pipăirea obiectelor mai mult pentru senzaţie decât pentru explorare. Poate ignora complet durerea sau reacţiona foarte puternic."
       },
       "10": {
         "title": "Frică sau Nervozitate",
-        "d1": "Frică sau nervozitate adecvată vârstei. Comportamentul este consistent cu situația.",
-        "d2": "Frică sau nervozitate ușor anormală. Prezintă ocazional fie prea multă, fie prea puțină frică.",
-        "d3": "Frică sau nervozitate moderat anormală. Prezintă ceva mai multă sau mai puțină frică decât era de așteptat.",
-        "d4": "Frică sau nervozitate sever anormală. Frica persistă chiar și după experiențe repetate cu evenimente inofensive."
+        "d1": "Frică sau nervozitate normală. Comportamentul copilului este adecvat atât situaţiei cât şi vârstei sale.",
+        "d2": "Frică sau nervozitate uşor anormală. Copilul arată ocazional fie prea multă, fie prea puţină frică sau nervozitate comparativ cu un copil normal de aceeaşi vârstă.",
+        "d3": "Frică sau nervozitate moderat anormală. Copilul arată fie destul de mult mai multă, fie destul de mult mai puţină frică decât este tipic chiar şi pentru un copil mai mic.",
+        "d4": "Frică sau nervozitate sever anormală. Frica persistă chiar și după experienţa repetată cu evenimente inofensive. Este extrem de dificil de calmat. Poate să nu arate nicio consideraţie faţă de pericole.",
       },
       "11": {
         "title": "Comunicarea Verbală",
-        "d1": "Comunicare verbală normală, adecvată vârstei. Limbajul este normal pentru vârstă.",
-        "d2": "Comunicare verbală ușor anormală. Limbajul prezintă o anumită întârziere; ecolalie sau inversarea pronumelui.",
-        "d3": "Comunicare verbală moderat anormală. Limbajul poate lipsi; când este prezent, este un mix de ecolalie și jargon.",
-        "d4": "Comunicare verbală sever anormală. Nu utilizează limbaj semnificativ; sunete sau zgomote ciudate."
+        "d1": "Comunicarea verbală normală, adecvată vârstei şi situaţiei.",
+        "d2": "Comunicarea verbală uşor anormală. Vorbirea prezintă o întârziere generală. Cea mai mare parte a vorbirii are sens; totuşi, pot apărea ecolalia sau inversarea pronumelor ocazional. Unele cuvinte particulare sau jargon.",
+        "d3": "Comunicarea verbală moderat anormală. Vorbirea poate fi absentă. Când este prezentă, poate fi un amestec de vorbire cu sens şi jargon, ecolalie sau inversarea pronumelor.",
+        "d4": "Comunicarea verbală sever anormală. Vorbirea cu sens nu este utilizată. Poate face ţipete infantile, sunete ciudate, zgomote complexe sau utilizare bizară a unor cuvinte."
       },
       "12": {
         "title": "Comunicarea Nonverbală",
-        "d1": "Utilizare normală a comunicării nonverbale, adecvată vârstei. Utilizare normală a gesturilor și expresiilor faciale.",
-        "d2": "Comunicare nonverbală ușor anormală. Utilizare imatură a gesturilor; poate arăta cu mâna în mod vag.",
-        "d3": "Comunicare nonverbală moderat anormală. Copilul este în general incapabil să-și exprime nevoile sau dorințele nonverbal.",
-        "d4": "Comunicare nonverbală sever anormală. Utilizează doar gesturi ciudate sau bizare care nu au un sens aparent."
+        "d1": "Utilizarea normală a comunicării nonverbale, adecvată vârstei şi situaţiei.",
+        "d2": "Utilizarea comunicării nonverbale uşor anormală. Utilizarea imatură; poate arăta vag sau întinde mâna, în situaţii în care un copil de aceeaşi vârstă ar face gesturi mai specifice.",
+        "d3": "Comunicarea nonverbală moderat anormală. Copilul este în general incapabil să-şi exprime nevoile nonverbal şi nu poate înţelege comunicarea nonverbală a altora.",
+        "d4": "Comunicarea nonverbală sever anormală. Copilul foloseşte doar gesturi bizare care nu au un înţeles aparent şi nu arată nicio conştientizare a gesturilor altora."
       },
       "13": {
         "title": "Nivelul de Activitate",
-        "d1": "Nivel de activitate normal pentru vârstă. Copilul nu este nici mai activ, nici mai puțin activ decât un copil de aceeași vârstă.",
-        "d2": "Nivel de activitate ușor anormal. Copilul poate fi ușor agitat sau oarecum 'lent'.",
-        "d3": "Nivel de activitate moderat anormal. Copilul poate fi destul de activ și greu de stăpânit.",
-        "d4": "Nivel de activitate sever anormal. Manifestă extreme de activitate sau inactivitate; poate trece de la una la alta."
+        "d1": "Nivel de activitate normal pentru vârstă şi circumstanţe. Copilul nu este nici mai activ, nici mai puţin activ decât un copil normal de aceeaşi vârstă.",
+        "d2": "Nivel de activitate uşor anormal. Copilul poate fi fie uşor neliniştit, fie oarecum 'lent'. Nivelul de activitate interferează doar uşor cu performanţa sa.",
+        "d3": "Nivel de activitate moderat anormal. Copilul poate fi destul de activ şi dificil de stăpânit. Poate avea energie nelimitată. Dimpotrivă, poate fi destul de letargic.",
+        "d4": "Nivel de activitate sever anormal. Copilul prezintă extreme de activitate sau inactivitate şi poate chiar trece de la o extremă la alta."
       },
       "14": {
         "title": "Nivelul Intelectual",
-        "d1": "Funcționarea intelectuală este normală și consistentă în diverse domenii. Nu există abilități intelectuale neobișnuite.",
-        "d2": "Funcționare intelectuală ușor anormală. Nu este la fel de inteligent ca restul copiilor de aceeași vârstă; abilități destul de egale.",
-        "d3": "Funcționare intelectuală moderat anormală. În general, copilul nu este la fel de inteligent ca restul copiilor de aceeași vârstă.",
-        "d4": "Funcționare intelectuală sever anormală. Deși în general copilul nu este la fel de inteligent, poate funcționa mai bine în unele domenii."
+        "d1": "Inteligenţa este normală şi consistentă în diverse arii. Copilul este la fel de inteligent ca un copil tipic de vârsta sa şi nu are abilităţi intelectuale neobişnuite.",
+        "d2": "Funcţionare intelectuală uşor anormală. Copilul nu este la fel de deştept ca un copil tipic de vârsta sa; abilităţile par destul de retardate în toate ariile.",
+        "d3": "Funcţionare intelectuală moderat anormală. În general, copilul nu este la fel de deştept ca un copil tipic; totuşi, poate funcţiona aproape normal în una sau mai multe arii intelectuale.",
+        "d4": "Funcţionare intelectuală sever anormală. Deşi nu este în general la fel de deştept, el/ea poate funcţiona chiar mai bine decât un copil normal în una sau mai multe arii."
       },
       "15": {
         "title": "Impresii Generale",
-        "d1": "Fără autism. Copilul nu prezintă niciunul dintre simptomele caracteristice autismului.",
-        "d2": "Autism ușor. Copilul prezintă doar câteva simptome sau doar un grad ușor de autism.",
-        "d3": "Autism moderat. Copilul prezintă un număr de simptome sau un grad moderat de autism.",
-        "d4": "Autism sever. Copilul prezintă multe simptome sau un grad extrem de autism."
+        "d1": "Fără autism. Copilul nu arată niciunul dintre simptomele caracteristice autismului.",
+        "d2": "Autism uşor. Copilul arată doar câteva simptome sau doar un grad uşor de autism.",
+        "d3": "Autism moderat. Copilul arată un număr de simptome sau un grad moderat de autism.",
+        "d4": "Autism sever. Copilul arată multe simptome sau un grad extrem de autism."
       }
     }
   },
