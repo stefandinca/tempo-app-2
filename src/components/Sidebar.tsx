@@ -65,7 +65,7 @@ export default function Sidebar() {
           
           // Determine badge content
           let badgeContent = null;
-          if (item.name === "Messages" && unreadMessageCount > 0) {
+          if (item.href === "/messages/" && unreadMessageCount > 0) {
             badgeContent = unreadMessageCount;
           } else if (item.badge) {
             badgeContent = item.badge; // Static badge from config (e.g. Clients)
@@ -87,7 +87,7 @@ export default function Sidebar() {
               {badgeContent && (
                 <span className={clsx(
                   "ml-auto px-2 py-0.5 text-xs rounded-full font-bold",
-                  item.name === "Messages" 
+                  item.href === "/messages/" 
                     ? "bg-error-100 dark:bg-error-900 text-error-600 dark:text-error-400"
                     : "bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400"
                 )}>

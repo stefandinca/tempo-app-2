@@ -10,5 +10,6 @@ export interface ClientInfo {
   billingRegNo?: string; // Nr. Reg. Com.
   hasActiveSubscription?: boolean;
   subscriptionPrice?: number;
+  therapistIds?: string[];
   [key: string]: any;
 }

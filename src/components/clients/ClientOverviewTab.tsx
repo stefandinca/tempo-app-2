@@ -1,12 +1,17 @@
 "use client";
 
-import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, FileText, ChevronRight, MessageSquare, Loader2, ClipboardCheck, Building } from "lucide-react";
+import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, FileText, ChevronRight, MessageSquare, Loader2, ClipboardCheck, Building, Plus, X, Users, Check, Search } from "lucide-react";
 import Link from "next/link";
 import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { clsx } from "clsx";
+import { useAuth } from "@/context/AuthContext";
+import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useToast } from "@/context/ToastContext";
+import { notifyClientAssigned } from "@/lib/notificationService";
 
 interface ClientOverviewTabProps {
   client: any;
@@ -17,10 +22,25 @@ interface ClientOverviewTabProps {
 export default function ClientOverviewTab({ client, pendingAction, onActionHandled }: ClientOverviewTabProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const { user: authUser, userRole } = useAuth();
+  const { success, error } = useToast();
   const { data: teamMembers } = useTeamMembers();
   const { data: events, loading: eventsLoading } = useClientEvents(client.id);
   
-  const therapist = (teamMembers || []).find(t => t.id === client.assignedTherapistId);
+  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [memberSearch, setMemberSearch] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const isAdmin = userRole === 'Admin';
+  const isCoordinator = userRole === 'Coordinator';
+  const canManageTeam = isAdmin || isCoordinator;
+
+  const assignedIds = client.therapistIds || (client.assignedTherapistId ? [client.assignedTherapistId] : []);
+  const assignedTeam = (teamMembers || []).filter(tm => assignedIds.includes(tm.id));
+  const availableMembers = (teamMembers || []).filter(tm => 
+    !assignedIds.includes(tm.id) && 
+    (tm.name.toLowerCase().includes(memberSearch.toLowerCase()) || tm.role.toLowerCase().includes(memberSearch.toLowerCase()))
+  );
 
   const parseDate = (val: any) => {
     if (!val) return null;
@@ -31,6 +51,52 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
     if (!date) return "—";
     return date.toLocaleDateString('ro-RO', { day: '2-digit', month: 'long', year: 'numeric' });
   };
+
+  const handleAddMember = async (member: any) => {
+    try {
+      const clientRef = doc(db, "clients", client.id);
+      await updateDoc(clientRef, {
+        therapistIds: arrayUnion(member.id)
+      });
+      
+      if (authUser) {
+        notifyClientAssigned(member.id, {
+          clientId: client.id,
+          clientName: client.name,
+          triggeredByUserId: authUser.uid
+        }).catch(err => console.error("Failed to notify member:", err));
+      }
+
+      success(`${member.name} assigned to client`);
+      setIsAddingMember(false);
+      setMemberSearch("");
+    } catch (err) {
+      error("Failed to assign member");
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!confirm("Remove this team member from the client?")) return;
+    try {
+      const clientRef = doc(db, "clients", client.id);
+      await updateDoc(clientRef, {
+        therapistIds: arrayRemove(memberId)
+      });
+      success("Member removed");
+    } catch (err) {
+      error("Failed to remove member");
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsAddingMember(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const upcomingEvents = (events || [])
     .filter(e => {
@@ -81,7 +147,103 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
           </div>
         </div>
 
-        {/* 2. Clinical Information */}
+        {/* 2. Assigned Team */}
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm relative">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-bold text-neutral-900 dark:text-white font-display flex items-center gap-2">
+              <Users className="w-5 h-5 text-purple-500" />
+              {t('clients.assigned_team')}
+            </h3>
+            
+            {canManageTeam && (
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  onClick={() => setIsAddingMember(!isAddingMember)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-bold hover:bg-primary-100 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Member
+                </button>
+
+                {isAddingMember && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2 border-b border-neutral-100 dark:border-neutral-800">
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
+                        <input 
+                          type="text"
+                          placeholder="Search team..."
+                          className="w-full pl-7 pr-3 py-1.5 bg-neutral-50 dark:bg-neutral-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-primary-500"
+                          value={memberSearch}
+                          onChange={(e) => setMemberSearch(e.target.value)}
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+                    <div className="max-h-48 overflow-y-auto p-1">
+                      {availableMembers.length === 0 ? (
+                        <p className="text-[10px] text-neutral-500 text-center py-4 italic">No matching members found.</p>
+                      ) : (
+                        availableMembers.map(tm => (
+                          <button
+                            key={tm.id}
+                            onClick={() => handleAddMember(tm)}
+                            className="w-full flex items-center gap-3 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg transition-colors text-left"
+                          >
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm" style={{ backgroundColor: tm.color }}>
+                              {tm.initials}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-neutral-900 dark:text-white truncate">{tm.name}</p>
+                              <p className="text-[10px] text-neutral-500 truncate">{tm.role}</p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {assignedTeam.length > 0 ? (
+              assignedTeam.map(tm => (
+                <div 
+                  key={tm.id}
+                  className="flex items-center justify-between p-3 border border-neutral-100 dark:border-neutral-800 rounded-xl group hover:border-primary-200 dark:hover:border-primary-900/50 transition-colors"
+                >
+                  <Link href="/team/" className="flex items-center gap-3 min-w-0">
+                    <div 
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
+                      style={{ backgroundColor: tm.color }}
+                    >
+                      {tm.initials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-neutral-900 dark:text-white text-sm truncate group-hover:text-primary-600 transition-colors">{tm.name}</p>
+                      <p className="text-xs text-neutral-500 truncate">{tm.role}</p>
+                    </div>
+                  </Link>
+                  {canManageTeam && (
+                    <button 
+                      onClick={() => handleRemoveMember(tm.id)}
+                      className="p-1.5 text-neutral-300 hover:text-error-500 hover:bg-error-50 dark:hover:bg-error-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                      title="Remove from client"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-neutral-500 italic col-span-2 py-4 text-center">No team members assigned yet.</p>
+            )}
+          </div>
+        </div>
+
+        {/* 3. Clinical Information */}
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-6 font-display flex items-center gap-2">
             <ClipboardCheck className="w-5 h-5 text-success-500" />
@@ -105,7 +267,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
           </div>
         </div>
 
-        {/* 3. Billing Information */}
+        {/* 4. Billing Information */}
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-6 font-display flex items-center gap-2">
             <Building className="w-5 h-5 text-amber-500" />
@@ -118,30 +280,6 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
               <InfoField label={t('clients.fields.reg_no')} value={client.billingRegNo} icon={FileText} />
             </div>
           </div>
-        </div>
-
-        {/* 4. Assigned Team */}
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
-          <h3 className="font-bold text-neutral-900 dark:text-white mb-4 font-display">{t('clients.assigned_team')}</h3>
-          {therapist ? (
-            <Link 
-              href="/team/"
-              className="flex items-center gap-4 p-3 border border-neutral-100 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors w-fit pr-8 group"
-            >
-              <div 
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                style={{ backgroundColor: therapist.color }}
-              >
-                {therapist.initials}
-              </div>
-              <div>
-                <p className="font-bold text-neutral-900 dark:text-white group-hover:text-primary-600 transition-colors">{therapist.name}</p>
-                <p className="text-sm text-primary-600 dark:text-primary-400 font-medium">{therapist.role}</p>
-              </div>
-            </Link>
-          ) : (
-            <p className="text-sm text-neutral-500 italic">No therapist assigned yet.</p>
-          )}
         </div>
       </div>
 

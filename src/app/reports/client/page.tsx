@@ -26,6 +26,8 @@ export default function ClientReportPage() {
   const [events, setEvents] = useState<any[]>([]);
   const [evaluations, setEvaluations] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,16 +57,33 @@ export default function ClientReportPage() {
           setClinic(clinicDoc.data().clinic);
         }
 
-        // 3. Fetch Session History (Events)
+        // 3. Fetch Services (for mapping labels)
+        const servicesSnap = await getDocs(collection(db, "services"));
+        const servicesData = servicesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setServices(servicesData);
+
+        // 4. Fetch Team Members (for mapping names)
+        const teamSnap = await getDocs(collection(db, "team_members"));
+        const teamData = teamSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+        setTeamMembers(teamData);
+
+        // 5. Fetch Session History (Events)
         const eventsQuery = query(
           collection(db, "events"),
           where("clientId", "==", clientId),
           orderBy("startTime", "desc")
         );
         const eventsSnap = await getDocs(eventsQuery);
-        setEvents(eventsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        const rawEvents = eventsSnap.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
+        
+        // Map names to events if missing
+        const mappedEvents = rawEvents.map(evt => ({
+          ...evt,
+          therapistName: evt.therapistName || teamData.find(tm => tm.id === evt.therapistId)?.name || "Staff Member"
+        }));
+        setEvents(mappedEvents);
 
-        // 4. Fetch Evaluations (ABLLS)
+        // 6. Fetch Evaluations (ABLLS)
         const evalsQuery = query(
           collection(db, "clients", clientId, "evaluations"),
           orderBy("createdAt", "desc")
@@ -149,6 +168,7 @@ export default function ClientReportPage() {
       events={events}
       evaluations={evaluations}
       programs={programs}
+      services={services}
       clinic={clinic}
       onBack={() => router.back()}
     />

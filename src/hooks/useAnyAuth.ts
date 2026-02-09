@@ -10,6 +10,7 @@ interface AnyAuthResult {
   isStaff: boolean;
   loading: boolean;
   role: string | null;
+  clientId: string | null;
 }
 
 /**
@@ -30,7 +31,8 @@ export function useAnyAuth(): AnyAuthResult {
       isParent: true,
       isStaff: false,
       loading: parentAuth.loading,
-      role: 'Parent'
+      role: 'Parent',
+      clientId: parentAuth.clientId
     };
   }
 
@@ -41,7 +43,8 @@ export function useAnyAuth(): AnyAuthResult {
       isParent: false,
       isStaff: true,
       loading: staffAuth.loading,
-      role: staffAuth.userRole
+      role: staffAuth.userRole,
+      clientId: null
     };
   }
 
@@ -52,7 +55,8 @@ export function useAnyAuth(): AnyAuthResult {
       isParent: true,
       isStaff: false,
       loading: staffAuth.loading,
-      role: 'Parent'
+      role: 'Parent',
+      clientId: parentAuth?.clientId || null
     };
   }
 
@@ -64,6 +68,7 @@ export function useAnyAuth(): AnyAuthResult {
     isParent: false,
     isStaff: false,
     loading: isLoading,
-    role: null
+    role: null,
+    clientId: null
   };
 }

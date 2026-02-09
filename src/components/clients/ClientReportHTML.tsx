@@ -13,7 +13,9 @@ import {
   CheckCircle2,
   XCircle,
   HelpCircle,
-  Building
+  Building,
+  ListFilter,
+  BarChart3
 } from "lucide-react";
 import { formatAge, calculateAge } from "@/lib/ageUtils";
 
@@ -22,6 +24,7 @@ interface ClientReportHTMLProps {
   events: any[];
   evaluations: any[];
   programs: any[];
+  services: any[];
   clinic: any;
   onBack: () => void;
 }
@@ -31,6 +34,7 @@ export default function ClientReportHTML({
   events,
   evaluations,
   programs,
+  services,
   clinic,
   onBack
 }: ClientReportHTMLProps) {
@@ -41,8 +45,9 @@ export default function ClientReportHTML({
 
   // --- Aggregations ---
   
+  const totalSessions = events.length;
   const therapistStats = events.reduce((acc: any, evt) => {
-    const name = evt.therapistName || "Unknown";
+    const name = evt.therapistName || "Staff Member";
     if (!acc[name]) acc[name] = 0;
     acc[name]++;
     return acc;
@@ -55,6 +60,26 @@ export default function ClientReportHTML({
     acc[status] += duration;
     return acc;
   }, { present: 0, absent: 0, excused: 0 });
+
+  // Breakdown by Service and Therapist
+  const serviceBreakdown = events.reduce((acc: any, evt) => {
+    const serviceId = evt.type;
+    const serviceLabel = services.find(s => s.id === serviceId)?.label || serviceId || "Therapy Session";
+    const therapistName = evt.therapistName || "Staff Member";
+    
+    if (!acc[serviceId]) {
+      acc[serviceId] = { label: serviceLabel, count: 0, hours: 0, therapists: {} };
+    }
+    acc[serviceId].count++;
+    acc[serviceId].hours += (evt.duration || 60) / 60;
+    
+    if (!acc[serviceId].therapists[therapistName]) {
+      acc[serviceId].therapists[therapistName] = 0;
+    }
+    acc[serviceId].therapists[therapistName]++;
+    
+    return acc;
+  }, {});
 
   const handlePrint = () => {
     window.print();
@@ -163,7 +188,7 @@ export default function ClientReportHTML({
         <div className="mb-12 space-y-6">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <Clock className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('clients.upcoming_schedule')}</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Attendance & Participation</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 bg-success-50 dark:bg-success-900/10 border border-success-100 dark:border-success-900/30 rounded-2xl text-center">
@@ -184,11 +209,80 @@ export default function ClientReportHTML({
           </div>
         </div>
 
-        {/* Section: Program Progress */}
+        {/* Section: Service Breakdown */}
         <div className="mb-12 space-y-6">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
+            <BarChart3 className="w-5 h-5 text-primary-500" />
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Services Breakdown</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {Object.values(serviceBreakdown).map((item: any) => (
+              <div key={item.label} className="bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800">
+                <div className="flex items-center justify-between mb-3 border-b border-neutral-200 dark:border-neutral-700 pb-2">
+                  <span className="font-bold text-neutral-900 dark:text-white">{item.label}</span>
+                  <span className="px-2 py-0.5 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-[10px] font-bold uppercase rounded">
+                    {item.count} sessions ({item.hours.toFixed(1)}h)
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {Object.entries(item.therapists).map(([tName, tCount]) => (
+                    <div key={tName} className="flex items-center justify-between text-xs">
+                      <span className="text-neutral-600 dark:text-neutral-400 font-medium">{tName}</span>
+                      <span className="text-neutral-900 dark:text-white font-bold">{tCount as any} sessions</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section: Detailed Session Log */}
+        <div className="space-y-6 mb-12">
+          <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
+            <ListFilter className="w-5 h-5 text-primary-500" />
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Comprehensive Session Log</h3>
+          </div>
+          <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-display">
+                <tr>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Therapist</th>
+                  <th className="px-6 py-4">Service</th>
+                  <th className="px-6 py-4 text-right">Duration</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                {events.map((evt) => {
+                  const therapistName = evt.therapistName || "Staff Member";
+                  const serviceLabel = services.find(s => s.id === evt.type)?.label || evt.type || "Therapy";
+                  const date = new Date(evt.startTime).toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                  
+                  return (
+                    <tr key={evt.id} className="hover:bg-neutral-100/50 dark:hover:bg-neutral-800/30 transition-colors">
+                      <td className="px-6 py-4 font-medium text-neutral-600 dark:text-neutral-400 tabular-nums">{date}</td>
+                      <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">{therapistName}</td>
+                      <td className="px-6 py-4 font-medium text-neutral-700 dark:text-neutral-300">{serviceLabel}</td>
+                      <td className="px-6 py-4 text-right font-bold text-primary-600 tabular-nums">{evt.duration || 60} min</td>
+                    </tr>
+                  );
+                })}
+                {events.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-12 text-center text-neutral-500 italic">No sessions recorded in the system.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Section: Program Progress */}
+        <div className="mb-12 space-y-6 page-break-before">
+          <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <Target className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('clients.tabs.programs')}</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Curriculum & Program Status</h3>
           </div>
           <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
             <table className="w-full text-left text-sm">
@@ -224,10 +318,10 @@ export default function ClientReportHTML({
         </div>
 
         {/* Section: Latest Evaluation */}
-        <div className="space-y-6 page-break-before">
+        <div className="space-y-6">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <TrendingUp className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('clients.tabs.evaluations')}</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Skills Assessment Results</h3>
           </div>
           
           {latestEval ? (

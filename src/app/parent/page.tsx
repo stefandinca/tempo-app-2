@@ -50,7 +50,9 @@ function ParentLoginContent() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (code.length < 4) {
+    const cleanCode = code.trim().toUpperCase();
+    
+    if (cleanCode.length < 4) {
       setError(t('auth.access_code_placeholder'));
       return;
     }
@@ -66,9 +68,14 @@ function ParentLoginContent() {
     setError("");
 
     try {
+      // Ensure we are signed in anonymously before querying
+      if (!auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+
       const q = query(
         collection(db, "clients"),
-        where("clientCode", "==", code.toUpperCase())
+        where("clientCode", "==", cleanCode)
       );
 
       const querySnapshot = await getDocs(q);
@@ -89,7 +96,7 @@ function ParentLoginContent() {
       const clientDoc = querySnapshot.docs[0];
       const clientData = clientDoc.data();
 
-      await authenticateWithCode(clientDoc.id, clientData.name, code.toUpperCase());
+      await authenticateWithCode(clientDoc.id, clientData.name, cleanCode);
 
       router.push(`/parent/dashboard/`);
     } catch (err: any) {

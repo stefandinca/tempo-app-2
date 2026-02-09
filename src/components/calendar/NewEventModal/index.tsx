@@ -48,7 +48,7 @@ export default function NewEventModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success, error } = useToast();
   const { user } = useAuth();
-  const { clients, teamMembers } = useData();
+  const { clients, teamMembers, services } = useData();
 
   const isEditMode = !!editingEvent;
 
@@ -106,6 +106,23 @@ export default function NewEventModal({
   const updateData = (updates: Partial<EventFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
   };
+
+  // Autogenerate Title logic
+  useEffect(() => {
+    if (!formData.eventType || formData.selectedClients.length === 0) return;
+
+    const service = (services?.data || []).find((s: any) => s.id === formData.eventType);
+    const selectedClientsData = (clients?.data || []).filter((c: any) => formData.selectedClients.includes(c.id));
+    
+    if (service && selectedClientsData.length > 0) {
+      const clientNames = selectedClientsData.map((c: any) => c.name).join(", ");
+      const newTitle = `${service.label} - ${clientNames}`;
+      
+      if (formData.title !== newTitle) {
+        updateData({ title: newTitle });
+      }
+    }
+  }, [formData.eventType, formData.selectedClients, services.data, clients.data]);
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {

@@ -3,6 +3,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { DataProvider } from "@/context/DataContext";
+import { EventModalProvider } from "@/context/EventModalContext";
+import { CommandPaletteProvider } from "@/context/CommandPaletteContext";
+import CommandPalette from "@/components/CommandPalette";
 import DashboardShell from "@/components/DashboardShell";
 import { Loader2 } from "lucide-react";
 
@@ -37,14 +41,24 @@ export default function DashboardLayout({
   if (!user || !userRole || !['Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary-500 mx-auto mb-4" />
+          <p className="text-neutral-500">Authenticating staff...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <DashboardShell>
-      {children}
-    </DashboardShell>
+    <DataProvider>
+      <EventModalProvider>
+        <CommandPaletteProvider>
+          <DashboardShell>
+            {children}
+          </DashboardShell>
+          <CommandPalette />
+        </CommandPaletteProvider>
+      </EventModalProvider>
+    </DataProvider>
   );
 }

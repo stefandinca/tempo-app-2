@@ -603,7 +603,27 @@
       "progress_label": "Progress",
       "evaluation_chart_desc": "Graphical representation of skills across all categories. Refer to the detailed evaluation report for domain analysis.",
       "manager_signature": "Clinical Manager",
-      "gdpr_notice": "This document contains sensitive clinical information and is intended for use by authorized personnel and parents/guardians only. Please handle according to GDPR and data protection standards."
+      "gdpr_notice": "This document contains sensitive clinical information and is intended for use by authorized personnel and parents/guardians only. Please handle according to GDPR and data protection standards.",
+      "attendance_participation": "Attendance & Participation",
+      "services_breakdown": "Services Breakdown",
+      "session_log": "Comprehensive Session Log",
+      "curriculum_status": "Curriculum & Program Status",
+      "assessment_results": "Skills Assessment Results"
+    },
+    "team": {
+      "title": "Performance Report",
+      "generate": "Generate Report",
+      "profile": "Professional Profile",
+      "kpis": "Key Performance Indicators",
+      "sessions": "Sessions",
+      "clients": "Clients",
+      "hours": "Hours",
+      "distribution_by_client": "Distribution by Client",
+      "services_provided": "Services Provided",
+      "session_log": "Comprehensive Session Log",
+      "member_signature": "Team Member Signature",
+      "director_approval": "Clinical Director Approval",
+      "confidentiality_notice": "This document contains confidential operational data and performance metrics intended for internal administrative use only. Please handle according to the organization's privacy and data protection policies."
     }
   },
   "evaluations": {

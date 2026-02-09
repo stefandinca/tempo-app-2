@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, User, Mail, Calendar, Phone, MessageSquare, Loader2 } from "lucide-react";
+import { Edit, User, Mail, Calendar, Phone, MessageSquare, Loader2, FileText } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -38,6 +38,7 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
   const router = useRouter();
 
   const isMe = user?.uid === member.id;
+  const isAdmin = userRole === 'Admin';
 
   const handleMessage = async () => {
     setIsStartingChat(true);
@@ -60,18 +61,25 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
     }
   };
 
+  const handleGenerateReport = () => {
+    window.open(`/reports/team/?id=${member.id}`, '_blank');
+  };
+
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 hover:shadow-md transition-all group relative">
       
-      {/* Edit Button (Top Right) */}
-      {userRole === 'Admin' && (
-        <button 
-          onClick={() => onEdit(member)}
-          className="absolute top-4 right-4 p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-primary-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-        >
-          <Edit className="w-4 h-4" />
-        </button>
-      )}
+      {/* Action Buttons (Top Right) */}
+      <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+        {isAdmin && (
+          <button 
+            onClick={() => onEdit(member)}
+            className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-primary-500 transition-colors"
+            title={t('common.edit')}
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+        )}
+      </div>
 
       {/* Header: Avatar & Name */}
       <div className="flex items-start gap-4 mb-4">
@@ -123,9 +131,9 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
         </div>
       </div>
 
-      {/* Action: Message Button (only if not current user) */}
-      {!isMe && (
-        <div className="pt-2 border-t border-neutral-50 dark:border-neutral-800/50 mt-2">
+      {/* Action: Buttons */}
+      <div className="pt-3 border-t border-neutral-50 dark:border-neutral-800/50 mt-2 space-y-2">
+        {!isMe && (
           <button
             onClick={handleMessage}
             disabled={isStartingChat}
@@ -134,8 +142,17 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
             {isStartingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
             {t('team.message')}
           </button>
-        </div>
-      )}
+        )}
+        {isAdmin && (
+          <button
+            onClick={handleGenerateReport}
+            className="w-full flex items-center justify-center gap-2 py-2 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 rounded-xl text-sm font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all"
+          >
+            <FileText className="w-4 h-4 text-primary-500" />
+            {t('reports.team.generate') || "Generate Report"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

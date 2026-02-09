@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, UserPlus, Check, Save } from "lucide-react";
+import { X, Loader2, UserPlus, Check, Save, Plus, Trash2 } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTeamMembers } from "@/hooks/useCollections";
@@ -34,7 +34,7 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
     parentName: "",
     parentEmail: "",
     medicalInfo: "",
-    assignedTherapistId: "",
+    therapistIds: [] as string[],
     billingAddress: "",
     billingCif: "",
     billingRegNo: "",
@@ -53,13 +53,22 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
         parentName: client.parentName || "",
         parentEmail: client.parentEmail || "",
         medicalInfo: client.medicalInfo || "",
-        assignedTherapistId: client.assignedTherapistId || "",
+        therapistIds: client.therapistIds || (client.assignedTherapistId ? [client.assignedTherapistId] : []),
         billingAddress: client.billingAddress || "",
         billingCif: client.billingCif || "",
         billingRegNo: client.billingRegNo || "",
       });
     }
   }, [client, isOpen]);
+
+  const toggleTherapist = (id: string) => {
+    setFormData(prev => ({
+      ...prev,
+      therapistIds: prev.therapistIds.includes(id) 
+        ? prev.therapistIds.filter(tid => tid !== id)
+        : [...prev.therapistIds, id]
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,24 +86,31 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
         parentName: formData.parentName,
         parentEmail: formData.parentEmail,
         medicalInfo: formData.medicalInfo,
-        assignedTherapistId: formData.assignedTherapistId,
+        therapistIds: formData.therapistIds,
+        // Keep legacy field for compatibility if needed, but primary is now therapistIds
+        assignedTherapistId: formData.therapistIds[0] || "",
         billingAddress: formData.billingAddress,
         billingCif: formData.billingCif,
         billingRegNo: formData.billingRegNo,
       };
 
       await updateDoc(clientRef, payload);
-      success(t('clients.edit_modal.success'));
-
-      // Send notification if therapist changed
-      if (formData.assignedTherapistId && formData.assignedTherapistId !== client.assignedTherapistId && authUser) {
-        notifyClientAssigned(formData.assignedTherapistId, {
-          clientId: client.id,
-          clientName: formData.name,
-          triggeredByUserId: authUser.uid
-        }).catch(err => console.error("Failed to send assignment notification:", err));
+      
+      // Notify NEWLY assigned members
+      if (authUser) {
+        const oldIds = client.therapistIds || (client.assignedTherapistId ? [client.assignedTherapistId] : []);
+        const newIds = formData.therapistIds.filter(id => !oldIds.includes(id));
+        
+        for (const id of newIds) {
+          notifyClientAssigned(id, {
+            clientId: client.id,
+            clientName: formData.name,
+            triggeredByUserId: authUser.uid
+          }).catch(err => console.error("Failed to send assignment notification:", err));
+        }
       }
 
+      success(t('clients.edit_modal.success'));
       onClose();
     } catch (err) {
       console.error(err);
@@ -270,19 +286,71 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
             </div>
           </div>
 
-          {/* Therapist Assignment */}
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('clients.form.assigned_therapist')}</label>
-            <select
-              className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
-              value={formData.assignedTherapistId}
-              onChange={e => setFormData({...formData, assignedTherapistId: e.target.value})}
-            >
-              <option value="">{t('clients.form.select_therapist')}</option>
-              {teamMembers.map(tm => (
-                <option key={tm.id} value={tm.id}>{tm.name} ({tm.role})</option>
-              ))}
-            </select>
+          {/* Team Assignment */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              {t('clients.form.assigned_team') || 'Assigned Therapy Team'}
+            </label>
+            
+            {/* Selected Team Tags */}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {formData.therapistIds.length === 0 && (
+                <span className="text-xs text-neutral-400 italic">No team members assigned yet.</span>
+              )}
+              {formData.therapistIds.map(tid => {
+                const member = teamMembers.find(tm => tm.id === tid);
+                if (!member) return null;
+                return (
+                  <div key={tid} className="flex items-center gap-1.5 px-2 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg border border-primary-100 dark:border-primary-800/50 text-xs font-bold">
+                    <div className="w-4 h-4 rounded-full bg-primary-500 text-white flex items-center justify-center text-[8px]">
+                      {member.initials}
+                    </div>
+                    {member.name}
+                    <button 
+                      type="button" 
+                      onClick={() => toggleTherapist(tid)}
+                      className="p-0.5 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-md transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Selection List */}
+            <div className="max-h-40 overflow-y-auto border border-neutral-200 dark:border-neutral-800 rounded-xl divide-y divide-neutral-100 dark:divide-neutral-800">
+              {teamMembers.map(tm => {
+                const isSelected = formData.therapistIds.includes(tm.id);
+                return (
+                  <button
+                    key={tm.id}
+                    type="button"
+                    onClick={() => toggleTherapist(tm.id)}
+                    className={clsx(
+                      "w-full flex items-center justify-between p-2.5 text-sm transition-colors",
+                      isSelected 
+                        ? "bg-primary-50/50 dark:bg-primary-900/10 text-primary-700 dark:text-primary-300" 
+                        : "hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm"
+                        style={{ backgroundColor: tm.color || "#ccc" }}
+                      >
+                        {tm.initials}
+                      </div>
+                      <div className="text-left">
+                        <p className="font-bold leading-none mb-1">{tm.name}</p>
+                        <p className="text-[10px] opacity-70">{tm.role}</p>
+                      </div>
+                    </div>
+                    {isSelected ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4 opacity-30" />}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Medical Info */}

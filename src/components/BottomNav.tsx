@@ -7,15 +7,18 @@ import {
   Calendar,
   Users,
   User,
-  Plus
+  Plus,
+  MessageSquare
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useEventModal } from "@/context/EventModalContext";
+import { useNotifications } from "@/context/NotificationContext";
 import { useTranslation } from "react-i18next";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { openModal } = useEventModal();
+  const { unreadMessageCount } = useNotifications();
   const { t } = useTranslation();
 
   return (
@@ -42,7 +45,20 @@ export default function BottomNav() {
         <span className="text-[10px] font-medium">{t('nav.calendar')}</span>
       </Link>
 
-      {/* Floating Action Button (FAB) - opens new event modal */}
+      <Link
+        href="/messages/"
+        className={clsx(
+          "flex flex-col items-center gap-1 p-2 min-w-[64px] relative",
+          pathname === "/messages/" ? "text-primary-500" : "text-neutral-400"
+        )}
+      >
+        <MessageSquare className="w-5 h-5" />
+        {unreadMessageCount > 0 && (
+          <span className="absolute top-1.5 right-4 w-2 h-2 bg-error-500 rounded-full border-2 border-white dark:border-neutral-900" />
+        )}
+        <span className="text-[10px] font-medium">{t('nav.messages')}</span>
+      </Link>
+
       <button
         onClick={() => openModal()}
         className="flex items-center justify-center w-12 h-12 -mt-6 bg-primary-500 rounded-full shadow-lg text-white hover:bg-primary-600 transition-colors"

@@ -47,10 +47,10 @@ export default function StepTeam({ data, updateData }: StepTeamProps) {
           </label>
           <input 
             type="text"
-            className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 border rounded-lg focus:ring-2 focus:ring-primary-500 transition-colors"
-            placeholder="e.g. Morning Session"
+            readOnly
+            className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-900/50 border-neutral-200 dark:border-neutral-800 text-neutral-500 rounded-lg cursor-not-allowed transition-colors"
+            placeholder={t('event_modal.untitled_event') || "Untitled Event"}
             value={data.title}
-            onChange={(e) => updateData({ title: e.target.value })}
           />
         </div>
         <div>

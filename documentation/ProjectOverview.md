@@ -25,7 +25,7 @@
 
 ## 1. Executive Summary
 
-TempoApp2 is a modern therapy center management platform that migrates a legacy Vanilla JS/SQL application into an "app-first" experience. The platform serves two distinct user groups:
+TempoApp2 is a modern therapy center management platform. The platform serves two distinct user groups:
 
 - **Staff Portal**: Administrators, Coordinators, and Therapists manage clients, schedules, billing, and analytics
 - **Parent Portal**: Parents access their child's therapy schedule, progress, documents, and invoices

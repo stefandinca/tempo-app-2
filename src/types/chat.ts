@@ -27,6 +27,7 @@ export interface ChatThread {
   createdAt: Timestamp;
   isArchived?: boolean;
   archivedBy?: string[]; // Array of UIDs who archived it
+  clientId?: string; // Associated client (child) for parent portal threads
 }
 
 export interface ChatMessage {

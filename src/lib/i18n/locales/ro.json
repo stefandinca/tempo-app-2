@@ -610,7 +610,27 @@
       "progress_label": "Progres",
       "evaluation_chart_desc": "Reprezentare grafică a abilităților pe toate categoriile. Consultați raportul detaliat al evaluării pentru analiza pe domenii.",
       "manager_signature": "Manager Clinic",
-      "gdpr_notice": "Acest document conține informații clinice sensibile și este destinat exclusiv utilizării de către personalul autorizat și părinți/tutori. Vă rugăm să manipulați conform standardelor GDPR."
+      "gdpr_notice": "Acest document conține informații clinice sensibile și este destinat exclusiv utilizării de către personalul autorizat și părinți/tutori. Vă rugăm să manipulați conform standardelor GDPR.",
+      "attendance_participation": "Prezență și Participare",
+      "services_breakdown": "Detaliere Servicii",
+      "session_log": "Jurnal Complet Ședințe",
+      "curriculum_status": "Status Curriculum și Programe",
+      "assessment_results": "Rezultate Evaluare Abilități"
+    },
+    "team": {
+      "title": "Raport de Performanță",
+      "generate": "Generează Raport",
+      "profile": "Profil Profesional",
+      "kpis": "Indicatori Cheie de Performanță",
+      "sessions": "Ședințe",
+      "clients": "Clienți",
+      "hours": "Ore",
+      "distribution_by_client": "Distribuție pe Client",
+      "services_provided": "Servicii Oferite",
+      "session_log": "Jurnal Complet Ședințe",
+      "member_signature": "Semnătură Membru Echipă",
+      "director_approval": "Aprobare Director Clinic",
+      "confidentiality_notice": "Acest document conține date operaționale și metrici de performanță confidențiale, destinate exclusiv uzului administrativ intern. Vă rugăm să îl manipulați în conformitate cu politicile de confidențialitate și protecție a datelor ale organizației."
     }
   },
   "evaluations": {
