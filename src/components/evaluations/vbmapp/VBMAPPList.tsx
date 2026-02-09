@@ -18,6 +18,7 @@ import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { useClientVBMAPPEvaluations, useVBMAPPActions } from "@/hooks/useVBMAPP";
 import { useToast } from "@/context/ToastContext";
 import { useConfirm } from "@/context/ConfirmContext";
+import { useTranslation } from "react-i18next";
 import VBMAPPMilestoneGrid from "./VBMAPPMilestoneGrid";
 
 interface VBMAPPListProps {
@@ -37,6 +38,7 @@ export default function VBMAPPList({
   onView,
   onReEvaluate
 }: VBMAPPListProps) {
+  const { t } = useTranslation();
   const { evaluations, loading, error } = useClientVBMAPPEvaluations(clientId);
   const { deleteEvaluation, saving } = useVBMAPPActions();
   const { success, error: toastError } = useToast();

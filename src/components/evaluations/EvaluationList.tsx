@@ -18,6 +18,7 @@ import { Evaluation } from "@/types/evaluation";
 import { useClientEvaluations, useEvaluationActions } from "@/hooks/useEvaluations";
 import { useToast } from "@/context/ToastContext";
 import { useConfirm } from "@/context/ConfirmContext";
+import { useTranslation } from "react-i18next";
 import { EvaluationRadarChartMini } from "./EvaluationRadarChart";
 
 interface EvaluationListProps {
@@ -37,6 +38,7 @@ export default function EvaluationList({
   onView,
   onReEvaluate
 }: EvaluationListProps) {
+  const { t } = useTranslation();
   const { evaluations, loading, error } = useClientEvaluations(clientId);
   const { deleteEvaluation, saving } = useEvaluationActions();
   const { success, error: toastError } = useToast();
