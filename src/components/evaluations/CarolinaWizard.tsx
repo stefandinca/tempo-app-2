@@ -21,6 +21,7 @@ import {
 import { CarolinaScore, CarolinaScoreValue } from "@/types/carolina";
 import { CAROLINA_PROTOCOL } from "@/data/carolina-protocol";
 import CarolinaScoring from "./CarolinaScoring";
+import { useTranslation } from "react-i18next";
 
 interface CarolinaWizardProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ export default function CarolinaWizard({
   clientName,
   evaluationId,
 }: CarolinaWizardProps) {
+  const { t } = useTranslation();
   const { user, userData } = useAuth();
   const { success, error: toastError } = useToast();
   const { saving, createEvaluation, saveProgress, completeEvaluation } = useCarolinaActions();
