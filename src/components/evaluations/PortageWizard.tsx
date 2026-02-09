@@ -289,6 +289,3 @@ export default function PortageWizard({
     </div>
   );
 }
-
-// Add missing useTranslation import if not already handled by parent scope (I'll add it to the file)
-import { useTranslation } from "react-i18next";
