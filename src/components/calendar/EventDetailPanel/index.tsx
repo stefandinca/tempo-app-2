@@ -150,6 +150,23 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
     });
   }, [canEdit, defaultScores]);
 
+  // Detect unsaved changes
+  const hasUnsavedChanges = attendance !== originalAttendance || date !== originalDate || time !== originalTime || notes !== (event?.details || "");
+
+  const handleClose = () => {
+    if (hasUnsavedChanges && canEdit) {
+      customConfirm({
+        title: t('calendar.event.unsaved_title') || 'Unsaved Changes',
+        message: t('calendar.event.unsaved_message') || 'You have unsaved changes. Are you sure you want to close?',
+        confirmLabel: t('calendar.event.discard') || 'Discard',
+        variant: 'danger',
+        onConfirm: () => onClose()
+      });
+    } else {
+      onClose();
+    }
+  };
+
   if (!event) return null;
 
   const client = (clients || []).find(c => c.id === event.clientId);
@@ -327,7 +344,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           "fixed inset-0 bg-black/50 z-40 transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Panel */}
@@ -357,7 +374,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                 <Pencil className="w-5 h-5" />
               </button>
             )}
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+            <button onClick={handleClose} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
               <X className="w-5 h-5 text-neutral-500" />
             </button>
           </div>
