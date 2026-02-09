@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 import PortageWizard from "./PortageWizard";
 import PortageSummary from "./PortageSummary";
 
@@ -27,6 +28,7 @@ interface PortageListProps {
 }
 
 export default function PortageList({ clientId, clientName, clientDob }: PortageListProps) {
+  const { t } = useTranslation();
   const { userRole } = useAuth();
   const { evaluations, loading } = usePortageEvaluations(clientId);
   const { deleteEvaluation } = usePortageActions();
@@ -79,8 +81,8 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-bold text-neutral-900 dark:text-white">Portage Evaluations</h3>
-          <p className="text-sm text-neutral-500">Developmental assessment from 0 to 6 years</p>
+          <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{t('portage.title')}</h3>
+          <p className="text-sm text-neutral-500">{t('portage.subtitle')}</p>
         </div>
         {(userRole === 'Admin' || userRole === 'Coordinator' || userRole === 'Therapist') && (
           <button
@@ -88,7 +90,7 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
             className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-600/20"
           >
             <Plus className="w-4 h-4" />
-            New Evaluation
+            {t('portage.new_evaluation')}
           </button>
         )}
       </div>
@@ -98,13 +100,13 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
           <div className="w-16 h-16 bg-neutral-50 dark:bg-neutral-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <FileText className="w-8 h-8 text-neutral-300" />
           </div>
-          <h4 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">No evaluations yet</h4>
-          <p className="text-neutral-500 max-w-xs mx-auto mb-6 text-sm">Start your first Portage evaluation to track developmental progress across key categories.</p>
+          <h4 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">{t('portage.no_evaluations')}</h4>
+          <p className="text-neutral-500 max-w-xs mx-auto mb-6 text-sm">{t('portage.no_evaluations_desc')}</p>
           <button 
             onClick={handleCreateNew}
             className="text-primary-600 font-bold hover:underline text-sm"
           >
-            Create first evaluation
+            {t('portage.start_first')}
           </button>
         </div>
       ) : (
@@ -133,7 +135,7 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
                         {new Date(evaluation.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                        {isCompleted ? 'Completed' : 'In Progress'}
+                        {isCompleted ? t('evaluations.completed') : 'In Progress'}
                       </p>
                     </div>
                   </div>
@@ -150,13 +152,13 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-neutral-400 uppercase">Dev. Age</p>
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase">{t('portage.developmental_age')}</p>
                     <p className="text-sm font-bold text-primary-600">
-                      {(evaluation.overallDevelopmentalAgeMonths / 12).toFixed(1)} years
+                      {(evaluation.overallDevelopmentalAgeMonths / 12).toFixed(1)} {t('portage.years')}
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-neutral-400 uppercase">Progress</p>
+                    <p className="text-[10px] font-bold text-neutral-400 uppercase">{t('portage.progress')}</p>
                     <p className="text-sm font-bold text-neutral-900 dark:text-white">
                       {Math.round((evaluation.overallDevelopmentalAgeMonths / evaluation.chronologicalAgeAtEvaluation) * 100)}%
                     </p>
@@ -169,7 +171,7 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
                     <span className="text-xs text-neutral-500 truncate max-w-[120px]">{evaluation.evaluatorName}</span>
                   </div>
                   <div className="flex items-center gap-1 text-xs font-bold text-primary-600">
-                    {isCompleted ? 'View Results' : 'Continue'}
+                    {isCompleted ? t('portage.view_results') : t('portage.continue')}
                     <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>

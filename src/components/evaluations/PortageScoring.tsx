@@ -57,7 +57,7 @@ export default function PortageScoring({
       
       {/* Quick Jump Menu */}
       <div className="sticky top-0 z-10 py-3 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 -mx-6 px-6 mb-8 flex items-center gap-3 overflow-x-auto scrollbar-hide">
-        <span className="text-[10px] font-bold uppercase text-neutral-400 whitespace-nowrap">Jump to:</span>
+        <span className="text-[10px] font-bold uppercase text-neutral-400 whitespace-nowrap">{t('portage.jump_to')}:</span>
         {ageBrackets.map((label) => (
           <button
             key={label}
@@ -97,7 +97,7 @@ export default function PortageScoring({
                   <button
                     onClick={() => onBulkScoreChange(bracketItemIds, true)}
                     className="p-1 hover:bg-success-50 dark:hover:bg-success-900/20 text-neutral-400 hover:text-success-600 rounded transition-colors"
-                    title="Mark all as achieved"
+                    title={t('portage.mark_all_achieved')}
                   >
                     <Check className="w-3.5 h-3.5" />
                   </button>
@@ -105,7 +105,7 @@ export default function PortageScoring({
                   <button
                     onClick={() => onBulkScoreChange(bracketItemIds, false)}
                     className="p-1 hover:bg-error-50 dark:hover:bg-error-900/20 text-neutral-400 hover:text-error-600 rounded transition-colors"
-                    title="Mark all as not achieved"
+                    title={t('portage.mark_all_not_achieved')}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -115,7 +115,7 @@ export default function PortageScoring({
               {isCurrentAgeBracket && (
                 <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400 flex items-center gap-1">
                   <Info className="w-3 h-3" />
-                  Target bracket
+                  {t('portage.target_bracket')}
                 </span>
               )}
             </div>
@@ -152,7 +152,7 @@ export default function PortageScoring({
                               ? "bg-primary-50 dark:bg-primary-900/30 border-primary-200 text-primary-600" 
                               : "bg-neutral-50 dark:bg-neutral-800/50 border-neutral-200 text-neutral-400"
                           )}
-                          title="Add Observation"
+                          title={t('portage.observation_placeholder')}
                         >
                           <MessageSquare className="w-4 h-4" />
                         </button>
@@ -190,7 +190,7 @@ export default function PortageScoring({
                         <textarea
                           value={score?.note || ""}
                           onChange={(e) => onScoreChange(item.id, isAchieved, e.target.value)}
-                          placeholder="Clinical observations..."
+                          placeholder={t('portage.observation_placeholder')}
                           className="w-full p-3 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 rounded-lg text-xs focus:ring-2 focus:ring-primary-500 outline-none transition-all resize-none"
                           rows={2}
                         />

@@ -188,9 +188,9 @@ export default function PortageWizard({
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
           <div>
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-              Portage Evaluation
+              {t('portage.wizard_title')}
             </h2>
-            <p className="text-sm text-neutral-500">{clientName} ({age?.years} years)</p>
+            <p className="text-sm text-neutral-500">{clientName} ({age?.years} {t('portage.years')})</p>
           </div>
           <button onClick={handleClose} className="p-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800">
             <X className="w-5 h-5 text-neutral-500" />
@@ -241,7 +241,7 @@ export default function PortageWizard({
             disabled={currentCategoryIndex === 0}
             className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center gap-2"
           >
-            <ChevronLeft className="w-4 h-4" /> Previous
+            <ChevronLeft className="w-4 h-4" /> {t('common.back')}
           </button>
 
           <div className="flex items-center gap-3">
@@ -251,7 +251,7 @@ export default function PortageWizard({
               className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 flex items-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Draft
+              {t('portage.save_draft')}
             </button>
 
             {currentCategoryIndex === PORTAGE_CATEGORIES.length - 1 ? (
@@ -260,14 +260,14 @@ export default function PortageWizard({
                 disabled={saving}
                 className="px-6 py-2 rounded-lg text-sm font-medium bg-success-600 hover:bg-success-700 text-white flex items-center gap-2"
               >
-                <Check className="w-4 h-4" /> Complete
+                <Check className="w-4 h-4" /> {t('portage.complete')}
               </button>
             ) : (
               <button
                 onClick={() => setCurrentCategoryIndex(prev => prev + 1)}
                 className="px-6 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white flex items-center gap-2"
               >
-                Next <ChevronRight className="w-4 h-4" />
+                {t('common.next')} <ChevronRight className="w-4 h-4" />
               </button>
             )}
           </div>

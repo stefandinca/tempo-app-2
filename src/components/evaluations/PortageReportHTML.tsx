@@ -74,7 +74,7 @@ export default function PortageReportHTML({
             </button>
             <div>
               <h1 className="font-bold text-neutral-900 dark:text-white">
-                Portage Performance Report
+                {t('portage.report_title')}
               </h1>
               <p className="text-xs text-neutral-500">{client.name} • {new Date().toLocaleDateString()}</p>
             </div>
@@ -84,7 +84,7 @@ export default function PortageReportHTML({
             className="flex items-center gap-2 px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg shadow-primary-600/20 transition-all font-bold"
           >
             <Printer className="w-4 h-4" />
-            {t('billing_page.export')}
+            {t('portage.print_report')}
           </button>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function PortageReportHTML({
               </div>
             </div>
             <div className="space-y-1">
-              <h2 className="text-3xl font-bold text-neutral-900 dark:text-white font-display uppercase tracking-tight">{t('reports.team.title')}</h2>
+              <h2 className="text-3xl font-bold text-neutral-900 dark:text-white font-display uppercase tracking-tight">{t('portage.report_title')}</h2>
               <p className="text-neutral-500">{t('reports.client.generated_on')}: {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
             </div>
           </div>
@@ -131,13 +131,13 @@ export default function PortageReportHTML({
                 <p className="text-neutral-900 dark:text-white font-bold text-lg">{client.name}</p>
               </div>
               <div>
-                <p className="text-neutral-500 font-medium">{t('reports.team.hours')}</p>
-                <p className="text-neutral-900 dark:text-white font-bold text-lg">{(evaluation.chronologicalAgeAtEvaluation / 12).toFixed(1)}y</p>
+                <p className="text-neutral-500 font-medium">{t('portage.chronological_age')}</p>
+                <p className="text-neutral-900 dark:text-white font-bold text-lg">{(evaluation.chronologicalAgeAtEvaluation / 12).toFixed(1)} {t('portage.years')}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-neutral-500 font-medium">Evaluation Summary</p>
+                <p className="text-neutral-500 font-medium">{t('evaluations.summary')}</p>
                 <p className="text-neutral-700 dark:text-neutral-300 mt-1 leading-relaxed">
-                  The Portage assessment for <strong>{client.name}</strong> shows an overall developmental age of <strong>{(evaluation.overallDevelopmentalAgeMonths / 12).toFixed(1)} years</strong>, 
+                  The Portage assessment for <strong>{client.name}</strong> shows an overall developmental age of <strong>{(evaluation.overallDevelopmentalAgeMonths / 12).toFixed(1)} {t('portage.years')}</strong>, 
                   representing a progress level of <strong>{Math.round((evaluation.overallDevelopmentalAgeMonths / evaluation.chronologicalAgeAtEvaluation) * 100)}%</strong> relative to chronological expectations.
                 </p>
               </div>
@@ -147,22 +147,22 @@ export default function PortageReportHTML({
           <div className="space-y-6">
             <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
               <TrendingUp className="w-5 h-5 text-orange-500" />
-              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Developmental Gap</h3>
+              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('portage.gap')}</h3>
             </div>
             <div className="bg-orange-50 dark:bg-orange-900/10 p-6 rounded-3xl border border-orange-100 dark:border-orange-900/30">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-orange-600 uppercase tracking-widest">Calculated Gap</span>
+                <span className="text-xs font-bold text-orange-600 uppercase tracking-widest">{t('portage.gap')}</span>
                 <span className={clsx(
                   "px-2 py-0.5 rounded-full text-[10px] font-bold",
                   gap <= 6 ? "bg-success-100 text-success-700" : "bg-error-100 text-error-700"
                 )}>
-                  {gap <= 0 ? "Above Average" : `${(gap / 12).toFixed(1)}y delay`}
+                  {gap <= 0 ? t('portage.above_average') : `${(gap / 12).toFixed(1)}y ${t('portage.delay')}`}
                 </span>
               </div>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-xs font-bold text-neutral-500 mb-1.5 uppercase">
-                    <span>Actual Progress</span>
+                    <span>{t('portage.actual')}</span>
                     <span>{Math.round((evaluation.overallDevelopmentalAgeMonths / 72) * 100)}%</span>
                   </div>
                   <div className="h-2 bg-white dark:bg-neutral-800 rounded-full overflow-hidden">
@@ -171,7 +171,7 @@ export default function PortageReportHTML({
                 </div>
                 <div>
                   <div className="flex justify-between text-xs font-bold text-neutral-500 mb-1.5 uppercase">
-                    <span>Expected (Age)</span>
+                    <span>{t('portage.expected')}</span>
                     <span>{Math.round((evaluation.chronologicalAgeAtEvaluation / 72) * 100)}%</span>
                   </div>
                   <div className="h-2 bg-white dark:bg-neutral-800 rounded-full overflow-hidden">
@@ -186,7 +186,7 @@ export default function PortageReportHTML({
         {/* Section: Radar Analysis */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12 page-break-before">
           <div className="bg-white dark:bg-neutral-950 p-4 rounded-3xl border border-neutral-100 dark:border-neutral-800 shadow-sm">
-            <h4 className="text-center text-xs font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">Developmental Profile Radar</h4>
+            <h4 className="text-center text-xs font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">{t('portage.developmental_profile')}</h4>
             <div className="h-[300px] w-full">
               {isClient && (
                 <ResponsiveContainer width="100%" height="100%">
@@ -194,14 +194,14 @@ export default function PortageReportHTML({
                     <PolarGrid stroke="#e5e5e5" />
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#888', fontSize: 10 }} />
                     <Radar
-                      name="Expected"
+                      name={t('portage.expected')}
                       dataKey="target"
                       stroke="#94a3b8"
                       fill="#94a3b8"
                       fillOpacity={0.1}
                     />
                     <Radar
-                      name="Actual"
+                      name={t('portage.actual')}
                       dataKey="score"
                       stroke="#f97316"
                       fill="#f97316"
@@ -236,7 +236,7 @@ export default function PortageReportHTML({
         <div className="space-y-8 page-break-before">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <ListFilter className="w-5 h-5 text-orange-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.team.session_log')} (Detailed Results)</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.team.session_log')} ({t('evaluations.category_breakdown')})</h3>
           </div>
 
           <div className="space-y-10">
@@ -251,7 +251,7 @@ export default function PortageReportHTML({
                   <div className="flex items-center gap-3">
                     <div className="h-6 w-1 bg-orange-500 rounded-full" />
                     <h4 className="font-black text-neutral-900 dark:text-white uppercase tracking-tight">{cat}</h4>
-                    <span className="text-xs font-bold text-neutral-400">({achievedItems.length} items achieved)</span>
+                    <span className="text-xs font-bold text-neutral-400">({achievedItems.length} {t('portage.items_achieved')})</span>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-2">
@@ -269,7 +269,7 @@ export default function PortageReportHTML({
                               )}
                             </div>
                             <span className="px-2 py-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-md text-[10px] font-bold text-neutral-400 whitespace-nowrap">
-                              Target: {item.age}
+                              {t('portage.target_age')}: {item.age}
                             </span>
                           </div>
                         </div>

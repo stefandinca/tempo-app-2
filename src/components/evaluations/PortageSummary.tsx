@@ -56,47 +56,47 @@ export default function PortageSummary({ evaluation, onClose }: PortageSummaryPr
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="flex items-center gap-3 mb-4 text-primary-600">
             <Clock className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-widest">Chronological Age</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('portage.chronological_age')}</span>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-neutral-900 dark:text-white">
               {(evaluation.chronologicalAgeAtEvaluation / 12).toFixed(1)}
             </span>
-            <span className="text-sm text-neutral-500 font-medium">years</span>
+            <span className="text-sm text-neutral-500 font-medium">{t('portage.years')}</span>
           </div>
-          <p className="text-[10px] text-neutral-400 mt-2">At the time of evaluation</p>
+          <p className="text-[10px] text-neutral-400 mt-2">{t('reports.client.generated_on')}</p>
         </div>
 
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="flex items-center gap-3 mb-4 text-success-600">
             <TrendingUp className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-widest">Developmental Age</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('portage.developmental_age')}</span>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-neutral-900 dark:text-white">
               {(evaluation.overallDevelopmentalAgeMonths / 12).toFixed(1)}
             </span>
-            <span className="text-sm text-neutral-500 font-medium">years</span>
+            <span className="text-sm text-neutral-500 font-medium">{t('portage.years')}</span>
           </div>
           <div className={clsx(
             "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold mt-2",
             gap <= 6 ? "bg-success-100 text-success-700" : "bg-error-100 text-error-700"
           )}>
-            {gap <= 0 ? "Above Average" : `${(gap / 12).toFixed(1)}y gap`}
+            {gap <= 0 ? t('portage.above_average') : `${(gap / 12).toFixed(1)}y ${t('portage.delay')}`}
           </div>
         </div>
 
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="flex items-center gap-3 mb-4 text-purple-600">
             <BarChart3 className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-widest">Overall Progress</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('portage.overall_progress')}</span>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-neutral-900 dark:text-white">
               {Math.round((evaluation.overallDevelopmentalAgeMonths / evaluation.chronologicalAgeAtEvaluation) * 100)}%
             </span>
           </div>
-          <p className="text-[10px] text-neutral-400 mt-2">Relative to age expectations</p>
+          <p className="text-[10px] text-neutral-400 mt-2">{t('evaluations.priority_subtitle')}</p>
         </div>
       </div>
 
@@ -105,15 +105,15 @@ export default function PortageSummary({ evaluation, onClose }: PortageSummaryPr
         {/* Radar Chart */}
         <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Developmental Profile</h3>
+            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t('portage.developmental_profile')}</h3>
             <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-primary-500/50 border border-primary-500" />
-                <span className="text-neutral-500">Actual</span>
+                <span className="text-neutral-500">{t('portage.actual')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600" />
-                <span className="text-neutral-500">Expected</span>
+                <span className="text-neutral-500">{t('portage.expected')}</span>
               </div>
             </div>
           </div>
@@ -123,14 +123,14 @@ export default function PortageSummary({ evaluation, onClose }: PortageSummaryPr
                 <PolarGrid stroke="#e5e5e5" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: '#888', fontSize: 10 }} />
                 <Radar
-                  name="Expected"
+                  name={t('portage.expected')}
                   dataKey="target"
                   stroke="#94a3b8"
                   fill="#94a3b8"
                   fillOpacity={0.1}
                 />
                 <Radar
-                  name="Actual"
+                  name={t('portage.actual')}
                   dataKey="score"
                   stroke="#4A90E2"
                   fill="#4A90E2"
@@ -148,7 +148,7 @@ export default function PortageSummary({ evaluation, onClose }: PortageSummaryPr
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
             <ListFilter className="w-5 h-5 text-primary-500" />
-            Category Details
+            {t('portage.category_details')}
           </h3>
           {PORTAGE_CATEGORIES.map(cat => {
             const summary = evaluation.summaries[cat];
@@ -157,7 +157,7 @@ export default function PortageSummary({ evaluation, onClose }: PortageSummaryPr
                 <div>
                   <p className="text-sm font-bold text-neutral-900 dark:text-white">{cat}</p>
                   <p className="text-xs text-neutral-500 mt-0.5">
-                    Developmental Age: <span className="font-bold text-primary-600">{(summary.developmentalAgeMonths / 12).toFixed(1)}y</span>
+                    {t('portage.developmental_age')}: <span className="font-bold text-primary-600">{(summary.developmentalAgeMonths / 12).toFixed(1)} {t('portage.years')}</span>
                   </p>
                 </div>
                 <div className="text-right">
@@ -180,25 +180,25 @@ export default function PortageSummary({ evaluation, onClose }: PortageSummaryPr
         <div className="flex items-center gap-6 text-sm text-neutral-500">
           <div className="flex items-center gap-2">
             <User className="w-4 h-4" />
-            <span>Evaluator: <span className="font-bold text-neutral-700 dark:text-neutral-300">{evaluation.evaluatorName}</span></span>
+            <span>{t('portage.evaluator')}: <span className="font-bold text-neutral-700 dark:text-neutral-300">{evaluation.evaluatorName}</span></span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            <span>Completed: <span className="font-bold text-neutral-700 dark:text-neutral-300">{formatDate(evaluation.completedAt)}</span></span>
+            <span>{t('portage.completed_on')}: <span className="font-bold text-neutral-700 dark:text-neutral-300">{formatDate(evaluation.completedAt)}</span></span>
           </div>
         </div>
         
         <div className="flex gap-2">
           <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-neutral-600 hover:text-neutral-900 transition-all">
             <Download className="w-4 h-4" />
-            Export Data
+            {t('portage.export_data')}
           </button>
           <button 
             onClick={handlePrint}
             className="flex items-center gap-2 px-6 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-lg"
           >
             <Printer className="w-4 h-4" />
-            Print Report
+            {t('portage.print_report')}
           </button>
         </div>
       </div>
