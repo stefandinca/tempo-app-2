@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { clsx } from "clsx";
 import {
   X,
@@ -30,7 +31,6 @@ import {
 import { VBMAPPItemScore, MilestoneScore, BarrierScore, TransitionScore, VBMAPPEvaluation } from "@/types/vbmapp";
 import VBMAPPMilestoneScoring from "./VBMAPPMilestoneScoring";
 import VBMAPPBarrierScoring from "./VBMAPPBarrierScoring";
-import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
 
 interface VBMAPPWizardProps {

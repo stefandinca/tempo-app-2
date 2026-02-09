@@ -76,13 +76,6 @@ export default function EvaluationList({
     });
   };
 
-  const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  };
-
   const inProgressEvaluations = evaluations.filter((e) => e.status === "in_progress");
   const completedEvaluations = evaluations.filter((e) => e.status === "completed");
 
@@ -104,7 +97,6 @@ export default function EvaluationList({
 
   return (
     <div className="space-y-6">
-      {/* Start New Evaluation Button */}
       <button
         onClick={onStartNew}
         className="w-full py-4 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-2xl text-primary-600 dark:text-primary-400 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all font-medium flex items-center justify-center gap-2"
@@ -113,7 +105,6 @@ export default function EvaluationList({
         Start New ABLLS Evaluation
       </button>
 
-      {/* In Progress Evaluations */}
       {inProgressEvaluations.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
@@ -176,7 +167,6 @@ export default function EvaluationList({
                   </div>
                 </div>
               </div>
-              {/* Progress bar */}
               <div className="mt-3 h-1.5 bg-warning-200 dark:bg-warning-900/50 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-warning-500 transition-all"
@@ -188,7 +178,6 @@ export default function EvaluationList({
         </div>
       )}
 
-      {/* Completed Evaluations */}
       {completedEvaluations.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
@@ -218,18 +207,8 @@ export default function EvaluationList({
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  {/* Score Badge */}
                   <div className="text-right">
-                    <p
-                      className={clsx(
-                        "text-2xl font-bold",
-                        evaluation.overallPercentage >= 70
-                          ? "text-success-600"
-                          : evaluation.overallPercentage >= 40
-                          ? "text-warning-600"
-                          : "text-error-600"
-                      )}
-                    >
+                    <p className={clsx("text-2xl font-bold", evaluation.overallPercentage >= 70 ? "text-success-600" : evaluation.overallPercentage >= 40 ? "text-warning-600" : "text-error-600")}>
                       {evaluation.overallPercentage}%
                     </p>
                     <p className="text-xs text-neutral-400">
@@ -237,7 +216,6 @@ export default function EvaluationList({
                     </p>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => onView(evaluation.id)}
@@ -281,14 +259,11 @@ export default function EvaluationList({
                 </div>
               </div>
 
-              {/* Radar chart preview and category bars */}
               <div className="mt-4 flex items-center gap-4">
-                {/* Mini radar chart */}
                 <div className="w-24 h-24 flex-shrink-0">
                   <EvaluationRadarChartMini evaluation={evaluation} />
                 </div>
 
-                {/* Category preview bars */}
                 <div className="flex-1 grid grid-cols-9 gap-1">
                   {Object.entries(evaluation.categorySummaries || {})
                     .sort(([a], [b]) => a.localeCompare(b))
@@ -300,14 +275,7 @@ export default function EvaluationList({
                           title={`${summary.categoryName}: ${summary.percentage}%`}
                         >
                           <div
-                            className={clsx(
-                              "h-full transition-all",
-                              summary.percentage >= 70
-                                ? "bg-success-500"
-                                : summary.percentage >= 40
-                                ? "bg-warning-500"
-                                : "bg-error-500"
-                            )}
+                            className={clsx("h-full transition-all", summary.percentage >= 70 ? "bg-success-500" : summary.percentage >= 40 ? "bg-warning-500" : "bg-error-500")}
                             style={{ height: `${summary.percentage}%` }}
                           />
                         </div>
@@ -321,24 +289,18 @@ export default function EvaluationList({
         </div>
       )}
 
-      {/* Empty State */}
       {evaluations.length === 0 && (
         <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl">
           <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center">
             <FileText className="w-8 h-8 text-neutral-400" />
           </div>
-          <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
-            No Evaluations Yet
-          </h3>
-          <p className="text-neutral-500 max-w-sm mx-auto mb-6">
-            Start an ABLLS evaluation to assess {clientName}&apos;s skills and track progress over time.
-          </p>
+          <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">No Evaluations Yet</h3>
+          <p className="text-neutral-500 max-w-sm mx-auto mb-6">Start an ABLLS evaluation to assess {clientName}&apos;s skills and track progress over time.</p>
           <button
             onClick={onStartNew}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-primary-500/20"
           >
-            <Plus className="w-4 h-4" />
-            Start First Evaluation
+            <Plus className="w-4 h-4" /> Start First Evaluation
           </button>
         </div>
       )}
