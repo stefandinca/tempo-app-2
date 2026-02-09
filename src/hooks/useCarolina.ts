@@ -73,6 +73,19 @@ export function calculateCarolinaSummary(scores: Record<string, CarolinaScore>) 
   };
 }
 
+// Helper to sanitize scores (remove undefined values)
+function sanitizeScores(scores: Record<string, CarolinaScore>): Record<string, CarolinaScore> {
+  const sanitized: Record<string, CarolinaScore> = {};
+  Object.entries(scores).forEach(([key, value]) => {
+    sanitized[key] = {
+      value: value.value,
+      updatedAt: value.updatedAt,
+      ...(value.note !== undefined && value.note !== "" && { note: value.note })
+    };
+  });
+  return sanitized;
+}
+
 export function useCarolinaEvaluations(clientId: string) {
   const [evaluations, setEvaluations] = useState<CarolinaEvaluation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -172,10 +185,11 @@ export function useCarolinaActions() {
   ) => {
     setSaving(true);
     try {
-      const { totalMastered, totalEmerging, domainProgress } = calculateCarolinaSummary(scores);
+      const cleanScores = sanitizeScores(scores);
+      const { totalMastered, totalEmerging, domainProgress } = calculateCarolinaSummary(cleanScores);
       
       await updateDoc(doc(db, "clients", clientId, "carolina_evaluations", evaluationId), {
-        scores,
+        scores: cleanScores,
         totalMastered,
         totalEmerging,
         domainProgress,
@@ -193,11 +207,12 @@ export function useCarolinaActions() {
   ) => {
     setSaving(true);
     try {
-      const { totalMastered, totalEmerging, domainProgress } = calculateCarolinaSummary(scores);
+      const cleanScores = sanitizeScores(scores);
+      const { totalMastered, totalEmerging, domainProgress } = calculateCarolinaSummary(cleanScores);
       const now = new Date().toISOString();
 
       await updateDoc(doc(db, "clients", clientId, "carolina_evaluations", evaluationId), {
-        scores,
+        scores: cleanScores,
         totalMastered,
         totalEmerging,
         domainProgress,
