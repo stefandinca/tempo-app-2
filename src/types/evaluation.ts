@@ -2,7 +2,7 @@ import { AbllsItem, AbllsCategory } from "@/data/ablls-r-protocol";
 
 // ABLLS and other evaluation types
 
-export type EvaluationType = 'ABLLS' | 'VB-MAPP' | 'PORTAGE' | 'CARS' | 'OTHER';
+export type EvaluationType = 'ABLLS' | 'VB-MAPP' | 'PORTAGE' | 'CARS' | 'CAROLINA' | 'OTHER';
 export type EvaluationStatus = 'in_progress' | 'completed';
 export type ScoreValue = 0 | 1 | 2 | 3 | 4;
 

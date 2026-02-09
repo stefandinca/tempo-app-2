@@ -7,10 +7,12 @@ import { db } from "@/lib/firebase";
 import EvaluationReportHTML from "@/components/evaluations/EvaluationReportHTML";
 import PortageReportHTML from "@/components/evaluations/PortageReportHTML";
 import CARSReportHTML from "@/components/evaluations/CARSReportHTML";
+import CarolinaReportHTML from "@/components/evaluations/CarolinaReportHTML";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { PortageEvaluation } from "@/types/portage";
 import { CARSEvaluation } from "@/types/cars";
+import { CarolinaEvaluation } from "@/types/carolina";
 import { ClientInfo } from "@/types/client";
 import { Loader2 } from "lucide-react";
 
@@ -18,12 +20,12 @@ export default function EvaluationReportPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const type = searchParams.get("type"); // 'ablls', 'vbmapp', 'portage' or 'cars'
+  const type = searchParams.get("type"); // 'ablls', 'vbmapp', 'portage', 'cars', 'carolina'
   const id = searchParams.get("id");
   const clientId = searchParams.get("clientId");
   const isParent = searchParams.get("mode") === "parent";
 
-  const [evaluation, setEvaluation] = useState<Evaluation | VBMAPPEvaluation | PortageEvaluation | CARSEvaluation | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | VBMAPPEvaluation | PortageEvaluation | CARSEvaluation | CarolinaEvaluation | null>(null);
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [clinic, setClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +62,7 @@ export default function EvaluationReportPage() {
         else if (lowerType === "vbmapp") collectionName = "vbmapp_evaluations";
         else if (lowerType === "portage") collectionName = "portage_evaluations";
         else if (lowerType === "cars") collectionName = "cars_evaluations";
+        else if (lowerType === "carolina") collectionName = "carolina_evaluations";
         else {
           setError(`Unknown evaluation type: ${type}`);
           setLoading(false);
@@ -123,6 +126,17 @@ export default function EvaluationReportPage() {
     return (
       <CARSReportHTML
         evaluation={evaluation as CARSEvaluation}
+        client={client}
+        clinic={clinic}
+        onBack={() => router.back()}
+      />
+    );
+  }
+
+  if (type?.toLowerCase() === "carolina") {
+    return (
+      <CarolinaReportHTML
+        evaluation={evaluation as CarolinaEvaluation}
         client={client}
         clinic={clinic}
         onBack={() => router.back()}

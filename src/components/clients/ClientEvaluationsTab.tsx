@@ -14,6 +14,7 @@ import VBMAPPWizard from "@/components/evaluations/vbmapp/VBMAPPWizard";
 import VBMAPPSummary from "@/components/evaluations/vbmapp/VBMAPPSummary";
 import PortageList from "@/components/evaluations/PortageList";
 import CARSList from "@/components/evaluations/CARSList";
+import CarolinaList from "@/components/evaluations/CarolinaList";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useClientVBMAPPEvaluations } from "@/hooks/useVBMAPP";
 
@@ -21,7 +22,7 @@ interface ClientEvaluationsTabProps {
   client: any;
 }
 
-type EvalType = "ablls" | "vbmapp" | "portage" | "cars";
+type EvalType = "ablls" | "vbmapp" | "portage" | "cars" | "carolina";
 
 type ABLLSModalState =
   | { type: "none" }
@@ -210,6 +211,20 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500" />
             )}
           </button>
+          <button
+            onClick={() => setEvalType("carolina")}
+            className={clsx(
+              "px-4 py-2 text-sm font-medium transition-colors relative",
+              evalType === "carolina"
+                ? "text-teal-600 dark:text-teal-400"
+                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+            )}
+          >
+            Carolina
+            {evalType === "carolina" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500" />
+            )}
+          </button>
         </div>
 
         {/* View Mode Toggle - only show for ABLLS which has progress charts */}
@@ -341,6 +356,13 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
       {/* CARS Content */}
       {evalType === "cars" && (
         <CARSList
+          clientId={client.id}
+          clientName={client.name}
+        />
+      )}
+      {/* Carolina Content */}
+      {evalType === "carolina" && (
+        <CarolinaList
           clientId={client.id}
           clientName={client.name}
         />
