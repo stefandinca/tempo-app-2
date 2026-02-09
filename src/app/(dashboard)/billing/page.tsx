@@ -77,20 +77,22 @@ export default function BillingPage() {
   const handleMarkAsPaid = async (clientId: string) => {
     try {
       const q = query(
-        collection(db, "invoices"), 
+        collection(db, "invoices"),
         where("clientId", "==", clientId),
-        where("status", "==", "issued")
+        where("status", "==", "issued"),
+        where("year", "==", year),
+        where("month", "==", month)
       );
-      
+
       const snapshot = await getDocs(q);
-      
+
       if (snapshot.empty) {
         error(t('billing_page.mark_paid_error'));
         return;
       }
 
-      const updates = snapshot.docs.map(docSnap => 
-        updateDoc(doc(db, "invoices", docSnap.id), { 
+      const updates = snapshot.docs.map(docSnap =>
+        updateDoc(doc(db, "invoices", docSnap.id), {
           status: "paid",
           paidAt: new Date().toISOString()
         })
@@ -114,8 +116,8 @@ export default function BillingPage() {
             recipientRole: d.data().role.toLowerCase() as any,
             type: "system_alert" as any, // Or a more specific type if added to enum
             category: "billing" as any,
-            title: "Payment Received",
-            message: `Invoice for ${clientName} was marked as PAID (${total.toFixed(2)} RON)`,
+            title: t('billing_page.notification_payment_received') || "Payment Received",
+            message: t('billing_page.notification_payment_message', { name: clientName, total: total.toFixed(2) }) || `Invoice for ${clientName} was marked as PAID (${total.toFixed(2)} RON)`,
             sourceType: "billing" as any,
             sourceId: clientId,
             triggeredBy: authUser.uid
@@ -130,8 +132,8 @@ export default function BillingPage() {
             recipientRole: "parent" as any,
             type: "system_alert" as any,
             category: "billing" as any,
-            title: "Payment Confirmed",
-            message: `Your payment of ${total.toFixed(2)} RON has been confirmed. Thank you!`,
+            title: t('billing_page.notification_payment_confirmed') || "Payment Confirmed",
+            message: t('billing_page.notification_payment_confirmed_message', { total: total.toFixed(2) }) || `Your payment of ${total.toFixed(2)} RON has been confirmed. Thank you!`,
             sourceType: "billing" as any,
             sourceId: clientId,
             triggeredBy: authUser.uid,
@@ -143,18 +145,20 @@ export default function BillingPage() {
 
     } catch (err) {
       console.error(err);
-      error("Failed to update invoice status.");
+      error(t('billing_page.update_error') || "Failed to update invoice status.");
     }
   };
 
   const handleMarkAsPending = async (clientId: string) => {
     try {
       const q = query(
-        collection(db, "invoices"), 
+        collection(db, "invoices"),
         where("clientId", "==", clientId),
-        where("status", "==", "paid")
+        where("status", "==", "paid"),
+        where("year", "==", year),
+        where("month", "==", month)
       );
-      
+
       const snapshot = await getDocs(q);
       const updates = snapshot.docs.map(docSnap => 
         updateDoc(doc(db, "invoices", docSnap.id), { 
@@ -168,17 +172,17 @@ export default function BillingPage() {
 
     } catch (err) {
       console.error(err);
-      error("Failed to update status.");
+      error(t('billing_page.update_error') || "Failed to update status.");
     }
   };
 
   const handleDeleteInvoice = async (invoiceId: string) => {
     try {
       await deleteDoc(doc(db, "invoices", invoiceId));
-      success("Invoice deleted and rolled back.");
+      success(t('billing_page.delete_success') || "Invoice deleted and rolled back.");
     } catch (err) {
       console.error(err);
-      error("Failed to delete invoice.");
+      error(t('billing_page.delete_error') || "Failed to delete invoice.");
     }
   };
 
