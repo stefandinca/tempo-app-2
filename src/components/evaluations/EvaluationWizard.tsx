@@ -266,8 +266,8 @@ export default function EvaluationWizard({
         </div>
 
         {/* Category Pills */}
-        <div className="px-6 py-3 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto">
-          <div className="flex gap-2 min-w-max">
+        <div className="px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
+          <div className="flex flex-wrap gap-2">
             {ABLLS_CATEGORIES.map((category, index) => {
               const { scored, total } = getCategoryCompletion(index);
               const isComplete = scored === total;

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { ParentAuthProvider } from "@/context/ParentAuthContext";
 import { DataProvider } from "@/context/DataContext";
 import { EventModalProvider } from "@/context/EventModalContext";
 import { CommandPaletteProvider } from "@/context/CommandPaletteContext";
@@ -142,7 +143,7 @@ export default function RootLayout({
                   if (done) return;
                   done = true;
                   var el = document.getElementById('preloader');
-                  if (el) { el.classList.add('fade-out'); setTimeout(function() { el.remove(); }, 500); }
+                  if (el) { el.classList.add('fade-out'); setTimeout(function() { el.style.display = 'none'; }, 500); }
                 }
                 window.addEventListener('load', function() { setTimeout(hide, 200); });
                 setTimeout(hide, 6000);
@@ -152,19 +153,14 @@ export default function RootLayout({
         />
         <ToastProvider>
           <AuthProvider>
-            <DataProvider>
+            <ParentAuthProvider>
               <NotificationProvider>
-                <EventModalProvider>
-                  <CommandPaletteProvider>
-                    <Suspense fallback={null}>
-                      <NavigationProgress />
-                    </Suspense>
-                    {children}
-                    <CommandPalette />
-                  </CommandPaletteProvider>
-                </EventModalProvider>
+                <Suspense fallback={null}>
+                  <NavigationProgress />
+                </Suspense>
+                {children}
               </NotificationProvider>
-            </DataProvider>
+            </ParentAuthProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

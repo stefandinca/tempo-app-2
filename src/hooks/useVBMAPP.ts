@@ -22,7 +22,7 @@ import {
   parseVBMAPPData,
   computeVBMAPPSummaries
 } from "@/types/vbmapp";
-import vbmappData from "@/../../documentation/vbmapp.json";
+import vbmappData from "../../evals/vbmapp.json";
 
 // Parse VB-MAPP data once
 const parsedData = parseVBMAPPData(vbmappData as any);
