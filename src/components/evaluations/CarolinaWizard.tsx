@@ -230,7 +230,7 @@ export default function CarolinaWizard({
             {hasCeilingReached && (
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-error-50 text-error-700 rounded-lg text-xs font-bold mr-2 animate-pulse">
                 <AlertCircle className="w-4 h-4" />
-                Ceiling Reached (3 consecutive A's)
+                Ceiling Reached (3 consecutive &apos;A&apos;s)
               </div>
             )}
             <button onClick={handleClose} className="p-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800">

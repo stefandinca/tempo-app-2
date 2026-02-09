@@ -133,7 +133,7 @@ export default function CarolinaReportHTML({
               <div className="col-span-2">
                 <p className="text-neutral-500 font-medium">{t('evaluations.summary')}</p>
                 <p className="text-neutral-700 dark:text-neutral-300 mt-1 leading-relaxed">
-                  The Carolina Curriculum assessment evaluates the child's developmental progress across five key domains. This report details mastered skills, emerging capabilities, and areas for future intervention.
+                  The Carolina Curriculum assessment evaluates the child&apos;s developmental progress across five key domains. This report details mastered skills, emerging capabilities, and areas for future intervention.
                 </p>
               </div>
             </div>

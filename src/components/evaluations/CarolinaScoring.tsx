@@ -26,7 +26,7 @@ export default function CarolinaScoring({
         </h3>
         <p className="text-xs text-indigo-700 dark:text-indigo-300">
           Score items as Mastered (✓), Emerging (D), or Absent (A). 
-          Stop if child scores 3 consecutive 'A's (Ceiling Rule).
+          Stop if child scores 3 consecutive &apos;A&apos;s (Ceiling Rule).
         </p>
       </div>
 
@@ -134,7 +134,7 @@ export default function CarolinaScoring({
               {/* Read-only note preview */}
               {hasNote && activeNoteId !== item.id && (
                 <div className="mt-2 text-xs text-neutral-500 italic bg-neutral-50 dark:bg-neutral-800/50 p-2 rounded-lg border border-neutral-100 dark:border-neutral-800">
-                  "{score.note}"
+                  &quot;{score.note}&quot;
                 </div>
               )}
             </div>
