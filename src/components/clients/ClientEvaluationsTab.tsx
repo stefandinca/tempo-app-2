@@ -371,5 +371,3 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
     </div>
   );
 }
-
-}
