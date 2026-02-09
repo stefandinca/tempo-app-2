@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import EvaluationReportHTML from "@/components/evaluations/EvaluationReportHTML";
+import PortageReportHTML from "@/components/evaluations/PortageReportHTML";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
+import { PortageEvaluation } from "@/types/portage";
 import { ClientInfo } from "@/types/client";
 import { Loader2 } from "lucide-react";
 
@@ -14,13 +16,14 @@ export default function EvaluationReportPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const type = searchParams.get("type"); // 'ablls' or 'vbmapp'
+  const type = searchParams.get("type"); // 'ablls', 'vbmapp' or 'portage'
   const id = searchParams.get("id");
   const clientId = searchParams.get("clientId");
   const isParent = searchParams.get("mode") === "parent";
 
-  const [evaluation, setEvaluation] = useState<Evaluation | VBMAPPEvaluation | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | VBMAPPEvaluation | PortageEvaluation | null>(null);
   const [client, setClient] = useState<ClientInfo | null>(null);
+  const [clinic, setClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,8 +45,24 @@ export default function EvaluationReportPage() {
         }
         setClient({ id: clientDoc.id, ...clientDoc.data() } as ClientInfo);
 
+        // Fetch Clinic Settings
+        const clinicDoc = await getDoc(doc(db, "system_settings", "config"));
+        if (clinicDoc.exists()) {
+          setClinic(clinicDoc.data().clinic);
+        }
+
         // Fetch Evaluation
-        const collectionName = type.toLowerCase() === "ablls" ? "evaluations" : "vbmapp_evaluations";
+        let collectionName = "";
+        const lowerType = type.toLowerCase();
+        if (lowerType === "ablls") collectionName = "evaluations";
+        else if (lowerType === "vbmapp") collectionName = "vbmapp_evaluations";
+        else if (lowerType === "portage") collectionName = "portage_evaluations";
+        else {
+          setError(`Unknown evaluation type: ${type}`);
+          setLoading(false);
+          return;
+        }
+
         const evalDoc = await getDoc(doc(db, "clients", clientId, collectionName, id));
         
         if (!evalDoc.exists()) {
@@ -86,9 +105,20 @@ export default function EvaluationReportPage() {
     );
   }
 
+  if (type?.toLowerCase() === "portage") {
+    return (
+      <PortageReportHTML
+        evaluation={evaluation as PortageEvaluation}
+        client={client}
+        clinic={clinic}
+        onBack={() => router.back()}
+      />
+    );
+  }
+
   return (
     <EvaluationReportHTML 
-      evaluation={evaluation} 
+      evaluation={evaluation as any} 
       client={client} 
       isParentVersion={isParent}
       onBack={() => router.back()}

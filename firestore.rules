@@ -120,6 +120,11 @@ service cloud.firestore {
       allow write: if isAdmin() || isCoordinator() || isTherapist();
     }
 
+    match /clients/{clientId}/portage_evaluations/{evalId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow write: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
     match /clients/{clientId}/interventionPlans/{planId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow write: if isAdmin() || isCoordinator();

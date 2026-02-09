@@ -12,6 +12,7 @@ import EvaluationProgressChart from "@/components/evaluations/EvaluationProgress
 import VBMAPPList from "@/components/evaluations/vbmapp/VBMAPPList";
 import VBMAPPWizard from "@/components/evaluations/vbmapp/VBMAPPWizard";
 import VBMAPPSummary from "@/components/evaluations/vbmapp/VBMAPPSummary";
+import PortageList from "@/components/evaluations/PortageList";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useClientVBMAPPEvaluations } from "@/hooks/useVBMAPP";
 
@@ -19,7 +20,7 @@ interface ClientEvaluationsTabProps {
   client: any;
 }
 
-type EvalType = "ablls" | "vbmapp";
+type EvalType = "ablls" | "vbmapp" | "portage";
 
 type ABLLSModalState =
   | { type: "none" }
@@ -180,6 +181,20 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500" />
             )}
           </button>
+          <button
+            onClick={() => setEvalType("portage")}
+            className={clsx(
+              "px-4 py-2 text-sm font-medium transition-colors relative",
+              evalType === "portage"
+                ? "text-orange-600 dark:text-orange-400"
+                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+            )}
+          >
+            Portage
+            {evalType === "portage" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
+            )}
+          </button>
         </div>
 
         {/* View Mode Toggle - only show for ABLLS which has progress charts */}
@@ -298,6 +313,15 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
             />
           )}
         </>
+      )}
+
+      {/* Portage Content */}
+      {evalType === "portage" && (
+        <PortageList
+          clientId={client.id}
+          clientName={client.name}
+          clientDob={client.birthDate || client.dob}
+        />
       )}
     </div>
   );
