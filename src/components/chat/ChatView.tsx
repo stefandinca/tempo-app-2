@@ -46,9 +46,9 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
     if (!thread) return;
     
     customConfirm({
-      title: "Archive Conversation",
+      title: t('chat.archive_title') || "Archive Conversation",
       message: t('chat.archive_confirm'),
-      confirmLabel: "Archive",
+      confirmLabel: t('chat.archive_action') || "Archive",
       variant: 'warning',
       onConfirm: async () => {
         try {
@@ -156,7 +156,7 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
           {isStaff && (
             <button 
               onClick={handleArchive}
-              title="Archive Conversation"
+              title={t('chat.archive_title') || "Archive Conversation"}
               className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
             >
               <Archive className="w-5 h-5" />
@@ -165,7 +165,7 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
           <button 
             onClick={handleCall}
             disabled={isCalling}
-            title="Call"
+            title={t('chat.call') || "Call"}
             className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
           >
             {isCalling ? <Loader2 className="w-5 h-5 animate-spin" /> : <Phone className="w-5 h-5" />}
