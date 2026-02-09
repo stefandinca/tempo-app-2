@@ -1,0 +1,570 @@
+{
+  "milestones": {
+    "level1": {
+      "name": "Nivel 1 (0-18 luni)",
+      "description": "Evaluare Jaloane - Nivel 1",
+      "areas": {
+        "mand": {
+          "id": "mand-1",
+          "name": "Cerere (Mand) - Nivel 1",
+          "code": "MAND",
+          "items": [
+            { "id": "mand-1-1", "text": "Mand - 1-M: Demonstrează 2 sau mai multe cereri diferite fără prompturi (cu excepția 'Ce vrei?') (ex: biscuit, carte, leagăn)", "months": 6 },
+            { "id": "mand-1-2", "text": "Mand - 2-M: Generalizează 6 cereri între 2 sau mai multe persoane, 2 sau mai multe medii și 2 sau mai multe exemple de întăritor (ex: cere mașină de la mamă și tată, înăuntru și afară)", "months": 9 },
+            { "id": "mand-1-3", "text": "Mand - 3-M: Emite spontan (fără prompturi verbale) 4 cereri diferite (poate include cereri non-vocale)", "months": 12 },
+            { "id": "mand-1-4", "text": "Mand - 4-M: Emite spontan 10 cereri diferite fără prompturi (volumul, claritatea sau gradul de aproximare nu sunt problematice)", "months": 15 },
+            { "id": "mand-1-5", "text": "Mand - 5-M: Emite 5 cereri care conțin 2 sau mai multe cuvinte (semne, pictograme) (fără a include 'vreau') (ex: Ieși afară, Minge mare, Te rog biscuit)", "months": 18 }
+          ]
+        },
+        "tact": {
+          "id": "tact-1",
+          "name": "Denumire (Tact) - Nivel 1",
+          "code": "TACT",
+          "items": [
+            { "id": "tact-1-1", "text": "Tact - 1-M: Privește sau atinge 2 obiecte când primește o instrucțiune verbală (ex: Unde este mingea? Arată-mi mingea)", "months": 6 },
+            { "id": "tact-1-2", "text": "Tact - 2-M: Denumește 2 obiecte (obiecte, imagini, persoane sau părți ale corpului) (ex: spune minge când vede o minge)", "months": 9 },
+            { "id": "tact-1-3", "text": "Tact - 3-M: Generalizează denumirile între 2 sau mai multe exemple ale aceluiași obiect și 2 exemple ale acelei clase de stimuli (ex: spune câine pentru mai multe tipuri de câini, o fotografie și o jucărie)", "months": 12 },
+            { "id": "tact-1-4", "text": "Tact - 4-M: Denumește 6 obiecte", "months": 15 },
+            { "id": "tact-1-5", "text": "Tact - 5-M: Denumește spontan (fără prompturi verbale) 2 obiecte diferite (ex: spune avion privind pe fereastră, spune urs văzând un urs de pluș pe raft)", "months": 18 }
+          ]
+        },
+        "listener": {
+          "id": "listener-1",
+          "name": "Răspuns la Ascultare - Nivel 1",
+          "code": "LR",
+          "items": [
+            { "id": "listener-1-1", "text": "Listener - 1-M: Acordă atenție vocii vorbitorului făcând contact vizual, orientându-se spre vorbitor sau întrerupând comportamentul în desfășurare", "months": 3 },
+            { "id": "listener-1-2", "text": "Listener - 2-M: Privește, atinge sau indică membrul corect al familiei, animalul de companie sau alte persoane când i se spune un nume (ex: Unde e mama?)", "months": 9 },
+            { "id": "listener-1-3", "text": "Listener - 3-M: Selectează obiectul corect dintr-un set de 4, pentru 20 de obiecte sau imagini diferite (ex: Ia pantoful sau Atinge câinele)", "months": 12 },
+            { "id": "listener-1-4", "text": "Listener - 4-M: Demonstrează răspuns generalizat de ascultare selectând obiectul corect dintr-un set de 4, pentru 50 de ținte în 2 sau mai multe exemple și seturi de stimuli diferiți", "months": 15 },
+            { "id": "listener-1-5", "text": "Listener - 5-M: Demonstrează discriminări generalizate de ascultare selectând obiectul corect dintr-un set de 8, cu aceleași 50 de ținte predate anterior în seturi de 4", "months": 18 }
+          ]
+        },
+        "vpmts": {
+          "id": "vpmts-1",
+          "name": "Abilități Perceptuale Vizuale și Potrivire Model - Nivel 1",
+          "code": "VP-MTS",
+          "items": [
+            { "id": "vpmts-1-1", "text": "VP-MTS - 1-M: Urmărește vizual obiecte/persoane în mișcare în toate direcțiile pentru 2 secunde", "months": 3 },
+            { "id": "vpmts-1-2", "text": "VP-MTS - 2-M: Demonstrează urmărire vizuală generalizată urmărind mișcarea persoanelor, obiectelor sau unui punct în toate direcțiile orizontale, verticale și diagonale pentru 3 secunde", "months": 6 },
+            { "id": "vpmts-1-3", "text": "VP-MTS - 3-M: Pune 3 forme diferite într-un puzzle, sortator de forme sau obiect 3D similar", "months": 12 },
+            { "id": "vpmts-1-4", "text": "VP-MTS - 4-M: Potrivește 10 obiecte identice (ex: aceleași căni, mașini, creioane, cuburi, jucării)", "months": 15 },
+            { "id": "vpmts-1-5", "text": "VP-MTS - 5-M: Generalizează abilitățile de potrivire între 2 sau mai multe exemple a 50 de obiecte (ex: potrivește căni roșii cu căni roșii, dar și căni albastre cu căni albastre)", "months": 18 }
+          ]
+        },
+        "play": {
+          "id": "play-1",
+          "name": "Joacă Independentă - Nivel 1",
+          "code": "PLAY",
+          "items": [
+            { "id": "play-1-1", "text": "Play - 1-M: Manipulează și explorează obiecte (ex: fixează vizual obiecte, le pune în gură, le lovește, le scutură, le aruncă, le mișcă)", "months": 3 },
+            { "id": "play-1-2", "text": "Play - 2-M: Demonstrează explorare generalizată, joacă cu jucării sau manipulare cu 5 obiecte (ex: se joacă cu o mașină, bebeluș, cub, păpușă, minge)", "months": 9 },
+            { "id": "play-1-3", "text": "Play - 3-M: Demonstrează 4 acțiuni diferite cu jucării sau obiecte, sau un total de 4 jucării diferite (ex: împinge o mașină, aruncă o minge, atinge nasul unei păpuși)", "months": 12 },
+            { "id": "play-1-4", "text": "Play - 4-M: Se joacă independent pentru 1 minut fără prompturi sau întărire de la adult cu 5 obiecte diferite (ex: împinge mașina 10 secunde, mâzgălește 10 secunde)", "months": 15 },
+            { "id": "play-1-5", "text": "Play - 5-M: Emite 10 manipulări diferite de obiecte, acțiuni de joc de rol sau ambele", "months": 18 }
+          ]
+        },
+        "social": {
+          "id": "social-1",
+          "name": "Comportament Social și Joacă Socială - Nivel 1",
+          "code": "SOCIAL",
+          "items": [
+            { "id": "social-1-1", "text": "Social - 1-M: Se orientează spre o persoană, atinge sau face contact vizual cu alții de 2 ori într-o perioadă de 30 de minute", "months": 3 },
+            { "id": "social-1-2", "text": "Social - 2-M: Face contact vizual ca o cerere pentru obiecte sau activități dorite de 5 ori (ex: privește un adult și un borcan cu biscuiți)", "months": 6 },
+            { "id": "social-1-3", "text": "Social - 3-M: Face spontan contact vizual cu alte persoane de 5 ori (adică fără prompturi de la adult sau asocieri cu obiecte)", "months": 9 },
+            { "id": "social-1-4", "text": "Social - 4-M: Urmează spontan stimulul vizual al unui coleg sau adult de 5 ori (ex: privește în direcția în care privesc alții)", "months": 12 },
+            { "id": "social-1-5", "text": "Social - 5-M: Caută să fie fizic aproape de alții de 5 ori, sau 2 minute durata cumulativă (ex: stă lângă alții, urmează frații)", "months": 18 }
+          ]
+        },
+        "imitation": {
+          "id": "imitation-1",
+          "name": "Imitație Motorie - Nivel 1",
+          "code": "IMITATION",
+          "items": [
+            { "id": "imitation-1-1", "text": "Imitation - 1-M: Acordă atenție vizuală gurii, feței, mâinilor sau acțiunilor altora pentru 2 secunde", "months": 3 },
+            { "id": "imitation-1-2", "text": "Imitation - 2-M: Imită 2 mișcări motorii grosiere când i se cere (ex: bate din palme, bate pe masă, face cu mâna)", "months": 9 },
+            { "id": "imitation-1-3", "text": "Imitation - 3-M: Imită 8 mișcări motorii când i se cere (ex: bate din palme, atinge capul)", "months": 12 },
+            { "id": "imitation-1-4", "text": "Imitation - 4-M: Imită spontan 2 abilități funcționale (ex: cântă, dansează, pune pantofi, mătură)", "months": 15 },
+            { "id": "imitation-1-5", "text": "Imitation - 5-M: Imită 20 de mișcări motorii diferite de orice tip când i se cere (ex: bate din palme, face cu mâna, atinge podeaua)", "months": 18 }
+          ]
+        },
+        "echoic": {
+          "id": "echoic-1",
+          "name": "Ecou Verbal - Nivel 1",
+          "code": "ECHOIC",
+          "items": [
+            { "id": "echoic-1-1", "text": "Echoic - 1-M: Emite spontan 5 sau mai multe sunete vocale diferite (adică fără prompturi sau întărire de la adult)", "months": 3 },
+            { "id": "echoic-1-2", "text": "Echoic - 2-M: Vocalizează ca răspuns la vocalizările altora de 5 ori într-o perioadă de 30 de minute (nu trebuie să corespundă modelului)", "months": 6 },
+            { "id": "echoic-1-3", "text": "Echoic - 3-M: Emite spontan 10 sau mai multe sunete vocale diferite (silabe de bâlbâială cu combinații vocală-consoană)", "months": 9 },
+            { "id": "echoic-1-4", "text": "Echoic - 4-M: Repetă 5 combinații diferite vocală-consoană sau consoană-vocală (ex: spune ba când un adult spune ba)", "months": 12 },
+            { "id": "echoic-1-5", "text": "Echoic - 5-M: Repetă 10 cuvinte simple sau secvențe de două cuvinte cu toate elementele în secvența corectă (ex: repetă cuvinte simple ca mergi sau fraze de două cuvinte ca mama merge)", "months": 18 }
+          ]
+        },
+        "eesa": {
+          "id": "eesa-1",
+          "name": "Comportament Vocal Spontan - Nivel 1",
+          "code": "EESA",
+          "items": [
+            { "id": "eesa-1-1", "text": "EESA - 1-M: Produce 2 sunete vocale (plânge, râde, țipă sau alte sunete)", "months": 3 },
+            { "id": "eesa-1-2", "text": "EESA - 2-M: Produce 4 sau mai multe sunete vocalice diferite (ex: ah, eh, oh, oo)", "months": 6 },
+            { "id": "eesa-1-3", "text": "EESA - 3-M: Produce 4 sau mai multe combinații diferite consoană-vocală (ex: ba, ga, da, ma)", "months": 9 },
+            { "id": "eesa-1-4", "text": "EESA - 4-M: Produce 5 sau mai multe aproximări vocale spontane de cuvinte (nu trebuie să fie clare)", "months": 12 },
+            { "id": "eesa-1-5", "text": "EESA - 5-M: Produce 5 sau mai multe cuvinte diferite (unele cuvinte pot să nu fie clare)", "months": 18 }
+          ]
+        }
+      }
+    },
+    "level2": {
+      "name": "Nivel 2 (18-30 luni)",
+      "description": "Evaluare Jaloane - Nivel 2",
+      "areas": {
+        "mand": {
+          "id": "mand-2",
+          "name": "Cerere (Mand) - Nivel 2",
+          "code": "MAND",
+          "items": [
+            { "id": "mand-2-6", "text": "Mand - 6-M: Emite 10 cereri diferite pentru obiecte lipsă fără prompturi echoice sau imitative (ex: Unde e pantoful meu? Blocurile au dispărut. Rândul meu)", "months": 20 },
+            { "id": "mand-2-7", "text": "Mand - 7-M: Cere altor persoane să efectueze 5 acțiuni diferite emițând cuvântul de acțiune singur sau cu numele unei persoane (ex: Leagăn! Vino aici, mama, Gâdilă, Cântă)", "months": 22 },
+            { "id": "mand-2-8", "text": "Mand - 8-M: Emite 5 cereri care conțin 2 sau mai multe verbe diferite fără prompturi echoice sau imitative (ex: Vreau să mă leagăn, Hai să mâncăm, Pune-l în mișcare)", "months": 24 },
+            { "id": "mand-2-9", "text": "Mand - 9-M: Cere informații folosind cererile verbale ce, unde sau cine în 5 contexte diferite (ex: Cine e acela? Ce e aia? Unde a plecat?)", "months": 26 },
+            { "id": "mand-2-10", "text": "Mand - 10-M: Emite 10 cereri cu 2 cuvinte sau mai multe, fără prompturi echoice sau imitative (ex: Ieși afară, Deschide sucul, Vreau mașină)", "months": 30 }
+          ]
+        },
+        "tact": {
+          "id": "tact-2",
+          "name": "Denumire (Tact) - Nivel 2",
+          "code": "TACT",
+          "items": [
+            { "id": "tact-2-6", "text": "Tact - 6-M: Denumește 10 obiecte", "months": 20 },
+            { "id": "tact-2-7", "text": "Tact - 7-M: Denumește 15 obiecte fără întărire (adică nu obiecte motivaționale ca mâncare, jucării preferate sau activități)", "months": 22 },
+            { "id": "tact-2-8", "text": "Tact - 8-M: Denumește 4 acțiuni când e întrebat 'Ce face el/ea?'", "months": 24 },
+            { "id": "tact-2-9", "text": "Tact - 9-M: Generalizează denumirile cu 25 de obiecte în 3 exemple ale obiectului și 2 tipuri de operanți verbali (ex: denumește corect minge, minge jucărie și o fotografie; cere și mingea)", "months": 26 },
+            { "id": "tact-2-10", "text": "Tact - 10-M: Denumește 25 de obiecte (cel puțin 10 substantive și 10 obiecte fără întărire)", "months": 30 }
+          ]
+        },
+        "listener": {
+          "id": "listener-2",
+          "name": "Răspuns la Ascultare - Nivel 2",
+          "code": "LR",
+          "items": [
+            { "id": "listener-2-6", "text": "Listener - 6-M: Selectează obiecte dintr-o carte, activități sau alte forme de stimuli bazate pe 2 componente verbale diferite (ex: combinații verb-substantiv ca Atinge câinele care doarme)", "months": 20 },
+            { "id": "listener-2-7", "text": "Listener - 7-M: Selectează obiecte dintr-o carte, activități sau alte forme de stimuli bazate pe 3 componente verbale diferite (ex: combinații adjectiv-substantiv, pronume-verb-substantiv)", "months": 22 },
+            { "id": "listener-2-8", "text": "Listener - 8-M: Urmează 25 de instrucțiuni diferite de 1 pas (ex: Ridică-te, Vino aici, Împinge mașina)", "months": 24 },
+            { "id": "listener-2-9", "text": "Listener - 9-M: Selectează obiecte dintr-un set dezordonat sau cameră cu 25 de obiecte (ex: Ia avionul din cutia de jucării)", "months": 26 },
+            { "id": "listener-2-10", "text": "Listener - 10-M: Demonstrează urmarea generalizată a instrucțiunilor răspunzând corect la 25 de instrucțiuni noi de 1 pas", "months": 30 }
+          ]
+        },
+        "vpmts": {
+          "id": "vpmts-2",
+          "name": "Abilități Perceptuale Vizuale și Potrivire Model - Nivel 2",
+          "code": "VP-MTS",
+          "items": [
+            { "id": "vpmts-2-6", "text": "VP-MTS - 6-M: Sortează 10 obiecte sau imagini diferite în 2 grupuri diferite (ex: pune toate furculițele și toate lingurile în cutii diferite)", "months": 20 },
+            { "id": "vpmts-2-7", "text": "VP-MTS - 7-M: Sortează obiecte similare, imagini sau culori când există 4 opțiuni diferite de sortare (ex: pune mere într-o găleată și banane, portocale și struguri în alte găleți)", "months": 22 },
+            { "id": "vpmts-2-8", "text": "VP-MTS - 8-M: Potrivește obiecte non-identice când sunt date 8 obiecte de selectat (ex: dat un camion Tonka galben, copilul selectează un camion de gunoi roșu)", "months": 24 },
+            { "id": "vpmts-2-9", "text": "VP-MTS - 9-M: Sortează 20 de obiecte sau imagini în locații spațiale corespunzătoare sau conține obiecte independente corespunzătoare (ex: obiecte care aparțin în bucătărie, dormitor sau baie)", "months": 26 },
+            { "id": "vpmts-2-10", "text": "VP-MTS - 10-M: Poate asambla puzzle-uri de 20 de piese interconectate", "months": 30 }
+          ]
+        },
+        "play": {
+          "id": "play-2",
+          "name": "Joacă Independentă - Nivel 2",
+          "code": "PLAY",
+          "items": [
+            { "id": "play-2-6", "text": "Play - 6-M: Demonstrează joacă generalizată cu jucării cu 10 jucării diferite (ex: se joacă cu mașini, păpuși, cuburi, puzzle-uri, creioane)", "months": 20 },
+            { "id": "play-2-7", "text": "Play - 7-M: Se joacă independent cu o varietate de jucării pentru 5 minute fără prompturi sau întărire de la adult", "months": 22 },
+            { "id": "play-2-8", "text": "Play - 8-M: Demonstrează 10 acțiuni diferite de joc cu jucării (ex: rostogolește o mașină pe o rampă, aruncă o minge, pune animale într-o magazie)", "months": 24 },
+            { "id": "play-2-9", "text": "Play - 9-M: Se angajează spontan în comportamente de joc de rol sau imaginar de 5 ori (ex: pretinde că bea dintr-o ceașcă, hrănește o păpușă sau cosește iarba)", "months": 26 },
+            { "id": "play-2-10", "text": "Play - 10-M: Demonstrează 25 de acțiuni diferite de joc cu jucării sau se angajează în joc de rol (ex: pune un bebeluș la culcare, construiește o casă, hrănește păpușa, spală mașina)", "months": 30 }
+          ]
+        },
+        "social": {
+          "id": "social-2",
+          "name": "Comportament Social și Joacă Socială - Nivel 2",
+          "code": "SOCIAL",
+          "items": [
+            { "id": "social-2-6", "text": "Social - 6-M: Cere spontan colegilor de 5 ori (ex: Hai să ne jucăm, Rândul meu, Mișcă-te)", "months": 20 },
+            { "id": "social-2-7", "text": "Social - 7-M: Cere spontan colegilor pentru interacțiune socială de 5 ori (ex: Vino aici. Vrei să vezi? Uită-te! Hei! Privește-mă!)", "months": 22 },
+            { "id": "social-2-8", "text": "Social - 8-M: Răspunde spontan la cererile colegilor de 5 ori (ex: un coleg spune Uită-te și copilul se uită; un coleg spune Vino aici și copilul răspunde)", "months": 24 },
+            { "id": "social-2-9", "text": "Social - 9-M: Privește un coleg când colegul spune numele său de 5 ori", "months": 26 },
+            { "id": "social-2-10", "text": "Social - 10-M: Se angajează în joacă socială susținută cu colegi pentru 3 minute fără prompturi sau întărire de la adult (ex: face puzzle-uri împreună, rostogolește o minge înainte și înapoi)", "months": 30 }
+          ]
+        },
+        "imitation": {
+          "id": "imitation-2",
+          "name": "Imitație Motorie - Nivel 2",
+          "code": "IMITATION",
+          "items": [
+            { "id": "imitation-2-6", "text": "Imitation - 6-M: Imită 10 acțiuni motorii fine diferite când i se cere (ex: mișcă degetele, ciupește, face un pumn)", "months": 20 },
+            { "id": "imitation-2-7", "text": "Imitation - 7-M: Imită 20 de acțiuni motorii diferite cu obiecte la cerere verbală (ex: lovește țăruși, stivuiește cuburi, rostogolește o mașină)", "months": 22 },
+            { "id": "imitation-2-8", "text": "Imitation - 8-M: Imită spontan 5 abilități funcționale diferite efectuate de alții (ex: mănâncă, pune pantofi, greblează frunze, face un gustare, udă flori)", "months": 24 },
+            { "id": "imitation-2-9", "text": "Imitation - 9-M: Imită 10 secvențe diferite de 3 componente de acțiuni cu obiecte (ex: ridică o tobă, merge la o baghetă de tobă și tobește; ridică o ceașcă, o umple cu apă și bea)", "months": 26 },
+            { "id": "imitation-2-10", "text": "Imitation - 10-M: Imită (sau încearcă să imite) orice acțiune motorie nouă modelată de un adult fără prompturi (ex: modele noi de cuburi, mișcări ale degetelor)", "months": 30 }
+          ]
+        },
+        "echoic": {
+          "id": "echoic-2",
+          "name": "Ecou Verbal - Nivel 2",
+          "code": "ECHOIC",
+          "items": [
+            { "id": "echoic-2-6", "text": "Echoic - 6-M: Repetă 100 de cuvinte monosilabice sau multisilabice, sau secvențe de două cuvinte (ex: mergi, banană, rândul meu)", "months": 20 },
+            { "id": "echoic-2-7", "text": "Echoic - 7-M: Repetă 20 de fraze de două cuvinte cu toate elementele în secvența corectă (ex: Mergi joacă, Mașina mea, Pantoful mamei)", "months": 22 },
+            { "id": "echoic-2-8", "text": "Echoic - 8-M: Repetă vorbirea în joacă socială de cel puțin 5 ori (ex: repetă jocul verbal al unui coleg în nisip; repetă sunetele vocale ale unui adult în timpul Cucu-bau)", "months": 24 },
+            { "id": "echoic-2-9", "text": "Echoic - 9-M: Repetă 50 de secvențe de trei cuvinte cu toate cuvintele în secvența corectă (ex: Mergi în mașină, Mama deschide ușa)", "months": 26 },
+            { "id": "echoic-2-10", "text": "Echoic - 10-M: Repetă orice frază de 4 cuvinte cu toate cele patru cuvinte în secvența corectă la comandă (ex: Asta e mingea mea, Du-te ia haina)", "months": 30 }
+          ]
+        },
+        "lrffc": {
+          "id": "lrffc-2",
+          "name": "Răspuns la Ascultare prin Funcție, Caracteristică și Clasă - Nivel 2",
+          "code": "LRFFC",
+          "items": [
+            { "id": "lrffc-2-6", "text": "LRFFC - 6-M: Selectează 5 obiecte sau activități cu întărire diferite când fiecare este prezentat într-un set de 5 (sau dintr-o carte) și e întrebat despre funcție (ex: Ce mănânci?)", "months": 20 },
+            { "id": "lrffc-2-7", "text": "LRFFC - 7-M: Selectează 25 de obiecte diferite din cărți sau grupuri de obiecte sau scene de activitate când fiecare este prezentat într-un set de 5 (sau dintr-o carte) și e întrebat despre funcție (ex: Cu ce te dai?)", "months": 22 },
+            { "id": "lrffc-2-8", "text": "LRFFC - 8-M: Selectează obiecte dintr-un set de 8 imagini sau obiecte bazate pe 2 componente verbale diferite: caracteristică (ex: culoare, formă) și funcție (ex: Cu ce te dai care e galben?)", "months": 24 },
+            { "id": "lrffc-2-9", "text": "LRFFC - 9-M: Selectează 25 de obiecte când sunt prezentate într-un set de 5 și e dată o caracteristică (ex: Găsește ceva galben)", "months": 26 },
+            { "id": "lrffc-2-10", "text": "LRFFC - 10-M: Selectează 25 de obiecte când sunt prezentate într-un set de 5 (sau dintr-o carte) și e dată o clasă (ex: Găsește un animal, Găsește mâncare)", "months": 30 }
+          ]
+        },
+        "intraverbal": {
+          "id": "intraverbal-2",
+          "name": "Intraverbal - Nivel 2",
+          "code": "IV",
+          "items": [
+            { "id": "intraverbal-2-6", "text": "IV - 6-M: Completează 10 fraze diferite completare-spațiu (ex: Gata, pregătește...; 1, 2...)", "months": 20 },
+            { "id": "intraverbal-2-7", "text": "IV - 7-M: Oferă numele a 10 obiecte cu întărire când sunt prezentate cu prompturi verbale despre un întăritor specific (ex: Tu mănânci..., Tu dormi într-un..., Tu arunci o..., Tu te dai într-o...)", "months": 22 },
+            { "id": "intraverbal-2-8", "text": "IV - 8-M: Oferă numele a 2 obiecte din 20 de categorii diferite (ex: Poți să-mi spui 2 animale? Poți să-mi spui 2 alimente?)", "months": 24 },
+            { "id": "intraverbal-2-9", "text": "IV - 9-M: Demonstrează 100 de răspunsuri intraverbale (ex: cântece, completare-spațiu, cum te cheamă, întrebări ce)", "months": 26 },
+            { "id": "intraverbal-2-10", "text": "IV - 10-M: Completează 25 de fraze diferite completare-spațiu de orice tip (ex: cântece, jocuri sociale, sunete de animale, completări amuzante)", "months": 30 }
+          ]
+        },
+        "classroom": {
+          "id": "classroom-2",
+          "name": "Rutine de Clasă și Abilități de Grup - Nivel 2",
+          "code": "GROUP",
+          "items": [
+            { "id": "classroom-2-6", "text": "GROUP - 6-M: Stă într-un grup mic fără comportament perturbator pentru 5 minute", "months": 20 },
+            { "id": "classroom-2-7", "text": "GROUP - 7-M: Participă la o activitate de grup condusă de profesor care implică mișcare (ex: cântat, dansat) pentru 3 minute", "months": 22 },
+            { "id": "classroom-2-8", "text": "GROUP - 8-M: Stă într-o sesiune de grup de 20 de minute fără comportament perturbator", "months": 24 },
+            { "id": "classroom-2-9", "text": "GROUP - 9-M: Urmează instrucțiunea de a se alinia și se mișcă cu grupul la locația următoare, dar poate avea nevoie de prompturi și întărire", "months": 26 },
+            { "id": "classroom-2-10", "text": "GROUP - 10-M: Stă într-un grup și răspunde la instrucțiunea verbală prezentată grupului (ex: Toți bateți din palme)", "months": 30 }
+          ]
+        },
+        "linguistics": {
+          "id": "linguistics-2",
+          "name": "Structură Lingvistică - Nivel 2",
+          "code": "LING",
+          "items": [
+            { "id": "linguistics-2-6", "text": "LING - 6-M: Emite 2 sau mai multe inflexiuni diferite de substantiv (ex: plural s ca pisici; trecut regulat ca mersese; posesiv s ca al tatălui)", "months": 20 },
+            { "id": "linguistics-2-7", "text": "LING - 7-M: Emite 50 de enunțuri diferite de 2 cuvinte (nu echoice sau cereri)", "months": 22 },
+            { "id": "linguistics-2-8", "text": "LING - 8-M: Emite 100 de enunțuri diferite de 2 cuvinte (ex: camion mare, mingea mea, pisică doarme, ieși afară, vreau suc)", "months": 24 },
+            { "id": "linguistics-2-9", "text": "LING - 9-M: Are un vocabular de ascultare de 300 de cuvinte", "months": 26 },
+            { "id": "linguistics-2-10", "text": "LING - 10-M: Are un vocabular de vorbire de 200 de cuvinte (toți operanții verbali)", "months": 30 }
+          ]
+        }
+      }
+    },
+    "level3": {
+      "name": "Nivel 3 (30-48 luni)",
+      "description": "Evaluare Jaloane - Nivel 3",
+      "areas": {
+        "mand": {
+          "id": "mand-3",
+          "name": "Cerere (Mand) - Nivel 3",
+          "code": "MAND",
+          "items": [
+            { "id": "mand-3-11", "text": "Mand - 11-M: Emite 15 cereri diferite pentru informații folosind ce, unde, cine, al cui, când sau cum în 4 medii sau condiții diferite", "months": 33 },
+            { "id": "mand-3-12", "text": "Mand - 12-M: Emite spontan 15 cereri pentru informații folosind întrebări ce, unde, cine, al cui, când sau cum cu 3 sau mai multe cuvinte de întrebare diferite", "months": 36 },
+            { "id": "mand-3-13", "text": "Mand - 13-M: Emite 10 cereri cu 3 sau mai multe cuvinte (fără a include vreau)", "months": 39 },
+            { "id": "mand-3-14", "text": "Mand - 14-M: Emite spontan 5 cereri care conțin 4 sau mai multe cuvinte (ex: Pot să am un rând? Vreau să mă joc afară)", "months": 42 },
+            { "id": "mand-3-15", "text": "Mand - 15-M: Cere prepoziția corectă în fraze la 50 de încercări (ex: Poți pune mașina pe masă?)", "months": 48 }
+          ]
+        },
+        "tact": {
+          "id": "tact-3",
+          "name": "Denumire (Tact) - Nivel 3",
+          "code": "TACT",
+          "items": [
+            { "id": "tact-3-11", "text": "Tact - 11-M: Denumește 50 de obiecte", "months": 33 },
+            { "id": "tact-3-12", "text": "Tact - 12-M: Denumește 10 acțiuni (ex: aleargă, doarme, mănâncă, se leagănă)", "months": 36 },
+            { "id": "tact-3-13", "text": "Tact - 13-M: Denumește 100 de obiecte în orice clasificare VB-MAPP", "months": 39 },
+            { "id": "tact-3-14", "text": "Tact - 14-M: Denumește toate obiectele din 10 categorii diferite cu 5 obiecte în fiecare categorie (ex: denumește 5 animale, 5 alimente, 5 vehicule)", "months": 42 },
+            { "id": "tact-3-15", "text": "Tact - 15-M: Denumește spontan 25 de obiecte sau activități (o varietate pe parcursul zilei, ex: denumește o mașină care trece, un avion în cer, ploaia, văzându-se în oglindă)", "months": 48 }
+          ]
+        },
+        "listener": {
+          "id": "listener-3",
+          "name": "Răspuns la Ascultare - Nivel 3",
+          "code": "LR",
+          "items": [
+            { "id": "listener-3-11", "text": "Listener - 11-M: Demonstrează răspunsuri generalizate de ascultare răspunzând corect la instrucțiuni de 2 pași (ex: Ia-ți haina și stai lângă ușă)", "months": 33 },
+            { "id": "listener-3-12", "text": "Listener - 12-M: Demonstrează 100 de răspunsuri diferite de ascultare la substantive", "months": 36 },
+            { "id": "listener-3-13", "text": "Listener - 13-M: Demonstrează răspunsuri generalizate de ascultare răspunzând corect la instrucțiuni noi de 3 pași la 10 încercări consecutive (ex: Ridică păpușa, pune-o în pat și acoperă-o)", "months": 39 },
+            { "id": "listener-3-14", "text": "Listener - 14-M: Ascultă o poveste scurtă și răspunde la 5 întrebări diferite despre poveste fără prompturi verbale", "months": 42 },
+            { "id": "listener-3-15", "text": "Listener - 15-M: Efectuează corect 50 de instrucțiuni diferite de 2 pași", "months": 48 }
+          ]
+        },
+        "vpmts": {
+          "id": "vpmts-3",
+          "name": "Abilități Perceptuale Vizuale și Potrivire Model - Nivel 3",
+          "code": "VP-MTS",
+          "items": [
+            { "id": "vpmts-3-11", "text": "VP-MTS - 11-M: Potrivește un eșantion când sunt prezente 8 comparații și 4 comparații pot servi ca potriviri potențiale la eșantion (ex: 4 nuanțe diferite de roșu, 2 albastru, 1 galben, 1 verde)", "months": 33 },
+            { "id": "vpmts-3-12", "text": "VP-MTS - 12-M: Completează 25 de puzzle-uri diferite de 50 de piese interconectate", "months": 36 },
+            { "id": "vpmts-3-13", "text": "VP-MTS - 13-M: Completează 25 de modele sau puzzle-uri diferite de parchet, formă sau model (ex: face un model specific cu cuburi sau țăruși, completează tangram-uri)", "months": 39 },
+            { "id": "vpmts-3-14", "text": "VP-MTS - 14-M: Sortează 50 de obiecte după 3 categorii verbale diferite dintr-un set de 6 sau dintr-o grămadă de obiecte (ex: Pune alimentele pe covorașul roșu, jucăriile pe covorașul albastru)", "months": 42 },
+            { "id": "vpmts-3-15", "text": "VP-MTS - 15-M: Sortează 50 de imagini sau obiecte în 10 categorii verbale diferite (ex: animale, alimente, vehicule, mobilier, haine, jucării)", "months": 48 }
+          ]
+        },
+        "play": {
+          "id": "play-3",
+          "name": "Joacă Independentă - Nivel 3",
+          "code": "PLAY",
+          "items": [
+            { "id": "play-3-11", "text": "Play - 11-M: Demonstrează joc de rol care implică alte persoane pentru 2 minute fără prompturi (ex: pretinde că gătește și hrănește alții, doctor)", "months": 33 },
+            { "id": "play-3-12", "text": "Play - 12-M: Demonstrează 50 de acțiuni diferite de joc", "months": 36 },
+            { "id": "play-3-13", "text": "Play - 13-M: Se angajează în activități de joc social de rol cu colegi fără prompturi sau întărire de la adult pentru 5 minute (ex: casă, fermă, restaurant)", "months": 39 },
+            { "id": "play-3-14", "text": "Play - 14-M: Se joacă independent pentru 15 minute fără prompturi sau întărire de la adult", "months": 42 },
+            { "id": "play-3-15", "text": "Play - 15-M: Se angajează în activități susținute de joc de rol pentru 10 minute fără prompturi sau întărire de la adult (ex: se joacă de-a casa, super eroi)", "months": 48 }
+          ]
+        },
+        "social": {
+          "id": "social-3",
+          "name": "Comportament Social și Joacă Socială - Nivel 3",
+          "code": "SOCIAL",
+          "items": [
+            { "id": "social-3-11", "text": "Social - 11-M: Cere spontan colegilor cu o medie de 10 cereri pe perioadă de 30 de minute", "months": 33 },
+            { "id": "social-3-12", "text": "Social - 12-M: Se angajează în 2 schimburi verbale cu colegi fără prompturi de la adult de 5 ori (ex: alt copil spune Hai să ne jucăm și copilul țintă spune OK)", "months": 36 },
+            { "id": "social-3-13", "text": "Social - 13-M: Cere spontan colegilor să participe la activități de 5 ori (ex: întreabă colegi să se joace cu cuburi, să iasă afară)", "months": 39 },
+            { "id": "social-3-14", "text": "Social - 14-M: Denumește spontan către colegi de 10 ori (ex: spune unui coleg Este o pasăre! Plouă! Îmi plac pantofii tăi!)", "months": 42 },
+            { "id": "social-3-15", "text": "Social - 15-M: Se angajează în 3 schimburi verbale reciproce cu colegi de 5 ori", "months": 48 }
+          ]
+        },
+        "imitation": {
+          "id": "imitation-3",
+          "name": "Imitație Motorie - Nivel 3",
+          "code": "IMITATION",
+          "items": [
+            { "id": "imitation-3-11", "text": "Imitation - 11-M: Imită 20 de acțiuni motorii fine diferite când i se cere (ex: mișcări ale mâinii, mișcări ale feței)", "months": 33 },
+            { "id": "imitation-3-12", "text": "Imitation - 12-M: Imită spontan 5 acțiuni motorii diferite într-un context de joc de rol (ex: gătit, spălat, hrănit)", "months": 36 },
+            { "id": "imitation-3-13", "text": "Imitation - 13-M: Imită (sau încearcă să imite) orice acțiune nouă, set de acțiuni sau comportament de joc demonstrat de un coleg", "months": 39 },
+            { "id": "imitation-3-14", "text": "Imitation - 14-M: Imită într-un grup, răspunzând la instrucțiunea Toată lumea... (ex: la gustare imită punerea șervețelor când i se spune Toată lumea ia un șervețel; imită mișcări ale mâinii în timpul cântecului)", "months": 42 },
+            { "id": "imitation-3-15", "text": "Imitation - 15-M: Demonstrează gama completă de comportamente imitative. Va încerca să copieze practic toate comportamentele funcționale demonstrate de alții", "months": 48 }
+          ]
+        },
+        "echoic": {
+          "id": "echoic-3",
+          "name": "Ecou Verbal - Nivel 3",
+          "code": "ECHOIC",
+          "items": [
+            { "id": "echoic-3-11", "text": "Echoic - 11-M: Repetă cuvinte sau fraze simple aleatorii cu 5 sau mai multe cuvinte (toate cuvintele în secvența corectă)", "months": 33 },
+            { "id": "echoic-3-12", "text": "Echoic - 12-M: Repetă 5 cuvinte diferite care rimează când sunt prezentate în perechi (ex: repetă bat-hat, hot-pot)", "months": 36 },
+            { "id": "echoic-3-13", "text": "Echoic - 13-M: Repetă o varietate de fraze noi de 3-4 cuvinte cu structură gramaticală și sintaxă corectă (ex: subiect-verb-obiect, combinații substantiv-verb)", "months": 39 },
+            { "id": "echoic-3-14", "text": "Echoic - 14-M: Repetă fraze sau propoziții aleatorii care conțin 6 sau mai multe cuvinte (toate cuvintele în secvența corectă)", "months": 42 },
+            { "id": "echoic-3-15", "text": "Echoic - 15-M: Demonstrează răspunsuri echoice la orice cuvânt sau frază în limitele abilităților sale de articulare", "months": 48 }
+          ]
+        },
+        "lrffc": {
+          "id": "lrffc-3",
+          "name": "Răspuns la Ascultare prin Funcție, Caracteristică și Clasă - Nivel 3",
+          "code": "LRFFC",
+          "items": [
+            { "id": "lrffc-3-11", "text": "LRFFC - 11-M: Selectează obiecte bazate pe 3 componente verbale diferite: caracteristică, funcție și clasă (FFC) când sunt prezentate într-un set de 8 (ex: Găsește un animal galben care poate zbura)", "months": 33 },
+            { "id": "lrffc-3-12", "text": "LRFFC - 12-M: Selectează 25 de obiecte diferite dintr-un set de 8 când i se dau 4 componente verbale diferite (ex: Găsește ceva roșu, rotund, pe care îl mănânci, care e mic)", "months": 36 },
+            { "id": "lrffc-3-13", "text": "LRFFC - 13-M: Selectează obiectul corect dintr-un set de 10 stimuli similari bazat pe 3 componente verbale (ex: indică o imagine a unui câine brun mic care doarme)", "months": 39 },
+            { "id": "lrffc-3-14", "text": "LRFFC - 14-M: Demonstrează răspuns LRFFC generalizat cu componente multiple în 2 sau mai multe din 600 de categorii", "months": 42 },
+            { "id": "lrffc-3-15", "text": "LRFFC - 15-M: Demonstrează LRFFC generalizat selectând corect 25 de obiecte cu 5 componente verbale diferite", "months": 48 }
+          ]
+        },
+        "intraverbal": {
+          "id": "intraverbal-3",
+          "name": "Intraverbal - Nivel 3",
+          "code": "IV",
+          "items": [
+            { "id": "intraverbal-3-11", "text": "IV - 11-M: Oferă numele a 5 obiecte în 20 de categorii diferite (ex: Poți să-mi spui 5 animale? Poți să-mi spui 5 lucruri pe care le mănânci?)", "months": 33 },
+            { "id": "intraverbal-3-12", "text": "IV - 12-M: Demonstrează 150 de răspunsuri intraverbale diferite", "months": 36 },
+            { "id": "intraverbal-3-13", "text": "IV - 13-M: Demonstrează 300 de răspunsuri intraverbale diferite", "months": 39 },
+            { "id": "intraverbal-3-14", "text": "IV - 14-M: Răspunde la 25 de întrebări diferite ce, unde, cine despre obiecte din mediul imediat (ex: În ce dormi? Unde găsești un leagăn?)", "months": 42 },
+            { "id": "intraverbal-3-15", "text": "IV - 15-M: Poate răspunde la 25 de întrebări diferite de ce, când și cum (ex: De ce faci baie? Când te duci la culcare?)", "months": 48 }
+          ]
+        },
+        "classroom": {
+          "id": "classroom-3",
+          "name": "Rutine de Clasă și Abilități de Grup - Nivel 3",
+          "code": "GROUP",
+          "items": [
+            { "id": "classroom-3-11", "text": "GROUP - 11-M: Dobândește 2 comportamente noi în timpul unei sesiuni de predare în grup mic de 15 minute", "months": 33 },
+            { "id": "classroom-3-12", "text": "GROUP - 12-M: Trece între activități de clasă cu prompturi verbale în 1 minut de 5 ori", "months": 36 },
+            { "id": "classroom-3-13", "text": "GROUP - 13-M: Participă la un profesor sau terapeut într-un grup de 3 copii pentru 10 minute", "months": 39 },
+            { "id": "classroom-3-14", "text": "GROUP - 14-M: Lucrează independent pentru 5 minute într-un grup mic la un proiect de grup", "months": 42 },
+            { "id": "classroom-3-15", "text": "GROUP - 15-M: Stă într-o sesiune de predare în grup de 20 de minute, privește vorbitorul, răspunde la întrebări, urmează instrucțiuni și nu se angajează în comportament perturbator", "months": 48 }
+          ]
+        },
+        "linguistics": {
+          "id": "linguistics-3",
+          "name": "Structură Lingvistică - Nivel 3",
+          "code": "LING",
+          "items": [
+            { "id": "linguistics-3-11", "text": "LING - 11-M: Emite 10 combinații diferite adjectiv-substantiv sau verb-substantiv", "months": 33 },
+            { "id": "linguistics-3-12", "text": "LING - 12-M: Emite 10 combinații diferite de 3 cuvinte substantiv-verb-substantiv sau pronume-verb-substantiv", "months": 36 },
+            { "id": "linguistics-3-13", "text": "LING - 13-M: Emite propoziții care conțin un subiect substantiv, verb, obiect și o altă componentă (ex: articol, adjectiv, adverb, prepoziție)", "months": 39 },
+            { "id": "linguistics-3-14", "text": "LING - 14-M: Are un vocabular de ascultare de 1000 de cuvinte", "months": 42 },
+            { "id": "linguistics-3-15", "text": "LING - 15-M: Are un vocabular de vorbire de 300 de cuvinte (toți operanții verbali)", "months": 48 }
+          ]
+        },
+        "reading": {
+          "id": "reading-3",
+          "name": "Citire - Nivel 3",
+          "code": "READING",
+          "items": [
+            { "id": "reading-3-11", "text": "Reading - 11-M: Potrivește 10 litere identice (majuscule sau minuscule)", "months": 33 },
+            { "id": "reading-3-12", "text": "Reading - 12-M: Urmărește vizual textul de la stânga la dreapta pe pagină când se uită la cărți", "months": 36 },
+            { "id": "reading-3-13", "text": "Reading - 13-M: Selectează 10 din 26 de litere, cu alfabetul în vedere", "months": 39 },
+            { "id": "reading-3-14", "text": "Reading - 14-M: Potrivește toate cele 26 de litere majuscule și minuscule între ele într-un set de 6", "months": 42 },
+            { "id": "reading-3-15", "text": "Reading - 15-M: Denumește 10 din 26 de litere", "months": 48 }
+          ]
+        },
+        "writing": {
+          "id": "writing-3",
+          "name": "Scriere - Nivel 3",
+          "code": "WRITING",
+          "items": [
+            { "id": "writing-3-11", "text": "Writing - 11-M: Ține și manipulează markere, creioane sau creioane pentru a mâzgăli sau colora", "months": 33 },
+            { "id": "writing-3-12", "text": "Writing - 12-M: Imită 5 trasaturi diferite de desen cu o linie (verticale, orizontale sau circulare)", "months": 36 },
+            { "id": "writing-3-13", "text": "Writing - 13-M: Copiază 5 forme geometrice (ex: cerc, pătrat, triunghi, dreptunghi)", "months": 39 },
+            { "id": "writing-3-14", "text": "Writing - 14-M: Trasează 10 litere sau numere", "months": 42 },
+            { "id": "writing-3-15", "text": "Writing - 15-M: Scrie (sau copiază) independent 10 litere sau numere (inclusiv propriul nume)", "months": 48 }
+          ]
+        },
+        "math": {
+          "id": "math-3",
+          "name": "Matematică - Nivel 3",
+          "code": "MATH",
+          "items": [
+            { "id": "math-3-11", "text": "Math - 11-M: Numără pe de rost până la 5", "months": 33 },
+            { "id": "math-3-12", "text": "Math - 12-M: Demonstrează corespondență unu-la-unu în numărarea obiectelor până la 5", "months": 36 },
+            { "id": "math-3-13", "text": "Math - 13-M: Denumește numărul de obiecte dintr-un set de 1 la 5 (ex: Câți cai sunt?)", "months": 39 },
+            { "id": "math-3-14", "text": "Math - 14-M: Identifică ca ascultător numărul corespunzător cantității de obiecte în seturi de 1 la 5 (ex: Atinge 4)", "months": 42 },
+            { "id": "math-3-15", "text": "Math - 15-M: Potrivește numărul corect la cantitatea corectă și invers pentru numerele de la 1 la 5", "months": 48 }
+          ]
+        }
+      }
+    }
+  },
+  "barriers": {
+    "name": "Evaluare Bariere",
+    "description": "Evaluarea barierelor în calea învățării și achiziției limbajului",
+    "items": [
+      { "id": "barrier-1", "text": "Comportamente negative (ex: neconformare, crize de furie, agresiune, lăsarea pe podea, părăsirea zonelor desemnate, distrugerea proprietății)" },
+      { "id": "barrier-2", "text": "Control instrucțional (comportamente de evitare și eschivare; gradul în care instructorul poate prezenta solicitări; nivelul de întărire necesar)" },
+      { "id": "barrier-3", "text": "Cerere afectată (ex: nu va cere obiecte dorite, cererile sunt mecanice, repertoriu de cereri limitat, cereri slabe, cereri neclare)" },
+      { "id": "barrier-4", "text": "Denumire afectată (ex: transfer echoic-la-denumire slab, nu va face contact vizual cu obiectele, scriptingul interferează cu denumirile, varietate limitată)" },
+      { "id": "barrier-5", "text": "Ecou afectat (ex: fără vocalizări, fără combinații de silabe, fără fraze, articulare slabă, scripting)" },
+      { "id": "barrier-6", "text": "Imitație afectată (ex: eșec de a acorda atenție modelului, prea întăritor, abilități motorii fine sau grosiere afectate)" },
+      { "id": "barrier-7", "text": "Abilități perceptuale vizuale și potrivire model afectate (ex: abilități slabe de scanare, acordare de atenție la stimuli irelevanți, răspunsuri neglijente)" },
+      { "id": "barrier-8", "text": "Abilități de ascultare afectate (ex: inconsistente, prea mecanice, dependență de prompturi, derulare, scanare slabă, necesită ecouri)" },
+      { "id": "barrier-9", "text": "Intraverbal afectat (ex: prea mecanic, scripting, răspunde doar la câteva prompturi intraverbale specifice, răspunsuri echoice)" },
+      { "id": "barrier-10", "text": "Comportament social afectat (ex: nu va cere colegilor, nu va denumi către colegi, nu răspunde altora, evită interacțiunile sociale)" },
+      { "id": "barrier-11", "text": "Dependent de prompturi (ex: așteaptă întotdeauna un prompt de la adult, privește adulții, nu va răspunde când e promptat de colegi)" },
+      { "id": "barrier-12", "text": "Răspunsuri în derulare (ex: emite un răspuns după altul, apoi le ciclează din nou fără a aștepta feedback)" },
+      { "id": "barrier-13", "text": "Abilități de scanare afectate (ex: nu examinează vizual materialele, răspunsuri impulsive, potrivire neglijentă, discriminări condiționale slabe)" },
+      { "id": "barrier-14", "text": "Discriminări condiționale afectate (ex: nu poate învăța discriminări cu indicii sociale, verbale, temporale sau condiționale încorporate)" },
+      { "id": "barrier-15", "text": "Eșec de a generaliza (ex: răspunde doar într-o locație specifică sau cu o persoană specifică; stimuli noi sunt slabi)" },
+      { "id": "barrier-16", "text": "Operații motivaționale slabe sau atipice (ex: nu va cere obiecte, motivație slabă pentru interacțiune socială, surse limitate de motivație)" },
+      { "id": "barrier-17", "text": "Cerința de răspuns slăbește operația motivațională (ex: renunțare, nu lucrează pentru întăritori, valoare scăzută pentru întăritori)" },
+      { "id": "barrier-18", "text": "Articulare afectată (ex: omite sunete, substituie sunete, adaugă sunete, distorsionează sunete)" },
+      { "id": "barrier-19", "text": "Comportament obsesiv-compulsiv (ex: se angajează în comportament repetitiv, rigiditate, insistă pe aceeași, dificultate cu schimbările)" },
+      { "id": "barrier-20", "text": "Comportament hiperactiv (ex: comportament impulsiv, incapacitate de a sta nemișcat, mișcare constantă, dificultate de a acorda atenție)" },
+      { "id": "barrier-21", "text": "Comportament autostimulativ (ex: comportament motor sau vocal repetitiv și stereotip care interferează cu învățarea sau interacțiunile sociale)" },
+      { "id": "barrier-22", "text": "Abilități de acordare a atenției afectate (ex: eșec de a acorda atenție la stimuli relevanți, ușor distras, eșec de a completa sarcini)" },
+      { "id": "barrier-23", "text": "Defensivitate senzorială (ex: își acoperă urechile, nu îi place contactul fizic, alimentație selectivă, probleme cu îngrijirea)" },
+      { "id": "barrier-24", "text": "Eșec de a face contact vizual (ex: nu privește oamenii când le vorbește sau când i se vorbește, nu privește obiectele denumite)" }
+    ]
+  },
+  "transition": {
+    "name": "Evaluare Tranziție",
+    "description": "Evaluarea pregătirii pentru tranziție și plasare",
+    "items": [
+      { "id": "transition-1", "text": "Probleme generale de comportament și control instrucțional (ex: frecvența și tipul comportamentelor problematice, nivelul de control instrucțional, conformare)" },
+      { "id": "transition-2", "text": "Frecvența întăririi (ex: nivelul de întărire necesar pentru conformare, finalizarea sarcinilor și angajare socială)" },
+      { "id": "transition-3", "text": "Rata de achiziție a noilor abilități (ex: timpul necesar pentru a învăța noi abilități, încercări până la criteriu, sesiuni până la criteriu)" },
+      { "id": "transition-4", "text": "Retenția noilor abilități (ex: capacitatea de a reține abilitățile nou învățate în timp fără practică suplimentară)" },
+      { "id": "transition-5", "text": "Transfer la contingențe naturale de menținere (ex: capacitatea de a funcționa sub contingențe naturale fără întărire artificială)" },
+      { "id": "transition-6", "text": "Adaptabilitate (ex: ușurința învățării în diverse contexte diferite, cu materiale diferite și persoane diferite)" },
+      { "id": "transition-7", "text": "Limbaj spontan și generalizat (ex: comportament verbal spontan, nou și creativ și comportament verbal sub control stimulativ relevant)" },
+      { "id": "transition-8", "text": "Abilități de joacă independentă (ex: varietatea activităților, durata jocului, nivelul de angajare, comportament fizic și verbal în timpul jocului)" },
+      { "id": "transition-9", "text": "Abilități de joacă socială cu colegi (ex: gradul în care un copil se poate angaja în activități de joc cu colegii pentru o perioadă susținută)" },
+      { "id": "transition-10", "text": "Abilități sociale cu colegi (ex: cereri și denumiri către colegi, răspunsuri la cereri și denumiri de la colegi, răspunsuri la interesele altora)" },
+      { "id": "transition-11", "text": "Instrucțiune în grup (ex: șederea într-un grup, acordarea atenției profesorului, răspunsurile la întrebările grupului, completarea activităților de grup)" },
+      { "id": "transition-12", "text": "Lucrează independent (ex: timpul angajat independent în diverse sarcini non-joc precum foi de lucru, meșteșuguri, completarea sarcinilor academice)" },
+      { "id": "transition-13", "text": "Generalizare între medii (ex: performanța este similară în diferite setări, medii noi sau persoane noi)" },
+      { "id": "transition-14", "text": "Abilități de ascultare/urmarea instrucțiunilor (ex: răspunde la instrucțiuni de 1 pas, 2 pași, 3 pași, instrucțiuni noi și instrucțiuni de grup)" },
+      { "id": "transition-15", "text": "Învățare de la colegi (ex: imitație spontană a colegilor, învățarea de noi abilități din modelele colegilor, participarea la activități de colegi)" },
+      { "id": "transition-16", "text": "Jaloane de comportament verbal (ex: scoruri generale de comportament verbal din Evaluarea Jaloane VB-MAPP)" },
+      { "id": "transition-17", "text": "Bariere în calea învățării (ex: scoruri generale de bariere din Evaluarea Bariere VB-MAPP)" },
+      { "id": "transition-18", "text": "Echilibrul general al abilităților (ex: gradul în care scorurile abilităților sunt consistente între domeniile de abilități, sau dacă unele domenii sunt semnificativ mai slabe)" }
+    ]
+  },
+  "taskAnalysis": {
+    "name": "Analiză Sarcină (Task Analysis)",
+    "description": "Descompunerea sarcinilor în pași mai mici pentru urmărirea progresului",
+    "items": [
+      { "id": "task-1", "text": "Spălarea mâinilor: Deschide apa" },
+      { "id": "task-2", "text": "Spălarea mâinilor: Își udă mâinile" },
+      { "id": "task-3", "text": "Spălarea mâinilor: Pune săpun pe mâini" },
+      { "id": "task-4", "text": "Spălarea mâinilor: Freacă mâinile împreună" },
+      { "id": "task-5", "text": "Spălarea mâinilor: Clătește săpunul" },
+      { "id": "task-6", "text": "Spălarea mâinilor: Închide apa" },
+      { "id": "task-7", "text": "Spălarea mâinilor: Își usucă mâinile cu prosopul" },
+      { "id": "task-8", "text": "Periatul dinților: Ia periuța de dinți" },
+      { "id": "task-9", "text": "Periatul dinților: Pune pastă pe periuță" },
+      { "id": "task-10", "text": "Periatul dinților: Periază dinții de sus" },
+      { "id": "task-11", "text": "Periatul dinților: Periază dinții de jos" },
+      { "id": "task-12", "text": "Periatul dinților: Clătește gura" },
+      { "id": "task-13", "text": "Periatul dinților: Clătește periuța" },
+      { "id": "task-14", "text": "Periatul dinților: Pune periuța înapoi" },
+      { "id": "task-15", "text": "Îmbrăcatul: Alege hainele potrivite" },
+      { "id": "task-16", "text": "Îmbrăcatul: Pune tricoul (capul prin găură)" },
+      { "id": "task-17", "text": "Îmbrăcatul: Pune brațele prin mâneci" },
+      { "id": "task-18", "text": "Îmbrăcatul: Trage tricoul în jos" },
+      { "id": "task-19", "text": "Îmbrăcatul: Pune pantalonii (un picior)" },
+      { "id": "task-20", "text": "Îmbrăcatul: Pune pantalonii (celălalt picior)" },
+      { "id": "task-21", "text": "Îmbrăcatul: Trage pantalonii în sus" },
+      { "id": "task-22", "text": "Îmbrăcatul: Închide/prinde pantalonii" },
+      { "id": "task-23", "text": "Masă: Se așează la masă când i se cere" },
+      { "id": "task-24", "text": "Masă: Așteaptă până când toți sunt serviți" },
+      { "id": "task-25", "text": "Masă: Folosește corect lingura" },
+      { "id": "task-26", "text": "Masă: Folosește corect furculița" },
+      { "id": "task-27", "text": "Masă: Bea din pahar fără să verse" },
+      { "id": "task-28", "text": "Masă: Folosește șervețelul" },
+      { "id": "task-29", "text": "Masă: Cere mai multă mâncare dacă dorește" },
+      { "id": "task-30", "text": "Masă: Curăță după ce termină" }
+    ]
+  },
+  "iepObjectives": {
+    "name": "Obiective IEP (Individualized Education Program)",
+    "description": "Obiective educaționale individualizate derivate din evaluarea VB-MAPP",
+    "items": [
+      { "id": "iep-1", "text": "Va emite 20 de cereri spontane pentru obiecte, activități sau ajutor în diverse contexte" },
+      { "id": "iep-2", "text": "Va denumi 50 de obiecte, imagini, persoane sau acțiuni când i se solicită" },
+      { "id": "iep-3", "text": "Va răspunde corect la 25 de întrebări intraverbale simple (ex: Ce manânci? Unde dormi?)" },
+      { "id": "iep-4", "text": "Va selecta obiectul corect dintr-un câmp de 6-8 pentru 100 de ținte diferite" },
+      { "id": "iep-5", "text": "Va imita 20 de acțiuni motorii diferite cu obiecte și fără obiecte" },
+      { "id": "iep-6", "text": "Va echoa 50 de cuvinte și fraze diferite cu articulare clară" },
+      { "id": "iep-7", "text": "Va demonstra discriminări condiționale cu 10 perechi de stimuli (ex: arată mingea mare, arată mingea mică)" },
+      { "id": "iep-8", "text": "Va răspunde la întrebări despre povești simple (cine, ce, unde)" },
+      { "id": "iep-9", "text": "Va participa la activități de joc paralel cu colegii pentru 10 minute" },
+      { "id": "iep-10", "text": "Va cere și va răspunde la cereri de la colegi în contexte naturale" },
+      { "id": "iep-11", "text": "Va urmări instrucțiuni în 2-3 pași fără prompturi suplimentare" },
+      { "id": "iep-12", "text": "Va demonstra 15 tact-uri de atribute (culori, forme, mărimi)" },
+      { "id": "iep-13", "text": "Va completa activități independente pentru 15 minute fără întărire continuă" },
+      { "id": "iep-14", "text": "Va demonstra 10 intraverbale despre sine (nume, vârstă, preferințe)" },
+      { "id": "iep-15", "text": "Va se angaja în conversații de dus-întors cu 3-4 schimburi" },
+      { "id": "iep-16", "text": "Va participa la activități de grup urmând regulile și așteptând rândul" },
+      { "id": "iep-17", "text": "Va generaliza abilitățile învățate în 3 medii diferite cu 3 persoane diferite" },
+      { "id": "iep-18", "text": "Va reduce comportamentele problematice cu 80% față de nivelul de bază" },
+      { "id": "iep-19", "text": "Va folosi limbaj spontan pentru a comenta asupra mediului (10 exemple/zi)" },
+      { "id": "iep-20", "text": "Va demonstra abilități de auto-îngrijire (toaletă, spălat pe mâini, masă) cu independență 75%" }
+    ]
+  }
+}
