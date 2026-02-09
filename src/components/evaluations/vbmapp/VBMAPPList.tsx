@@ -17,6 +17,7 @@ import {
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { useClientVBMAPPEvaluations, useVBMAPPActions } from "@/hooks/useVBMAPP";
 import { useToast } from "@/context/ToastContext";
+import { useConfirm } from "@/context/ConfirmContext";
 import VBMAPPMilestoneGrid from "./VBMAPPMilestoneGrid";
 
 interface VBMAPPListProps {
@@ -39,25 +40,30 @@ export default function VBMAPPList({
   const { evaluations, loading, error } = useClientVBMAPPEvaluations(clientId);
   const { deleteEvaluation, saving } = useVBMAPPActions();
   const { success, error: toastError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (evaluationId: string) => {
-    if (!confirm("Delete this VB-MAPP evaluation? This cannot be undone.")) {
-      return;
-    }
-
-    setDeletingId(evaluationId);
-    try {
-      await deleteEvaluation(clientId, evaluationId);
-      success("Evaluation deleted");
-    } catch (err) {
-      console.error("Failed to delete evaluation:", err);
-      toastError("Failed to delete evaluation");
-    } finally {
-      setDeletingId(null);
-      setMenuOpen(null);
-    }
+    customConfirm({
+      title: "Delete VB-MAPP",
+      message: "Delete this VB-MAPP evaluation? This cannot be undone.",
+      confirmLabel: "Delete",
+      variant: 'danger',
+      onConfirm: async () => {
+        setDeletingId(evaluationId);
+        try {
+          await deleteEvaluation(clientId, evaluationId);
+          success("Evaluation deleted");
+        } catch (err) {
+          console.error("Failed to delete evaluation:", err);
+          toastError("Failed to delete evaluation");
+        } finally {
+          setDeletingId(null);
+          setMenuOpen(null);
+        }
+      }
+    });
   };
 
   const formatDate = (dateStr: string) => {

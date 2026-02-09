@@ -12,6 +12,7 @@ import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/context/ToastContext";
 import { notifyClientAssigned } from "@/lib/notificationService";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface ClientOverviewTabProps {
   client: any;
@@ -24,6 +25,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
   const router = useRouter();
   const { user: authUser, userRole } = useAuth();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { data: teamMembers } = useTeamMembers();
   const { data: events, loading: eventsLoading } = useClientEvents(client.id);
   
@@ -76,16 +78,23 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
   };
 
   const handleRemoveMember = async (memberId: string) => {
-    if (!confirm("Remove this team member from the client?")) return;
-    try {
-      const clientRef = doc(db, "clients", client.id);
-      await updateDoc(clientRef, {
-        therapistIds: arrayRemove(memberId)
-      });
-      success("Member removed");
-    } catch (err) {
-      error("Failed to remove member");
-    }
+    customConfirm({
+      title: "Remove Member",
+      message: "Remove this team member from the client?",
+      confirmLabel: "Remove",
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const clientRef = doc(db, "clients", client.id);
+          await updateDoc(clientRef, {
+            therapistIds: arrayRemove(memberId)
+          });
+          success("Member removed");
+        } catch (err) {
+          error("Failed to remove member");
+        }
+      }
+    });
   };
 
   useEffect(() => {

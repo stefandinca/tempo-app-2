@@ -18,6 +18,7 @@ import {
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 import PortageWizard from "./PortageWizard";
 import PortageSummary from "./PortageSummary";
 
@@ -30,6 +31,7 @@ interface PortageListProps {
 export default function PortageList({ clientId, clientName, clientDob }: PortageListProps) {
   const { t } = useTranslation();
   const { userRole } = useAuth();
+  const { confirm: customConfirm } = useConfirm();
   const { evaluations, loading } = usePortageEvaluations(clientId);
   const { deleteEvaluation } = usePortageActions();
   
@@ -49,9 +51,15 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this evaluation?")) {
-      await deleteEvaluation(clientId, id);
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('portage.delete_confirm'),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        await deleteEvaluation(clientId, id);
+      }
+    });
   };
 
   if (loading) {

@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase";
 import { doc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 export interface Service {
   id: string;
@@ -24,6 +25,7 @@ interface ServiceCardProps {
 export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -39,17 +41,20 @@ export default function ServiceCard({ service, onEdit }: ServiceCardProps) {
   }, []);
 
   const handleDelete = async () => {
-    if (
-      !confirm(t('services.delete_confirm', { name: service.label }))
-    ) {
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, "services", service.id));
-      success(t('services.deleted'));
-    } catch (err) {
-      error(t('services.delete_error'));
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('services.delete_confirm', { name: service.label }),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "services", service.id));
+          success(t('services.deleted'));
+        } catch (err) {
+          error(t('services.delete_error'));
+        }
+      }
+    });
   };
 
   return (

@@ -7,6 +7,7 @@ import { DataProvider } from "@/context/DataContext";
 import { EventModalProvider } from "@/context/EventModalContext";
 import { CommandPaletteProvider } from "@/context/CommandPaletteContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { ConfirmProvider } from "@/context/ConfirmContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import i18n from "@/lib/i18n";
 import CommandPalette from "@/components/CommandPalette";
@@ -151,18 +152,20 @@ export default function RootLayout({
             `,
           }}
         />
-        <ToastProvider>
-          <AuthProvider>
-            <ParentAuthProvider>
-              <NotificationProvider>
-                <Suspense fallback={null}>
-                  <NavigationProgress />
-                </Suspense>
-                {children}
-              </NotificationProvider>
-            </ParentAuthProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <ConfirmProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <ParentAuthProvider>
+                <NotificationProvider>
+                  <Suspense fallback={null}>
+                    <NavigationProgress />
+                  </Suspense>
+                  {children}
+                </NotificationProvider>
+              </ParentAuthProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </ConfirmProvider>
       </body>
     </html>
   );

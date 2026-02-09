@@ -35,6 +35,7 @@ import {
   notifyParentAttendanceLogged
 } from "@/lib/notificationService";
 import { useEventModal } from "@/context/EventModalContext";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface EventDetailPanelProps {
   event: any; // Firestore Event Document
@@ -46,6 +47,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const { t } = useTranslation();
   const { success, error } = useToast();
   const { user: authUser, userRole } = useAuth();
+  const { confirm: customConfirm } = useConfirm();
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
   const { data: programs } = usePrograms();
@@ -264,50 +266,57 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       error(t('calendar.event.error_permission'));
       return;
     }
-    if (!confirm(t('calendar.event.delete_confirm'))) return;
+    
+    customConfirm({
+      title: t('common.delete'),
+      message: t('calendar.event.delete_confirm'),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          // Send cancellation notifications before deleting
+          if (authUser) {
+            const clientName = client?.name;
+            const adminIds = (teamMembers || [])
+              .filter((m: any) => m.role === "Admin" || m.role === "Coordinator")
+              .map((m: any) => m.id);
+            const allRecipients = Array.from(new Set([...(event.teamMemberIds || []), ...adminIds]));
 
-    setIsDeleting(true);
-    try {
-      // Send cancellation notifications before deleting
-      if (authUser) {
-        const clientName = client?.name;
-        const adminIds = (teamMembers || [])
-          .filter((m: any) => m.role === "Admin" || m.role === "Coordinator")
-          .map((m: any) => m.id);
-        const allRecipients = Array.from(new Set([...(event.teamMemberIds || []), ...adminIds]));
+            notifySessionCancelled(allRecipients, {
+              eventId: event.id,
+              eventTitle: event.title,
+              eventType: event.type,
+              startTime: event.startTime,
+              clientName,
+              triggeredByUserId: authUser.uid
+            }).catch((err) => console.error("Failed to send cancellation notification:", err));
 
-        notifySessionCancelled(allRecipients, {
-          eventId: event.id,
-          eventTitle: event.title,
-          eventType: event.type,
-          startTime: event.startTime,
-          clientName,
-          triggeredByUserId: authUser.uid
-        }).catch((err) => console.error("Failed to send cancellation notification:", err));
+            // Also notify parents
+            if (event.clientId) {
+              const therapistName = therapist?.name;
+              notifyParentSessionCancelled(event.clientId, {
+                eventId: event.id,
+                eventTitle: event.title,
+                eventType: event.type,
+                startTime: event.startTime,
+                therapistName,
+                triggeredByUserId: authUser.uid
+              }).catch((err) => console.error("Failed to send parent cancellation notification:", err));
+            }
+          }
 
-        // Also notify parents
-        if (event.clientId) {
-          const therapistName = therapist?.name;
-          notifyParentSessionCancelled(event.clientId, {
-            eventId: event.id,
-            eventTitle: event.title,
-            eventType: event.type,
-            startTime: event.startTime,
-            therapistName,
-            triggeredByUserId: authUser.uid
-          }).catch((err) => console.error("Failed to send parent cancellation notification:", err));
+          await deleteDoc(doc(db, "events", event.id));
+          success(t('calendar.event.delete_success'));
+          setIsDeleting(false);
+          onClose();
+        } catch (err) {
+          console.error(err);
+          error("Failed to delete event");
+          setIsDeleting(false);
         }
       }
-
-      await deleteDoc(doc(db, "events", event.id));
-      success(t('calendar.event.delete_success'));
-      setIsDeleting(false);
-      onClose();
-    } catch (err) {
-      console.error(err);
-      error("Failed to delete event");
-      setIsDeleting(false);
-    }
+    });
   };
 
   return (

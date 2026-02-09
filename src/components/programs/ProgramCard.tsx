@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { doc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 export interface Program {
   id: string;
@@ -21,6 +22,7 @@ interface ProgramCardProps {
 export default function ProgramCard({ program, onEdit }: ProgramCardProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -36,17 +38,20 @@ export default function ProgramCard({ program, onEdit }: ProgramCardProps) {
   }, []);
 
   const handleDelete = async () => {
-    if (
-      !confirm(t('programs.delete_confirm', { name: program.title }))
-    ) {
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, "programs", program.id));
-      success(t('programs.deleted'));
-    } catch (err) {
-      error(t('programs.delete_error'));
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('programs.delete_confirm', { name: program.title }),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "programs", program.id));
+          success(t('programs.deleted'));
+        } catch (err) {
+          error(t('programs.delete_error'));
+        }
+      }
+    });
   };
 
   return (

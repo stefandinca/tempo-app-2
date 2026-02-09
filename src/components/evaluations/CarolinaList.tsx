@@ -7,6 +7,7 @@ import { Plus, Calendar, User, ChevronRight, Trash2, Loader2, FileText, BarChart
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 import CarolinaWizard from "./CarolinaWizard";
 import CarolinaSummary from "./CarolinaSummary";
 
@@ -18,6 +19,7 @@ interface CarolinaListProps {
 export default function CarolinaList({ clientId, clientName }: CarolinaListProps) {
   const { t } = useTranslation();
   const { userRole } = useAuth();
+  const { confirm: customConfirm } = useConfirm();
   const { evaluations, loading } = useCarolinaEvaluations(clientId);
   const { deleteEvaluation } = useCarolinaActions();
   
@@ -37,9 +39,15 @@ export default function CarolinaList({ clientId, clientName }: CarolinaListProps
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (window.confirm(t('evaluations.delete_confirm'))) {
-      await deleteEvaluation(clientId, id);
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('evaluations.delete_confirm'),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        await deleteEvaluation(clientId, id);
+      }
+    });
   };
 
   if (loading) {

@@ -8,8 +8,8 @@ import MessageBubble from "./MessageBubble";
 import { Send, Phone, Video, Info, ArrowLeft, Loader2, Archive } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 interface ChatViewProps {
   thread: ChatThread | null;
@@ -20,6 +20,7 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
   const { t } = useTranslation();
   const { user, isStaff } = useAnyAuth();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { messages, loading: messagesLoading } = useMessages(thread?.id || null);
   const { sendMessage, markAsRead, archiveThread } = useChatActions();
   const [inputText, setInputText] = useState("");
@@ -42,15 +43,23 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
 
   const handleArchive = async () => {
     if (!thread) return;
-    if (!confirm(t('chat.archive_confirm'))) return;
-    try {
-      await archiveThread(thread.id);
-      success(t('chat.archive_success'));
-      if (onBack) onBack();
-    } catch (err) {
-      console.error(err);
-      error(t('chat.archive_error'));
-    }
+    
+    customConfirm({
+      title: "Archive Conversation",
+      message: t('chat.archive_confirm'),
+      confirmLabel: "Archive",
+      variant: 'warning',
+      onConfirm: async () => {
+        try {
+          await archiveThread(thread.id);
+          success(t('chat.archive_success'));
+          if (onBack) onBack();
+        } catch (err) {
+          console.error(err);
+          error(t('chat.archive_error'));
+        }
+      }
+    });
   };
 
   const handleCall = async () => {

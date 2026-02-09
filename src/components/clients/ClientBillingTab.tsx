@@ -25,6 +25,7 @@ import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 import { notifyParentInvoiceGenerated } from "@/lib/notificationService";
 import { useAuth } from "@/context/AuthContext";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface ClientBillingTabProps {
   client: any;
@@ -34,6 +35,7 @@ export default function ClientBillingTab({ client }: ClientBillingTabProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
   const { user: authUser } = useAuth();
+  const { confirm: customConfirm } = useConfirm();
   const { data: invoices, loading: invoicesLoading } = useClientInvoices(client.id);
   
   const [isSavingSubscription, setIsSavingSubscription] = useState(false);
@@ -90,14 +92,21 @@ export default function ClientBillingTab({ client }: ClientBillingTabProps) {
   };
 
   const handleDeleteInvoice = async (invoiceId: string) => {
-    if (!confirm("Are you sure you want to delete this invoice? This action cannot be undone.")) return;
-    try {
-      await deleteDoc(doc(db, "invoices", invoiceId));
-      success("Invoice deleted successfully");
-      closeMenu();
-    } catch (err) {
-      error("Failed to delete invoice");
-    }
+    customConfirm({
+      title: "Delete Invoice",
+      message: "Are you sure you want to delete this invoice? This action cannot be undone.",
+      confirmLabel: "Delete",
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "invoices", invoiceId));
+          success("Invoice deleted successfully");
+          closeMenu();
+        } catch (err) {
+          error("Failed to delete invoice");
+        }
+      }
+    });
   };
 
   const handleShareInvoice = async (invoice: any) => {

@@ -10,6 +10,7 @@ import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface ClientProfileHeaderProps {
   client: any;
@@ -22,6 +23,7 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
   const { t } = useTranslation();
   const { userRole } = useAuth();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -66,16 +68,22 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
   };
 
   const handleDelete = async () => {
-    if (!confirm(t('clients.delete_forever_confirm', { name: client.name }))) return;
-    
-    try {
-      await deleteDoc(doc(db, "clients", client.id));
-      success(t('clients.client_deleted'));
-      router.push("/clients/");
-    } catch (err) {
-      console.error(err);
-      error(t('clients.delete_error'));
-    }
+    customConfirm({
+      title: t('clients.delete_forever'),
+      message: t('clients.delete_forever_confirm', { name: client.name }),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "clients", client.id));
+          success(t('clients.client_deleted'));
+          router.push("/clients/");
+        } catch (err) {
+          console.error(err);
+          error(t('clients.delete_error'));
+        }
+      }
+    });
   };
 
   return (

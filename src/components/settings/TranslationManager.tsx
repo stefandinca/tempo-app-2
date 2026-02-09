@@ -7,6 +7,7 @@ import { Search, Save, RotateCcw, Loader2, Check, AlertCircle, Globe } from "luc
 import { useToast } from "@/context/ToastContext";
 import { clsx } from "clsx";
 import { syncTranslationsToFirestore } from "@/lib/i18n/sync";
+import { useConfirm } from "@/context/ConfirmContext";
 
 export default function TranslationManager() {
   const [lang, setLang] = useState<"ro" | "en">("ro");
@@ -15,6 +16,7 @@ export default function TranslationManager() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
 
   // Load translations from Firestore
   const loadTranslations = async () => {
@@ -96,17 +98,24 @@ export default function TranslationManager() {
   };
 
   const handleSync = async () => {
-    if (!confirm("This will merge missing keys from local files into Firestore. Continue?")) return;
-    setSaving(true);
-    try {
-      await syncTranslationsToFirestore();
-      await loadTranslations();
-      success("Synced successfully");
-    } catch (err) {
-      error("Sync failed");
-    } finally {
-      setSaving(false);
-    }
+    customConfirm({
+      title: "Sync Translations",
+      message: "This will merge missing keys from local files into Firestore. Continue?",
+      confirmLabel: "Sync",
+      variant: 'warning',
+      onConfirm: async () => {
+        setSaving(true);
+        try {
+          await syncTranslationsToFirestore();
+          await loadTranslations();
+          success("Synced successfully");
+        } catch (err) {
+          error("Sync failed");
+        } finally {
+          setSaving(false);
+        }
+      }
+    });
   };
 
   return (

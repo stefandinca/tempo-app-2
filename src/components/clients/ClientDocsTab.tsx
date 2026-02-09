@@ -29,6 +29,7 @@ import { notifyParentDocumentShared } from "@/lib/notificationService";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface ClientDocsTabProps {
   client: any;
@@ -45,6 +46,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
   const { t } = useTranslation();
   const { user, userData } = useAuth();
   const { success, error: showError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { documents, loading: docsLoading, uploadDocument, deleteDocument, toggleParentAccess } = useClientDocuments(client.id);
 
   // States for Reports (Fetched separately)
@@ -82,13 +84,20 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
   }, [client.id]);
 
   const handleDeleteReport = async (reportId: string) => {
-    if (!confirm(t('common.delete_confirm') || "Are you sure?")) return;
-    try {
-      await deleteDoc(doc(db, "clients", client.id, "reports", reportId));
-      success(t('common.success'));
-    } catch (err) {
-      showError(t('common.error'));
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('common.delete_confirm') || "Are you sure you want to delete this report?",
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "clients", client.id, "reports", reportId));
+          success(t('common.success'));
+        } catch (err) {
+          showError(t('common.error'));
+        }
+      }
+    });
   };
 
   const handleToggleReportShare = async (report: any) => {
@@ -186,6 +195,16 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
       console.error("Error toggling document share:", err);
       showError("Failed to update share status");
     }
+  };
+
+  const handleDeleteDocument = (docItem: any) => {
+    customConfirm({
+      title: t('common.delete'),
+      message: t('common.delete_confirm') || "Are you sure you want to delete this document?",
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: () => deleteDocument(docItem)
+    });
   };
 
   const allItems = [
@@ -324,7 +343,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                           </button>
                           <button 
                             onClick={() => {
-                              item.isReport ? handleDeleteReport(item.id) : deleteDocument(item);
+                              item.isReport ? handleDeleteReport(item.id) : handleDeleteDocument(item);
                               setActiveMenu(null);
                             }}
                             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 border-t border-neutral-100"

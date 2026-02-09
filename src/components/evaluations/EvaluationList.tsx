@@ -17,6 +17,7 @@ import {
 import { Evaluation } from "@/types/evaluation";
 import { useClientEvaluations, useEvaluationActions } from "@/hooks/useEvaluations";
 import { useToast } from "@/context/ToastContext";
+import { useConfirm } from "@/context/ConfirmContext";
 import { EvaluationRadarChartMini } from "./EvaluationRadarChart";
 
 interface EvaluationListProps {
@@ -39,25 +40,30 @@ export default function EvaluationList({
   const { evaluations, loading, error } = useClientEvaluations(clientId);
   const { deleteEvaluation, saving } = useEvaluationActions();
   const { success, error: toastError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (evaluationId: string) => {
-    if (!confirm("Are you sure you want to delete this evaluation? This cannot be undone.")) {
-      return;
-    }
-
-    setDeletingId(evaluationId);
-    try {
-      await deleteEvaluation(clientId, evaluationId);
-      success("Evaluation deleted");
-    } catch (err) {
-      console.error("Failed to delete evaluation:", err);
-      toastError("Failed to delete evaluation");
-    } finally {
-      setDeletingId(null);
-      setMenuOpen(null);
-    }
+    customConfirm({
+      title: "Delete Evaluation",
+      message: "Are you sure you want to delete this evaluation? This cannot be undone.",
+      confirmLabel: "Delete",
+      variant: 'danger',
+      onConfirm: async () => {
+        setDeletingId(evaluationId);
+        try {
+          await deleteEvaluation(clientId, evaluationId);
+          success("Evaluation deleted");
+        } catch (err) {
+          console.error("Failed to delete evaluation:", err);
+          toastError("Failed to delete evaluation");
+        } finally {
+          setDeletingId(null);
+          setMenuOpen(null);
+        }
+      }
+    });
   };
 
   const formatDate = (dateStr: string) => {

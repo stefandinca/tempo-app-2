@@ -30,6 +30,7 @@ import { clsx } from "clsx";
 import { useRecurringExpenses } from "@/hooks/useCollections";
 import { ExpenseCategory } from "@/types/billing";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface ExpenseManagerProps {
   expenses: any[];
@@ -41,6 +42,7 @@ interface ExpenseManagerProps {
 export default function ExpenseManager({ expenses, loading, year, month }: ExpenseManagerProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { data: recurringConfigs } = useRecurringExpenses();
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,13 +100,20 @@ export default function ExpenseManager({ expenses, loading, year, month }: Expen
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('expense_manager.messages.delete_confirm'))) return;
-    try {
-      await deleteDoc(doc(db, "expenses", id));
-      success(t('expense_manager.messages.delete_success'));
-    } catch (err) {
-      error(t('expense_manager.messages.delete_error'));
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('expense_manager.messages.delete_confirm'),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "expenses", id));
+          success(t('expense_manager.messages.delete_success'));
+        } catch (err) {
+          error(t('expense_manager.messages.delete_error'));
+        }
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -149,41 +158,48 @@ export default function ExpenseManager({ expenses, loading, year, month }: Expen
   };
 
   const handleSyncRecurring = async () => {
-    if (!confirm(t('expense_manager.messages.sync_confirm'))) return;
-    setIsSyncing(true);
-    try {
-      const batch = writeBatch(db);
-      let count = 0;
+    customConfirm({
+      title: t('expense_manager.sync_recurring'),
+      message: t('expense_manager.messages.sync_confirm'),
+      confirmLabel: t('common.confirm'),
+      variant: 'primary',
+      onConfirm: async () => {
+        setIsSyncing(true);
+        try {
+          const batch = writeBatch(db);
+          let count = 0;
 
-      for (const config of recurringConfigs) {
-        if (!config.active) continue;
-        
-        // Check if already exists for this month
-        const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
-        const exists = expenses.find(e => e.title === config.title && e.date.startsWith(monthStr));
-        
-        if (!exists) {
-          const ref = doc(collection(db, "expenses"));
-          batch.set(ref, {
-            title: config.title,
-            amount: config.amount,
-            category: config.category,
-            date: `${monthStr}-01`,
-            isRecurring: true,
-            recurringId: config.id,
-            createdAt: new Date().toISOString()
-          });
-          count++;
+          for (const config of recurringConfigs) {
+            if (!config.active) continue;
+            
+            // Check if already exists for this month
+            const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+            const exists = expenses.find(e => e.title === config.title && e.date.startsWith(monthStr));
+            
+            if (!exists) {
+              const ref = doc(collection(db, "expenses"));
+              batch.set(ref, {
+                title: config.title,
+                amount: config.amount,
+                category: config.category,
+                date: `${monthStr}-01`,
+                isRecurring: true,
+                recurringId: config.id,
+                createdAt: new Date().toISOString()
+              });
+              count++;
+            }
+          }
+
+          await batch.commit();
+          success(t('expense_manager.messages.sync_success', { count }));
+        } catch (err) {
+          error(t('expense_manager.messages.sync_error'));
+        } finally {
+          setIsSyncing(false);
         }
       }
-
-      await batch.commit();
-      success(t('expense_manager.messages.sync_success', { count }));
-    } catch (err) {
-      error(t('expense_manager.messages.sync_error'));
-    } finally {
-      setIsSyncing(false);
-    }
+    });
   };
 
   return (

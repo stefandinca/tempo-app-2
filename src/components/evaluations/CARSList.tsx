@@ -17,6 +17,7 @@ import {
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 import CARSWizard from "./CARSWizard";
 import CARSSummary from "./CARSSummary";
 
@@ -28,6 +29,7 @@ interface CARSListProps {
 export default function CARSList({ clientId, clientName }: CARSListProps) {
   const { t } = useTranslation();
   const { userRole } = useAuth();
+  const { confirm: customConfirm } = useConfirm();
   const { evaluations, loading } = useCARSEvaluations(clientId);
   const { deleteEvaluation } = useCARSActions();
   
@@ -47,9 +49,15 @@ export default function CARSList({ clientId, clientName }: CARSListProps) {
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this evaluation?")) {
-      await deleteEvaluation(clientId, id);
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('portage.delete_confirm'),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        await deleteEvaluation(clientId, id);
+      }
+    });
   };
 
   if (loading) {

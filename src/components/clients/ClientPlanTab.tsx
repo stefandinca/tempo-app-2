@@ -20,6 +20,7 @@ import CreatePlanModal from "./CreatePlanModal";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface ClientPlanTabProps {
   client: any;
@@ -31,6 +32,7 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
   const { data: plans, loading, activePlan } = useInterventionPlans(client.id);
   const { data: programs } = usePrograms();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<InterventionPlan | null>(null);
@@ -70,36 +72,53 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
   };
 
   const handleEndPlan = async (plan: InterventionPlan) => {
-    if (!confirm(`End "${plan.name}"? This will mark the plan as completed.`)) return;
-
-    try {
-      const planRef = doc(db, "clients", client.id, "interventionPlans", plan.id);
-      await updateDoc(planRef, { status: "completed" });
-      success("Plan marked as completed");
-    } catch (err) {
-      console.error(err);
-      error("Failed to update plan");
-    }
+    customConfirm({
+      title: "End Plan",
+      message: `End "${plan.name}"? This will mark the plan as completed.`,
+      confirmLabel: "End Plan",
+      variant: 'warning',
+      onConfirm: async () => {
+        try {
+          const planRef = doc(db, "clients", client.id, "interventionPlans", plan.id);
+          await updateDoc(planRef, { status: "completed" });
+          success("Plan marked as completed");
+        } catch (err) {
+          console.error(err);
+          error("Failed to update plan");
+        }
+      }
+    });
   };
 
   const handleActivatePlan = async (plan: InterventionPlan) => {
+    const doActivate = async () => {
+      // End the current active plan if exists
+      if (activePlan && activePlan.id !== plan.id) {
+        const currentPlanRef = doc(db, "clients", client.id, "interventionPlans", activePlan.id);
+        await updateDoc(currentPlanRef, { status: "completed" });
+      }
+
+      try {
+        const planRef = doc(db, "clients", client.id, "interventionPlans", plan.id);
+        await updateDoc(planRef, { status: "active" });
+        success("Plan activated");
+      } catch (err) {
+        console.error(err);
+        error("Failed to activate plan");
+      }
+    };
+
     // Check if there's already an active plan
     if (activePlan && activePlan.id !== plan.id) {
-      if (!confirm(`There's already an active plan. Activating this will end "${activePlan.name}". Continue?`)) {
-        return;
-      }
-      // End the current active plan
-      const currentPlanRef = doc(db, "clients", client.id, "interventionPlans", activePlan.id);
-      await updateDoc(currentPlanRef, { status: "completed" });
-    }
-
-    try {
-      const planRef = doc(db, "clients", client.id, "interventionPlans", plan.id);
-      await updateDoc(planRef, { status: "active" });
-      success("Plan activated");
-    } catch (err) {
-      console.error(err);
-      error("Failed to activate plan");
+      customConfirm({
+        title: "Change Active Plan",
+        message: `There's already an active plan. Activating this will end "${activePlan.name}". Continue?`,
+        confirmLabel: "Activate Plan",
+        variant: 'primary',
+        onConfirm: doActivate
+      });
+    } else {
+      doActivate();
     }
   };
 

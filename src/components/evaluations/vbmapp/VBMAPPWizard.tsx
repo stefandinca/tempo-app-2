@@ -30,6 +30,8 @@ import {
 import { VBMAPPItemScore, MilestoneScore, BarrierScore, TransitionScore, VBMAPPEvaluation } from "@/types/vbmapp";
 import VBMAPPMilestoneScoring from "./VBMAPPMilestoneScoring";
 import VBMAPPBarrierScoring from "./VBMAPPBarrierScoring";
+import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface VBMAPPWizardProps {
   isOpen: boolean;
@@ -58,8 +60,10 @@ export default function VBMAPPWizard({
   evaluationId,
   previousEvaluation
 }: VBMAPPWizardProps) {
+  const { t } = useTranslation();
   const { user, userData } = useAuth();
   const { success, error: toastError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { saving, createEvaluation, saveProgress, completeEvaluation } = useVBMAPPActions();
 
   // State
@@ -229,31 +233,48 @@ export default function VBMAPPWizard({
     const totalItems = VBMAPP_TOTAL_MILESTONE_ITEMS + VBMAPP_BARRIERS.length + VBMAPP_TRANSITION.length;
     const totalScored = milestoneScoredCount + barriersScoredCount + transitionScoredCount;
 
-    if (totalScored < totalItems) {
-      const confirm = window.confirm(
-        `You have scored ${totalScored} of ${totalItems} items. Complete anyway?`
-      );
-      if (!confirm) return;
-    }
+    const doComplete = async () => {
+      try {
+        await completeEvaluation(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores);
+        success("VB-MAPP evaluation completed!");
+        onClose();
+      } catch (err) {
+        console.error("Failed to complete evaluation:", err);
+        toastError("Failed to complete evaluation");
+      }
+    };
 
-    try {
-      await completeEvaluation(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores);
-      success("VB-MAPP evaluation completed!");
-      onClose();
-    } catch (err) {
-      console.error("Failed to complete evaluation:", err);
-      toastError("Failed to complete evaluation");
+    if (totalScored < totalItems) {
+      customConfirm({
+        title: "Complete Evaluation?",
+        message: `You have scored ${totalScored} of ${totalItems} items. Complete anyway?`,
+        confirmLabel: "Complete",
+        variant: 'warning',
+        onConfirm: doComplete
+      });
+    } else {
+      doComplete();
     }
   };
 
   // Handle close
   const handleClose = () => {
     if (hasUnsavedChanges) {
-      const confirm = window.confirm("Save changes before closing?");
-      if (confirm) {
-        handleSaveProgress().then(() => onClose());
-        return;
-      }
+      customConfirm({
+        title: "Unsaved Changes",
+        message: "Save changes before closing?",
+        confirmLabel: t('common.save'),
+        cancelLabel: "Discard",
+        variant: 'warning',
+        onConfirm: async () => {
+          await handleSaveProgress();
+          onClose();
+        },
+        onCancel: () => {
+          onClose();
+        }
+      });
+      return;
     }
     onClose();
   };

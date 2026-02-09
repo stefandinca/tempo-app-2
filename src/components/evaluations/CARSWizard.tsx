@@ -20,6 +20,7 @@ import {
 import { CARS_ITEMS, CARSScore } from "@/types/cars";
 import CARSScoring from "./CARSScoring";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface CARSWizardProps {
   isOpen: boolean;
@@ -39,6 +40,7 @@ export default function CARSWizard({
   const { t } = useTranslation();
   const { user, userData } = useAuth();
   const { success, error: toastError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { saving, createEvaluation, saveProgress, completeEvaluation } = useCARSActions();
 
   // Local state
@@ -130,27 +132,47 @@ export default function CARSWizard({
     if (!activeEvaluationId) return;
     
     const scoredCount = Object.keys(localScores).length;
-    if (scoredCount < CARS_ITEMS.length) {
-      const confirm = window.confirm(`You have only scored ${scoredCount} of ${CARS_ITEMS.length} items. Complete anyway?`);
-      if (!confirm) return;
-    }
+    
+    const doComplete = async () => {
+      try {
+        await completeEvaluation(clientId, activeEvaluationId, localScores);
+        success("CARS evaluation completed!");
+        onClose();
+      } catch (err) {
+        toastError("Failed to complete evaluation");
+      }
+    };
 
-    try {
-      await completeEvaluation(clientId, activeEvaluationId, localScores);
-      success("CARS evaluation completed!");
-      onClose();
-    } catch (err) {
-      toastError("Failed to complete evaluation");
+    if (scoredCount < CARS_ITEMS.length) {
+      customConfirm({
+        title: t('portage.complete'),
+        message: `You have only scored ${scoredCount} of ${CARS_ITEMS.length} items. Complete anyway?`,
+        confirmLabel: t('portage.complete'),
+        variant: 'warning',
+        onConfirm: doComplete
+      });
+    } else {
+      doComplete();
     }
   };
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
-      const confirm = window.confirm("You have unsaved changes. Do you want to save before closing?");
-      if (confirm) {
-        handleSaveDraft().then(() => onClose());
-        return;
-      }
+      customConfirm({
+        title: "Unsaved Changes",
+        message: "You have unsaved changes. Do you want to save before closing?",
+        confirmLabel: t('common.save'),
+        cancelLabel: "Discard",
+        variant: 'warning',
+        onConfirm: async () => {
+          await handleSaveDraft();
+          onClose();
+        },
+        onCancel: () => {
+          onClose();
+        }
+      });
+      return;
     }
     onClose();
   };

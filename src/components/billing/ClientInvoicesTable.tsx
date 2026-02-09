@@ -28,6 +28,7 @@ import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where
 import { useAuth } from "@/context/AuthContext";
 import { createNotificationsBatch, notifyParentInvoiceGenerated } from "@/lib/notificationService";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface ClientInvoicesTableProps {
   invoices: ClientInvoice[];
@@ -53,6 +54,7 @@ export default function ClientInvoicesTable({
   const { data: settings } = useSystemSettings();
   const { success, error } = useToast();
   const { user: authUser } = useAuth();
+  const { confirm: customConfirm } = useConfirm();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   
   // Dropdown Logic
@@ -316,6 +318,59 @@ export default function ClientInvoicesTable({
     } finally {
       setGeneratingId(null);
     }
+  };
+
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "synced":
+        return {
+          icon: CheckCircle,
+          label: t('billing_page.status.synced'),
+          classes: "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
+        };
+      case "paid":
+        return {
+          icon: CheckCircle,
+          label: t('billing_page.status.paid'),
+          classes: "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400"
+        };
+      case "pending":
+        return {
+          icon: Clock,
+          label: t('billing_page.status.pending'),
+          classes: "bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400"
+        };
+      default:
+        return {
+          icon: FileText,
+          label: t('billing_page.status.create'),
+          classes: "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400"
+        };
+    }
+  };
+
+  const handleDeleteInvoice = (invoice: ClientInvoice) => {
+    if (!invoice.invoiceId) return;
+
+    customConfirm({
+      title: "Delete Invoice",
+      message: "Are you sure you want to delete this invoice? This will rollback the issue status and it will no longer be visible to the parent.",
+      confirmLabel: "Delete",
+      variant: 'danger',
+      onConfirm: async () => {
+        if (onDeleteInvoice) {
+          onDeleteInvoice(invoice.invoiceId!);
+        } else {
+          try {
+            await deleteDoc(doc(db, "invoices", invoice.invoiceId!));
+            success("Invoice deleted successfully");
+          } catch (err) {
+            error("Failed to delete invoice");
+          }
+        }
+        closeMenu();
+      }
+    });
   };
 
   const getStatusConfig = (status: string) => {
@@ -655,29 +710,13 @@ export default function ClientInvoicesTable({
             </button>
 
             {activeInvoice.invoiceId && (
-              <button
-                onClick={async () => {
-                  if (confirm("Are you sure you want to delete this invoice? This will rollback the issue status and it will no longer be visible to the parent.")) {
-                    if (onDeleteInvoice) {
-                      onDeleteInvoice(activeInvoice.invoiceId!);
-                    } else {
-                      // Fallback: direct delete if prop not handled
-                      try {
-                        await deleteDoc(doc(db, "invoices", activeInvoice.invoiceId!));
-                        success("Invoice deleted successfully");
-                      } catch (err) {
-                        error("Failed to delete invoice");
-                      }
-                    }
-                    closeMenu();
-                  }
-                }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors border-t border-neutral-100 dark:border-neutral-700"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete Invoice (Storno)
-              </button>
-            )}
+                          <button
+                            onClick={() => handleDeleteInvoice(activeInvoice)}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors border-t border-neutral-100 dark:border-neutral-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete Invoice (Storno)
+                          </button>            )}
           </div>
         </>,
         document.body

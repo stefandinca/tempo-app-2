@@ -22,6 +22,7 @@ import { CarolinaScore, CarolinaScoreValue } from "@/types/carolina";
 import { CAROLINA_PROTOCOL } from "@/data/carolina-protocol";
 import CarolinaScoring from "./CarolinaScoring";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface CarolinaWizardProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ export default function CarolinaWizard({
   const { t } = useTranslation();
   const { user, userData } = useAuth();
   const { success, error: toastError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { saving, createEvaluation, saveProgress, completeEvaluation } = useCarolinaActions();
 
   // Navigation State
@@ -140,25 +142,41 @@ export default function CarolinaWizard({
 
   const handleComplete = async () => {
     if (!activeEvaluationId) return;
-    const confirm = window.confirm("Are you sure you want to complete this evaluation? This will finalize the scores.");
-    if (!confirm) return;
-
-    try {
-      await completeEvaluation(clientId, activeEvaluationId, localScores);
-      success("Evaluation completed!");
-      onClose();
-    } catch (err) {
-      toastError("Failed to complete evaluation");
-    }
+    
+    customConfirm({
+      title: t('portage.complete'),
+      message: "Are you sure you want to complete this evaluation? This will finalize the scores.",
+      confirmLabel: t('portage.complete'),
+      variant: 'primary',
+      onConfirm: async () => {
+        try {
+          await completeEvaluation(clientId, activeEvaluationId, localScores);
+          success("Evaluation completed!");
+          onClose();
+        } catch (err) {
+          toastError("Failed to complete evaluation");
+        }
+      }
+    });
   };
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
-      const confirm = window.confirm("You have unsaved changes. Do you want to save before closing?");
-      if (confirm) {
-        handleSaveDraft().then(() => onClose());
-        return;
-      }
+      customConfirm({
+        title: "Unsaved Changes",
+        message: "You have unsaved changes. Do you want to save before closing?",
+        confirmLabel: t('common.save'),
+        cancelLabel: "Discard",
+        variant: 'warning',
+        onConfirm: async () => {
+          await handleSaveDraft();
+          onClose();
+        },
+        onCancel: () => {
+          onClose();
+        }
+      });
+      return;
     }
     onClose();
   };

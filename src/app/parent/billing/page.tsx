@@ -7,9 +7,11 @@ import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
 import { useState, useMemo } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/context/ToastContext";
 
 export default function ParentBillingPage() {
   const { t, i18n } = useTranslation();
+  const { error: toastError, info } = useToast();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, loading: portalLoading, error: portalError } = usePortalData();
   const { data: invoices, loading: invoicesLoading } = useClientInvoices(client?.id || "");
@@ -75,7 +77,7 @@ export default function ParentBillingPage() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download failed", err);
-      alert(t("parent_portal.billing.download_error"));
+      toastError(t("parent_portal.billing.download_error"));
     } finally {
       setDownloadingId(null);
     }
@@ -141,7 +143,7 @@ export default function ParentBillingPage() {
 
         {balance > 0 && (
           <button
-            onClick={() => alert(t("parent_portal.billing.online_payments_soon"))}
+            onClick={() => info(t("parent_portal.billing.online_payments_soon"))}
             className="w-full mt-4 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/20"
           >
             {t("parent_portal.billing.pay_online")}

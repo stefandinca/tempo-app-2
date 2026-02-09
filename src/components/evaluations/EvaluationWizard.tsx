@@ -23,6 +23,7 @@ import { ItemScore, ScoreValue, Evaluation } from "@/types/evaluation";
 import CategoryScoring from "./CategoryScoring";
 import { calculateAge } from "@/lib/ageUtils";
 import { Lightbulb, Info } from "lucide-react";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface EvaluationWizardProps {
   isOpen: boolean;
@@ -44,7 +45,9 @@ export default function EvaluationWizard({
   previousEvaluation
 }: EvaluationWizardProps) {
   const { user, userData } = useAuth();
+  const { t } = useTranslation();
   const { success, error: toastError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { saving, createEvaluation, saveEvaluationProgress, completeEvaluation } =
     useEvaluationActions();
 
@@ -170,35 +173,49 @@ export default function EvaluationWizard({
   const handleComplete = async () => {
     if (!activeEvaluationId) return;
 
+    const doComplete = async () => {
+      try {
+        await completeEvaluation(clientId, activeEvaluationId, localScores);
+        success("Evaluation completed!");
+        onClose();
+      } catch (err) {
+        console.error("Failed to complete evaluation:", err);
+        toastError("Failed to complete evaluation");
+      }
+    };
+
     // Check if all items are scored
     if (scoredItemsCount < ABLLS_TOTAL_ITEMS) {
-      const confirm = window.confirm(
-        `You have scored ${scoredItemsCount} of ${ABLLS_TOTAL_ITEMS} items. ` +
-          `Do you want to complete the evaluation anyway?`
-      );
-      if (!confirm) return;
-    }
-
-    try {
-      await completeEvaluation(clientId, activeEvaluationId, localScores);
-      success("Evaluation completed!");
-      onClose();
-    } catch (err) {
-      console.error("Failed to complete evaluation:", err);
-      toastError("Failed to complete evaluation");
+      customConfirm({
+        title: "Complete Evaluation?",
+        message: `You have scored ${scoredItemsCount} of ${ABLLS_TOTAL_ITEMS} items. Do you want to complete the evaluation anyway?`,
+        confirmLabel: "Complete",
+        variant: 'warning',
+        onConfirm: doComplete
+      });
+    } else {
+      doComplete();
     }
   };
 
   // Handle close with unsaved changes warning
   const handleClose = () => {
     if (hasUnsavedChanges) {
-      const confirm = window.confirm(
-        "You have unsaved changes. Do you want to save before closing?"
-      );
-      if (confirm) {
-        handleSaveProgress().then(() => onClose());
-        return;
-      }
+      customConfirm({
+        title: "Unsaved Changes",
+        message: "You have unsaved changes. Do you want to save before closing?",
+        confirmLabel: t('common.save'),
+        cancelLabel: "Discard",
+        variant: 'warning',
+        onConfirm: async () => {
+          await handleSaveProgress();
+          onClose();
+        },
+        onCancel: () => {
+          onClose();
+        }
+      });
+      return;
     }
     onClose();
   };

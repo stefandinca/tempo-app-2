@@ -21,6 +21,8 @@ import {
 import { PORTAGE_CATEGORIES, PortageScore } from "@/types/portage";
 import PortageScoring from "./PortageScoring";
 import { calculateAge } from "@/lib/ageUtils";
+import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface PortageWizardProps {
   isOpen: boolean;
@@ -42,6 +44,7 @@ export default function PortageWizard({
   const { t } = useTranslation();
   const { user, userData } = useAuth();
   const { success, error: toastError } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { saving, createEvaluation, saveProgress, completeEvaluation } = usePortageActions();
 
   const age = calculateAge(clientDob);
@@ -166,11 +169,21 @@ export default function PortageWizard({
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
-      const confirm = window.confirm("You have unsaved changes. Do you want to save before closing?");
-      if (confirm) {
-        handleSaveDraft().then(() => onClose());
-        return;
-      }
+      customConfirm({
+        title: "Unsaved Changes",
+        message: "You have unsaved changes. Do you want to save before closing?",
+        confirmLabel: t('common.save'),
+        cancelLabel: "Discard",
+        variant: 'warning',
+        onConfirm: async () => {
+          await handleSaveDraft();
+          onClose();
+        },
+        onCancel: () => {
+          onClose();
+        }
+      });
+      return;
     }
     onClose();
   };

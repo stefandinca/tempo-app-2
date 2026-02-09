@@ -9,6 +9,7 @@ import { db } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface TeamPayoutsTableProps {
   payouts: TeamPayout[];
@@ -20,6 +21,7 @@ interface TeamPayoutsTableProps {
 export default function TeamPayoutsTable({ payouts, loading, year, month }: TeamPayoutsTableProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ bonus: string; deductions: string }>({ bonus: "", deductions: "" });
   const [isSaving, setIsSaving] = useState(false);
@@ -82,33 +84,39 @@ export default function TeamPayoutsTable({ payouts, loading, year, month }: Team
 
   // Quick mark as paid without editing values (uses current values)
   const handleMarkAsPaid = async (payout: TeamPayout) => {
-    if (confirm(t('billing_page.payout_messages.confirm_pay', { amount: formatCurrency(payout.total), name: payout.teamMemberName }))) {
-      setIsSaving(true);
-      try {
-        const payoutId = `payout_${year}_${String(month + 1).padStart(2, '0')}_${payout.teamMemberId}`;
-        const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+    customConfirm({
+      title: "Record Payment",
+      message: t('billing_page.payout_messages.confirm_pay', { amount: formatCurrency(payout.total), name: payout.teamMemberName }),
+      confirmLabel: "Record Payment",
+      variant: 'primary',
+      onConfirm: async () => {
+        setIsSaving(true);
+        try {
+          const payoutId = `payout_${year}_${String(month + 1).padStart(2, '0')}_${payout.teamMemberId}`;
+          const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-        await setDoc(doc(db, "payouts", payoutId), {
-          teamMemberId: payout.teamMemberId,
-          teamMemberName: payout.teamMemberName,
-          month: monthStr,
-          baseAmount: payout.baseSalary,
-          bonusAmount: payout.bonus,
-          deductions: payout.deductions,
-          total: payout.total,
-          status: "paid",
-          paidAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+          await setDoc(doc(db, "payouts", payoutId), {
+            teamMemberId: payout.teamMemberId,
+            teamMemberName: payout.teamMemberName,
+            month: monthStr,
+            baseAmount: payout.baseSalary,
+            bonusAmount: payout.bonus,
+            deductions: payout.deductions,
+            total: payout.total,
+            status: "paid",
+            paidAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          }, { merge: true });
 
-        success(t('billing_page.payout_messages.pay_complete'));
-      } catch (err) {
-        console.error(err);
-        error("Failed to mark as paid");
-      } finally {
-        setIsSaving(false);
+          success(t('billing_page.payout_messages.pay_complete'));
+        } catch (err) {
+          console.error(err);
+          error("Failed to mark as paid");
+        } finally {
+          setIsSaving(false);
+        }
       }
-    }
+    });
   };
 
   const totalPayout = payouts.reduce((sum, p) => sum + p.total, 0);

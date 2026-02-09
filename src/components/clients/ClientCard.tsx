@@ -9,6 +9,7 @@ import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 export interface Client {
   id: string;
@@ -68,6 +69,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
   const { t, i18n } = useTranslation();
   const { openModal } = useEventModal();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -134,15 +136,20 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
 
   // Handle Delete
   const handleDelete = async () => {
-    if (!confirm(t('clients.delete_confirm', { name: client.name }))) {
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, "clients", client.id));
-      success(t('clients.client_deleted'));
-    } catch (err) {
-      error(t('clients.delete_error'));
-    }
+    customConfirm({
+      title: t('common.delete'),
+      message: t('clients.delete_confirm', { name: client.name }),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "clients", client.id));
+          success(t('clients.client_deleted'));
+        } catch (err) {
+          error(t('clients.delete_error'));
+        }
+      }
+    });
   };
 
   return (

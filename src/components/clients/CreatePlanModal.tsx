@@ -8,6 +8,7 @@ import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestor
 import { useToast } from "@/context/ToastContext";
 import { usePrograms, InterventionPlan } from "@/hooks/useCollections";
 import { useTranslation } from "react-i18next";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface CreatePlanModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export default function CreatePlanModal({
 }: CreatePlanModalProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
+  const { confirm: customConfirm } = useConfirm();
   const { data: programs, loading: programsLoading } = usePrograms();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -138,21 +140,29 @@ export default function CreatePlanModal({
     }
   };
 
+  // Handle Delete
   const handleDelete = async () => {
     if (!existingPlan) return;
-    if (!confirm(t('clients.plan_modal.delete_confirm', { name: existingPlan.name }))) return;
-
-    setIsDeleting(true);
-    try {
-      await deleteDoc(doc(db, "clients", clientId, "interventionPlans", existingPlan.id));
-      success(t('clients.plan_modal.deleted'));
-      onClose();
-    } catch (err) {
-      console.error(err);
-      error(t('clients.plan_modal.delete_error'));
-    } finally {
-      setIsDeleting(false);
-    }
+    
+    customConfirm({
+      title: t('common.delete'),
+      message: t('clients.plan_modal.delete_confirm', { name: existingPlan.name }),
+      confirmLabel: t('common.delete'),
+      variant: 'danger',
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          await deleteDoc(doc(db, "clients", clientId, "interventionPlans", existingPlan.id));
+          success(t('clients.plan_modal.deleted'));
+          onClose();
+        } catch (err) {
+          console.error(err);
+          error(t('clients.plan_modal.delete_error'));
+        } finally {
+          setIsDeleting(false);
+        }
+      }
+    });
   };
 
   if (!isOpen) return null;
