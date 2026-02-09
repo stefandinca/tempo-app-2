@@ -10,6 +10,7 @@ import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
 import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 interface ChatViewProps {
   thread: ChatThread | null;
