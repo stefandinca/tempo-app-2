@@ -103,7 +103,7 @@ export default function CARSSummary({ evaluation, onClose }: CARSSummaryProps) {
                 <div className="flex-1">
                   <p className="text-sm font-bold text-neutral-900 dark:text-white">{item.id}. {t(`cars.items.${item.id}.title`)}</p>
                   {score?.note && (
-                    <p className="text-xs text-neutral-500 mt-0.5 line-clamp-1 italic italic">"{score.note}"</p>
+                    <p className="text-xs text-neutral-500 mt-0.5 line-clamp-1 italic italic">&quot;{score.note}&quot;</p>
                   )}
                 </div>
                 <div className="flex items-center gap-4">
