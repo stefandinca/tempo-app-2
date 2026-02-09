@@ -135,10 +135,10 @@ export function useAnalyticsData(year: number, month: number) {
 
     return {
       kpis: [
-        { label: 'Monthly Sessions', value: totalSessions.toLocaleString(), change: '+0%', trend: 'up' as const },
-        { label: 'Completion Rate', value: `${completionRate.toFixed(1)}%`, change: '+0%', trend: 'up' as const },
-        { label: 'Monthly Revenue', value: `$${(monthlyRevenue / 1000).toFixed(1)}k`, change: '+0%', trend: 'up' as const },
-        { label: 'Projected Revenue', value: `$${(projectedTotalRevenue / 1000).toFixed(1)}k`, change: 'Forecast', trend: 'up' as const },
+        { label: 'analytics.monthly_sessions', value: totalSessions.toLocaleString(), change: '+0%', trend: 'up' as const },
+        { label: 'analytics.completion_rate', value: `${completionRate.toFixed(1)}%`, change: '+0%', trend: 'up' as const },
+        { label: 'analytics.monthly_revenue', value: `${monthlyRevenue.toLocaleString()} RON`, change: '+0%', trend: 'up' as const },
+        { label: 'analytics.projected_revenue', value: `${projectedTotalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })} RON`, change: 'analytics.forecast', trend: 'up' as const },
       ],
       sessionChartData,
       revenueMixData,

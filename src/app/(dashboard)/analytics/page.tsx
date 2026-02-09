@@ -5,6 +5,7 @@ import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { TrendingUp, TrendingDown, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // Dynamic imports for heavy chart components
 const SessionVolumeChart = dynamic(() => import("@/components/analytics/SessionVolumeChart"), { 
@@ -27,6 +28,7 @@ const CancellationRiskWidget = dynamic(() => import("@/components/analytics/Canc
 });
 
 export default function AnalyticsPage() {
+  const { t } = useTranslation();
   const [currentDate] = useState(new Date());
   const { data, loading } = useAnalyticsData(
     currentDate.getFullYear(), 
@@ -52,7 +54,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.kpis.map((kpi, i) => (
           <div key={i} className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{kpi.label}</p>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{t(kpi.label)}</p>
             <div className="flex items-baseline justify-between mt-2">
               <h3 className="text-2xl font-bold text-neutral-900 dark:text-white">{kpi.value}</h3>
               <div className={clsx(
@@ -62,7 +64,7 @@ export default function AnalyticsPage() {
                   : "bg-error-50 text-error-600 dark:bg-error-900/20"
               )}>
                 {kpi.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {kpi.change}
+                {kpi.change.startsWith('analytics.') ? t(kpi.change) : kpi.change}
               </div>
             </div>
           </div>
