@@ -5,24 +5,19 @@ import { clsx } from "clsx";
 import { FileText, TrendingUp } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
-import EvaluationList from "@/components/evaluations/EvaluationList";
-import EvaluationWizard from "@/components/evaluations/EvaluationWizard";
-import EvaluationSummary from "@/components/evaluations/EvaluationSummary";
-import EvaluationProgressChart from "@/components/evaluations/EvaluationProgressChart";
-import VBMAPPList from "@/components/evaluations/vbmapp/VBMAPPList";
-import VBMAPPWizard from "@/components/evaluations/vbmapp/VBMAPPWizard";
-import VBMAPPSummary from "@/components/evaluations/vbmapp/VBMAPPSummary";
-import PortageList from "@/components/evaluations/PortageList";
-import CARSList from "@/components/evaluations/CARSList";
-import CarolinaList from "@/components/evaluations/CarolinaList";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useClientVBMAPPEvaluations } from "@/hooks/useVBMAPP";
+import { usePortageEvaluations } from "@/hooks/usePortage";
+import { useCARSEvaluations } from "@/hooks/useCARS";
+import { useCarolinaEvaluations } from "@/hooks/useCarolina";
+import { useTranslation } from "react-i18next";
+import { ChevronRight, ArrowLeft, Brain, Target, Compass, Search, ClipboardCheck } from "lucide-react";
 
 interface ClientEvaluationsTabProps {
   client: any;
 }
 
-type EvalType = "ablls" | "vbmapp" | "portage" | "cars" | "carolina";
+type EvalType = "none" | "ablls" | "vbmapp" | "portage" | "cars" | "carolina";
 
 type ABLLSModalState =
   | { type: "none" }
@@ -37,19 +32,39 @@ type VBMAPPModalState =
 type ViewMode = "list" | "progress";
 
 export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabProps) {
-  const [evalType, setEvalType] = useState<EvalType>("ablls");
+  const { t } = useTranslation();
+  const [evalType, setEvalType] = useState<EvalType>("none");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
-  // ABLLS state
-  const [ablllsModal, setABLLSModal] = useState<ABLLSModalState>({ type: "none" });
+  // Fetch data for all types to show status in the hub
   const { evaluations: ablllsEvaluations } = useClientEvaluations(client.id);
-
-  // VB-MAPP state
-  const [vbmappModal, setVBMAPPModal] = useState<VBMAPPModalState>({ type: "none" });
   const { evaluations: vbmappEvaluations } = useClientVBMAPPEvaluations(client.id);
+  const { evaluations: portageEvaluations } = usePortageEvaluations(client.id);
+  const { evaluations: carsEvaluations } = useCARSEvaluations(client.id);
+  const { evaluations: carolinaEvaluations } = useCarolinaEvaluations(client.id);
+
+  const [ablllsModal, setABLLSModal] = useState<ABLLSModalState>({ type: "none" });
+  const [vbmappModal, setVBMAPPModal] = useState<VBMAPPModalState>({ type: "none" });
 
   const completedABLLSCount = ablllsEvaluations.filter((e) => e.status === "completed").length;
-  const completedVBMAPPCount = vbmappEvaluations.filter((e) => e.status === "completed").length;
+
+  const getStatusInfo = (evals: any[]) => {
+    const completed = evals.filter(e => e.status === 'completed');
+    const last = completed.length > 0 ? completed[0] : null;
+    return {
+      count: completed.length,
+      lastDate: last ? new Date(last.completedAt || last.createdAt).toLocaleDateString() : null,
+      hasInProgress: evals.some(e => e.status === 'in_progress')
+    };
+  };
+
+  const EVAL_TOOLS = [
+    { id: 'ablls', name: 'ABLLS-R', desc: 'Basic language and learning skills assessment', icon: Target, color: 'text-primary-600 bg-primary-50', stats: getStatusInfo(ablllsEvaluations) },
+    { id: 'vbmapp', name: 'VB-MAPP', desc: 'Verbal behavior milestones and placement program', icon: Brain, color: 'text-purple-600 bg-purple-50', stats: getStatusInfo(vbmappEvaluations) },
+    { id: 'portage', name: 'Portage', desc: 'Developmental early intervention checklist', icon: Compass, color: 'text-orange-600 bg-orange-50', stats: getStatusInfo(portageEvaluations) },
+    { id: 'cars', name: 'CARS', desc: 'Childhood Autism Rating Scale', icon: Search, color: 'text-indigo-600 bg-indigo-50', stats: getStatusInfo(carsEvaluations) },
+    { id: 'carolina', name: 'Carolina', desc: 'Curriculum for preschoolers with special needs', icon: ClipboardCheck, color: 'text-teal-600 bg-teal-50', stats: getStatusInfo(carolinaEvaluations) },
+  ];
 
   // ABLLS handlers
   const getMostRecentCompletedABLLS = (): Evaluation | undefined => {
@@ -149,82 +164,68 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
     }
   };
 
+  if (evalType === "none") {
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div>
+          <h3 className="text-xl font-bold text-neutral-900 dark:text-white">Clinical Evaluations</h3>
+          <p className="text-sm text-neutral-500 mt-1">Select an assessment tool to track developmental progress.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {EVAL_TOOLS.map((tool) => (
+            <button
+              key={tool.id}
+              onClick={() => setEvalType(tool.id as EvalType)}
+              className="group p-6 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl text-left hover:shadow-xl hover:border-primary-500/50 transition-all relative overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={clsx("w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", tool.color)}>
+                  <tool.icon className="w-6 h-6" />
+                </div>
+                {tool.stats.hasInProgress && (
+                  <span className="px-2 py-1 bg-warning-100 text-warning-700 text-[10px] font-bold uppercase rounded-md animate-pulse">
+                    In Progress
+                  </span>
+                )}
+              </div>
+              
+              <h4 className="text-lg font-bold text-neutral-900 dark:text-white mb-1">{tool.name}</h4>
+              <p className="text-xs text-neutral-500 leading-relaxed mb-6">{tool.desc}</p>
+
+              <div className="flex items-center justify-between pt-4 border-t border-neutral-100 dark:border-neutral-800">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                  {tool.stats.lastDate ? `Last: ${tool.stats.lastDate}` : 'No history'}
+                </div>
+                <div className="flex items-center gap-1 text-xs font-bold text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Open <ChevronRight className="w-4 h-4" />
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Evaluation Type Tabs */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        {/* Type selector */}
-        <div className="flex items-center border-b border-neutral-200 dark:border-neutral-700">
+      {/* Evaluation Type Header & Back Button */}
+      <div className="flex items-center justify-between flex-wrap gap-4 bg-white dark:bg-neutral-900 p-4 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => setEvalType("ablls")}
-            className={clsx(
-              "px-4 py-2 text-sm font-medium transition-colors relative",
-              evalType === "ablls"
-                ? "text-primary-600 dark:text-primary-400"
-                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-            )}
+            onClick={() => setEvalType("none")}
+            className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition-colors text-neutral-500"
+            title="Back to All Evaluations"
           >
-            ABLLS-R
-            {evalType === "ablls" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
-            )}
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <button
-            onClick={() => setEvalType("vbmapp")}
-            className={clsx(
-              "px-4 py-2 text-sm font-medium transition-colors relative",
-              evalType === "vbmapp"
-                ? "text-purple-600 dark:text-purple-400"
-                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-            )}
-          >
-            VB-MAPP
-            {evalType === "vbmapp" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500" />
-            )}
-          </button>
-          <button
-            onClick={() => setEvalType("portage")}
-            className={clsx(
-              "px-4 py-2 text-sm font-medium transition-colors relative",
-              evalType === "portage"
-                ? "text-orange-600 dark:text-orange-400"
-                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-            )}
-          >
-            Portage
-            {evalType === "portage" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />
-            )}
-          </button>
-          <button
-            onClick={() => setEvalType("cars")}
-            className={clsx(
-              "px-4 py-2 text-sm font-medium transition-colors relative",
-              evalType === "cars"
-                ? "text-indigo-600 dark:text-indigo-400"
-                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-            )}
-          >
-            CARS
-            {evalType === "cars" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500" />
-            )}
-          </button>
-          <button
-            onClick={() => setEvalType("carolina")}
-            className={clsx(
-              "px-4 py-2 text-sm font-medium transition-colors relative",
-              evalType === "carolina"
-                ? "text-teal-600 dark:text-teal-400"
-                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-            )}
-          >
-            Carolina
-            {evalType === "carolina" && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500" />
-            )}
-          </button>
+          <div>
+            <h3 className="font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+              {EVAL_TOOLS.find(t => t.id === evalType)?.name}
+              <span className="text-xs font-normal text-neutral-400">| {client.name}</span>
+            </h3>
+          </div>
         </div>
 
         {/* View Mode Toggle - only show for ABLLS which has progress charts */}
@@ -369,4 +370,6 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
       )}
     </div>
   );
+}
+
 }
