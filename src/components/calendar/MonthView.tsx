@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 interface Event {
   id: string;
@@ -30,6 +31,22 @@ export default function MonthView({
   onSlotClick
 }: MonthViewProps) {
   
+  const { i18n } = useTranslation();
+  const locale = i18n.language || 'ro';
+
+  // Generate localized weekday names (starting Monday)
+  const weekdayNames = useMemo(() => {
+    const names: string[] = [];
+    // Use a known Monday (Jan 6, 2025) as reference
+    const monday = new Date(2025, 0, 6);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      names.push(d.toLocaleDateString(locale, { weekday: 'short' }));
+    }
+    return names;
+  }, [locale]);
+
   // Create a map for O(1) team member lookup
   const therapistMap = useMemo(() => {
     const map = new Map<string, any>();
@@ -84,7 +101,7 @@ export default function MonthView({
       
       {/* Weekday Headers */}
       <div className="grid grid-cols-7 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
-        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+        {weekdayNames.map(day => (
           <div key={day} className="py-2 text-center text-xs font-semibold text-neutral-500 uppercase tracking-wide">
             {day}
           </div>
@@ -138,7 +155,7 @@ export default function MonthView({
                         borderLeftColor: color
                       }}
                     >
-                      {new Date(evt.startTime).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})} {evt.title}
+                      {new Date(evt.startTime).toLocaleTimeString(locale, {hour: 'numeric', minute:'2-digit'})} {evt.title}
                     </div>
                   );
                 })}

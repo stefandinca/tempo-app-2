@@ -2,6 +2,7 @@
 
 import { useMemo, useEffect, useState } from "react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 import { calculateEventColumns, getEventsForDay, type CalendarEvent, type EventWithPosition } from "@/lib/calendarUtils";
 
 interface Event {
@@ -31,7 +32,16 @@ export default function DayView({
   onSlotClick
 }: DayViewProps) {
   
+  const { i18n } = useTranslation();
+  const locale = i18n.language || 'ro';
   const [now, setNow] = useState(new Date());
+
+  // Format hour based on locale (24h for ro, 12h for en)
+  const formatHour = (hour: number) => {
+    const date = new Date();
+    date.setHours(hour, 0, 0, 0);
+    return date.toLocaleTimeString(locale, { hour: 'numeric', minute: undefined });
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60000);
@@ -100,7 +110,7 @@ export default function DayView({
         <div className="w-16 flex-shrink-0 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" />
         <div className="flex-1 flex flex-col items-center justify-center">
           <div className="text-sm font-medium text-neutral-500 uppercase">
-            {currentDate.toLocaleDateString('en-US', { weekday: 'long' })}
+            {currentDate.toLocaleDateString(locale, { weekday: 'long' })}
           </div>
           <div className={clsx(
             "text-3xl font-bold mt-1",
@@ -120,7 +130,7 @@ export default function DayView({
             {hours.map((hour) => (
               <div key={hour} className="h-[60px] relative">
                 <span className="absolute -top-2.5 right-2 text-xs text-neutral-400">
-                  {hour > 12 ? `${hour - 12} PM` : hour === 12 ? '12 PM' : `${hour} AM`}
+                  {formatHour(hour)}
                 </span>
               </div>
             ))}
@@ -184,7 +194,7 @@ export default function DayView({
                 >
                   <div className="font-semibold text-sm truncate">{event.title}</div>
                   <div className="text-xs opacity-80 truncate">
-                    {new Date(event.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(event.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    {new Date(event.startTime).toLocaleTimeString(locale, {hour: '2-digit', minute:'2-digit'})} - {new Date(event.endTime).toLocaleTimeString(locale, {hour: '2-digit', minute:'2-digit'})}
                   </div>
                 </div>
               );
