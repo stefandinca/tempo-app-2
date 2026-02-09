@@ -320,6 +320,35 @@ export default function ClientInvoicesTable({
     }
   };
 
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "synced":
+        return {
+          icon: CheckCircle,
+          label: t('billing_page.status.synced'),
+          classes: "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400"
+        };
+      case "paid":
+        return {
+          icon: CheckCircle,
+          label: t('billing_page.status.paid'),
+          classes: "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400"
+        };
+      case "pending":
+        return {
+          icon: Clock,
+          label: t('billing_page.status.pending'),
+          classes: "bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400"
+        };
+      default:
+        return {
+          icon: FileText,
+          label: t('billing_page.status.create'),
+          classes: "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400"
+        };
+    }
+  };
+
   const handleDeleteInvoice = (invoice: ClientInvoice) => {
     if (!invoice.invoiceId) return;
 
