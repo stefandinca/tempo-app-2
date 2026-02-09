@@ -11,12 +11,14 @@ import { useClientEvents } from "@/hooks/useCollections";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useChatActions } from "@/hooks/useChat";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 interface ClientStatsCardsProps {
   client: any;
 }
 
 export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { success, error: toastError } = useToast();
   const { createOrGetThread } = useChatActions();
@@ -46,9 +48,9 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
       const random = Math.floor(1000 + Math.random() * 9000);
       const newCode = `${initials}-${random}`;
       await updateDoc(doc(db, "clients", client.id), { clientCode: newCode });
-      success("New access code generated!");
+      success(t('clients.code_generated') || "New access code generated!");
     } catch (err) {
-      toastError("Failed to generate code");
+      toastError(t('clients.code_error') || "Failed to generate code");
     } finally {
       setIsGenerating(false);
     }
@@ -59,13 +61,13 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
     const link = `${window.location.origin}/parent/?code=${client.clientCode}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
-    success("Link copied!");
+    success(t('clients.link_copied') || "Link copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleMessageParent = async () => {
     if (!client.parentUids?.length) {
-      toastError("No parent registered yet.");
+      toastError(t('clients.no_parent') || "No parent registered yet.");
       return;
     }
     setIsStartingChat(true);
@@ -80,7 +82,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
       });
       if (threadId) router.push(`/messages?threadId=${threadId}`);
     } catch (err) {
-      toastError("Failed to start chat");
+      toastError(t('clients.chat_error') || "Failed to start chat");
     } finally {
       setIsStartingChat(false);
     }
@@ -92,7 +94,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
       {/* 1. Portal Access Card */}
       <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between group">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">Portal Access</span>
+          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.portal_access') || 'Portal Access'}</span>
           <div className="p-2 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600">
             <Key className="w-4 h-4" />
           </div>
@@ -114,14 +116,14 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
             {client.parentUids?.length > 0 && (
               <button onClick={handleMessageParent} disabled={isStartingChat} className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
                 {isStartingChat ? <Loader2 className="w-3 h-3 animate-spin" /> : <MessageSquare className="w-3 h-3" />}
-                Message Parent
+                {t('clients.message_parent') || 'Message Parent'}
               </button>
             )}
           </div>
         ) : (
           <button onClick={generateCode} disabled={isGenerating} className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-primary-600/20 transition-all flex items-center justify-center gap-2">
             {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
-            Generate Access
+            {t('clients.generate_access') || 'Generate Access'}
           </button>
         )}
       </div>
@@ -129,7 +131,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
       {/* 2. Quick Stats Card */}
       <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">Clinical Stats</span>
+          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.clinical_stats') || 'Clinical Stats'}</span>
           <div className="p-2 rounded-lg bg-success-50 dark:bg-success-900/20 text-success-600">
             <BarChart className="w-4 h-4" />
           </div>
@@ -137,23 +139,23 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
         
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">Attendance</p>
+            <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">{t('dashboard.attendance_rate')}</p>
             <p className={clsx("text-xl font-bold font-display", attendanceRate >= 90 ? "text-success-600" : attendanceRate >= 75 ? "text-warning-600" : "text-error-600")}>
               {eventsLoading ? "..." : `${attendanceRate}%`}
             </p>
           </div>
           <div>
-            <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">Programs</p>
+            <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">{t('clients.tabs.programs')}</p>
             <p className="text-xl font-bold text-primary-600 font-display">{activeProgramsCount}</p>
           </div>
         </div>
-        <p className="text-[10px] text-neutral-400 mt-3 italic font-medium">Based on {totalSessions} total recorded sessions</p>
+        <p className="text-[10px] text-neutral-400 mt-3 italic font-medium">{t('clients.based_on_sessions', { count: totalSessions }) || `Based on ${totalSessions} total recorded sessions`}</p>
       </div>
 
       {/* 3. Latest Assessment Card */}
       <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">Latest Assessment</span>
+          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.latest_assessment') || 'Latest Assessment'}</span>
           <div className="p-2 rounded-lg bg-warning-50 dark:bg-warning-900/20 text-warning-600">
             <ClipboardCheck className="w-4 h-4" />
           </div>
@@ -174,11 +176,11 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
           </div>
         ) : (
           <Link href={`/clients/profile?id=${client.id}&tab=evaluations`} className="text-sm font-bold text-primary-600 hover:underline flex items-center gap-1">
-            Start First Evaluation <ChevronRight className="w-4 h-4" />
+            {t('clients.start_evaluation') || 'Start First Evaluation'} <ChevronRight className="w-4 h-4" />
           </Link>
         )}
         <p className="text-[10px] text-neutral-400 mt-3 font-medium">
-          {latestEval ? `Completed: ${new Date(latestEval.completedAt || latestEval.updatedAt).toLocaleDateString()}` : "No assessments recorded yet"}
+          {latestEval ? `${t('evaluations.completed')}: ${new Date(latestEval.completedAt || latestEval.updatedAt).toLocaleDateString()}` : t('clients.no_assessments') || "No assessments recorded yet"}
         </p>
       </div>
 

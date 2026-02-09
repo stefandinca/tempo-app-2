@@ -69,19 +69,19 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
         }).catch(err => console.error("Failed to notify member:", err));
       }
 
-      success(`${member.name} assigned to client`);
+      success(t('clients.member_assigned', { name: member.name }) || `${member.name} assigned to client`);
       setIsAddingMember(false);
       setMemberSearch("");
     } catch (err) {
-      error("Failed to assign member");
+      error(t('clients.assign_error') || "Failed to assign member");
     }
   };
 
   const handleRemoveMember = async (memberId: string) => {
     customConfirm({
-      title: "Remove Member",
-      message: "Remove this team member from the client?",
-      confirmLabel: "Remove",
+      title: t('clients.remove_member_title') || "Remove Member",
+      message: t('clients.remove_member_confirm') || "Remove this team member from the client?",
+      confirmLabel: t('clients.remove_member_action') || "Remove",
       variant: 'danger',
       onConfirm: async () => {
         try {
@@ -89,9 +89,9 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
           await updateDoc(clientRef, {
             therapistIds: arrayRemove(memberId)
           });
-          success("Member removed");
+          success(t('clients.member_removed') || "Member removed");
         } catch (err) {
-          error("Failed to remove member");
+          error(t('clients.remove_error') || "Failed to remove member");
         }
       }
     });
@@ -171,7 +171,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-bold hover:bg-primary-100 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Add Member
+                  {t('team.add_member')}
                 </button>
 
                 {isAddingMember && (
@@ -181,7 +181,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                         <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
                         <input 
                           type="text"
-                          placeholder="Search team..."
+                          placeholder={t('team.search_placeholder')}
                           className="w-full pl-7 pr-3 py-1.5 bg-neutral-50 dark:bg-neutral-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-primary-500"
                           value={memberSearch}
                           onChange={(e) => setMemberSearch(e.target.value)}
@@ -191,7 +191,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                     </div>
                     <div className="max-h-48 overflow-y-auto p-1">
                       {availableMembers.length === 0 ? (
-                        <p className="text-[10px] text-neutral-500 text-center py-4 italic">No matching members found.</p>
+                        <p className="text-[10px] text-neutral-500 text-center py-4 italic">{t('team.no_results')}</p>
                       ) : (
                         availableMembers.map(tm => (
                           <button
@@ -247,7 +247,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                 </div>
               ))
             ) : (
-              <p className="text-sm text-neutral-500 italic col-span-2 py-4 text-center">No team members assigned yet.</p>
+              <p className="text-sm text-neutral-500 italic col-span-2 py-4 text-center">{t('clients.no_team_assigned') || 'No team members assigned yet.'}</p>
             )}
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-6 font-display flex items-center gap-2">
             <ClipboardCheck className="w-5 h-5 text-success-500" />
-            Clinical Information
+            {t('clients.medical_notes')}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
             <div className="sm:col-span-2">
@@ -270,7 +270,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
             <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-3">{t('clients.fields.medical_info')}</p>
             <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border border-neutral-100 dark:border-neutral-800">
               <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed italic">
-                {client.medicalInfo ? `"${client.medicalInfo}"` : "No medical alerts or clinical notes provided."}
+                {client.medicalInfo ? `"${client.medicalInfo}"` : t('clients.no_medical_info') || "No medical alerts or clinical notes provided."}
               </p>
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-6 font-display flex items-center gap-2">
             <Building className="w-5 h-5 text-amber-500" />
-            Billing Information
+            {t('clients.billing_info') || 'Billing Information'}
           </h3>
           <div className="space-y-6">
             <InfoField label={t('clients.fields.billing_address')} value={client.billingAddress} icon={Building} />
@@ -304,10 +304,10 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
             className="w-full flex items-center justify-center gap-2 py-3 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg disabled:opacity-50"
           >
             <FileText className="w-4 h-4" />
-            Generate Full Report
+            {t('reports.team.generate')}
           </button>
           <p className="text-[10px] text-neutral-400 mt-3 text-center leading-relaxed">
-            Compiles a professional HTML report including session history, attendance, and evaluation achievement.
+            {t('clients.report_description') || 'Compiles a professional HTML report including session history, attendance, and evaluation achievement.'}
           </p>
         </div>
 
@@ -331,7 +331,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                 return (
                   <div key={evt.id} className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-900/50">
                     <p className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wider">
-                      {isToday ? "Today" : startDate?.toLocaleDateString('ro-RO', { weekday: 'long' })}
+                      {isToday ? t('calendar.today') : startDate?.toLocaleDateString(undefined, { weekday: 'long' })}
                     </p>
                     <p className="text-sm font-bold text-neutral-900 dark:text-white mt-1">{evt.type}</p>
                     <p className="text-xs text-neutral-500">
@@ -344,12 +344,12 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                 href="/calendar/" 
                 className="block text-center py-2 text-sm font-bold text-primary-600 dark:text-primary-400 hover:underline"
               >
-                View full calendar
+                {t('dashboard.schedule.view_all')}
               </Link>
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-sm text-neutral-500 italic">No upcoming sessions found.</p>
+              <p className="text-sm text-neutral-500 italic">{t('clients.no_upcoming')}</p>
             </div>
           )}
         </div>
