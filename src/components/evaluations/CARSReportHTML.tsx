@@ -42,18 +42,18 @@ export default function CARSReportHTML({
 
   const getSeverityLabel = (severity: string) => {
     switch (severity) {
-      case 'none': return 'Minimal-to-No Symptoms of Autism';
-      case 'mild-moderate': return 'Mild-to-Moderate Symptoms of Autism';
-      case 'severe': return 'Severe Symptoms of Autism';
-      default: return 'Unknown';
+      case 'none': return t('cars.severity.none');
+      case 'mild-moderate': return t('cars.severity.mild_moderate');
+      case 'severe': return t('cars.severity.severe');
+      default: return t('common.unknown');
     }
   };
 
   const getSeverityDescription = (severity: string) => {
     switch (severity) {
-      case 'none': return "The child's behavioral profile falls within the range typically associated with non-autistic development or minimal symptoms.";
-      case 'mild-moderate': return "Significant behavioral indicators are present that fall within the mild-to-moderate range of the autism spectrum.";
-      case 'severe': return "Clear and intense behavioral indicators are present consistent with severe symptoms of autism, requiring substantial clinical support.";
+      case 'none': return t('cars.descriptions.none');
+      case 'mild-moderate': return t('cars.descriptions.mild_moderate');
+      case 'severe': return t('cars.descriptions.severe');
       default: return "";
     }
   };
@@ -73,17 +73,17 @@ export default function CARSReportHTML({
             </button>
             <div>
               <h1 className="font-bold text-neutral-900 dark:text-white">
-                CARS Clinical Report
+                {t('cars.report_title')}
               </h1>
               <p className="text-xs text-neutral-500">{client.name} • {new Date().toLocaleDateString()}</p>
             </div>
           </div>
           <button 
             onClick={handlePrint}
-            className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all font-bold"
+            className="flex items-center gap-2 px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg shadow-primary-600/20 transition-all font-bold"
           >
             <Printer className="w-4 h-4" />
-            Print Report
+            {t('portage.print_report')}
           </button>
         </div>
       </div>
@@ -100,12 +100,12 @@ export default function CARSReportHTML({
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight leading-none">TempoApp</h1>
-                <p className="text-sm text-neutral-500 font-medium">Childhood Autism Rating Scale (CARS)</p>
+                <p className="text-sm text-neutral-500 font-medium">{t('cars.subtitle')}</p>
               </div>
             </div>
             <div className="space-y-1">
-              <h2 className="text-3xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">Clinical Assessment Report</h2>
-              <p className="text-neutral-500">Generated on: {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
+              <h2 className="text-3xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">{t('cars.report_title')}</h2>
+              <p className="text-neutral-500">{t('reports.client.generated_on')}: {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
             </div>
           </div>
 
@@ -122,21 +122,21 @@ export default function CARSReportHTML({
           <div className="space-y-6">
             <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
               <User className="w-5 h-5 text-indigo-600" />
-              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">Patient Information</h3>
+              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">{t('clients.personal_info')}</h3>
             </div>
             <div className="grid grid-cols-2 gap-y-4 text-sm">
               <div>
-                <p className="text-neutral-500 font-medium">Full Name</p>
+                <p className="text-neutral-500 font-medium">{t('clients.fields.full_name')}</p>
                 <p className="text-neutral-900 dark:text-white font-bold text-lg">{client.name}</p>
               </div>
               <div>
-                <p className="text-neutral-500 font-medium">Evaluation Type</p>
-                <p className="text-neutral-900 dark:text-white font-bold text-lg">CARS (15 Items)</p>
+                <p className="text-neutral-500 font-medium">{t('evaluations.client_age')}</p>
+                <p className="text-neutral-900 dark:text-white font-bold text-lg">CARS (15 {t('evaluations.items')})</p>
               </div>
               <div className="col-span-2">
-                <p className="text-neutral-500 font-medium">Assessment Context</p>
+                <p className="text-neutral-500 font-medium">{t('evaluations.summary')}</p>
                 <p className="text-neutral-700 dark:text-neutral-300 mt-1 leading-relaxed">
-                  The Childhood Autism Rating Scale (CARS) is a diagnostic assessment tool that helps identify children with autism and determine symptom severity through structured observation of 15 behavioral areas.
+                  {t('cars.descriptions.mild_moderate')}
                 </p>
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function CARSReportHTML({
           <div className="space-y-6">
             <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
               <Activity className="w-5 h-5 text-indigo-600" />
-              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">Clinical Results</h3>
+              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">{t('cars.clinical_classification')}</h3>
             </div>
             <div className={clsx(
               "p-6 rounded-3xl border",
@@ -153,7 +153,7 @@ export default function CARSReportHTML({
               evaluation.severity === 'severe' ? "bg-error-50 border-error-100" : "bg-warning-50 border-warning-100"
             )}>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Total Score</span>
+                <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">{t('cars.total_score')}</span>
                 <span className="text-4xl font-black text-neutral-900">{evaluation.totalScore} <span className="text-sm font-normal opacity-50">/ 60</span></span>
               </div>
               <div className="space-y-2">
@@ -172,7 +172,7 @@ export default function CARSReportHTML({
         <div className="space-y-8">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <AlertCircle className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">Behavioral Domain Breakdown</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">{t('evaluations.category_breakdown')}</h3>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
@@ -184,7 +184,7 @@ export default function CARSReportHTML({
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-black text-neutral-400">{item.id.toString().padStart(2, '0')}</span>
-                        <h4 className="font-bold text-neutral-900 dark:text-white text-md">{item.title}</h4>
+                        <h4 className="font-bold text-neutral-900 dark:text-white text-md">{t(`cars.items.${item.id}.title`)}</h4>
                       </div>
                       
                       {score?.note && (
@@ -204,7 +204,7 @@ export default function CARSReportHTML({
                         score?.value >= 2 ? "bg-warning-50 text-warning-700 border-warning-100" : 
                         "bg-success-50 text-success-700 border-success-100"
                       )}>
-                        Score: {score?.value || 0}
+                        {t('common.status')}: {score?.value || 0}
                       </span>
                       <p className="text-[10px] text-neutral-400 font-medium">Max: 4.0</p>
                     </div>

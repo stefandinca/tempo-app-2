@@ -720,7 +720,114 @@
     "no_evaluations_desc": "Începeți o evaluare CARS pentru a identifica și clasifica modelele comportamentale legate de autism.",
     "scoring_instruction": "Fiecare item este notat de la 1 la 4. Utilizați jumătăți de punct (1.5, 2.5, 3.5) pentru comportamentele care se situează între categorii. O notă clinică detaliată este recomandată pentru orice scor peste 1.",
     "observation_placeholder": "Justificați acest scor cu observații clinice specifice...",
-    "report_title": "Raport Clinic CARS"
+    "report_title": "Raport Clinic CARS",
+    "items": {
+      "1": {
+        "title": "Relaționarea cu Oamenii",
+        "d1": "Comportament adecvat vârstei. Comportamentul copilului este consistent cu vârsta sa.",
+        "d2": "Relații ușor anormale. Copilul poate evita privirea adultului sau poate prezenta o anumită rezistență la a fi ținut în brațe.",
+        "d3": "Relații moderat anormale. Copilul pare distant sau nu răspunde la interacțiunea cu adulții.",
+        "d4": "Relații sever anormale. Copilul este constant distant sau nu răspunde la ceea ce face adultul."
+      },
+      "2": {
+        "title": "Imitația",
+        "d1": "Imitație adecvată. Copilul poate imita sunete, cuvinte și mișcări.",
+        "d2": "Imitație ușor anormală. Copilul imită comportamente simple de cele mai multe ori, deși uneori cu întârziere.",
+        "d3": "Imitație moderat anormală. Copilul imită doar parțial și necesită multă persistență din partea adultului.",
+        "d4": "Imitație sever anormală. Copilul imită rar sau deloc sunete, cuvinte sau mișcări."
+      },
+      "3": {
+        "title": "Răspunsul Emoțional",
+        "d1": "Răspuns emoțional adecvat vârstei. Răspunsurile sunt potrivite situației.",
+        "d2": "Răspuns emoțional ușor anormal. Uneori prezintă tipuri sau grade inadecvate de răspuns emoțional.",
+        "d3": "Răspuns emoțional moderat anormal. Prezintă semne clare de răspunsuri emoționale inadecvate.",
+        "d4": "Răspuns emoțional sever anormal. Răspunsurile sunt rareori adecvate situației; stări de spirit extreme."
+      },
+      "4": {
+        "title": "Utilizarea Corpului",
+        "d1": "Utilizare a corpului adecvată vârstei. Se mișcă cu aceeași ușurință și coordonare ca un copil de aceeași vârstă.",
+        "d2": "Utilizare a corpului ușor anormală. Unele mici particularități (ex: stângăcie, mișcări repetitive).",
+        "d3": "Utilizare a corpului moderat anormală. Mișcări clar ciudate sau neobișnuite (ex: fluturarea degetelor, posturi bizare).",
+        "d4": "Utilizare a corpului sever anormală. Mișcări intense sau frecvente de tipul celor enumerate mai sus."
+      },
+      "5": {
+        "title": "Utilizarea Obiectelor",
+        "d1": "Interes și utilizare adecvată a obiectelor. Interes normal pentru jucării și alte obiecte.",
+        "d2": "Interes sau utilizare ușor anormală a obiectelor. Poate manifesta un interes neobișnuit pentru o jucărie sau se poate juca cu ea inadecvat.",
+        "d3": "Interes sau utilizare moderat anormală a obiectelor. Copilul poate manifesta foarte puțin interes pentru jucării sau obiecte.",
+        "d4": "Interes sau utilizare sever anormală a obiectelor. Poate fi preocupat de anumite obiecte sau de utilizarea lor repetitivă."
+      },
+      "6": {
+        "title": "Adaptarea la Schimbare",
+        "d1": "Răspuns adecvat la schimbare. Deși observă schimbările în rutină, le acceptă fără stres nejustificat.",
+        "d2": "Adaptare la schimbare ușor anormală. Când adultul încearcă să schimbe sarcina, copilul poate continua aceeași activitate.",
+        "d3": "Adaptare la schimbare moderat anormală. Copilul rezistă activ schimbărilor de rutină; devine stresat.",
+        "d4": "Adaptare la schimbare sever anormală. Prezintă reacții severe la schimbare; devine extrem de stresat."
+      },
+      "7": {
+        "title": "Răspunsul Vizual",
+        "d1": "Răspuns vizual adecvat vârstei. Comportamentul vizual este normal și adecvat vârstei.",
+        "d2": "Răspuns vizual ușor anormal. Trebuie să i se reamintească să privească obiectele; se poate uita în gol.",
+        "d3": "Răspuns vizual moderat anormal. Copilului trebuie să i se reamintească frecvent să privească ceea ce face.",
+        "d4": "Răspuns vizual sever anormal. Evitarea persistentă a contactului vizual; particularități extreme."
+      },
+      "8": {
+        "title": "Răspunsul Auditiv",
+        "d1": "Răspuns auditiv adecvat vârstei. Comportament auditiv normal pentru vârstă.",
+        "d2": "Răspuns auditiv ușor anormal. Poate exista o lipsă de răspuns sau o reacție ușoară exagerată la anumite sunete.",
+        "d3": "Răspuns auditiv moderat anormal. Răspunsurile la sunete variază; poate ignora un sunet sau se poate speria de el.",
+        "d4": "Răspuns auditiv sever anormal. Reacționează exagerat sau insuficient la sunete într-un grad extrem."
+      },
+      "9": {
+        "title": "Gust, Miros și Tactil",
+        "d1": "Utilizare și răspuns normal la gust, miros și atingere. Explorează obiecte noi într-un mod adecvat vârstei.",
+        "d2": "Utilizare ușor anormală a gustului, mirosului sau atingerii. Poate persista în a duce obiectele la gură; poate mirosi obiectele.",
+        "d3": "Utilizare moderat anormală a gustului, mirosului sau atingerii. Poate fi moderat preocupat de miros/gust/atingere.",
+        "d4": "Utilizare sever anormală a gustului, mirosului sau atingerii. Preocupat de mirosul, gustul sau pipăirea obiectelor."
+      },
+      "10": {
+        "title": "Frică sau Nervozitate",
+        "d1": "Frică sau nervozitate adecvată vârstei. Comportamentul este consistent cu situația.",
+        "d2": "Frică sau nervozitate ușor anormală. Prezintă ocazional fie prea multă, fie prea puțină frică.",
+        "d3": "Frică sau nervozitate moderat anormală. Prezintă ceva mai multă sau mai puțină frică decât era de așteptat.",
+        "d4": "Frică sau nervozitate sever anormală. Frica persistă chiar și după experiențe repetate cu evenimente inofensive."
+      },
+      "11": {
+        "title": "Comunicarea Verbală",
+        "d1": "Comunicare verbală normală, adecvată vârstei. Limbajul este normal pentru vârstă.",
+        "d2": "Comunicare verbală ușor anormală. Limbajul prezintă o anumită întârziere; ecolalie sau inversarea pronumelui.",
+        "d3": "Comunicare verbală moderat anormală. Limbajul poate lipsi; când este prezent, este un mix de ecolalie și jargon.",
+        "d4": "Comunicare verbală sever anormală. Nu utilizează limbaj semnificativ; sunete sau zgomote ciudate."
+      },
+      "12": {
+        "title": "Comunicarea Nonverbală",
+        "d1": "Utilizare normală a comunicării nonverbale, adecvată vârstei. Utilizare normală a gesturilor și expresiilor faciale.",
+        "d2": "Comunicare nonverbală ușor anormală. Utilizare imatură a gesturilor; poate arăta cu mâna în mod vag.",
+        "d3": "Comunicare nonverbală moderat anormală. Copilul este în general incapabil să-și exprime nevoile sau dorințele nonverbal.",
+        "d4": "Comunicare nonverbală sever anormală. Utilizează doar gesturi ciudate sau bizare care nu au un sens aparent."
+      },
+      "13": {
+        "title": "Nivelul de Activitate",
+        "d1": "Nivel de activitate normal pentru vârstă. Copilul nu este nici mai activ, nici mai puțin activ decât un copil de aceeași vârstă.",
+        "d2": "Nivel de activitate ușor anormal. Copilul poate fi ușor agitat sau oarecum 'lent'.",
+        "d3": "Nivel de activitate moderat anormal. Copilul poate fi destul de activ și greu de stăpânit.",
+        "d4": "Nivel de activitate sever anormal. Manifestă extreme de activitate sau inactivitate; poate trece de la una la alta."
+      },
+      "14": {
+        "title": "Nivelul Intelectual",
+        "d1": "Funcționarea intelectuală este normală și consistentă în diverse domenii. Nu există abilități intelectuale neobișnuite.",
+        "d2": "Funcționare intelectuală ușor anormală. Nu este la fel de inteligent ca restul copiilor de aceeași vârstă; abilități destul de egale.",
+        "d3": "Funcționare intelectuală moderat anormală. În general, copilul nu este la fel de inteligent ca restul copiilor de aceeași vârstă.",
+        "d4": "Funcționare intelectuală sever anormală. Deși în general copilul nu este la fel de inteligent, poate funcționa mai bine în unele domenii."
+      },
+      "15": {
+        "title": "Impresii Generale",
+        "d1": "Fără autism. Copilul nu prezintă niciunul dintre simptomele caracteristice autismului.",
+        "d2": "Autism ușor. Copilul prezintă doar câteva simptome sau doar un grad ușor de autism.",
+        "d3": "Autism moderat. Copilul prezintă un număr de simptome sau un grad moderat de autism.",
+        "d4": "Autism sever. Copilul prezintă multe simptome sau un grad extrem de autism."
+      }
+    }
   },
   "auth": {
     "sign_in_title": "Conectare la TempoApp",

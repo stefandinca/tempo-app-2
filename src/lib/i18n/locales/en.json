@@ -713,7 +713,114 @@
     "no_evaluations_desc": "Start a CARS evaluation to identify and classify behavioral patterns related to autism.",
     "scoring_instruction": "Each item is scored from 1 to 4. Use half-points (1.5, 2.5, 3.5) for behaviors that fall between categories. A detailed clinical note is highly recommended for any score above 1.",
     "observation_placeholder": "Justify this score with specific clinical observations...",
-    "report_title": "CARS Clinical Report"
+    "report_title": "CARS Clinical Report",
+    "items": {
+      "1": {
+        "title": "Relating to People",
+        "d1": "Age-appropriate behavior. Child's behavior is consistent with their age.",
+        "d2": "Mildly abnormal relationships. Child may avoid looking at the adult, or may show some resistance to being held.",
+        "d3": "Moderately abnormal relationships. Child appears aloof or unresponsive to adults.",
+        "d4": "Severely abnormal relationships. Child is consistently aloof or unresponsive to what the adult is doing."
+      },
+      "2": {
+        "title": "Imitation",
+        "d1": "Appropriate imitation. Child can imitate sounds, words, and movements.",
+        "d2": "Mildly abnormal imitation. Child imitates simple behaviors most of the time, though sometimes with delay.",
+        "d3": "Moderately abnormal imitation. Child imitates only part of the time and require a great deal of persistence.",
+        "d4": "Severely abnormal imitation. Child rarely or never imitates sounds, words, or movements."
+      },
+      "3": {
+        "title": "Emotional Response",
+        "d1": "Age-appropriate emotional response. Responses are appropriate to the situation.",
+        "d2": "Mildly abnormal emotional response. Sometimes shows inappropriate type or degree of emotional response.",
+        "d3": "Moderately abnormal emotional response. Shows definite signs of inappropriate emotional responses.",
+        "d4": "Severely abnormal emotional response. Responses are seldom appropriate to the situation; extreme moods."
+      },
+      "4": {
+        "title": "Body Use",
+        "d1": "Age-appropriate body use. Moves with same ease and coordination as a child of the same age.",
+        "d2": "Mildly abnormal body use. Some minor peculiarities (e.g., clumsiness, repetitive movements).",
+        "d3": "Moderately abnormal body use. Clearly strange or unusual movements (e.g., finger-flicking, posturing).",
+        "d4": "Severely abnormal body use. Intense or frequent movements of the type listed above."
+      },
+      "5": {
+        "title": "Object Use",
+        "d1": "Appropriate interest in and use of objects. Normal interest in toys and other objects.",
+        "d2": "Mildly abnormal interest in or use of objects. May show unusual interest in a toy or play with it inappropriately.",
+        "d3": "Moderately abnormal interest in or use of objects. Child may show very little interest in toys or objects.",
+        "d4": "Severely abnormal interest in or use of objects. May be preoccupied with certain objects or repetitive use."
+      },
+      "6": {
+        "title": "Adaptation to Change",
+        "d1": "Age-appropriate response to change. While noting changes in routine, accepts them without undue distress.",
+        "d2": "Mildly abnormal adaptation to change. When adult tries to change tasks, child may continue same activity.",
+        "d3": "Moderately abnormal adaptation to change. Child actively resists changes in routine; becomes distressed.",
+        "d4": "Severely abnormal adaptation to change. Shows severe reactions to change; becomes extremely distressed."
+      },
+      "7": {
+        "title": "Visual Response",
+        "d1": "Age-appropriate visual response. Visual behavior is normal and appropriate for age.",
+        "d2": "Mildly abnormal visual response. Must be reminded to look at objects; may look into space.",
+        "d3": "Moderately abnormal visual response. Child must be reminded frequently to look at what they are doing.",
+        "d4": "Severely abnormal visual response. Persistent avoidance of eye contact; extreme peculiarities."
+      },
+      "8": {
+        "title": "Listening Response",
+        "d1": "Age-appropriate listening response. Normal listening behavior for age.",
+        "d2": "Mildly abnormal listening response. There may be some lack of response or mild over-reaction to certain sounds.",
+        "d3": "Moderately abnormal listening response. Responses to sounds vary; may ignore a sound or be startled by it.",
+        "d4": "Severely abnormal listening response. Over-reacts or under-reacts to sounds to an extreme degree."
+      },
+      "9": {
+        "title": "Taste, Smell, and Touch Response and Use",
+        "d1": "Normal use of and response to taste, smell, and touch. Explores new objects in age-appropriate manner.",
+        "d2": "Mildly abnormal use of taste, smell, or touch. May persist in putting objects in mouth; may smell objects.",
+        "d3": "Moderately abnormal use of taste, smell, or touch. May be moderately preoccupied with smelling/tasting/touching.",
+        "d4": "Severely abnormal use of taste, smell, or touch. Preoccupied with smelling, tasting, or feeling objects."
+      },
+      "10": {
+        "title": "Fear or Nervousness",
+        "d1": "Age-appropriate fear or nervousness. Behavior is consistent with the situation.",
+        "d2": "Mildly abnormal fear or nervousness. Shows occasionally either too much or too little fear.",
+        "d3": "Moderately abnormal fear or nervousness. Shows somewhat more or somewhat less fear than expected.",
+        "d4": "Severely abnormal fear or nervousness. Fear persists even after repeated experience with harmless events."
+      },
+      "11": {
+        "title": "Verbal Communication",
+        "d1": "Normal verbal communication, age-appropriate. Speech is normal for age.",
+        "d2": "Mildly abnormal verbal communication. Speech shows some delay; ecolalia or pronoun reversal.",
+        "d3": "Moderately abnormal verbal communication. Speech may be absent; when present, it is a mix of ecolalia and jargon.",
+        "d4": "Severely abnormal verbal communication. Does not use meaningful speech; peculiar sounds or noises."
+      },
+      "12": {
+        "title": "Nonverbal Communication",
+        "d1": "Normal use of nonverbal communication, age-appropriate. Normal use of gestures and facial expressions.",
+        "d2": "Mildly abnormal nonverbal communication. Immature use of gestures; may point vaguely.",
+        "d3": "Moderately abnormal nonverbal communication. Child is generally unable to express needs or desires nonverbally.",
+        "d4": "Severely abnormal nonverbal communication. Uses only peculiar or bizarre gestures which have no apparent meaning."
+      },
+      "13": {
+        "title": "Activity Level",
+        "d1": "Normal activity level for age. Child is neither more active nor less active than a child of the same age.",
+        "d2": "Mildly abnormal activity level. Child may be slightly restless or somewhat 'sluggish'.",
+        "d3": "Moderately abnormal activity level. Child may be quite active and difficult to restrain.",
+        "d4": "Severely abnormal activity level. Exhibits extremes of activity or inactivity; may shift from one to other."
+      },
+      "14": {
+        "title": "Level and Consistency of Intellectual Response",
+        "d1": "Intellectual functioning is normal and consistent across various areas. No unusual intellectual abilities.",
+        "d2": "Mildly abnormal intellectual functioning. Not as smart as children of same age; skills fairly even.",
+        "d3": "Moderately abnormal intellectual functioning. Generally child is not as smart as children of same age.",
+        "d4": "Severely abnormal intellectual functioning. Even though child is generally not as smart, they may function better in some areas."
+      },
+      "15": {
+        "title": "General Impressions",
+        "d1": "No autism. Child shows none of the symptoms characteristic of autism.",
+        "d2": "Mild autism. Child shows only a few symptoms or only a mild degree of autism.",
+        "d3": "Moderate autism. Child shows a number of symptoms or a moderate degree of autism.",
+        "d4": "Severe autism. Child shows many symptoms or an extreme degree of autism."
+      }
+    }
   },
   "auth": {
     "sign_in_title": "Sign in to TempoApp",

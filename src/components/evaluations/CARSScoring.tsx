@@ -50,7 +50,7 @@ export default function CARSScoring({
                   <span className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 flex items-center justify-center text-sm">
                     {item.id}
                   </span>
-                  {item.title}
+                  {t(`cars.items.${item.id}.title`)}
                 </h3>
               </div>
               <button
@@ -91,7 +91,7 @@ export default function CARSScoring({
                 <div key={level} className="text-xs p-3 bg-neutral-100 dark:bg-neutral-950 rounded-xl border border-neutral-200 dark:border-neutral-800">
                   <span className="font-black text-neutral-400 uppercase tracking-widest block mb-1">{t('common.level')} {level}</span>
                   <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                    {(item.descriptions as any)[level]}
+                    {t(`cars.items.${item.id}.d${level}`)}
                   </p>
                 </div>
               ))}

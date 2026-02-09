@@ -101,7 +101,7 @@ export default function CARSSummary({ evaluation, onClose }: CARSSummaryProps) {
             return (
               <div key={item.id} className="px-8 py-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-neutral-900 dark:text-white">{item.id}. {item.title}</p>
+                  <p className="text-sm font-bold text-neutral-900 dark:text-white">{item.id}. {t(`cars.items.${item.id}.title`)}</p>
                   {score?.note && (
                     <p className="text-xs text-neutral-500 mt-0.5 line-clamp-1 italic italic">"{score.note}"</p>
                   )}
