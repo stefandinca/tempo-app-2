@@ -6,9 +6,11 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import EvaluationReportHTML from "@/components/evaluations/EvaluationReportHTML";
 import PortageReportHTML from "@/components/evaluations/PortageReportHTML";
+import CARSReportHTML from "@/components/evaluations/CARSReportHTML";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { PortageEvaluation } from "@/types/portage";
+import { CARSEvaluation } from "@/types/cars";
 import { ClientInfo } from "@/types/client";
 import { Loader2 } from "lucide-react";
 
@@ -16,12 +18,12 @@ export default function EvaluationReportPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const type = searchParams.get("type"); // 'ablls', 'vbmapp' or 'portage'
+  const type = searchParams.get("type"); // 'ablls', 'vbmapp', 'portage' or 'cars'
   const id = searchParams.get("id");
   const clientId = searchParams.get("clientId");
   const isParent = searchParams.get("mode") === "parent";
 
-  const [evaluation, setEvaluation] = useState<Evaluation | VBMAPPEvaluation | PortageEvaluation | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | VBMAPPEvaluation | PortageEvaluation | CARSEvaluation | null>(null);
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [clinic, setClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -57,6 +59,7 @@ export default function EvaluationReportPage() {
         if (lowerType === "ablls") collectionName = "evaluations";
         else if (lowerType === "vbmapp") collectionName = "vbmapp_evaluations";
         else if (lowerType === "portage") collectionName = "portage_evaluations";
+        else if (lowerType === "cars") collectionName = "cars_evaluations";
         else {
           setError(`Unknown evaluation type: ${type}`);
           setLoading(false);
@@ -109,6 +112,17 @@ export default function EvaluationReportPage() {
     return (
       <PortageReportHTML
         evaluation={evaluation as PortageEvaluation}
+        client={client}
+        clinic={clinic}
+        onBack={() => router.back()}
+      />
+    );
+  }
+
+  if (type?.toLowerCase() === "cars") {
+    return (
+      <CARSReportHTML
+        evaluation={evaluation as CARSEvaluation}
         client={client}
         clinic={clinic}
         onBack={() => router.back()}

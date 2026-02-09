@@ -692,6 +692,29 @@
     "items_achieved": "items achieved",
     "target_age": "Target"
   },
+  "cars": {
+    "title": "CARS Evaluation",
+    "subtitle": "Childhood Autism Rating Scale",
+    "wizard_title": "Childhood Autism Rating Scale (CARS)",
+    "total_score": "Total CARS Score",
+    "clinical_classification": "Clinical Classification",
+    "severity": {
+      "none": "Minimal-to-No Symptoms",
+      "mild_moderate": "Mild-to-Moderate Symptoms",
+      "severe": "Severe Symptoms"
+    },
+    "descriptions": {
+      "none": "The child shows minimal behaviors characteristic of autism.",
+      "mild_moderate": "Behavioral patterns suggest mild-to-moderate symptoms of autism.",
+      "severe": "Clinical findings indicate severe symptoms of autism requiring high support."
+    },
+    "category_results": "Category Results",
+    "no_evaluations": "No CARS evaluations yet",
+    "no_evaluations_desc": "Start a CARS evaluation to identify and classify behavioral patterns related to autism.",
+    "scoring_instruction": "Each item is scored from 1 to 4. Use half-points (1.5, 2.5, 3.5) for behaviors that fall between categories. A detailed clinical note is highly recommended for any score above 1.",
+    "observation_placeholder": "Justify this score with specific clinical observations...",
+    "report_title": "CARS Clinical Report"
+  },
   "auth": {
     "sign_in_title": "Sign in to TempoApp",
     "sign_in_subtitle": "Welcome back, please enter your details.",

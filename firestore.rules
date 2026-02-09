@@ -34,7 +34,7 @@ service cloud.firestore {
       let clientDoc = get(/databases/$(database)/documents/clients/$(clientId));
       return isSignedIn() && (
         request.auth.uid == clientId || 
-        (clientDoc != null && 'parentUids' in clientDoc.data && clientDoc.data.parentUids.hasAny([request.auth.uid]))
+        (clientDoc != null && 'parentUids' in clientDoc.data && clientDoc.data.parentUids is list && clientDoc.data.parentUids.hasAny([request.auth.uid]))
       );
     }
 
@@ -121,6 +121,11 @@ service cloud.firestore {
     }
 
     match /clients/{clientId}/portage_evaluations/{evalId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      allow write: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
+    match /clients/{clientId}/cars_evaluations/{evalId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow write: if isAdmin() || isCoordinator() || isTherapist();
     }

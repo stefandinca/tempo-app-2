@@ -699,6 +699,29 @@
     "items_achieved": "itemi realizați",
     "target_age": "Țintă"
   },
+  "cars": {
+    "title": "Evaluare CARS",
+    "subtitle": "Childhood Autism Rating Scale",
+    "wizard_title": "Childhood Autism Rating Scale (CARS)",
+    "total_score": "Scor Total CARS",
+    "clinical_classification": "Clasificare Clinică",
+    "severity": {
+      "none": "Simptome Minime sau Absente",
+      "mild_moderate": "Simptome Ușoare-Moderate",
+      "severe": "Simptome Severe"
+    },
+    "descriptions": {
+      "none": "Copilul prezintă comportamente minime caracteristice autismului.",
+      "mild_moderate": "Modelele comportamentale sugerează simptome ușoare-moderate de autism.",
+      "severe": "Constatările clinice indică simptome severe de autism care necesită suport ridicat."
+    },
+    "category_results": "Rezultate pe Categorii",
+    "no_evaluations": "Nicio evaluare CARS momentan",
+    "no_evaluations_desc": "Începeți o evaluare CARS pentru a identifica și clasifica modelele comportamentale legate de autism.",
+    "scoring_instruction": "Fiecare item este notat de la 1 la 4. Utilizați jumătăți de punct (1.5, 2.5, 3.5) pentru comportamentele care se situează între categorii. O notă clinică detaliată este recomandată pentru orice scor peste 1.",
+    "observation_placeholder": "Justificați acest scor cu observații clinice specifice...",
+    "report_title": "Raport Clinic CARS"
+  },
   "auth": {
     "sign_in_title": "Conectare la TempoApp",
     "sign_in_subtitle": "Bine ai revenit, te rugăm să introduci datele tale.",
