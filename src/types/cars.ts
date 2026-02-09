@@ -2,7 +2,7 @@ export type CARSSeverity = 'none' | 'mild-moderate' | 'severe';
 
 export interface CARSScore {
   value: number; // 1, 1.5, 2, 2.5, 3, 3.5, 4
-  note: string;
+  note?: string;
   updatedAt: string;
 }
 
