@@ -222,7 +222,7 @@ export default function CarolinaWizard({
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Carolina Curriculum</h2>
+              <h2 className="text-lg font-bold text-neutral-900 dark:text-white">{t('carolina.wizard_title')}</h2>
               <p className="text-sm text-neutral-500">{clientName}</p>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function CarolinaWizard({
             {hasCeilingReached && (
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-error-50 text-error-700 rounded-lg text-xs font-bold mr-2 animate-pulse">
                 <AlertCircle className="w-4 h-4" />
-                Ceiling Reached (3 consecutive &apos;A&apos;s)
+                {t('carolina.ceiling_reached')}
               </div>
             )}
             <button onClick={handleClose} className="p-2 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800">
@@ -297,7 +297,7 @@ export default function CarolinaWizard({
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-neutral-400">
-                  Select a sequence to begin
+                  {t('common.search')}
                 </div>
               )}
             </div>
@@ -309,7 +309,7 @@ export default function CarolinaWizard({
                 disabled={currentDomainIndex === 0 && currentSequenceIndex === 0}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-100 disabled:opacity-50 flex items-center gap-2"
               >
-                <ChevronLeft className="w-4 h-4" /> Previous
+                <ChevronLeft className="w-4 h-4" /> {t('common.back')}
               </button>
 
               <div className="flex items-center gap-3">
@@ -319,7 +319,7 @@ export default function CarolinaWizard({
                   className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 hover:bg-neutral-50 flex items-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save Draft
+                  {t('portage.save_draft')}
                 </button>
 
                 {(currentDomainIndex === CAROLINA_PROTOCOL.length - 1 && 
@@ -328,14 +328,14 @@ export default function CarolinaWizard({
                     onClick={handleComplete}
                     className="px-6 py-2 rounded-lg text-sm font-medium bg-success-600 text-white hover:bg-success-700 flex items-center gap-2"
                   >
-                    <Check className="w-4 h-4" /> Complete
+                    <Check className="w-4 h-4" /> {t('portage.complete')}
                   </button>
                 ) : (
                   <button
                     onClick={() => navigateSequence('next')}
                     className="px-6 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 flex items-center gap-2"
                   >
-                    Next Sequence <ChevronRight className="w-4 h-4" />
+                    {t('carolina.next_sequence')} <ChevronRight className="w-4 h-4" />
                   </button>
                 )}
               </div>

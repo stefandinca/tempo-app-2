@@ -4,6 +4,7 @@ import { CarolinaSequence, CarolinaScore, CarolinaScoreValue } from "@/types/car
 import { clsx } from "clsx";
 import { Check, Activity, X, MessageSquare, Info } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CarolinaScoringProps {
   sequence: CarolinaSequence;
@@ -16,6 +17,7 @@ export default function CarolinaScoring({
   scores,
   onScoreChange,
 }: CarolinaScoringProps) {
+  const { t } = useTranslation();
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
   return (
@@ -25,8 +27,7 @@ export default function CarolinaScoring({
           {sequence.title}
         </h3>
         <p className="text-xs text-indigo-700 dark:text-indigo-300">
-          Score items as Mastered (✓), Emerging (D), or Absent (A). 
-          Stop if child scores 3 consecutive &apos;A&apos;s (Ceiling Rule).
+          {t('carolina.scoring_instruction')}
         </p>
       </div>
 
@@ -111,7 +112,7 @@ export default function CarolinaScoring({
                   )}
                 >
                   <MessageSquare className="w-3 h-3" />
-                  {hasNote ? "Edit Note" : "Add Note"}
+                  {hasNote ? t('common.edit') : t('common.save')}
                 </button>
               </div>
 

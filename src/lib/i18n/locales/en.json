@@ -822,6 +822,21 @@
       }
     }
   },
+  "carolina": {
+    "title": "Carolina Curriculum",
+    "subtitle": "Developmental assessment from 2.5 to 5 years",
+    "wizard_title": "Carolina Curriculum Evaluation",
+    "mastered_skills": "Mastered Skills",
+    "emerging_skills": "Emerging Skills",
+    "domain_breakdown": "Domain Breakdown",
+    "ceiling_reached": "Ceiling Reached (3 consecutive A's)",
+    "next_sequence": "Next Sequence",
+    "scoring_instruction": "Score items as Mastered (✓), Emerging (D), or Absent (A). Stop if child scores 3 consecutive 'A's (Ceiling Rule).",
+    "no_evaluations": "No Carolina evaluations yet",
+    "no_evaluations_desc": "Start a Carolina evaluation to track developmental progress across key domains.",
+    "report_title": "Carolina Clinical Report",
+    "report_subtitle": "Developmental Assessment Summary"
+  },
   "auth": {
     "sign_in_title": "Sign in to TempoApp",
     "sign_in_subtitle": "Welcome back, please enter your details.",

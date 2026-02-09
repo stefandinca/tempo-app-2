@@ -57,37 +57,37 @@ export default function CarolinaSummary({ evaluation, onClose }: CarolinaSummary
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="flex items-center gap-3 mb-4 text-success-600">
             <CheckCircle2 className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-widest">Mastered Skills</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('carolina.mastered_skills')}</span>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-neutral-900 dark:text-white">
               {evaluation.totalMastered}
             </span>
-            <span className="text-sm text-neutral-500 font-medium">items</span>
+            <span className="text-sm text-neutral-500 font-medium">{t('evaluations.items')}</span>
           </div>
         </div>
 
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="flex items-center gap-3 mb-4 text-warning-600">
             <Clock className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-widest">Emerging Skills</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('carolina.emerging_skills')}</span>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-neutral-900 dark:text-white">
               {evaluation.totalEmerging}
             </span>
-            <span className="text-sm text-neutral-500 font-medium">items</span>
+            <span className="text-sm text-neutral-500 font-medium">{t('evaluations.items')}</span>
           </div>
         </div>
 
         <div className="bg-white dark:bg-neutral-900 p-6 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div className="flex items-center gap-3 mb-4 text-indigo-600">
             <BarChart3 className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-widest">Completion</span>
+            <span className="text-xs font-bold uppercase tracking-widest">{t('billing_page.status.synced')}</span>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-neutral-900 dark:text-white">
-              {evaluation.status === 'completed' ? '100%' : 'In Progress'}
+              {evaluation.status === 'completed' ? '100%' : t('common.loading')}
             </span>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function CarolinaSummary({ evaluation, onClose }: CarolinaSummary
                   </div>
                   <div>
                     <h4 className="font-bold text-neutral-900 dark:text-white">{domain.title}</h4>
-                    <p className="text-xs text-neutral-500">{stats.mastered} / {stats.total} skills mastered</p>
+                    <p className="text-xs text-neutral-500">{stats.mastered} / {stats.total} {t('carolina.mastered_skills')}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -122,18 +122,18 @@ export default function CarolinaSummary({ evaluation, onClose }: CarolinaSummary
                 <div 
                   className="h-full bg-success-500 transition-all duration-500" 
                   style={{ width: `${percentage}%` }} 
-                  title="Mastered"
+                  title={t('carolina.mastered_skills')}
                 />
                 <div 
                   className="h-full bg-warning-400 transition-all duration-500" 
                   style={{ width: `${stats.total > 0 ? (stats.emerging / stats.total) * 100 : 0}%` }}
-                  title="Emerging"
+                  title={t('carolina.emerging_skills')}
                 />
               </div>
               
               <div className="flex gap-4 mt-2 text-[10px] font-medium text-neutral-400">
-                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success-500" /> Mastered</span>
-                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-warning-400" /> Emerging</span>
+                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-success-500" /> {t('carolina.mastered_skills')}</span>
+                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-warning-400" /> {t('carolina.emerging_skills')}</span>
               </div>
             </div>
           );
@@ -145,11 +145,11 @@ export default function CarolinaSummary({ evaluation, onClose }: CarolinaSummary
         <div className="flex items-center gap-6 text-sm text-neutral-500">
           <div className="flex items-center gap-2">
             <User className="w-4 h-4" />
-            <span>Evaluator: <span className="font-bold text-neutral-700 dark:text-neutral-300">{evaluation.evaluatorName}</span></span>
+            <span>{t('evaluations.evaluator')}: <span className="font-bold text-neutral-700 dark:text-neutral-300">{evaluation.evaluatorName}</span></span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            <span>Date: <span className="font-bold text-neutral-700 dark:text-neutral-300">{formatDate(evaluation.completedAt || evaluation.createdAt)}</span></span>
+            <span>{t('calendar.event.date')}: <span className="font-bold text-neutral-700 dark:text-neutral-300">{formatDate(evaluation.completedAt || evaluation.createdAt)}</span></span>
           </div>
         </div>
         
@@ -158,7 +158,7 @@ export default function CarolinaSummary({ evaluation, onClose }: CarolinaSummary
           className="flex items-center gap-2 px-6 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-lg"
         >
           <Printer className="w-4 h-4" />
-          Print Report
+          {t('portage.print_report')}
         </button>
       </div>
     </div>

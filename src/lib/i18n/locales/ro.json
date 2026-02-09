@@ -699,6 +699,21 @@
     "items_achieved": "itemi realizați",
     "target_age": "Țintă"
   },
+  "carolina": {
+    "title": "Carolina Curriculum",
+    "subtitle": "Evaluarea dezvoltării de la 2.5 la 5 ani",
+    "wizard_title": "Evaluare Carolina Curriculum",
+    "mastered_skills": "Abilități Însușite",
+    "emerging_skills": "Abilități în Dezvoltare",
+    "domain_breakdown": "Analiză pe Domenii",
+    "ceiling_reached": "Plafon Atins (3 de 'A' consecutivi)",
+    "next_sequence": "Secvența Următoare",
+    "scoring_instruction": "Notați abilitățile ca Însușite (✓), În Dezvoltare (D) sau Absente (A). Opriți testarea dacă se ating 3 de 'A' consecutivi (Regula Plafonului).",
+    "no_evaluations": "Nicio evaluare Carolina momentan",
+    "no_evaluations_desc": "Începeți o evaluare Carolina pentru a urmări progresul dezvoltării în domeniile cheie.",
+    "report_title": "Raport Clinic Carolina",
+    "report_subtitle": "Rezumatul Evaluării Dezvoltării"
+  },
   "cars": {
     "title": "Evaluare CARS",
     "subtitle": "Childhood Autism Rating Scale",
