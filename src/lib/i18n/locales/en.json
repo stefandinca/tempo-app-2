@@ -187,7 +187,10 @@
       "delete_confirm": "Are you sure you want to delete this event? This action cannot be undone.",
       "save_success": "Event updated successfully",
       "delete_success": "Event deleted",
-      "error_permission": "You do not have permission to edit this event."
+      "error_permission": "You do not have permission to edit this event.",
+      "unsaved_title": "Unsaved Changes",
+      "unsaved_message": "You have unsaved changes. Are you sure you want to close?",
+      "discard": "Discard"
     }
   },
   "attendance": {
@@ -488,6 +491,30 @@
     "assigned_team": "Assigned Therapy Team",
     "clinical_actions": "Clinical Actions",
     "upcoming_schedule": "Upcoming Schedule",
+    "portal_access": "Portal Access",
+    "clinical_stats": "Clinical Stats",
+    "latest_assessment": "Latest Assessment",
+    "message_parent": "Message Parent",
+    "generate_access": "Generate Access",
+    "code_generated": "New access code generated!",
+    "code_error": "Failed to generate code",
+    "link_copied": "Link copied!",
+    "no_parent": "No parent registered yet.",
+    "chat_error": "Failed to start chat",
+    "start_evaluation": "Start First Evaluation",
+    "no_assessments": "No assessments recorded yet",
+    "based_on_sessions": "Based on {{count}} total recorded sessions",
+    "no_team_assigned": "No team members assigned yet.",
+    "no_medical_info": "No medical alerts or clinical notes provided.",
+    "billing_info": "Billing Information",
+    "report_description": "Compiles a professional report including session history, attendance, and evaluation achievement.",
+    "member_assigned": "{{name}} assigned to client",
+    "assign_error": "Failed to assign member",
+    "remove_member_title": "Remove Member",
+    "remove_member_confirm": "Remove this team member from the client?",
+    "remove_member_action": "Remove",
+    "member_removed": "Member removed",
+    "remove_error": "Failed to remove member",
     "fields": {
       "full_name": "Full Name",
       "birth_date": "Birth Date",
@@ -837,6 +864,13 @@
     "report_title": "Carolina Clinical Report",
     "report_subtitle": "Developmental Assessment Summary"
   },
+  "analytics": {
+    "monthly_sessions": "Monthly Sessions",
+    "completion_rate": "Completion Rate",
+    "monthly_revenue": "Monthly Revenue",
+    "projected_revenue": "Projected Revenue",
+    "forecast": "Forecast"
+  },
   "auth": {
     "sign_in_title": "Sign in to TempoApp",
     "sign_in_subtitle": "Welcome back, please enter your details.",
@@ -873,7 +907,10 @@
     "no_messages": "No messages yet. Say hello!",
     "started_conversation": "Started a conversation",
     "unknown_user": "Unknown User",
+    "archive_title": "Archive Conversation",
+    "archive_action": "Archive",
     "archive_confirm": "Are you sure you want to archive this conversation?",
+    "call": "Call",
     "archive_success": "Conversation archived",
     "archive_error": "Failed to archive conversation",
     "no_phone": "No phone number available for this contact"
@@ -1013,6 +1050,13 @@
       "create": "Create",
       "synced": "Synced to Smartbill"
     },
+    "notification_payment_received": "Payment Received",
+    "notification_payment_message": "Invoice for {{name}} was marked as PAID ({{total}} RON)",
+    "notification_payment_confirmed": "Payment Confirmed",
+    "notification_payment_confirmed_message": "Your payment of {{total}} RON has been confirmed. Thank you!",
+    "update_error": "Failed to update invoice status.",
+    "delete_success": "Invoice deleted and rolled back.",
+    "delete_error": "Failed to delete invoice.",
     "payout_messages": {
       "save_success": "Payout updated",
       "pay_success": "Payment recorded successfully",

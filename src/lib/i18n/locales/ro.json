@@ -194,7 +194,10 @@
       "delete_confirm": "Ești sigur că vrei să ștergi această ședință? Această acțiune este ireversibilă.",
       "save_success": "Ședință actualizată cu succes",
       "delete_success": "Ședință ștearsă",
-      "error_permission": "Nu ai permisiunea de a edita acest eveniment."
+      "error_permission": "Nu ai permisiunea de a edita acest eveniment.",
+      "unsaved_title": "Modificări Nesalvate",
+      "unsaved_message": "Aveți modificări nesalvate. Sigur doriți să închideți?",
+      "discard": "Renunță"
     }
   },
   "attendance": {
@@ -495,6 +498,30 @@
     "assigned_team": "Echipa de Terapie Alocată",
     "clinical_actions": "Acțiuni Clinice",
     "upcoming_schedule": "Programări Viitoare",
+    "portal_access": "Acces Portal",
+    "clinical_stats": "Statistici Clinice",
+    "latest_assessment": "Ultima Evaluare",
+    "message_parent": "Mesaj Părinte",
+    "generate_access": "Generează Acces",
+    "code_generated": "Cod de acces generat cu succes!",
+    "code_error": "Eroare la generarea codului",
+    "link_copied": "Link copiat!",
+    "no_parent": "Niciun părinte înregistrat încă.",
+    "chat_error": "Eroare la deschiderea conversației",
+    "start_evaluation": "Începe Prima Evaluare",
+    "no_assessments": "Nicio evaluare înregistrată",
+    "based_on_sessions": "Pe baza a {{count}} ședințe înregistrate",
+    "no_team_assigned": "Niciun membru al echipei alocat.",
+    "no_medical_info": "Nicio alertă medicală sau notă clinică.",
+    "billing_info": "Informații Facturare",
+    "report_description": "Generează un raport profesional cu istoric ședințe, prezență și rezultate evaluări.",
+    "member_assigned": "{{name}} alocat clientului",
+    "assign_error": "Eroare la alocarea membrului",
+    "remove_member_title": "Elimină Membru",
+    "remove_member_confirm": "Eliminați acest membru din echipa clientului?",
+    "remove_member_action": "Elimină",
+    "member_removed": "Membru eliminat",
+    "remove_error": "Eroare la eliminarea membrului",
     "fields": {
       "full_name": "Nume Complet",
       "birth_date": "Data Nașterii",
@@ -844,6 +871,13 @@
       }
     }
   },
+  "analytics": {
+    "monthly_sessions": "Ședințe Lunare",
+    "completion_rate": "Rata de Finalizare",
+    "monthly_revenue": "Venit Lunar",
+    "projected_revenue": "Venit Proiectat",
+    "forecast": "Prognoză"
+  },
   "auth": {
     "sign_in_title": "Conectare la TempoApp",
     "sign_in_subtitle": "Bine ai revenit, te rugăm să introduci datele tale.",
@@ -880,7 +914,10 @@
     "no_messages": "Niciun mesaj momentan. Spune salut!",
     "started_conversation": "A început o conversație",
     "unknown_user": "Utilizator Necunoscut",
+    "archive_title": "Arhivează Conversația",
+    "archive_action": "Arhivează",
     "archive_confirm": "Ești sigur că vrei să arhivezi această conversație?",
+    "call": "Apelează",
     "archive_success": "Conversație arhivată",
     "archive_error": "Eroare la arhivarea conversației",
     "no_phone": "Niciun număr de telefon disponibil pentru acest contact"
@@ -1020,6 +1057,13 @@
       "create": "Creează",
       "synced": "Sincronizată SmartBill"
     },
+    "notification_payment_received": "Plată Primită",
+    "notification_payment_message": "Factura pentru {{name}} a fost marcată ca PLĂTITĂ ({{total}} RON)",
+    "notification_payment_confirmed": "Plată Confirmată",
+    "notification_payment_confirmed_message": "Plata dumneavoastră de {{total}} RON a fost confirmată. Mulțumim!",
+    "update_error": "Eroare la actualizarea statusului facturii.",
+    "delete_success": "Factură ștearsă și anulată.",
+    "delete_error": "Eroare la ștergerea facturii.",
     "payout_messages": {
       "save_success": "Plată actualizată",
       "pay_success": "Plată înregistrată cu succes",
