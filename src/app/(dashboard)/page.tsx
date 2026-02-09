@@ -20,15 +20,32 @@ import { useAuth } from "@/context/AuthContext";
 import { KPICardSkeleton } from "@/components/ui/Skeleton";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
 import { useTranslation } from "react-i18next";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useToast } from "@/context/ToastContext";
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const { events, clients, teamMembers } = useData();
   const { user, userRole } = useAuth();
+  const { success, error: showError } = useToast();
   const eventsLoading = events.loading || clients.loading || teamMembers.loading;
 
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleAttendance = async (eventId: string, attendance: 'present' | 'absent') => {
+    try {
+      const eventRef = doc(db, "events", eventId);
+      await updateDoc(eventRef, {
+        attendance,
+        status: "completed"
+      });
+      success(t('calendar.event.save_success'));
+    } catch (err) {
+      showError(t('calendar.event.error_permission'));
+    }
+  };
 
   // Helper to resolve relationships
   const getClient = (id: string) => clients.data.find(c => c.id === id) || { name: "Unknown Client" };
@@ -178,10 +195,10 @@ export default function Dashboard() {
                    const endTime = new Date(evt.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                    return (
-                     <ScheduleItem 
+                     <ScheduleItem
                         key={evt.id}
                         t={t}
-                        time={startTime} 
+                        time={startTime}
                         endTime={endTime}
                         client={client.name}
                         clientId={client.id}
@@ -193,6 +210,7 @@ export default function Dashboard() {
                         photoURL={therapist.photoURL}
                         status={evt.status}
                         showActions={evt.status === 'in-progress'}
+                        onAttendance={(attendance: 'present' | 'absent') => handleAttendance(evt.id, attendance)}
                         onClick={() => {
                           setSelectedEvent(evt);
                           setIsDetailOpen(true);
@@ -275,7 +293,7 @@ function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendC
   );
 }
 
-function ScheduleItem({ t, time, endTime, client, clientId, type, therapist, therapistId, initials, color, photoURL, status, showActions, onClick }: any) {
+function ScheduleItem({ t, time, endTime, client, clientId, type, therapist, therapistId, initials, color, photoURL, status, showActions, onAttendance, onClick }: any) {
   const statusColors: any = {
     'completed': 'bg-success-500',
     'in-progress': 'bg-warning-500',
@@ -336,19 +354,19 @@ function ScheduleItem({ t, time, endTime, client, clientId, type, therapist, the
           {showActions && (
             <div className="mt-3 flex items-center gap-2 animate-in slide-in-from-top-2 duration-200">
               <span className="text-xs text-neutral-500 mr-1">{t('dashboard.schedule.attendance')}:</span>
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  // logic for present
+                  onAttendance?.('present');
                 }}
                 className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-success-100 dark:hover:bg-success-900/30 hover:text-success-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700"
               >
                 {t('dashboard.schedule.present')}
               </button>
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  // logic for absent
+                  onAttendance?.('absent');
                 }}
                 className="px-3 py-1 text-xs rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-error-100 dark:hover:bg-error-900/30 hover:text-error-700 text-neutral-600 dark:text-neutral-400 transition-colors border border-neutral-200 dark:border-neutral-700"
               >
