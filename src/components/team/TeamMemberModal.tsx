@@ -90,7 +90,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
     if (!file) return;
 
     if (!file.type.match('image.*')) {
-      error("Please select an image file");
+      error(t('team.error_image_type'));
       return;
     }
 
@@ -103,10 +103,10 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
       const url = await getDownloadURL(storageRef);
       setFormData(prev => ({ ...prev, photoURL: url }));
       setAvatarPreview(url);
-      success("Avatar uploaded");
+      success(t('team.avatar_uploaded'));
     } catch (err) {
       console.error(err);
-      error("Upload failed");
+      error(t('team.upload_failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +143,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
       if (memberToEdit) {
         // Update
         await updateDoc(doc(db, "team_members", memberToEdit.id), payload);
-        success("Team member updated");
+        success(t('team.member_updated'));
 
         // Notify admins if role changed
         if (memberToEdit.role !== formData.role && authUser) {
@@ -156,8 +156,8 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               recipientRole: d.data().role.toLowerCase() as any,
               type: "system_alert" as any,
               category: "team" as any,
-              title: "Team Role Updated",
-              message: `${formData.name}'s role was changed from ${memberToEdit.role} to ${formData.role}`,
+              title: t('team.notification_role_updated'),
+              message: t('team.notification_role_changed', { name: formData.name, oldRole: memberToEdit.role, newRole: formData.role }),
               sourceType: "team" as any,
               sourceId: memberToEdit.id,
               triggeredBy: authUser.uid
@@ -169,7 +169,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         const newRef = doc(collection(db, "team_members"));
         memberId = newRef.id;
         await setDoc(newRef, payload);
-        success("Team member added");
+        success(t('team.member_added'));
 
         // Notify admins about new team member
         if (authUser) {
@@ -182,8 +182,8 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               recipientRole: d.data().role.toLowerCase() as any,
               type: "team_member_added" as any,
               category: "team" as any,
-              title: "New Team Member",
-              message: `${formData.name} joined the team as ${formData.role}`,
+              title: t('team.notification_new_member'),
+              message: t('team.notification_member_joined', { name: formData.name, role: formData.role }),
               sourceType: "team" as any,
               sourceId: memberId,
               triggeredBy: authUser.uid,
@@ -196,7 +196,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to save team member");
+      error(t('team.save_failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -324,7 +324,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
                   value={formData.role}
                   onChange={e => setFormData({...formData, role: e.target.value})}
                 >
-                  {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                  {ROLES.map(r => <option key={r} value={r}>{t(`team.roles.${r}`, r)}</option>)}
                 </select>
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Base Salary (RON)</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('team.base_salary')}</label>
               <input 
                 type="number"
                 min="0"
@@ -357,7 +357,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">Monthly Bonus (RON)</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('team.monthly_bonus')}</label>
               <input 
                 type="number"
                 min="0"
