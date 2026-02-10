@@ -2,15 +2,17 @@
 
 import { memo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 interface RevenueMixChartProps {
   data: { name: string; value: number; color: string }[];
 }
 
 function RevenueMixChart({ data }: RevenueMixChartProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
-      <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-6">Revenue Mix</h3>
+      <h3 className="font-bold text-lg text-neutral-900 dark:text-white mb-6">{t('analytics.revenue_mix')}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -27,8 +29,8 @@ function RevenueMixChart({ data }: RevenueMixChartProps) {
                 <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
               ))}
             </Pie>
-            <Tooltip 
-              formatter={(value: any) => `$${value?.toLocaleString()}`}
+            <Tooltip
+              formatter={(value: any) => `${value?.toLocaleString()} RON`}
               contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
             />
             <Legend verticalAlign="bottom" height={36} iconType="circle" />

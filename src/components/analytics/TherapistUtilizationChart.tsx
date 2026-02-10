@@ -2,12 +2,14 @@
 
 import { memo } from "react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 interface TherapistUtilizationChartProps {
   data: { name: string; billable: number; capacity: number }[];
 }
 
 function TherapistUtilizationChart({ data }: TherapistUtilizationChartProps) {
+  const { t } = useTranslation();
   // Sort by utilization percentage (descending)
   const sortedData = [...data].sort((a, b) => {
     const utilA = (a.billable / a.capacity) || 0;
@@ -18,16 +20,16 @@ function TherapistUtilizationChart({ data }: TherapistUtilizationChartProps) {
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm flex flex-col h-full max-h-[400px]">
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <h3 className="font-bold text-lg text-neutral-900 dark:text-white">Therapist Utilization</h3>
+        <h3 className="font-bold text-lg text-neutral-900 dark:text-white">{t('analytics.therapist_utilization')}</h3>
         <span className="text-xs font-medium text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded-full">
-          Weekly Hours
+          {t('analytics.weekly_hours')}
         </span>
       </div>
 
       <div className="overflow-y-auto pr-2 space-y-4 flex-1 custom-scrollbar">
         {sortedData.map((member, index) => {
           const utilization = Math.min(100, Math.round((member.billable / member.capacity) * 100)) || 0;
-          
+
           // Color coding based on utilization
           let progressColor = "bg-primary-500";
           if (utilization > 90) progressColor = "bg-error-500"; // Overworked?
@@ -44,9 +46,9 @@ function TherapistUtilizationChart({ data }: TherapistUtilizationChartProps) {
                   {member.billable} / {member.capacity} hrs
                 </span>
               </div>
-              
+
               <div className="h-2.5 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-                <div 
+                <div
                   className={clsx("h-full rounded-full transition-all duration-500", progressColor)}
                   style={{ width: `${utilization}%` }}
                 />
@@ -57,7 +59,7 @@ function TherapistUtilizationChart({ data }: TherapistUtilizationChartProps) {
 
         {sortedData.length === 0 && (
           <div className="text-center py-8 text-neutral-400 text-sm">
-            No utilization data available.
+            {t('analytics.no_utilization_data')}
           </div>
         )}
       </div>

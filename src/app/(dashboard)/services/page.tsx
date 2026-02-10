@@ -10,10 +10,12 @@ import AddProgramModal from "@/components/programs/AddProgramModal";
 import EditProgramModal from "@/components/programs/EditProgramModal";
 import { Program } from "@/components/programs/ProgramCard";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 type Tab = "services" | "programs";
 
 export default function ServicesPage() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>("services");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -44,7 +46,7 @@ export default function ServicesPage() {
                 : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
             )}
           >
-            {tab}
+            {t(`services_page.tabs.${tab}`)}
           </button>
         ))}
       </div>

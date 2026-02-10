@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CancellationRiskWidgetProps {
   data: {
@@ -13,6 +14,7 @@ interface CancellationRiskWidgetProps {
 }
 
 function CancellationRiskWidget({ data }: CancellationRiskWidgetProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
@@ -20,15 +22,15 @@ function CancellationRiskWidget({ data }: CancellationRiskWidgetProps) {
           <AlertTriangle className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="font-bold text-lg text-neutral-900 dark:text-white">Cancellation Risk Radar</h3>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">Clients with multiple cancellations this month</p>
+          <h3 className="font-bold text-lg text-neutral-900 dark:text-white">{t('analytics.cancellation_risk')}</h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('analytics.cancellation_risk_desc')}</p>
         </div>
       </div>
 
       <div className="space-y-4">
         {data.length === 0 ? (
           <div className="text-center py-8 text-neutral-500 text-sm">
-            No high-risk clients detected. Great job!
+            {t('analytics.no_high_risk')}
           </div>
         ) : (
           data.map((client) => (
@@ -40,12 +42,12 @@ function CancellationRiskWidget({ data }: CancellationRiskWidgetProps) {
                 <div>
                   <p className="font-bold text-sm text-neutral-900 dark:text-white">{client.name}</p>
                   <p className="text-xs text-error-600 dark:text-error-400 font-medium">
-                    {client.cancellations} Cancellations
+                    {t('analytics.cancellations_count', { count: client.cancellations })}
                   </p>
                 </div>
               </div>
               <div className="px-2 py-1 bg-white dark:bg-neutral-900 rounded-md border border-neutral-200 dark:border-neutral-700 text-xs font-bold text-neutral-600 dark:text-neutral-400">
-                Action Required
+                {t('analytics.action_required')}
               </div>
             </div>
           ))
