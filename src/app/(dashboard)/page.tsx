@@ -20,6 +20,7 @@ import { useAuth } from "@/context/AuthContext";
 import { KPICardSkeleton } from "@/components/ui/Skeleton";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
 import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/context/ToastContext";
@@ -191,8 +192,9 @@ export default function Dashboard() {
                  todaysEvents.map(evt => {
                    const therapist = getTherapist(evt.therapistId);
                    const client = getClient(evt.clientId);
-                   const startTime = new Date(evt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                   const endTime = new Date(evt.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                   const locale = i18n.language || 'ro';
+                   const startTime = new Date(evt.startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+                   const endTime = new Date(evt.endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
                    return (
                      <ScheduleItem
@@ -238,29 +240,29 @@ export default function Dashboard() {
               <button className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">{t('dashboard.activity.view_all')}</button>
             </div>
             <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              <ActivityItem 
-                user="Dr. Maria Garcia" 
-                action={t('dashboard.activity.actions.logged_attendance')} 
-                target="John Smith" 
-                time="5 min ago"
+              <ActivityItem
+                user="Dr. Maria Garcia"
+                action={t('dashboard.activity.actions.logged_attendance')}
+                target="John Smith"
+                time={t('dashboard.activity.time.minutes_ago', { count: 5 })}
                 icon={CheckCircle}
                 iconColor="text-primary-500"
                 iconBg="bg-primary-50 dark:bg-primary-900/20"
               />
-              <ActivityItem 
-                user="Dr. Andrei Ionescu" 
-                action={t('dashboard.activity.actions.created_event')} 
-                target="Team Meeting" 
-                time="15 min ago"
+              <ActivityItem
+                user="Dr. Andrei Ionescu"
+                action={t('dashboard.activity.actions.created_event')}
+                target="Team Meeting"
+                time={t('dashboard.activity.time.minutes_ago', { count: 15 })}
                 icon={CalendarPlus}
                 iconColor="text-primary-500"
                 iconBg="bg-primary-50 dark:bg-primary-900/20"
               />
-              <ActivityItem 
-                user="Dr. Elena Popescu" 
-                action={t('dashboard.activity.actions.updated_progress')} 
-                target="Sara Lee" 
-                time="1 hour ago"
+              <ActivityItem
+                user="Dr. Elena Popescu"
+                action={t('dashboard.activity.actions.updated_progress')}
+                target="Sara Lee"
+                time={t('dashboard.activity.time.hours_ago', { count: 1 })}
                 icon={TrendingUp}
                 iconColor="text-primary-500"
                 iconBg="bg-primary-50 dark:bg-primary-900/20"
