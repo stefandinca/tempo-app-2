@@ -6,6 +6,7 @@ import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
@@ -335,7 +336,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                     </p>
                     <p className="text-sm font-bold text-neutral-900 dark:text-white mt-1">{evt.type}</p>
                     <p className="text-xs text-neutral-500">
-                      {startDate?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {evt.duration} min
+                      {startDate?.toLocaleTimeString(i18n.language || 'ro', { hour: '2-digit', minute: '2-digit' })} - {evt.duration} min
                     </p>
                   </div>
                 );

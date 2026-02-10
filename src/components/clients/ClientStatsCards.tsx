@@ -12,6 +12,7 @@ import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useChatActions } from "@/hooks/useChat";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 interface ClientStatsCardsProps {
   client: any;
@@ -180,7 +181,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
           </Link>
         )}
         <p className="text-[10px] text-neutral-400 mt-3 font-medium">
-          {latestEval ? `${t('evaluations.completed')}: ${new Date(latestEval.completedAt || latestEval.updatedAt).toLocaleDateString()}` : t('clients.no_assessments') || "No assessments recorded yet"}
+          {latestEval ? `${t('evaluations.completed')}: ${new Date(latestEval.completedAt || latestEval.updatedAt).toLocaleDateString(i18n.language || 'ro')}` : t('clients.no_assessments') || "No assessments recorded yet"}
         </p>
       </div>
 

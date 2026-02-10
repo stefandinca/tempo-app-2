@@ -21,6 +21,7 @@ import { usePortageEvaluations } from "@/hooks/usePortage";
 import { useCARSEvaluations } from "@/hooks/useCARS";
 import { useCarolinaEvaluations } from "@/hooks/useCarolina";
 import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 import { ChevronRight, ArrowLeft, Brain, Target, Compass, Search, ClipboardCheck } from "lucide-react";
 
 interface ClientEvaluationsTabProps {
@@ -63,17 +64,17 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
     const last = completed.length > 0 ? completed[0] : null;
     return {
       count: completed.length,
-      lastDate: last ? new Date(last.completedAt || last.createdAt).toLocaleDateString() : null,
+      lastDate: last ? new Date(last.completedAt || last.createdAt).toLocaleDateString(i18n.language || 'ro') : null,
       hasInProgress: evals.some(e => e.status === 'in_progress')
     };
   };
 
   const EVAL_TOOLS = [
-    { id: 'ablls', name: 'ABLLS-R', desc: 'Basic language and learning skills assessment', icon: Target, color: 'text-primary-600 bg-primary-50', stats: getStatusInfo(ablllsEvaluations) },
-    { id: 'vbmapp', name: 'VB-MAPP', desc: 'Verbal behavior milestones and placement program', icon: Brain, color: 'text-purple-600 bg-purple-50', stats: getStatusInfo(vbmappEvaluations) },
-    { id: 'portage', name: 'Portage', desc: 'Developmental early intervention checklist', icon: Compass, color: 'text-orange-600 bg-orange-50', stats: getStatusInfo(portageEvaluations) },
-    { id: 'cars', name: 'CARS', desc: 'Childhood Autism Rating Scale', icon: Search, color: 'text-indigo-600 bg-indigo-50', stats: getStatusInfo(carsEvaluations) },
-    { id: 'carolina', name: 'Carolina', desc: 'Curriculum for preschoolers with special needs', icon: ClipboardCheck, color: 'text-teal-600 bg-teal-50', stats: getStatusInfo(carolinaEvaluations) },
+    { id: 'ablls', name: 'ABLLS-R', desc: t('evaluations.desc_ablls'), icon: Target, color: 'text-primary-600 bg-primary-50', stats: getStatusInfo(ablllsEvaluations) },
+    { id: 'vbmapp', name: 'VB-MAPP', desc: t('evaluations.desc_vbmapp'), icon: Brain, color: 'text-purple-600 bg-purple-50', stats: getStatusInfo(vbmappEvaluations) },
+    { id: 'portage', name: 'Portage', desc: t('evaluations.desc_portage'), icon: Compass, color: 'text-orange-600 bg-orange-50', stats: getStatusInfo(portageEvaluations) },
+    { id: 'cars', name: 'CARS', desc: t('evaluations.desc_cars'), icon: Search, color: 'text-indigo-600 bg-indigo-50', stats: getStatusInfo(carsEvaluations) },
+    { id: 'carolina', name: 'Carolina', desc: t('evaluations.desc_carolina'), icon: ClipboardCheck, color: 'text-teal-600 bg-teal-50', stats: getStatusInfo(carolinaEvaluations) },
   ];
 
   // ABLLS handlers
@@ -178,8 +179,8 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
     return (
       <div className="space-y-8 animate-in fade-in duration-500">
         <div>
-          <h3 className="text-xl font-bold text-neutral-900 dark:text-white">Clinical Evaluations</h3>
-          <p className="text-sm text-neutral-500 mt-1">Select an assessment tool to track developmental progress.</p>
+          <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{t('evaluations.clinical_evaluations')}</h3>
+          <p className="text-sm text-neutral-500 mt-1">{t('evaluations.select_tool')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -195,7 +196,7 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
                 </div>
                 {tool.stats.hasInProgress && (
                   <span className="px-2 py-1 bg-warning-100 text-warning-700 text-[10px] font-bold uppercase rounded-md animate-pulse">
-                    In Progress
+                    {t('evaluations.in_progress')}
                   </span>
                 )}
               </div>
@@ -205,10 +206,10 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
 
               <div className="flex items-center justify-between pt-4 border-t border-neutral-100 dark:border-neutral-800">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                  {tool.stats.lastDate ? `Last: ${tool.stats.lastDate}` : 'No history'}
+                  {tool.stats.lastDate ? t('evaluations.last_date', { date: tool.stats.lastDate }) : t('evaluations.no_history')}
                 </div>
                 <div className="flex items-center gap-1 text-xs font-bold text-primary-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Open <ChevronRight className="w-4 h-4" />
+                  {t('evaluations.open')} <ChevronRight className="w-4 h-4" />
                 </div>
               </div>
             </button>
@@ -226,7 +227,7 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
           <button
             onClick={() => setEvalType("none")}
             className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-xl transition-colors text-neutral-500"
-            title="Back to All Evaluations"
+            title={t('evaluations.back_to_all')}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -251,7 +252,7 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
               )}
             >
               <FileText className="w-4 h-4" />
-              Evaluations
+              {t('evaluations.evaluations')}
             </button>
             <button
               onClick={() => setViewMode("progress")}
@@ -263,7 +264,7 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
               )}
             >
               <TrendingUp className="w-4 h-4" />
-              Progress
+              {t('evaluations.progress')}
               {completedABLLSCount >= 2 && (
                 <span className="ml-1 px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 text-xs rounded-full">
                   {completedABLLSCount}
