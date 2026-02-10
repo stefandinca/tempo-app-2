@@ -35,7 +35,7 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
   const TABS = [
     { id: "overview", label: t('clients.tabs.overview') },
     { id: "evaluations", label: t('clients.tabs.evaluations') },
-    { id: "programs", label: t('clients.tabs.programs') },
+    { id: "notes", label: t('clients.tabs.notes') },
     { id: "plan", label: t('clients.tabs.plan') },
     { id: "docs", label: t('clients.tabs.docs') },
   ];

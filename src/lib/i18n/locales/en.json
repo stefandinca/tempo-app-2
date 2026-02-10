@@ -196,7 +196,8 @@
       "unsaved_message": "You have unsaved changes. Are you sure you want to close?",
       "discard": "Discard",
       "error_update": "Failed to update event",
-      "error_delete": "Failed to delete event"
+      "error_delete": "Failed to delete event",
+      "program_notes_placeholder": "Add notes for this program..."
     }
   },
   "attendance": {
@@ -439,7 +440,8 @@
       "present": "Present",
       "absent": "Absent",
       "excused": "Excused",
-      "scheduled": "Scheduled"
+      "scheduled": "Scheduled",
+      "program_notes": "Program Notes"
     },
     "login": {
       "help_text": "Ask your clinic therapist or coordinator for your unique parent access code."
@@ -540,9 +542,19 @@
       "overview": "Overview",
       "evaluations": "Evaluations",
       "programs": "Programs",
+      "notes": "Notes",
       "plan": "Plan",
       "docs": "Docs",
       "billing": "Billing"
+    },
+    "notes": {
+      "title": "Session Notes & Scores",
+      "no_sessions": "No scored sessions yet",
+      "no_sessions_subtitle": "Program scores and notes will appear here after sessions are completed.",
+      "session_notes": "Session Notes",
+      "program_notes": "Program Notes",
+      "trials": "trials",
+      "success": "success"
     },
     "form": {
       "child_name": "Child Name",

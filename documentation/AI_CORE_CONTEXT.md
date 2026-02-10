@@ -33,3 +33,4 @@ Component Architecture: Build reusable, atomic components in React.
 Truth in Documentation: Always reference the existing UX Guide and Roadmap before suggesting new features.
 
 Internationalization with i18n: Never write hardcoded strings, always use i18n keys for localization, update the localization files with translations for english and romanian.
+

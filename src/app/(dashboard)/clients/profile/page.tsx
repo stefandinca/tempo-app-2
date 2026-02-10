@@ -33,7 +33,7 @@ function ClientProfileContent() {
 
   // Sync tab with URL parameter
   useEffect(() => {
-    const validTabs = ["overview", "programs", "plan", "evaluations", "docs"];
+    const validTabs = ["overview", "notes", "programs", "plan", "evaluations", "docs"];
     if (isAdmin) validTabs.push("billing");
 
     if (tabParam && validTabs.includes(tabParam)) {
@@ -103,7 +103,7 @@ function ClientProfileContent() {
             onActionHandled={() => setPendingAction(null)}
           />
         )}
-        {activeTab === "programs" && <ClientProgramsTab client={client} />}
+        {(activeTab === "notes" || activeTab === "programs") && <ClientProgramsTab client={client} />}
         {activeTab === "plan" && (
           <ClientPlanTab
             client={client}
@@ -114,7 +114,7 @@ function ClientProfileContent() {
         {activeTab === "docs" && <ClientDocsTab client={client} />}
         {activeTab === "evaluations" && <ClientEvaluationsTab client={client} />}
         {activeTab === "billing" && isAdmin && <ClientBillingTab client={client} />}
-        {!["overview", "programs", "plan", "docs", "evaluations", "billing"].includes(activeTab) && (
+        {!["overview", "notes", "programs", "plan", "docs", "evaluations", "billing"].includes(activeTab) && (
           <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800">
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white capitalize">{activeTab} Section</h3>
             <p className="text-neutral-500 mt-1">{t('clients.under_development')}</p>

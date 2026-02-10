@@ -67,6 +67,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const [isProgramSelectorOpen, setIsProgramSelectorOpen] = useState(false);
   const [isRemoveModeActive, setIsRemoveModeActive] = useState(false);
   const [programSearch, setProgramSearch] = useState("");
+  const [programNotes, setProgramNotes] = useState<Record<string, string>>({});
 
   // Track original values for detecting changes
   const [originalDate, setOriginalDate] = useState("");
@@ -111,6 +112,9 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
       setProgramScores(initialScores);
 
+      // Initialize program notes from event
+      setProgramNotes(event.programNotes || {});
+
       // Reset program selector state
       setIsProgramSelectorOpen(false);
       setIsRemoveModeActive(false);
@@ -152,7 +156,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   }, [canEdit, defaultScores]);
 
   // Detect unsaved changes
-  const hasUnsavedChanges = attendance !== originalAttendance || date !== originalDate || time !== originalTime || notes !== (event?.details || "");
+  const hasUnsavedChanges = attendance !== originalAttendance || date !== originalDate || time !== originalTime || notes !== (event?.details || "") || JSON.stringify(programNotes) !== JSON.stringify(event?.programNotes || {});
 
   const handleClose = () => {
     if (hasUnsavedChanges && canEdit) {
@@ -194,11 +198,18 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       const newEnd = new Date(newStart.getTime() + duration * 60000);
 
       const eventRef = doc(db, "events", event.id);
+      // Filter programNotes to only include selected programs
+      const filteredProgramNotes: Record<string, string> = {};
+      selectedProgramIds.forEach(id => {
+        if (programNotes[id]) filteredProgramNotes[id] = programNotes[id];
+      });
+
       await updateDoc(eventRef, {
         attendance,
         details: notes,
         programIds: selectedProgramIds,
         programScores,
+        programNotes: filteredProgramNotes,
         status: attendance ? "completed" : "upcoming",
         startTime: newStart.toISOString(),
         endTime: newEnd.toISOString()
@@ -554,6 +565,17 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                         onChange={handleScoreChange}
                         disabled={!canEdit}
                       />
+                      {/* Per-program notes */}
+                      {(canEdit || programNotes[program.id]) && (
+                        <textarea
+                          placeholder={t('calendar.event.program_notes_placeholder')}
+                          value={programNotes[program.id] || ""}
+                          onChange={(e) => setProgramNotes(prev => ({ ...prev, [program.id]: e.target.value }))}
+                          disabled={!canEdit}
+                          rows={2}
+                          className="w-full mt-1.5 px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-xs focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-neutral-900 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                      )}
                       {/* Remove program button - only visible in remove mode */}
                       {isRemoveModeActive && (
                         <button

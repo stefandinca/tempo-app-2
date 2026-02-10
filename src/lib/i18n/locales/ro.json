@@ -203,7 +203,8 @@
       "unsaved_message": "Aveți modificări nesalvate. Sigur doriți să închideți?",
       "discard": "Renunță",
       "error_update": "Nu s-a putut actualiza evenimentul",
-      "error_delete": "Nu s-a putut șterge evenimentul"
+      "error_delete": "Nu s-a putut șterge evenimentul",
+      "program_notes_placeholder": "Adaugă note pentru acest program..."
     }
   },
   "attendance": {
@@ -446,7 +447,8 @@
       "present": "Prezent",
       "absent": "Absent",
       "excused": "Motivat",
-      "scheduled": "Programat"
+      "scheduled": "Programat",
+      "program_notes": "Note Program"
     },
     "login": {
       "help_text": "Solicită codul unic de acces de la terapeutul sau coordonatorul clinicii."
@@ -547,9 +549,19 @@
       "overview": "Prezentare Generală",
       "evaluations": "Evaluări",
       "programs": "Programe",
+      "notes": "Note",
       "plan": "Plan",
       "docs": "Documente",
       "billing": "Facturare"
+    },
+    "notes": {
+      "title": "Note și Scoruri Ședințe",
+      "no_sessions": "Nu există ședințe evaluate încă",
+      "no_sessions_subtitle": "Scorurile și notele programelor vor apărea aici după finalizarea ședințelor.",
+      "session_notes": "Note Ședință",
+      "program_notes": "Note Program",
+      "trials": "încercări",
+      "success": "succes"
     },
     "form": {
       "child_name": "Nume Copil",

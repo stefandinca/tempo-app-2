@@ -33,6 +33,7 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
   const selectedPrograms = (programs || []).filter(p => event.programIds?.includes(p.id));
 
   const programScores = event.programScores || {};
+  const programNotes: Record<string, string> = event.programNotes || {};
   const defaultScores: ProgramScores = { minus: 0, zero: 0, prompted: 0, plus: 0 };
 
   const parseDate = (val: any) => {
@@ -147,15 +148,22 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
             {selectedPrograms.length > 0 ? (
               <div className="space-y-3">
                 {selectedPrograms.map(p => (
-                  <ProgramScoreCounter
-                    key={p.id}
-                    programId={p.id}
-                    programTitle={p.title}
-                    programDescription={p.description}
-                    scores={programScores[p.id] || defaultScores}
-                    onChange={() => {}}
-                    disabled={true}
-                  />
+                  <div key={p.id}>
+                    <ProgramScoreCounter
+                      programId={p.id}
+                      programTitle={p.title}
+                      programDescription={p.description}
+                      scores={programScores[p.id] || defaultScores}
+                      onChange={() => {}}
+                      disabled={true}
+                    />
+                    {programNotes[p.id] && (
+                      <div className="mt-1.5 px-3 py-2 bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100/50 dark:border-primary-900/30 rounded-lg">
+                        <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t("parent_portal.session_detail.program_notes")}</p>
+                        <p className="text-xs text-neutral-700 dark:text-neutral-300 italic">{programNotes[p.id]}</p>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
