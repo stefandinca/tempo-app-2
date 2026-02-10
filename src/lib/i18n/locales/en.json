@@ -147,6 +147,10 @@
         "logged_attendance": "logged attendance",
         "created_event": "created event",
         "updated_progress": "updated progress"
+      },
+      "time": {
+        "minutes_ago": "{{count}} min ago",
+        "hours_ago": "{{count}} hour ago"
       }
     }
   },
@@ -190,7 +194,9 @@
       "error_permission": "You do not have permission to edit this event.",
       "unsaved_title": "Unsaved Changes",
       "unsaved_message": "You have unsaved changes. Are you sure you want to close?",
-      "discard": "Discard"
+      "discard": "Discard",
+      "error_update": "Failed to update event",
+      "error_delete": "Failed to delete event"
     }
   },
   "attendance": {
@@ -654,6 +660,20 @@
     }
   },
   "evaluations": {
+    "clinical_evaluations": "Clinical Evaluations",
+    "select_tool": "Select an assessment tool to track developmental progress.",
+    "in_progress": "In Progress",
+    "last_date": "Last: {{date}}",
+    "no_history": "No history",
+    "open": "Open",
+    "back_to_all": "Back to All Evaluations",
+    "evaluations": "Evaluations",
+    "progress": "Progress",
+    "desc_ablls": "Basic language and learning skills assessment",
+    "desc_vbmapp": "Verbal behavior milestones and placement program",
+    "desc_portage": "Developmental early intervention checklist",
+    "desc_cars": "Childhood Autism Rating Scale",
+    "desc_carolina": "Curriculum for preschoolers with special needs",
     "title": "ABLLS Evaluation Results",
     "summary": "Summary",
     "compare": "Compare",
@@ -869,7 +889,20 @@
     "completion_rate": "Completion Rate",
     "monthly_revenue": "Monthly Revenue",
     "projected_revenue": "Projected Revenue",
-    "forecast": "Forecast"
+    "forecast": "Forecast",
+    "session_volume": "Session Volume (Current Month)",
+    "revenue_mix": "Revenue Mix",
+    "attendance_trend": "Attendance Trend (Current Month)",
+    "therapist_utilization": "Therapist Utilization",
+    "weekly_hours": "Weekly Hours",
+    "no_utilization_data": "No utilization data available.",
+    "clinical_progress": "Clinical Progress Index",
+    "goal_achievement_rate": "Global Goal Achievement Rate (%)",
+    "cancellation_risk": "Cancellation Risk Radar",
+    "cancellation_risk_desc": "Clients with multiple cancellations this month",
+    "no_high_risk": "No high-risk clients detected. Great job!",
+    "cancellations_count": "{{count}} Cancellations",
+    "action_required": "Action Required"
   },
   "auth": {
     "sign_in_title": "Sign in to TempoApp",
@@ -1007,6 +1040,12 @@
       "success": "Program updated successfully",
       "error": "Failed to update program",
       "validation_error": "Please fill in all required fields"
+    }
+  },
+  "services_page": {
+    "tabs": {
+      "services": "Services",
+      "programs": "Programs"
     }
   },
   "billing_page": {
@@ -1216,7 +1255,27 @@
     "active_clients_one": "1 Active Client",
     "sessions_week": "{{count}} Sessions / week",
     "message": "Message",
-    "edit_profile": "Edit Profile"
+    "edit_profile": "Edit Profile",
+    "error_image_type": "Please select an image file",
+    "avatar_uploaded": "Avatar uploaded",
+    "upload_failed": "Upload failed",
+    "member_updated": "Team member updated",
+    "member_added": "Team member added",
+    "save_failed": "Failed to save team member",
+    "base_salary": "Base Salary (RON)",
+    "monthly_bonus": "Monthly Bonus (RON)",
+    "notification_role_updated": "Team Role Updated",
+    "notification_role_changed": "{{name}}'s role was changed from {{oldRole}} to {{newRole}}",
+    "notification_new_member": "New Team Member",
+    "notification_member_joined": "{{name}} joined the team as {{role}}",
+    "roles": {
+      "Admin": "Admin",
+      "Coordinator": "Coordinator",
+      "Senior ABA Therapist": "Senior ABA Therapist",
+      "ABA Therapist": "ABA Therapist",
+      "Speech Therapist": "Speech Therapist",
+      "Occupational Therapist": "Occupational Therapist"
+    }
   },
   "command_palette": {
     "placeholder": "Search or type a command...",

@@ -154,6 +154,10 @@
         "logged_attendance": "a înregistrat prezența",
         "created_event": "a creat un eveniment",
         "updated_progress": "a actualizat progresul"
+      },
+      "time": {
+        "minutes_ago": "acum {{count}} min",
+        "hours_ago": "acum {{count}} oră"
       }
     }
   },
@@ -197,7 +201,9 @@
       "error_permission": "Nu ai permisiunea de a edita acest eveniment.",
       "unsaved_title": "Modificări Nesalvate",
       "unsaved_message": "Aveți modificări nesalvate. Sigur doriți să închideți?",
-      "discard": "Renunță"
+      "discard": "Renunță",
+      "error_update": "Nu s-a putut actualiza evenimentul",
+      "error_delete": "Nu s-a putut șterge evenimentul"
     }
   },
   "attendance": {
@@ -661,6 +667,20 @@
     }
   },
   "evaluations": {
+    "clinical_evaluations": "Evaluări Clinice",
+    "select_tool": "Selectați un instrument de evaluare pentru a urmări progresul dezvoltării.",
+    "in_progress": "În Desfășurare",
+    "last_date": "Ultima: {{date}}",
+    "no_history": "Fără istoric",
+    "open": "Deschide",
+    "back_to_all": "Înapoi la Toate Evaluările",
+    "evaluations": "Evaluări",
+    "progress": "Progres",
+    "desc_ablls": "Evaluarea abilităților de bază de limbaj și învățare",
+    "desc_vbmapp": "Program de repere și plasare a comportamentului verbal",
+    "desc_portage": "Lista de verificare a intervenției timpurii în dezvoltare",
+    "desc_cars": "Scala de Evaluare a Autismului la Copii",
+    "desc_carolina": "Curriculum pentru preșcolari cu nevoi speciale",
     "title": "Rezultate Evaluare ABLLS",
     "summary": "Rezumat",
     "compare": "Compară",
@@ -876,7 +896,26 @@
     "completion_rate": "Rata de Finalizare",
     "monthly_revenue": "Venit Lunar",
     "projected_revenue": "Venit Proiectat",
-    "forecast": "Prognoză"
+    "forecast": "Prognoză",
+    "session_volume": "Volum Ședințe (Luna Curentă)",
+    "revenue_mix": "Mix Venituri",
+    "attendance_trend": "Tendință Prezență (Luna Curentă)",
+    "therapist_utilization": "Utilizare Terapeuți",
+    "weekly_hours": "Ore Săptămânale",
+    "no_utilization_data": "Nu sunt date de utilizare disponibile.",
+    "clinical_progress": "Indice Progres Clinic",
+    "goal_achievement_rate": "Rata Globală de Atingere a Obiectivelor (%)",
+    "cancellation_risk": "Radar Risc Anulare",
+    "cancellation_risk_desc": "Clienți cu anulări multiple luna aceasta",
+    "no_high_risk": "Niciun client cu risc ridicat detectat. Felicitări!",
+    "cancellations_count": "{{count}} Anulări",
+    "action_required": "Acțiune Necesară"
+  },
+  "services_page": {
+    "tabs": {
+      "services": "Servicii",
+      "programs": "Programe"
+    }
   },
   "auth": {
     "sign_in_title": "Conectare la TempoApp",
@@ -1224,7 +1263,27 @@
     "active_clients_one": "1 Client Activ",
     "sessions_week": "{{count}} Ședințe / săptămână",
     "message": "Mesaj",
-    "edit_profile": "Editează Profil"
+    "edit_profile": "Editează Profil",
+    "error_image_type": "Vă rugăm selectați un fișier imagine",
+    "avatar_uploaded": "Avatar încărcat",
+    "upload_failed": "Încărcarea a eșuat",
+    "member_updated": "Membru echipă actualizat",
+    "member_added": "Membru echipă adăugat",
+    "save_failed": "Eroare la salvarea membrului",
+    "base_salary": "Salariu de Bază (RON)",
+    "monthly_bonus": "Bonus Lunar (RON)",
+    "notification_role_updated": "Rol Echipă Actualizat",
+    "notification_role_changed": "Rolul lui {{name}} a fost schimbat din {{oldRole}} în {{newRole}}",
+    "notification_new_member": "Membru Nou în Echipă",
+    "notification_member_joined": "{{name}} s-a alăturat echipei ca {{role}}",
+    "roles": {
+      "Admin": "Administrator",
+      "Coordinator": "Coordonator",
+      "Senior ABA Therapist": "Terapeut ABA Senior",
+      "ABA Therapist": "Terapeut ABA",
+      "Speech Therapist": "Logoped",
+      "Occupational Therapist": "Terapeut Ocupațional"
+    }
   },
   "command_palette": {
     "placeholder": "Caută sau tastează o comandă...",
