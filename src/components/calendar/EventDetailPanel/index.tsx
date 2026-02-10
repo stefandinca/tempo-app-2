@@ -26,6 +26,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useClients, useTeamMembers, usePrograms } from "@/hooks/useCollections";
 import ProgramScoreCounter, { ProgramScores } from "./ProgramScoreCounter";
 import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 import {
   notifySessionRescheduled,
   notifySessionCancelled,
@@ -273,7 +274,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       onClose();
     } catch (err) {
       console.error(err);
-      error("Failed to update event");
+      error(t('calendar.event.error_update'));
       setIsSubmitting(false);
     }
   };
@@ -329,7 +330,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           onClose();
         } catch (err) {
           console.error(err);
-          error("Failed to delete event");
+          error(t('calendar.event.error_delete'));
           setIsDeleting(false);
         }
       }
@@ -408,7 +409,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               ) : (
                 <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   <Calendar className="w-3.5 h-3.5" />
-                  {new Date(event.startTime).toLocaleDateString()}
+                  {new Date(event.startTime).toLocaleDateString(i18n.language || 'ro')}
                 </div>
               )}
             </div>
@@ -424,7 +425,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               ) : (
                 <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
                   <Clock className="w-3.5 h-3.5" />
-                  {new Date(event.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(event.startTime).toLocaleTimeString(i18n.language || 'ro', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               )}
             </div>

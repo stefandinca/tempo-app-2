@@ -5,6 +5,7 @@ import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { clsx } from "clsx";
 import { Search, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 interface ChatSidebarProps {
   threads: ChatThread[];
@@ -77,7 +78,7 @@ export default function ChatSidebar({ threads, activeThreadId, onSelectThread, o
                     {otherUser?.name || t('common.unknown')}
                   </h3>
                   <span className="text-[10px] text-neutral-400">
-                    {thread.updatedAt?.toDate().toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                    {thread.updatedAt?.toDate().toLocaleDateString(i18n.language || 'ro', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
