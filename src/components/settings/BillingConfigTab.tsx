@@ -5,27 +5,34 @@ import { useSystemSettings } from "@/hooks/useCollections";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
-import { Loader2, Save, Building, FileText, Mail, Share2, Key } from "lucide-react";
+import { Loader2, Save, Building, FileText, Mail, Share2, Key, Plus, Trash2, CheckCircle2, Globe } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { clsx } from "clsx";
+
+interface LegalEntity {
+  id: string;
+  name: string;
+  cui: string;
+  regNo: string;
+  address: string;
+  bank: string;
+  iban: string;
+  email: string;
+  phone: string;
+  isDefault?: boolean;
+}
 
 export default function BillingConfigTab() {
   const { t } = useTranslation();
   const { data: settings, loading } = useSystemSettings();
   const { success, error } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [activeEntityId, setActiveEntityId] = useState<string | null>(null);
 
   // Local state for the form
   const [formData, setFormData] = useState<any>({
-    clinic: {
-      name: "",
-      cui: "",
-      regNo: "",
-      address: "",
-      bank: "",
-      iban: "",
-      email: "",
-      phone: "",
-    },
+    legalEntities: [],
+    defaultEntityId: "",
     invoicing: {
       seriesPrefix: "TMP",
       currentNumber: 1,
@@ -48,24 +55,111 @@ export default function BillingConfigTab() {
   // Populate form when data loads
   useEffect(() => {
     if (settings) {
+      const migratedData = { ...settings };
+      
+      // Migration logic: if old 'clinic' exists and 'legalEntities' doesn't, migrate it
+      if (settings.clinic && (!settings.legalEntities || settings.legalEntities.length === 0)) {
+        const defaultId = "default-entity";
+        migratedData.legalEntities = [{
+          ...settings.clinic,
+          id: defaultId,
+          isDefault: true
+        }];
+        migratedData.defaultEntityId = defaultId;
+        delete migratedData.clinic;
+      }
+
       setFormData((prev: any) => ({
         ...prev,
-        ...settings,
+        ...migratedData,
         integrations: {
           ...prev.integrations,
-          ...(settings.integrations || {})
+          ...(migratedData.integrations || {})
         }
       }));
+
+      if (migratedData.legalEntities?.length > 0) {
+        setActiveEntityId(migratedData.defaultEntityId || migratedData.legalEntities[0].id);
+      }
     }
   }, [settings]);
+
+  const activeEntity = formData.legalEntities?.find((e: LegalEntity) => e.id === activeEntityId);
+
+  const handleEntityChange = (field: keyof LegalEntity, value: string) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      legalEntities: prev.legalEntities.map((e: LegalEntity) => 
+        e.id === activeEntityId ? { ...e, [field]: value } : e
+      )
+    }));
+  };
+
+  const addEntity = () => {
+    const newId = crypto.randomUUID();
+    const newEntity: LegalEntity = {
+      id: newId,
+      name: t('settings.billing_config.legal_entities.new_entity_name'),
+      cui: "",
+      regNo: "",
+      address: "",
+      bank: "",
+      iban: "",
+      email: "",
+      phone: "",
+    };
+
+    setFormData((prev: any) => {
+      const entities = [...(prev.legalEntities || []), newEntity];
+      return {
+        ...prev,
+        legalEntities: entities,
+        defaultEntityId: prev.defaultEntityId || newId
+      };
+    });
+    setActiveEntityId(newId);
+  };
+
+  const deleteEntity = (id: string) => {
+    if (formData.legalEntities.length <= 1) {
+      error(t('settings.billing_config.legal_entities.error_min_one'));
+      return;
+    }
+
+    setFormData((prev: any) => {
+      const filtered = prev.legalEntities.filter((e: LegalEntity) => e.id !== id);
+      let newDefault = prev.defaultEntityId;
+      if (id === prev.defaultEntityId) {
+        newDefault = filtered[0].id;
+      }
+      return {
+        ...prev,
+        legalEntities: filtered,
+        defaultEntityId: newDefault
+      };
+    });
+
+    if (activeEntityId === id) {
+      setActiveEntityId(formData.legalEntities.find((e: LegalEntity) => e.id !== id).id);
+    }
+  };
+
+  const setAsDefault = (id: string) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      defaultEntityId: id
+    }));
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Validate IBAN (basic regex)
-      const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/;
-      if (formData.clinic.iban && !ibanRegex.test(formData.clinic.iban.replace(/\s/g, ''))) {
-        throw new Error(t('settings.billing_config.invalid_iban'));
+      // Validate IBANs
+      for (const entity of formData.legalEntities) {
+        const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/;
+        if (entity.iban && !ibanRegex.test(entity.iban.replace(/\s/g, ''))) {
+          throw new Error(t('settings.billing_config.legal_entities.invalid_iban_for_entity', { name: entity.name }));
+        }
       }
 
       await setDoc(doc(db, "system_settings", "config"), formData, { merge: true });
@@ -89,107 +183,164 @@ export default function BillingConfigTab() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-      {/* Section 1: Clinic Identity */}
+      {/* Section 1: Legal Entities */}
       <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center text-primary-600">
-            <Building className="w-5 h-5" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center text-primary-600">
+              <Building className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-neutral-900 dark:text-white font-display">{t('settings.billing_config.legal_entities.title')}</h3>
+              <p className="text-sm text-neutral-500">{t('settings.billing_config.legal_entities.subtitle')}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-bold text-neutral-900 dark:text-white font-display">{t('settings.billing_config.clinic.title')}</h3>
-            <p className="text-sm text-neutral-500">{t('settings.billing_config.clinic.subtitle')}</p>
-          </div>
+          <button 
+            onClick={addEntity}
+            className="flex items-center gap-2 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg text-sm font-bold hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            {t('settings.billing_config.legal_entities.add_button')}
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.legal_name')}</label>
-            <input
-              type="text"
-              placeholder={t('settings.billing_config.clinic.legal_name_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
-              value={formData.clinic.name}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, name: e.target.value } }))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.cui')}</label>
-            <input
-              type="text"
-              placeholder={t('settings.billing_config.clinic.cui_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
-              value={formData.clinic.cui}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, cui: e.target.value } }))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.reg_no')}</label>
-            <input
-              type="text"
-              placeholder={t('settings.billing_config.clinic.reg_no_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
-              value={formData.clinic.regNo}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, regNo: e.target.value } }))}
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.address')}</label>
-            <textarea
-              rows={2}
-              placeholder={t('settings.billing_config.clinic.address_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all resize-none"
-              value={formData.clinic.address}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, address: e.target.value } }))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.bank')}</label>
-            <input
-              type="text"
-              placeholder={t('settings.billing_config.clinic.bank_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
-              value={formData.clinic.bank}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, bank: e.target.value } }))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.iban')}</label>
-            <input
-              type="text"
-              placeholder={t('settings.billing_config.clinic.iban_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all font-mono text-sm"
-              value={formData.clinic.iban}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, iban: e.target.value } }))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.email')}</label>
-            <input
-              type="email"
-              placeholder={t('settings.billing_config.clinic.email_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
-              value={formData.clinic.email}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, email: e.target.value } }))}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.phone')}</label>
-            <input
-              type="text"
-              placeholder={t('settings.billing_config.clinic.phone_placeholder')}
-              className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
-              value={formData.clinic.phone}
-              onChange={(e) => setFormData((prev: any) => ({ ...prev, clinic: { ...prev.clinic, phone: e.target.value } }))}
-            />
-          </div>
+        {/* Entity Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-4">
+          {formData.legalEntities?.map((entity: LegalEntity) => (
+            <div key={entity.id} className="relative group">
+              <button
+                onClick={() => setActiveEntityId(entity.id)}
+                className={clsx(
+                  "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
+                  activeEntityId === entity.id
+                    ? "bg-primary-600 text-white shadow-lg shadow-primary-500/20"
+                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                )}
+              >
+                {entity.name || t('settings.billing_config.legal_entities.unnamed_entity')}
+                {formData.defaultEntityId === entity.id && <CheckCircle2 className="w-3.5 h-3.5" />}
+              </button>
+              {formData.legalEntities.length > 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); deleteEntity(entity.id); }}
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-error-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          ))}
         </div>
+
+        {activeEntity ? (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h4 className="font-bold text-neutral-900 dark:text-white">{t('settings.billing_config.legal_entities.editing')}: {activeEntity.name}</h4>
+              {formData.defaultEntityId !== activeEntity.id && (
+                <button 
+                  onClick={() => setAsDefault(activeEntity.id)}
+                  className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline"
+                >
+                  {t('settings.billing_config.legal_entities.set_default')}
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.legal_name')}</label>
+                <input
+                  type="text"
+                  placeholder={t('settings.billing_config.clinic.legal_name_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
+                  value={activeEntity.name}
+                  onChange={(e) => handleEntityChange('name', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.cui')}</label>
+                <input
+                  type="text"
+                  placeholder={t('settings.billing_config.clinic.cui_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
+                  value={activeEntity.cui}
+                  onChange={(e) => handleEntityChange('cui', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.reg_no')}</label>
+                <input
+                  type="text"
+                  placeholder={t('settings.billing_config.clinic.reg_no_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
+                  value={activeEntity.regNo}
+                  onChange={(e) => handleEntityChange('regNo', e.target.value)}
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.address')}</label>
+                <textarea
+                  rows={2}
+                  placeholder={t('settings.billing_config.clinic.address_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all resize-none"
+                  value={activeEntity.address}
+                  onChange={(e) => handleEntityChange('address', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.bank')}</label>
+                <input
+                  type="text"
+                  placeholder={t('settings.billing_config.clinic.bank_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
+                  value={activeEntity.bank}
+                  onChange={(e) => handleEntityChange('bank', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.iban')}</label>
+                <input
+                  type="text"
+                  placeholder={t('settings.billing_config.clinic.iban_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all font-mono text-sm"
+                  value={activeEntity.iban}
+                  onChange={(e) => handleEntityChange('iban', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.email')}</label>
+                <input
+                  type="email"
+                  placeholder={t('settings.billing_config.clinic.email_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
+                  value={activeEntity.email}
+                  onChange={(e) => handleEntityChange('email', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.billing_config.clinic.phone')}</label>
+                <input
+                  type="text"
+                  placeholder={t('settings.billing_config.clinic.phone_placeholder')}
+                  className="w-full px-3 py-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-primary-500 transition-all"
+                  value={activeEntity.phone}
+                  onChange={(e) => handleEntityChange('phone', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-12 text-center bg-neutral-50 dark:bg-neutral-800/50 rounded-xl border-2 border-dashed border-neutral-200 dark:border-neutral-700">
+            <p className="text-neutral-500">{t('settings.billing_config.legal_entities.no_entity_selected')}</p>
+          </div>
+        )}
       </div>
 
       {/* Section 2: Invoice Parameters */}

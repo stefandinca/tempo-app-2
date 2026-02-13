@@ -61,7 +61,7 @@ export default function BillingPage() {
 
   const payouts = useMemo(() => {
     if (loading) return [];
-    return aggregateTeamPayouts(events, teamMembers, existingPayouts);
+    return aggregateTeamPayouts(events, teamMembers.filter((m: any) => m.role !== 'Superadmin'), existingPayouts);
   }, [events, teamMembers, existingPayouts, loading]);
 
   const summary = useMemo(() => {

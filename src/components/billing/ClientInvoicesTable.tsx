@@ -15,7 +15,9 @@ import {
   Save,
   RefreshCw,
   Trash2,
-  Zap
+  Zap,
+  Building,
+  X
 } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
@@ -63,6 +65,10 @@ export default function ClientInvoicesTable({
   
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [smartBillSyncingId, setSmartBillSyncingId] = useState<string | null>(null);
+  
+  // Entity Selection Modal
+  const [showEntitySelector, setShowEntitySelector] = useState(false);
+  const [pendingInvoice, setPendingInvoice] = useState<ClientInvoice | null>(null);
 
   const toggleRow = (clientId: string) => {
     const newExpanded = new Set(expandedRows);
@@ -143,7 +149,7 @@ export default function ClientInvoicesTable({
         items: invData.items,
         total: invData.total,
         series: invData.series,
-        clinicCif: settings?.clinic?.cui
+        clinicCif: invData.clinic?.cui // Use the CUI from the specific legal entity saved in the invoice
       };
       console.log("PREVIEW: SmartBill Sync Payload:", payload);
 
@@ -169,13 +175,33 @@ export default function ClientInvoicesTable({
     }
   };
 
-  const handleGenerateInvoice = async (invoice: ClientInvoice) => {
-    if (!settings?.clinic) {
+  const initiateInvoiceGeneration = (invoice: ClientInvoice) => {
+    const legalEntities = settings?.legalEntities || [];
+    
+    // Migration check: if settings.clinic exists but legalEntities doesn't, we can still proceed with one
+    const entityCount = legalEntities.length || (settings?.clinic ? 1 : 0);
+
+    if (entityCount > 1) {
+      setPendingInvoice(invoice);
+      setShowEntitySelector(true);
+      closeMenu();
+    } else {
+      // If only one entity or using migrated clinic data, proceed directly
+      const defaultEntity = legalEntities.find((e: any) => e.id === settings?.defaultEntityId) || legalEntities[0] || settings?.clinic;
+      handleGenerateInvoice(invoice, defaultEntity);
+    }
+  };
+
+  const handleGenerateInvoice = async (invoice: ClientInvoice, selectedEntity?: any) => {
+    if (!selectedEntity && !settings?.clinic && (!settings?.legalEntities || settings?.legalEntities.length === 0)) {
       error("Please configure clinic details in Settings > Billing Config first.");
       return;
     }
 
+    const entityToUse = selectedEntity || (settings?.legalEntities?.find((e: any) => e.id === settings?.defaultEntityId) || settings?.legalEntities?.[0] || settings?.clinic);
+
     setGeneratingId(invoice.clientId);
+    setShowEntitySelector(false);
     closeMenu();
 
     try {
@@ -227,14 +253,14 @@ export default function ClientInvoicesTable({
           date: today.toISOString().split('T')[0],
           dueDate: dueDate.toISOString().split('T')[0],
           clinic: {
-            name: currentSettings.clinic.name || "Clinic Name",
-            address: currentSettings.clinic.address || "",
-            cui: currentSettings.clinic.cui || "",
-            regNo: currentSettings.clinic.regNo || "",
-            bank: currentSettings.clinic.bank || "",
-            iban: currentSettings.clinic.iban || "",
-            email: currentSettings.clinic.email || "",
-            phone: currentSettings.clinic.phone || "",
+            name: entityToUse.name || "Clinic Name",
+            address: entityToUse.address || "",
+            cui: entityToUse.cui || "",
+            regNo: entityToUse.regNo || "",
+            bank: entityToUse.bank || "",
+            iban: entityToUse.iban || "",
+            email: entityToUse.email || "",
+            phone: entityToUse.phone || "",
           },
           client: {
             name: invoice.clientName,
@@ -255,7 +281,7 @@ export default function ClientInvoicesTable({
           status: "issued",
           createdAt: serverTimestamp(),
           formattedDate: today.toLocaleDateString("ro-RO"),
-          formattedDueDate: dueDate.toLocaleDateString("ro-RO"),
+          formattedDueDate: today.toLocaleDateString("ro-RO"), // Simplified for PDF consistency
         });
 
         transaction.update(settingsRef, {
@@ -317,8 +343,10 @@ export default function ClientInvoicesTable({
       error("Failed to generate invoice: " + err.message);
     } finally {
       setGeneratingId(null);
+      setPendingInvoice(null);
     }
   };
+
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -609,7 +637,7 @@ export default function ClientInvoicesTable({
             }}
           >
             <button
-              onClick={() => handleGenerateInvoice(activeInvoice)}
+              onClick={() => initiateInvoiceGeneration(activeInvoice)}
               disabled={activeInvoice.status !== 'create'}
               className={clsx(
                 "w-full flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors",
@@ -690,6 +718,67 @@ export default function ClientInvoicesTable({
                           </button>            )}
           </div>
         </>,
+        document.body
+      )}
+
+      {/* Entity Selector Modal */}
+      {showEntitySelector && pendingInvoice && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-neutral-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                  {t('settings.billing_config.legal_entities.select_entity')}
+                </h3>
+                <p className="text-sm text-neutral-500">
+                  {t('settings.billing_config.legal_entities.select_entity_desc')}
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowEntitySelector(false)}
+                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+            
+            <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
+              {(settings?.legalEntities || []).map((entity: any) => (
+                <button
+                  key={entity.id}
+                  onClick={() => handleGenerateInvoice(pendingInvoice, entity)}
+                  className="w-full p-4 flex items-center gap-4 bg-neutral-50 dark:bg-neutral-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 border border-neutral-200 dark:border-neutral-700 hover:border-primary-200 dark:hover:border-primary-800 rounded-xl transition-all text-left group"
+                >
+                  <div className="w-10 h-10 bg-white dark:bg-neutral-900 rounded-lg flex items-center justify-center text-neutral-400 group-hover:text-primary-500 shadow-sm border border-neutral-100 dark:border-neutral-800 transition-colors">
+                    <Building className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-neutral-900 dark:text-white truncate">
+                        {entity.name}
+                      </p>
+                      {settings.defaultEntityId === entity.id && (
+                        <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-[9px] font-bold uppercase rounded">
+                          {t('settings.billing_config.legal_entities.default_label')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-neutral-500 truncate">{entity.cui} • {entity.iban}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 flex justify-end">
+              <button
+                onClick={() => setShowEntitySelector(false)}
+                className="px-4 py-2 text-sm font-bold text-neutral-500 hover:text-neutral-700 transition-colors"
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>,
         document.body
       )}
     </>
