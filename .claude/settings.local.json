@@ -16,7 +16,23 @@
       "Bash(npm run build:demo:*)",
       "Bash(grep:*)",
       "Bash(wc:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(tar:*)",
+      "Bash(zip:*)",
+      "Bash(powershell:*)",
+      "Bash(du:*)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nperf: optimize data loading, memoization, and bundle size\n\n- Add limits and orderBy to Firestore collection hooks to reduce reads\n- Replace N per-client intervention plan listeners with single collectionGroup query\n- Memoize DataContext value and wrap AuthContext methods with useCallback\n- Use Map + day-grouped events for O\\(1\\) lookups in MonthView calendar\n- Dynamic import analytics charts and jsPDF to reduce initial bundle\n- Memo-wrap all analytics chart components\n- Cache Intl.NumberFormat instance for currency formatting\n- Add optimizePackageImports for lucide-react, recharts, firebase, jspdf\n- Add next-pwa graceful fallback when package is missing\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: add programs management UI and fix programs loading\n\n- Fix usePrograms\\(\\) orderBy field from \"name\" to \"title\"\n- Add Services | Programs tab toggle on /services page\n- Create ProgramCard, ProgramList, AddProgramModal, EditProgramModal\n- Allow coordinators and therapists to write to programs collection\n- Add collectionGroup Firestore rules and index for interventionPlans\n- Denormalize clientId in CreatePlanModal for security rules\n- Remove duplicate NotificationProvider from parent layout\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "Bash(firebase firestore:rules:list:*)",
+      "Bash(firebase firestore:rules:get:*)",
+      "Bash(git status:*)",
+      "Bash(git push:*)",
+      "Bash(xargs cat:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)"
     ]
   }
 }
