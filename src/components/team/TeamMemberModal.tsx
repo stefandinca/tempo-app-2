@@ -11,6 +11,8 @@ import { useAuth } from "@/context/AuthContext";
 import { TeamMember } from "./TeamMemberCard";
 import { createNotificationsBatch } from "@/lib/notificationService";
 import { useTranslation } from "react-i18next";
+import { useData } from "@/context/DataContext";
+import { useConfirm } from "@/context/ConfirmContext";
 
 interface TeamMemberModalProps {
   isOpen: boolean;
@@ -25,6 +27,8 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
   const { t } = useTranslation();
   const { success, error } = useToast();
   const { user: authUser, userRole } = useAuth();
+  const { teamMembers: teamMembersData, systemSettings } = useData();
+  const { confirm } = useConfirm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -78,7 +82,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
     }
   }, [isOpen, memberToEdit]);
 
-  const isAdmin = userRole === 'Admin';
+  const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
   const isEditingSelf = authUser?.uid === memberToEdit?.id;
 
   const handleAvatarClick = () => {
@@ -115,6 +119,28 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Check team member limit when creating new active member or reactivating an existing one
+    const willBeActive = formData.isActive;
+    const wasActive = memberToEdit ? (memberToEdit.isActive !== false) : false;
+
+    if (willBeActive && !wasActive) {
+      const maxTeam = systemSettings?.maxActiveTeamMembers || 0;
+      if (maxTeam > 0) {
+        const activeCount = teamMembersData.data.filter((m: any) => m.role !== 'Superadmin' && m.isActive !== false).length;
+        if (activeCount >= maxTeam) {
+          setIsSubmitting(false);
+          confirm({
+            title: t('limits.team_limit_reached_title'),
+            message: t('limits.team_limit_reached_message', { max: maxTeam }),
+            confirmLabel: 'OK',
+            variant: 'warning',
+            onConfirm: () => {},
+          });
+          return;
+        }
+      }
+    }
 
     try {
       const initials = formData.name

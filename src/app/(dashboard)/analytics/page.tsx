@@ -73,24 +73,32 @@ export default function AnalyticsPage() {
 
       {/* Row 1: Volume & Revenue */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 aspect-[4/3] lg:aspect-auto lg:h-[400px]">
           <SessionVolumeChart data={data.sessionChartData} />
         </div>
-        <div>
+        <div className="aspect-[4/3] lg:aspect-auto lg:h-[400px]">
           <RevenueMixChart data={data.revenueMixData} />
         </div>
       </div>
 
       {/* Row 2: AI & Clinical */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CancellationRiskWidget data={data.predictive.highRiskClients} />
-        <GlobalGoalAchievementChart data={data.clinicalData} />
+        <div className="aspect-[4/3] lg:aspect-auto lg:h-[400px]">
+          <CancellationRiskWidget data={data.predictive.highRiskClients} />
+        </div>
+        <div className="aspect-[4/3] lg:aspect-auto lg:h-[400px]">
+          <GlobalGoalAchievementChart data={data.clinicalData} />
+        </div>
       </div>
 
       {/* Row 3: Operational */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TherapistUtilizationChart data={data.teamUtilizationData} />
-        <AttendanceTrendChart data={data.attendanceData} />
+        <div className="aspect-[4/3] lg:aspect-auto lg:h-[400px]">
+          <TherapistUtilizationChart data={data.teamUtilizationData} />
+        </div>
+        <div className="aspect-[4/3] lg:aspect-auto lg:h-[400px]">
+          <AttendanceTrendChart data={data.attendanceData} />
+        </div>
       </div>
     </div>
   );

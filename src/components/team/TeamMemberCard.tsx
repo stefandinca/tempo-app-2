@@ -38,7 +38,7 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
   const router = useRouter();
 
   const isMe = user?.uid === member.id;
-  const isAdmin = userRole === 'Admin';
+  const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
 
   const handleMessage = async () => {
     setIsStartingChat(true);

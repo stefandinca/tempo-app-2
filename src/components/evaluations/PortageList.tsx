@@ -92,7 +92,7 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
           <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{t('portage.title')}</h3>
           <p className="text-sm text-neutral-500">{t('portage.subtitle')}</p>
         </div>
-        {(userRole === 'Admin' || userRole === 'Coordinator' || userRole === 'Therapist') && (
+        {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator' || userRole === 'Therapist') && (
           <button
             onClick={handleCreateNew}
             className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-600/20"
@@ -148,7 +148,7 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
                     </div>
                   </div>
                   
-                  {userRole === 'Admin' && (
+                  {(userRole === 'Admin' || userRole === 'Superadmin') && (
                     <button
                       onClick={(e) => handleDelete(e, evaluation.id)}
                       className="p-2 text-neutral-300 hover:text-error-500 hover:bg-error-50 dark:hover:bg-error-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100"

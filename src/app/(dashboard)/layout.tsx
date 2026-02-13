@@ -23,7 +23,7 @@ export default function DashboardLayout({
     if (loading) return;
 
     // If no user or no valid staff role, redirect to login
-    if (!user || !userRole || !['Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
+    if (!user || !userRole || !['Superadmin', 'Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
       router.replace("/login");
     }
   }, [user, userRole, loading, router]);
@@ -38,7 +38,7 @@ export default function DashboardLayout({
   }
 
   // Don't render content if not authenticated
-  if (!user || !userRole || !['Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
+  if (!user || !userRole || !['Superadmin', 'Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
         <div className="text-center">

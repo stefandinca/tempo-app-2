@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useNotifications } from "@/context/NotificationContext";
 import { Bell, Calendar, CheckCircle, CreditCard, FileText, ChevronRight, MessageSquare } from "lucide-react";
 import { CATEGORY_META, formatRelativeTime } from "@/types/notifications";
+import { useTranslation } from "react-i18next";
 
 interface ParentNotificationDropdownProps {
   desktop?: boolean;
@@ -20,6 +21,7 @@ const categoryIcons = {
 };
 
 export default function ParentNotificationDropdown({ desktop = false }: ParentNotificationDropdownProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const {
     notifications,
@@ -70,7 +72,7 @@ export default function ParentNotificationDropdown({ desktop = false }: ParentNo
         {/* Header */}
         <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
           <h3 className="font-semibold text-neutral-900 dark:text-white">
-            Notifications
+            {t('notifications.title')}
           </h3>
           {unreadCount > 0 && (
             <button
@@ -80,7 +82,7 @@ export default function ParentNotificationDropdown({ desktop = false }: ParentNo
               }}
               className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
             >
-              Mark all as read
+              {t('notifications.mark_all_read')}
             </button>
           )}
         </div>
@@ -94,8 +96,8 @@ export default function ParentNotificationDropdown({ desktop = false }: ParentNo
           ) : displayNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-neutral-400 dark:text-neutral-500">
               <Bell className="w-8 h-8 mb-2" />
-              <p className="text-sm">No notifications yet</p>
-              <p className="text-xs mt-1">You&apos;ll see updates about schedules and billing here</p>
+              <p className="text-sm">{t('notifications.no_notifications')}</p>
+              <p className="text-xs mt-1">{t('notifications.no_notifications_subtitle')}</p>
             </div>
           ) : (
             <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -157,7 +159,7 @@ export default function ParentNotificationDropdown({ desktop = false }: ParentNo
               }}
               className="text-sm font-medium text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
             >
-              View All Notifications
+              {t('notifications.view_all')}
             </button>
           </div>
         )}

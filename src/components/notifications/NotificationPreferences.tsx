@@ -17,6 +17,7 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useTranslation } from "react-i18next";
 
 interface CategoryPreference {
   id: string;
@@ -29,6 +30,7 @@ interface CategoryPreference {
 type EmailDigest = "instant" | "daily" | "weekly" | "never";
 
 export default function NotificationPreferences() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { success, error } = useToast();
   const [isSaving, setIsSaving] = useState(false);
@@ -37,43 +39,43 @@ export default function NotificationPreferences() {
   const [categories, setCategories] = useState<CategoryPreference[]>([
     {
       id: "schedule",
-      label: "Schedule Changes",
-      description: "Session created, updated, or cancelled",
+      label: t('notifications.preferences.categories.schedule_label'),
+      description: t('notifications.preferences.categories.schedule_desc'),
       icon: Calendar,
       enabled: true
     },
     {
       id: "attendance",
-      label: "Attendance & Scores",
-      description: "Attendance logged and score updates",
+      label: t('notifications.preferences.categories.attendance_label'),
+      description: t('notifications.preferences.categories.attendance_desc'),
       icon: CheckCircle,
       enabled: true
     },
     {
       id: "message",
-      label: "New Messages",
-      description: "Chat messages from team or parents",
+      label: t('notifications.preferences.categories.message_label'),
+      description: t('notifications.preferences.categories.message_desc'),
       icon: MessageSquare,
       enabled: true
     },
     {
       id: "team",
-      label: "Team Updates",
-      description: "Team member assignments and changes",
+      label: t('notifications.preferences.categories.team_label'),
+      description: t('notifications.preferences.categories.team_desc'),
       icon: Users,
       enabled: false
     },
     {
       id: "client",
-      label: "Client Updates",
-      description: "New clients and profile changes",
+      label: t('notifications.preferences.categories.client_label'),
+      description: t('notifications.preferences.categories.client_desc'),
       icon: User,
       enabled: true
     },
     {
       id: "billing",
-      label: "Billing Alerts",
-      description: "Invoices, payments, and overdue notices",
+      label: t('notifications.preferences.categories.billing_label'),
+      description: t('notifications.preferences.categories.billing_desc'),
       icon: CreditCard,
       enabled: true
     }
@@ -132,10 +134,10 @@ export default function NotificationPreferences() {
         notificationPreferences: prefs
       });
       
-      success("Notification preferences saved");
+      success(t('notifications.preferences.save_success'));
     } catch (err) {
       console.error("Error saving preferences:", err);
-      error("Failed to save preferences");
+      error(t('notifications.preferences.save_error'));
     } finally {
       setIsSaving(false);
     }
@@ -159,10 +161,10 @@ export default function NotificationPreferences() {
           </div>
           <div>
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-              In-App Notifications
+              {t('notifications.preferences.in_app_title')}
             </h3>
             <p className="text-sm text-neutral-500">
-              Choose which notifications appear in the app
+              {t('notifications.preferences.in_app_subtitle')}
             </p>
           </div>
         </div>
@@ -213,10 +215,10 @@ export default function NotificationPreferences() {
           </div>
           <div>
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-              Email Notifications
+              {t('notifications.preferences.email_title')}
             </h3>
             <p className="text-sm text-neutral-500">
-              Configure email digest frequency
+              {t('notifications.preferences.email_subtitle')}
             </p>
           </div>
         </div>
@@ -225,10 +227,10 @@ export default function NotificationPreferences() {
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-neutral-900 dark:text-white text-sm">
-                Email Digest
+                {t('notifications.preferences.email_digest')}
               </p>
               <p className="text-xs text-neutral-500">
-                How often to receive notification summaries
+                {t('notifications.preferences.email_digest_desc')}
               </p>
             </div>
             <select
@@ -236,10 +238,10 @@ export default function NotificationPreferences() {
               onChange={(e) => setEmailDigest(e.target.value as EmailDigest)}
               className="px-3 py-2 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm font-medium text-neutral-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all cursor-pointer"
             >
-              <option value="instant">Instant</option>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="never">Never</option>
+              <option value="instant">{t('notifications.preferences.instant')}</option>
+              <option value="daily">{t('notifications.preferences.daily')}</option>
+              <option value="weekly">{t('notifications.preferences.weekly')}</option>
+              <option value="never">{t('notifications.preferences.never')}</option>
             </select>
           </div>
         </div>
@@ -253,7 +255,7 @@ export default function NotificationPreferences() {
           className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-          Save Preferences
+          {t('notifications.preferences.save_preferences')}
         </button>
       </div>
     </div>

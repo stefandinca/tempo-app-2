@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { User, Bell, Shield, Moon, LogOut, Check, CreditCard, Monitor, Loader2, Globe, Camera } from "lucide-react";
+import { User, Bell, Shield, Moon, LogOut, Check, CreditCard, Monitor, Loader2, Globe, Camera, ShieldAlert } from "lucide-react";
 import { clsx } from "clsx";
 import BillingConfigTab from "@/components/settings/BillingConfigTab";
+import LimitsConfigTab from "@/components/settings/LimitsConfigTab";
 import TranslationManager from "@/components/settings/TranslationManager";
 import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 import { doc, updateDoc } from "firebase/firestore";
@@ -42,7 +43,8 @@ export default function SettingsPage() {
     }
   }, [userData, user]);
 
-  const isAdmin = userRole?.toLowerCase() === "admin";
+  const isAdmin = userRole?.toLowerCase() === "admin" || userRole === "Superadmin";
+  const isSuperadmin = userRole === "Superadmin";
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -152,6 +154,12 @@ export default function SettingsPage() {
       { id: "billing", label: t('settings.tabs.billing'), icon: CreditCard },
       { id: "translations", label: "Translations", icon: Globe },
       { id: "system", label: t('settings.tabs.system'), icon: Monitor }
+    );
+  }
+
+  if (isSuperadmin) {
+    menuItems.push(
+      { id: "limits", label: t('settings.tabs.limits'), icon: ShieldAlert }
     );
   }
 
@@ -394,6 +402,7 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "billing" && isAdmin && <BillingConfigTab />}
+          {activeTab === "limits" && isSuperadmin && <LimitsConfigTab />}
           {activeTab === "translations" && isAdmin && <TranslationManager />}
           
           {activeTab === "system" && isAdmin && (

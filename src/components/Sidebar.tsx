@@ -34,9 +34,9 @@ export default function Sidebar() {
   ];
 
   const adminItems = [
-    { name: t('nav.billing'), href: "/billing/", icon: CreditCard, roles: ['Admin'] },
-    { name: t('nav.analytics'), href: "/analytics/", icon: BarChart2, roles: ['Admin', 'Coordinator'] },
-    { name: t('nav.services'), href: "/services/", icon: Briefcase, roles: ['Admin', 'Coordinator'] },
+    { name: t('nav.billing'), href: "/billing/", icon: CreditCard, roles: ['Superadmin', 'Admin'] },
+    { name: t('nav.analytics'), href: "/analytics/", icon: BarChart2, roles: ['Superadmin', 'Admin', 'Coordinator'] },
+    { name: t('nav.services'), href: "/services/", icon: Briefcase, roles: ['Superadmin', 'Admin', 'Coordinator'] },
   ];
   const { userRole } = useAuth();
   const { open: openCommandPalette } = useCommandPalette();
@@ -53,8 +53,8 @@ export default function Sidebar() {
           <span className="text-white font-bold text-lg font-display">T</span>
         </div>
         <div>
-          <h1 className="font-bold text-lg text-neutral-900 dark:text-white font-display">TempoApp</h1>
-          <p className="text-xs text-neutral-500">Therapy Management</p>
+          <h1 className="font-bold text-lg text-neutral-900 dark:text-white font-display">{t('header.titles.app_title')}</h1>
+          <p className="text-xs text-neutral-500">{t('header.titles.app_subtitle')}</p>
         </div>
       </div>
       
@@ -98,11 +98,11 @@ export default function Sidebar() {
           );
         })}
 
-        {(userRole === 'Admin' || userRole === 'Coordinator') && (
+        {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator') && (
           <>
             <div className="pt-6 pb-2">
               <p className="px-3 text-xs font-semibold text-neutral-400 uppercase tracking-wider font-display">
-                Management
+                {t('sidebar.management')}
               </p>
             </div>
 
@@ -137,7 +137,7 @@ export default function Sidebar() {
           className="w-full flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
         >
           <Search className="w-4 h-4" />
-          <span>Search...</span>
+          <span>{t('header.search_placeholder')}</span>
           <kbd className="ml-auto px-1.5 py-0.5 text-xs bg-white dark:bg-neutral-600 rounded shadow-sm border border-neutral-200 dark:border-neutral-700">
             ⌘K
           </kbd>

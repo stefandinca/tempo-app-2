@@ -34,7 +34,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
   const [memberSearch, setMemberSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isAdmin = userRole === 'Admin';
+  const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
   const isCoordinator = userRole === 'Coordinator';
   const canManageTeam = isAdmin || isCoordinator;
 

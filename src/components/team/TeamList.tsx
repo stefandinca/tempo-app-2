@@ -20,10 +20,12 @@ export default function TeamList({ onEdit, onAdd }: TeamListProps) {
   const [search, setSearch] = useState("");
   const { userRole } = useAuth();
 
-  const filteredMembers = teamMembers.data.filter(m =>
-    m.name.toLowerCase().includes(search.toLowerCase()) ||
-    m.role.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredMembers = teamMembers.data
+    .filter(m => m.role !== 'Superadmin')
+    .filter(m =>
+      m.name.toLowerCase().includes(search.toLowerCase()) ||
+      m.role.toLowerCase().includes(search.toLowerCase())
+    );
 
   // Calculate dynamic stats for each member
   const membersWithStats = useMemo(() => {
@@ -81,7 +83,7 @@ export default function TeamList({ onEdit, onAdd }: TeamListProps) {
           />
         </div>
         
-        {userRole === 'Admin' && (
+        {(userRole === 'Admin' || userRole === 'Superadmin') && (
           <button 
             onClick={onAdd}
             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors shadow-sm"

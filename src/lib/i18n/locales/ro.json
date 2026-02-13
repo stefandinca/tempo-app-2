@@ -1,4 +1,35 @@
 {
+  "header": {
+    "titles": {
+      "dashboard": "Dashboard",
+      "calendar": "Calendar",
+      "messages": "Mesaje",
+      "messages_subtitle": "Comunicare în timp real cu părinții și echipa",
+      "clients": "Clienți",
+      "clients_subtitle": "Gestionați lista clinică și monitorizați progresul",
+      "team": "Management Echipă",
+      "team_subtitle": "Gestionați terapeuți, roluri și permisiuni",
+      "billing": "Facturare",
+      "billing_subtitle": "Facturi și situație financiară",
+      "analytics": "Analize",
+      "analytics_subtitle": "Metrici de performanță și statistici",
+      "settings": "Setări",
+      "settings_subtitle": "Preferințe sistem",
+      "client_profile": "Profil Client",
+      "client_profile_subtitle": "Vezi detalii și progres",
+      "app_title": "TempoApp",
+      "app_subtitle": "Management Terapie"
+    },
+    "new_event": "Eveniment Nou",
+    "search_placeholder": "Caută...",
+    "offline": "OFFLINE",
+    "offline_tooltip": "Offline - Verifică conexiunea",
+    "refresh_tooltip": "Reîmprospătează datele",
+    "refresh_success": "Date reîmprospătate cu succes",
+    "offline_warning": "Sunteți momentan offline. Vă rugăm să verificați conexiunea pentru a reîmprospăta datele.",
+    "profile": "Profil",
+    "sign_out": "Deconectare"
+  },
   "common": {
     "save": "Salvează",
     "saving": "Se salvează...",
@@ -44,6 +75,7 @@
       "security": "Securitate",
       "appearance": "Aspect",
       "billing": "Configurație Facturare",
+      "limits": "Limite Cont",
       "system": "Sistem"
     },
     "profile": {
@@ -99,6 +131,22 @@
         "phone": "Telefon",
         "phone_placeholder": "+40 7..."
       },
+      "legal_entities": {
+        "title": "Entități Legale",
+        "subtitle": "Gestionați una sau mai multe entități legale pentru facturare.",
+        "add_button": "Adaugă Entitate",
+        "set_default": "Setează ca Implicit",
+        "delete_confirm": "Sigur doriți să ștergeți această entitate?",
+        "select_entity": "Selectați Entitatea Legală",
+        "select_entity_desc": "Alegeți entitatea care va emite factura.",
+        "unnamed_entity": "Entitate fără nume",
+        "editing": "Editare",
+        "no_entity_selected": "Nicio entitate legală selectată. Adăugați una pentru a începe.",
+        "error_min_one": "Trebuie să aveți cel puțin o entitate legală.",
+        "new_entity_name": "Entitate Legală Nouă",
+        "default_label": "Implicit",
+        "invalid_iban_for_entity": "IBAN invalid pentru {{name}}"
+      },
       "invoicing": {
         "title": "Parametri Factură",
         "subtitle": "Valori implicite pentru generare automată.",
@@ -127,7 +175,28 @@
         "smartbill_token": "Token API SmartBill",
         "smartbill_note": "* Notă: Credențialele sunt salvate în siguranță în configurația privată a clinicii. Acestea sunt necesare pentru sincronizarea oficială a facturilor."
       }
+    },
+    "limits": {
+      "title": "Limite Cont",
+      "subtitle": "Configurați numărul maxim de clienți activi și membri ai echipei pentru acest cont.",
+      "max_clients": "Clienți Activi Maximi",
+      "max_clients_hint": "Setați la 0 pentru nelimitat.",
+      "max_team_members": "Membri Echipă Activi Maximi",
+      "max_team_members_hint": "Setați la 0 pentru nelimitat. Conturile Superadmin sunt excluse din acest calcul.",
+      "current_usage": "Utilizare Curentă",
+      "clients_usage": "{{current}} / {{max}} clienți activi",
+      "clients_usage_unlimited": "{{current}} clienți activi (nelimitat)",
+      "team_usage": "{{current}} / {{max}} membri echipă activi",
+      "team_usage_unlimited": "{{current}} membri echipă activi (nelimitat)",
+      "save_success": "Limitele contului au fost salvate cu succes",
+      "save_error": "Eroare la salvarea limitelor contului"
     }
+  },
+  "limits": {
+    "team_limit_reached_title": "Limită Membri Echipă Atinsă",
+    "team_limit_reached_message": "Contul dumneavoastră a atins numărul maxim de membri activi ai echipei ({{max}}). Vă rugăm să contactați echipa TempoApp pentru a crește limita.",
+    "client_limit_reached_title": "Limită Clienți Atinsă",
+    "client_limit_reached_message": "Contul dumneavoastră a atins numărul maxim de clienți activi ({{max}}). Vă rugăm să contactați echipa TempoApp pentru a crește limita."
   },
   "dashboard": {
     "welcome": "Bine ai revenit",
@@ -423,6 +492,7 @@
       },
       "due_date": "Scadentă",
       "mark_complete": "Marchează Finalizat",
+      "mark_in_progress": "Reia Activitatea",
       "notes": "Note",
       "notes_placeholder": "Adaugă notele sau observațiile tale aici...",
       "add_notes": "Adaugă note...",
@@ -551,8 +621,29 @@
       "programs": "Programe",
       "notes": "Note",
       "plan": "Plan",
+      "homework": "Teme",
       "docs": "Documente",
       "billing": "Facturare"
+    },
+    "homework": {
+      "title": "Teme și Activități",
+      "subtitle": "Gestionați sarcinile atribuite părinților pentru acasă.",
+      "add_button": "Adaugă Temă",
+      "no_homework": "Nu există teme atribuite.",
+      "form": {
+        "title": "Titlu Temă",
+        "description": "Descriere / Instrucțiuni",
+        "due_date": "Data Scadenței",
+        "frequency": "Frecvență",
+        "placeholder_title": "ex: Exersare contact vizual",
+        "placeholder_desc": "Descrieți pașii necesari pentru părinte..."
+      },
+      "status": {
+        "in_progress": "În lucru",
+        "completed": "Finalizat"
+      },
+      "save_success": "Temă salvată cu succes",
+      "delete_confirm": "Sigur doriți să ștergeți această temă?"
     },
     "notes": {
       "title": "Note și Scoruri Ședințe",
@@ -646,6 +737,14 @@
     }
   },
   "reports": {
+    "defaults": {
+      "unknown_client": "Client Necunoscut",
+      "standard_session": "Ședință Standard",
+      "therapy": "Terapie",
+      "clinic_name": "Nume Clinică SRL",
+      "clinic_address": "Adresă Clinică",
+      "contact_email": "contact@clinic.ro"
+    },
     "client": {
       "title": "Raport de Progres Client",
       "generated_on": "Generat la data de",
@@ -815,7 +914,7 @@
         "d1": "Răspuns emoţional adecvat vârstei şi situaţiei. Copilul arată tipul şi gradul adecvat de răspuns emoţional, indicat de schimbarea expresiei faciale, postură şi manieră.",
         "d2": "Răspuns emoţional uşor anormal. Copilul ocazional arată un tip sau grad oarecum nepotrivit de reacţie emoţională. Reacţiile sunt uneori fără legătură cu obiectele sau evenimentele înconjurătoare.",
         "d3": "Răspuns emoţional moderat anormal. Copilul arată semne clare de tip şi/sau grad nepotrivit de răspuns emoţional. Reacţiile pot fi destul de inhibate sau excesive şi fără legătură cu situaţia; poate face grimase, râde sau devine rigid chiar dacă nu sunt prezente obiecte sau evenimente care produc emoţia.",
-        "d4": "Răspuns emoţional sever anormal. Răspunsurile sunt rar adecvate situaţiei; odată ce copilul intră într-o anumită stare, este foarte dificil să o schimbe. Dimpotrivă, copilul poate arăta emoţii extrem de diferite atunci când nimic nu s-a schimbat."
+        "d4": "Răspuns emoţional sever anormal. Răspunsurile sunt rar adecvate situaţiei; odată ce copilul intră într-un mod anumit, este foarte dificil să o schimbe. Dimpotrivă, copilul poate arăta emoţii extrem de diferite atunci când nimic nu s-a schimbat."
       },
       "4": {
         "title": "Utilizarea Corpului",
@@ -857,7 +956,7 @@
         "d1": "Utilizarea şi răspunsul normal la gust, miros şi atingere. Explorează noi obiecte într-un mod adecvat vârstei. Când reacţionează la durere mică de zi cu zi, copilul îşi exprimă disconfortul dar nu reacţionează exagerat.",
         "d2": "Utilizarea şi răspunsul uşor anormale. Copilul poate persista în a pune obiecte în gură; poate mirosi sau gusta obiecte inedite. Poate ignora sau reacţiona exagerat la o durere uşoară.",
         "d3": "Utilizarea şi răspunsul moderat anormale. Copilul poate fi moderat preocupat de atingerea, mirosirea sau gustarea obiectelor sau a oamenilor. Poate reacţiona prea mult sau prea puţin.",
-        "d4": "Utilizarea şi răspunsul sever anormale. Copilul este preocupat de mirosirea, gustarea sau pipăirea obiectelor mai mult pentru senzaţie decât pentru explorare. Poate ignora complet durerea sau reacţiona foarte puternic."
+        "d4": "Utilizarea şi răspunsul sever anormale. Copilul este preocupat de mirosirea, gustarea sau pipăirea obiectelor mai mult pentru sensation decât pentru explorare. Poate ignora complet durerea sau reacţiona foarte puternic."
       },
       "10": {
         "title": "Frică sau Nervozitate",
@@ -1260,6 +1359,35 @@
       "client": "Nicio notificare despre clienți",
       "message": "Nicio notificare despre mesaje",
       "general": "Nicio notificare momentan"
+    },
+    "preferences": {
+      "in_app_title": "Notificări în Aplicație",
+      "in_app_subtitle": "Alegeți ce notificări apar în aplicație",
+      "email_title": "Notificări prin Email",
+      "email_subtitle": "Configurați frecvența rezumatelor prin email",
+      "email_digest": "Rezumat Email",
+      "email_digest_desc": "Cât de des doriți rezumate ale notificărilor",
+      "instant": "Instant",
+      "daily": "Zilnic",
+      "weekly": "Săptămânal",
+      "never": "Niciodată",
+      "save_preferences": "Salvează Preferințele",
+      "save_success": "Preferințele de notificare au fost salvate",
+      "save_error": "Eroare la salvarea preferințelor",
+      "categories": {
+        "schedule_label": "Modificări Program",
+        "schedule_desc": "Ședință creată, actualizată sau anulată",
+        "attendance_label": "Prezență și Scoruri",
+        "attendance_desc": "Prezență înregistrată și actualizări scoruri",
+        "message_label": "Mesaje Noi",
+        "message_desc": "Mesaje chat de la echipă sau părinți",
+        "team_label": "Actualizări Echipă",
+        "team_desc": "Alocări și modificări membri echipă",
+        "client_label": "Actualizări Clienți",
+        "client_desc": "Clienți noi și modificări profil",
+        "billing_label": "Alerte Facturare",
+        "billing_desc": "Facturi, plăți și avize restante"
+      }
     }
   },
   "team": {
@@ -1296,6 +1424,9 @@
       "Speech Therapist": "Logoped",
       "Occupational Therapist": "Terapeut Ocupațional"
     }
+  },
+  "sidebar": {
+    "management": "Management"
   },
   "command_palette": {
     "placeholder": "Caută sau tastează o comandă...",
@@ -1336,6 +1467,214 @@
       "navigate": "navighează",
       "select": "selectează",
       "close": "închide"
+    }
+  },
+  "clients": {
+    "title": "Clienți",
+    "new_client": "Client Nou",
+    "search_placeholder": "Caută clienți...",
+    "status": {
+      "active": "Activ",
+      "archived": "Arhivat",
+      "all": "Toți"
+    },
+    "sort": {
+      "name": "Sortează după nume",
+      "recent": "Sortează după cele mai recente"
+    },
+    "no_results": "Nu s-au găsit clienți",
+    "no_results_subtitle": "Încercați să ajustați căutarea sau filtrele.",
+    "clear_search": "Șterge căutarea",
+    "age_years": "{{count}} ani",
+    "born": "Născut",
+    "unassigned": "Nealocat",
+    "next_session": "Următoarea",
+    "no_upcoming": "Fără ședințe programate",
+    "overall_progress": "Progres General",
+    "view_profile": "Vezi Profil",
+    "quick_schedule": "Programare Rapidă",
+    "delete_confirm": "Ești sigur că vrei să ștergi pe {{name}}? Această acțiune este ireversibilă.",
+    "restore": "Restaurează",
+    "archive": "Arhivează",
+    "client_restored": "Client restaurat",
+    "client_archived": "Client arhivat",
+    "client_deleted": "Client șters",
+    "update_error": "Eroare la actualizarea clientului",
+    "delete_error": "Eroare la ștergerea clientului",
+    "invalid_request": "Cerere Invalidă",
+    "no_id_provided": "Nu a fost furnizat un ID de client.",
+    "client_not_found": "Clientul nu a fost găsit",
+    "client_not_found_subtitle": "Clientul pe care îl căutați nu există sau a fost șters.",
+    "back_to_list": "Înapoi la Lista de Clienți",
+    "edit_profile": "Editează Profilul",
+    "delete_forever": "Șterge Definitiv",
+    "delete_forever_confirm": "Ești sigur că vrei să ștergi DEFINITIV pe {{name}}? Această acțiune nu poate fi anulată.",
+    "restore_client": "Restaurează Clientul",
+    "archive_client": "Arhivează Clientul",
+    "under_development": "Această secțiune este în curs de dezvoltare.",
+    "personal_info": "Informații Personale",
+    "medical_notes": "Informații Medicale și Note",
+    "assigned_team": "Echipa de Terapie Alocată",
+    "clinical_actions": "Acțiuni Clinice",
+    "upcoming_schedule": "Programări Viitoare",
+    "portal_access": "Acces Portal",
+    "clinical_stats": "Statistici Clinice",
+    "latest_assessment": "Ultima Evaluare",
+    "message_parent": "Mesaj Părinte",
+    "generate_access": "Generează Acces",
+    "code_generated": "Cod de acces generat cu succes!",
+    "code_error": "Eroare la generarea codului",
+    "link_copied": "Link copiat!",
+    "no_parent": "Niciun părinte înregistrat încă.",
+    "chat_error": "Eroare la deschiderea conversației",
+    "start_evaluation": "Începe Prima Evaluare",
+    "no_assessments": "Nicio evaluare înregistrată",
+    "based_on_sessions": "Pe baza a {{count}} ședințe înregistrate",
+    "no_team_assigned": "Niciun membru al echipei alocat.",
+    "no_medical_info": "Nicio alertă medicală sau notă clinică.",
+    "billing_info": "Informații Facturare",
+    "report_description": "Generează un raport profesional cu istoric ședințe, prezență și rezultate evaluări.",
+    "member_assigned": "{{name}} alocat clientului",
+    "assign_error": "Eroare la alocarea membrului",
+    "remove_member_title": "Elimină Membru",
+    "remove_member_confirm": "Eliminați acest membru din echipa clientului?",
+    "remove_member_action": "Elimină",
+    "member_removed": "Membru eliminat",
+    "remove_error": "Eroare la eliminarea membrului",
+    "fields": {
+      "full_name": "Nume Complet",
+      "birth_date": "Data Nașterii",
+      "phone": "Telefon",
+      "parent_email": "Email Părinte",
+      "parent_name": "Nume Părinte",
+      "diagnosis": "Diagnostic Principal",
+      "diagnosis_date": "Data Diagnosticului",
+      "support_level": "Nivel Suport (DSM-5)",
+      "medical_info": "Informații Medicale",
+      "billing_address": "Adresă Facturare",
+      "cif_cui": "CIF / CUI",
+      "reg_no": "Nr. Reg. Com.",
+      "assigned_therapist": "Terapeut Alocat"
+    },
+    "tabs": {
+      "overview": "Prezentare Generală",
+      "evaluations": "Evaluări",
+      "programs": "Programe",
+      "notes": "Note",
+      "plan": "Plan",
+      "homework": "Teme",
+      "docs": "Documente",
+      "billing": "Facturare"
+    },
+    "homework": {
+      "title": "Teme și Activități",
+      "subtitle": "Gestionați sarcinile atribuite părinților pentru acasă.",
+      "add_button": "Adaugă Temă",
+      "no_homework": "Nu există teme atribuite.",
+      "form": {
+        "title": "Titlu Temă",
+        "description": "Descriere / Instrucțiuni",
+        "due_date": "Data Scadenței",
+        "frequency": "Frecvență",
+        "placeholder_title": "ex: Exersare contact vizual",
+        "placeholder_desc": "Descrieți pașii necesari pentru părinte..."
+      },
+      "status": {
+        "in_progress": "În lucru",
+        "completed": "Finalizat"
+      },
+      "save_success": "Temă salvată cu succes",
+      "delete_confirm": "Sigur doriți să ștergeți această temă?"
+    },
+    "notes": {
+      "title": "Note și Scoruri Ședințe",
+      "no_sessions": "Nu există ședințe evaluate încă",
+      "no_sessions_subtitle": "Scorurile și notele programelor vor apărea aici după finalizarea ședințelor.",
+      "session_notes": "Note Ședință",
+      "program_notes": "Note Program",
+      "trials": "încercări",
+      "success": "succes"
+    },
+    "form": {
+      "child_name": "Nume Copil",
+      "child_name_placeholder": "ex: Ion Popescu",
+      "birth_date": "Data Nașterii",
+      "primary_diagnosis": "Diagnostic Principal",
+      "diagnosis_placeholder": "ex: Tulburare din Spectrul Autist",
+      "diagnosis_date": "Data Diagnosticului",
+      "support_level": "Nivel Suport (DSM-5)",
+      "level_1": "Nivel 1 (Necesită Suport)",
+      "level_2": "Nivel 2 (Suport Substanțial)",
+      "level_3": "Nivel 3 (Suport Foarte Substanțial)",
+      "phone": "Număr Telefon",
+      "phone_placeholder": "ex: 0721 234 567",
+      "optional": "(opțional)",
+      "parent_name": "Nume Părinte",
+      "parent_name_placeholder": "ex: Robert Popescu",
+      "parent_email": "Email Părinte",
+      "parent_email_placeholder": "parinte@exemplu.com",
+      "assigned_therapist": "Terapeut Alocat",
+      "select_therapist": "Selectați un terapeut...",
+      "medical_info": "Informații Medicale / Note",
+      "medical_info_placeholder": "Alergii, note specifice diagnosticului...",
+      "billing_section": "Informații Facturare (SmartBill)",
+      "billing_address": "Adresă Facturare",
+      "billing_address_placeholder": "Stradă, Număr, Oraș, Județ",
+      "cif_cui": "CIF / CUI",
+      "cif_placeholder": "RO12345678",
+      "reg_no": "Nr. Reg. Com.",
+      "reg_no_placeholder": "J40/123/2020"
+    },
+    "add_modal": {
+      "title": "Adaugă Client Nou",
+      "subtitle": "Înregistrați un copil nou în sistem",
+      "cancel": "Anulează",
+      "submit": "Înregistrează Client",
+      "success": "Client adăugat cu succes",
+      "error": "Eroare la adăugarea clientului"
+    },
+    "edit_modal": {
+      "title": "Editează Profilul",
+      "subtitle": "Actualizați informațiile pentru {{name}}",
+      "cancel": "Anulează",
+      "submit": "Salvează Modificările",
+      "success": "Profil actualizat cu succes",
+      "error": "Eroare la actualizarea profilului"
+    },
+    "plan_modal": {
+      "title_create": "Creează Plan de Intervenție",
+      "title_edit": "Editează Plan de Intervenție",
+      "subtitle_create": "Configurați programele pentru acest client",
+      "subtitle_edit": "Modificați detaliile planului",
+      "plan_name": "Nume Plan",
+      "plan_name_placeholder": "ex: Plan Intervenție T1 2026",
+      "start_date": "Data Începerii",
+      "end_date": "Data Încheierii",
+      "status": "Status",
+      "status_active": "Activ",
+      "status_draft": "Ciornă",
+      "status_completed": "Finalizat",
+      "select_programs": "Selectați Programele",
+      "selected_count": "({{count}} selectate)",
+      "search_programs": "Caută programe...",
+      "no_programs": "Nu s-au găsit programe",
+      "cancel": "Anulează",
+      "submit_create": "Creează Planul",
+      "submit_edit": "Salvează Modificările",
+      "success_create": "Plan creat cu succes",
+      "success_edit": "Plan actualizat cu succes",
+      "error_create": "Eroare la crearea planului",
+      "error_edit": "Eroare la actualizarea planului",
+      "delete_confirm": "Ștergeți \"{{name}}\"? Această acțiune este ireversibilă.",
+      "deleted": "Plan șters",
+      "delete_error": "Eroare la ștergerea planului",
+      "validation": {
+        "name_required": "Numele planului este obligatoriu",
+        "start_date_required": "Data începerii este obligatorie",
+        "end_date_required": "Data încheierii este obligatorie",
+        "end_after_start": "Data încheierii trebuie să fie după data începerii",
+        "select_program": "Selectați cel puțin un program"
+      }
     }
   }
 }

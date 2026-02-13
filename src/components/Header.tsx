@@ -24,21 +24,14 @@ import { NotificationBell, NotificationDropdown } from "@/components/notificatio
 import { useConnectivity } from "@/hooks/useConnectivity";
 import { useToast } from "@/context/ToastContext";
 
+import { useTranslation } from "react-i18next";
+
 interface HeaderProps {
   onMenuClick?: () => void;
 }
 
-const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
-  "/": { title: "Dashboard", subtitle: "DATE_PLACEHOLDER" },
-  "/calendar": { title: "Calendar", subtitle: "DATE_PLACEHOLDER" }, // Calendar handles its own subtitle usually, but we'll stick to pattern
-  "/clients": { title: "Clients", subtitle: "Manage your clinical roster and monitor progress" },
-  "/team": { title: "Team Management", subtitle: "Manage therapists, roles, and permissions" },
-  "/billing": { title: "Billing", subtitle: "Invoices and financial overview" },
-  "/analytics": { title: "Analytics", subtitle: "Performance metrics and insights" },
-  "/settings": { title: "Settings", subtitle: "System preferences" },
-};
-
 export default function Header({ onMenuClick }: HeaderProps) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [theme, setTheme] = useState("light");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -73,7 +66,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   const handleRefresh = () => {
     if (!isOnline) {
-      warning("You are currently offline. Please check your connection to refresh data.");
+      warning(t('header.offline_warning'));
       return;
     }
 
@@ -81,7 +74,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
     // Simulate data refresh - in a real app this might trigger a revalidate or context refresh
     setTimeout(() => {
       setIsRefreshing(false);
-      toastSuccess("Data refreshed successfully");
+      toastSuccess(t('header.refresh_success'));
     }, 1500);
   };
 
@@ -100,20 +93,28 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const toggleProfile = () => setIsProfileOpen(!isProfileOpen);
 
   // Determine Title & Subtitle
-  // Handle dynamic routes like /clients/[id] later if needed, for now exact match or fallback
-  let pageInfo = PAGE_TITLES[pathname];
-  
-  if (!pageInfo) {
-    // Basic fallback for dynamic routes
-    if (pathname.startsWith("/clients/")) {
-      // Profile header is handled INSIDE the page for Clients/[id] usually, 
-      // but if we want it in top bar:
-      pageInfo = { title: "Client Profile", subtitle: "View details and progress" };
-    } else {
-      pageInfo = { title: "TempoApp", subtitle: "Therapy Management" };
-    }
-  }
+  const getPageInfo = () => {
+    const normalizedPath = pathname.endsWith('/') && pathname !== '/' 
+      ? pathname.slice(0, -1) 
+      : pathname;
 
+    if (normalizedPath === "/") return { title: t('header.titles.dashboard'), subtitle: "DATE_PLACEHOLDER" };
+    if (normalizedPath === "/calendar") return { title: t('header.titles.calendar'), subtitle: "DATE_PLACEHOLDER" };
+    if (normalizedPath === "/messages") return { title: t('header.titles.messages'), subtitle: t('header.titles.messages_subtitle') };
+    
+    if (normalizedPath.startsWith("/clients")) {
+      if (normalizedPath === "/clients") return { title: t('header.titles.clients'), subtitle: t('header.titles.clients_subtitle') };
+      return { title: t('header.titles.client_profile'), subtitle: t('header.titles.client_profile_subtitle') };
+    }
+    if (normalizedPath.startsWith("/team")) return { title: t('header.titles.team'), subtitle: t('header.titles.team_subtitle') };
+    if (normalizedPath.startsWith("/billing")) return { title: t('header.titles.billing'), subtitle: t('header.titles.billing_subtitle') };
+    if (normalizedPath.startsWith("/analytics")) return { title: t('header.titles.analytics'), subtitle: t('header.titles.analytics_subtitle') };
+    if (normalizedPath.startsWith("/settings")) return { title: t('header.titles.settings'), subtitle: t('header.titles.settings_subtitle') };
+    
+    return { title: t('header.titles.app_title'), subtitle: t('header.titles.app_subtitle') };
+  };
+
+  const pageInfo = getPageInfo();
   // Override subtitle for date-based pages
   const displaySubtitle = pageInfo.subtitle === "DATE_PLACEHOLDER" ? currentDate : pageInfo.subtitle;
 
@@ -150,7 +151,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium text-sm mr-2 shadow-sm"
           >
             <CalendarPlus className="w-4 h-4" />
-            <span>New Event</span>
+            <span>{t('header.new_event')}</span>
           </button>
         )}
 
@@ -160,7 +161,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           className="flex items-center gap-2 p-2 md:px-3 md:py-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
         >
           <Search className="w-5 h-5 md:w-4 md:h-4" />
-          <span className="hidden md:inline">Search...</span>
+          <span className="hidden md:inline">{t('header.search_placeholder')}</span>
           <kbd className="hidden md:inline px-1.5 py-0.5 text-xs bg-white dark:bg-neutral-600 rounded shadow-sm">⌘K</kbd>
         </button>
 
@@ -173,14 +174,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
               ? "hover:bg-neutral-100 dark:hover:bg-neutral-800" 
               : "bg-error-50 dark:bg-error-900/20 text-error-600 hover:bg-error-100 dark:hover:bg-error-900/30"
           )}
-          title={isOnline ? "Refresh data" : "Offline - Check connection"}
+          title={isOnline ? t('header.refresh_tooltip') : t('header.offline_tooltip')}
         >
           {isOnline ? (
             <RefreshCw className={clsx("w-5 h-5 text-neutral-600 dark:text-neutral-400", isRefreshing && "animate-spin text-primary-500")} />
           ) : (
             <WifiOff className="w-5 h-5" />
           )}
-          {!isOnline && <span className="text-xs font-bold hidden md:inline">OFFLINE</span>}
+          {!isOnline && <span className="text-xs font-bold hidden md:inline">{t('header.offline')}</span>}
         </button>
 
         {/* Theme Toggle */}
@@ -242,7 +243,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                   <User className="w-4 h-4" />
-                  <span>Profile</span>
+                  <span>{t('header.profile')}</span>
                 </Link>
                 <Link 
                   href="/settings" 
@@ -250,7 +251,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                   <Settings className="w-4 h-4" />
-                  <span>Settings</span>
+                  <span>{t('header.titles.settings')}</span>
                 </Link>
                 
                 <div className="border-t border-neutral-200 dark:border-neutral-800 mt-1 pt-1">
@@ -259,7 +260,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors text-left"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>Sign out</span>
+                    <span>{t('header.sign_out')}</span>
                   </button>
                 </div>
               </div>

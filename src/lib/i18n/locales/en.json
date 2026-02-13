@@ -1,4 +1,35 @@
 {
+  "header": {
+    "titles": {
+      "dashboard": "Dashboard",
+      "calendar": "Calendar",
+      "messages": "Messages",
+      "messages_subtitle": "Real-time communication with parents and team",
+      "clients": "Clients",
+      "clients_subtitle": "Manage your clinical roster and monitor progress",
+      "team": "Team Management",
+      "team_subtitle": "Manage therapists, roles, and permissions",
+      "billing": "Billing",
+      "billing_subtitle": "Invoices and financial overview",
+      "analytics": "Analytics",
+      "analytics_subtitle": "Performance metrics and insights",
+      "settings": "Settings",
+      "settings_subtitle": "System preferences",
+      "client_profile": "Client Profile",
+      "client_profile_subtitle": "View details and progress",
+      "app_title": "TempoApp",
+      "app_subtitle": "Therapy Management"
+    },
+    "new_event": "New Event",
+    "search_placeholder": "Search...",
+    "offline": "OFFLINE",
+    "offline_tooltip": "Offline - Check connection",
+    "refresh_tooltip": "Refresh data",
+    "refresh_success": "Data refreshed successfully",
+    "offline_warning": "You are currently offline. Please check your connection to refresh data.",
+    "profile": "Profile",
+    "sign_out": "Sign out"
+  },
   "common": {
     "save": "Save",
     "saving": "Saving...",
@@ -37,6 +68,7 @@
       "security": "Security",
       "appearance": "Appearance",
       "billing": "Billing Config",
+      "limits": "Account Limits",
       "system": "System"
     },
     "profile": {
@@ -92,6 +124,22 @@
         "phone": "Phone",
         "phone_placeholder": "+40 7..."
       },
+      "legal_entities": {
+        "title": "Legal Entities",
+        "subtitle": "Manage one or more legal entities for invoicing.",
+        "add_button": "Add Entity",
+        "set_default": "Set as Default",
+        "delete_confirm": "Are you sure you want to delete this entity?",
+        "select_entity": "Select Legal Entity",
+        "select_entity_desc": "Choose the entity that will issue the invoice.",
+        "unnamed_entity": "Unnamed Entity",
+        "editing": "Editing",
+        "no_entity_selected": "No legal entity selected. Add one to get started.",
+        "error_min_one": "You must have at least one legal entity.",
+        "new_entity_name": "New Legal Entity",
+        "default_label": "Default",
+        "invalid_iban_for_entity": "Invalid IBAN for {{name}}"
+      },
       "invoicing": {
         "title": "Invoice Parameters",
         "subtitle": "Defaults for automated generation.",
@@ -120,7 +168,28 @@
         "smartbill_token": "SmartBill API Token",
         "smartbill_note": "* Note: Credentials are saved securely in your private clinic configuration. These are required for official invoice synchronization."
       }
+    },
+    "limits": {
+      "title": "Account Limits",
+      "subtitle": "Configure maximum active clients and team members for this account.",
+      "max_clients": "Max Active Clients",
+      "max_clients_hint": "Set to 0 for unlimited.",
+      "max_team_members": "Max Active Team Members",
+      "max_team_members_hint": "Set to 0 for unlimited. Superadmin accounts are excluded from this count.",
+      "current_usage": "Current Usage",
+      "clients_usage": "{{current}} / {{max}} active clients",
+      "clients_usage_unlimited": "{{current}} active clients (unlimited)",
+      "team_usage": "{{current}} / {{max}} active team members",
+      "team_usage_unlimited": "{{current}} active team members (unlimited)",
+      "save_success": "Account limits saved successfully",
+      "save_error": "Failed to save account limits"
     }
+  },
+  "limits": {
+    "team_limit_reached_title": "Team Member Limit Reached",
+    "team_limit_reached_message": "Your account has reached the maximum number of active team members ({{max}}). Please contact the TempoApp team to increase your limit.",
+    "client_limit_reached_title": "Client Limit Reached",
+    "client_limit_reached_message": "Your account has reached the maximum number of active clients ({{max}}). Please contact the TempoApp team to increase your limit."
   },
   "dashboard": {
     "welcome": "Welcome back",
@@ -416,6 +485,7 @@
       },
       "due_date": "Due",
       "mark_complete": "Mark Complete",
+      "mark_in_progress": "Mark as In Progress",
       "notes": "Notes",
       "notes_placeholder": "Add your notes or observations here...",
       "add_notes": "Add notes...",
@@ -544,8 +614,29 @@
       "programs": "Programs",
       "notes": "Notes",
       "plan": "Plan",
+      "homework": "Homework",
       "docs": "Docs",
       "billing": "Billing"
+    },
+    "homework": {
+      "title": "Homework & Activities",
+      "subtitle": "Manage tasks assigned to parents for home practice.",
+      "add_button": "Add Homework",
+      "no_homework": "No homework assigned yet.",
+      "form": {
+        "title": "Assignment Title",
+        "description": "Description / Instructions",
+        "due_date": "Due Date",
+        "frequency": "Frequency",
+        "placeholder_title": "e.g. Eye contact practice",
+        "placeholder_desc": "Describe the steps for the parent..."
+      },
+      "status": {
+        "in_progress": "In Progress",
+        "completed": "Completed"
+      },
+      "save_success": "Homework saved successfully",
+      "delete_confirm": "Are you sure you want to delete this homework?"
     },
     "notes": {
       "title": "Session Notes & Scores",
@@ -639,6 +730,14 @@
     }
   },
   "reports": {
+    "defaults": {
+      "unknown_client": "Unknown Client",
+      "standard_session": "Standard Session",
+      "therapy": "Therapy",
+      "clinic_name": "Clinic Name SRL",
+      "clinic_address": "Clinic Address Placeholder",
+      "contact_email": "contact@clinic.ro"
+    },
     "client": {
       "title": "Client Progress Report",
       "generated_on": "Generated on",
@@ -708,7 +807,39 @@
     "items": "items",
     "view_report": "View Clinical Report",
     "start_reevaluation": "Start Re-evaluation",
-    "close": "Close"
+    "close": "Close",
+    "no_evaluations_list": "No evaluations yet",
+    "no_evaluations_list_desc": "Completed evaluations will appear here.",
+    "points_label": "Points",
+    "skills_assessment": "Skills Assessment",
+    "milestones_assessment": "Milestones Assessment",
+    "score_label": "Score",
+    "mastered_label": "Mastered",
+    "barriers_label": "Barriers",
+    "overall_progress": "Overall Progress",
+    "therapeutic_focus": "Therapeutic Focus",
+    "chronological_age": "Chronological Age",
+    "estimated_dev_age": "Estimated Dev. Age",
+    "skill_profile": "Skill Profile",
+    "learning_domains": "Learning Domains",
+    "learning_stages": "Learning Stages",
+    "integration_readiness": "Integration Readiness",
+    "about_report": "About this report",
+    "about_report_desc": "This progress report is generated based on the clinical assessment conducted by {{evaluator}}. It provides a parent-friendly overview of skill development and learning milestones. For a full clinical analysis, please download the PDF version using the button at the top.",
+    "focus_goals": "Focus Goals for Next Period",
+    "identified": "Identified",
+    "more_goals": "+ {{count}} more goals identified in the clinical report",
+    "view_full_report": "View Full Report",
+    "areas_needing_support": "Areas Needing Support",
+    "top_improvements": "Top Improvements",
+    "strongest_areas": "Strongest Areas",
+    "developmental_analysis": "Developmental Analysis",
+    "gap_analysis": "Current assessment shows a developmental gap of <strong>{{months}} months</strong> compared to same-age peers.",
+    "points": "points",
+    "level": "Level",
+    "ready_mainstream": "mainstream settings",
+    "ready_targeted": "targeted integration",
+    "ready_for": "Ready for"
   },
   "portage": {
     "title": "Portage Evaluation",
@@ -1252,6 +1383,35 @@
       "client": "No client notifications",
       "message": "No message notifications",
       "general": "No notifications yet"
+    },
+    "preferences": {
+      "in_app_title": "In-App Notifications",
+      "in_app_subtitle": "Choose which notifications appear in the app",
+      "email_title": "Email Notifications",
+      "email_subtitle": "Configure email digest frequency",
+      "email_digest": "Email Digest",
+      "email_digest_desc": "How often to receive notification summaries",
+      "instant": "Instant",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "never": "Never",
+      "save_preferences": "Save Preferences",
+      "save_success": "Notification preferences saved",
+      "save_error": "Failed to save preferences",
+      "categories": {
+        "schedule_label": "Schedule Changes",
+        "schedule_desc": "Session created, updated, or cancelled",
+        "attendance_label": "Attendance & Scores",
+        "attendance_desc": "Attendance logged and score updates",
+        "message_label": "New Messages",
+        "message_desc": "Chat messages from team or parents",
+        "team_label": "Team Updates",
+        "team_desc": "Team member assignments and changes",
+        "client_label": "Client Updates",
+        "client_desc": "New clients and profile changes",
+        "billing_label": "Billing Alerts",
+        "billing_desc": "Invoices, payments, and overdue notices"
+      }
     }
   },
   "team": {
@@ -1288,6 +1448,9 @@
       "Speech Therapist": "Speech Therapist",
       "Occupational Therapist": "Occupational Therapist"
     }
+  },
+  "sidebar": {
+    "management": "Management"
   },
   "command_palette": {
     "placeholder": "Search or type a command...",

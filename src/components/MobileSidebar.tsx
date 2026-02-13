@@ -70,7 +70,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">T</span>
             </div>
-            <span className="font-bold text-lg text-neutral-900 dark:text-white">Tempo</span>
+            <span className="font-bold text-lg text-neutral-900 dark:text-white">{t('header.titles.app_title')}</span>
           </div>
           <button onClick={onClose} className="p-2 -mr-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
             <X className="w-5 h-5" />
@@ -88,7 +88,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
             className="w-full flex items-center gap-3 px-3 py-2.5 mb-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
           >
             <Search className="w-5 h-5 text-primary-500" />
-            <span>{t('common.search')}</span>
+            <span>{t('header.search_placeholder')}</span>
           </button>
 
           {navItems.map((item) => {

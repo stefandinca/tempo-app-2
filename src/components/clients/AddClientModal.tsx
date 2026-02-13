@@ -7,6 +7,8 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTeamMembers } from "@/hooks/useCollections";
+import { useData } from "@/context/DataContext";
+import { useConfirm } from "@/context/ConfirmContext";
 import { notifyClientAssigned } from "@/lib/notificationService";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
@@ -21,6 +23,8 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
   const { success, error } = useToast();
   const { user: authUser } = useAuth();
   const { data: teamMembers } = useTeamMembers();
+  const { clients: clientsData, systemSettings } = useData();
+  const { confirm } = useConfirm();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -39,6 +43,23 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Check client limit
+    const maxClients = systemSettings?.maxActiveClients || 0;
+    if (maxClients > 0) {
+      const activeCount = clientsData.data.filter((c: any) => !c.isArchived).length;
+      if (activeCount >= maxClients) {
+        setIsSubmitting(false);
+        confirm({
+          title: t('limits.client_limit_reached_title'),
+          message: t('limits.client_limit_reached_message', { max: maxClients }),
+          confirmLabel: 'OK',
+          variant: 'warning',
+          onConfirm: () => {},
+        });
+        return;
+      }
+    }
 
     try {
       const payload = {
@@ -226,7 +247,7 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
               onChange={e => setFormData({...formData, assignedTherapistId: e.target.value})}
             >
               <option value="">{t('clients.form.select_therapist')}</option>
-              {teamMembers.map(tm => (
+              {teamMembers.filter(tm => tm.role !== 'Superadmin').map(tm => (
                 <option key={tm.id} value={tm.id}>{tm.name} ({tm.role})</option>
               ))}
             </select>

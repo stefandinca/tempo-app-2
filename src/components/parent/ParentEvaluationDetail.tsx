@@ -17,6 +17,7 @@ import { VBMAPP_BARRIERS, VBMAPP_SKILL_AREAS } from "@/hooks/useVBMAPP";
 import { ABLLS_CATEGORIES } from "@/hooks/useEvaluations";
 import { calculateAge, formatAge, getVBMAPPDevelopmentalAge, calculateDevelopmentalDelay, calculatePreciseDevelopmentalAge } from "@/lib/ageUtils";
 import { generateABLLSGoals, generateVBMAPPGoals, SuggestedGoal } from "@/lib/goalGenerator";
+import { useTranslation } from "react-i18next";
 
 interface ParentEvaluationDetailProps {
   evaluation: Evaluation | VBMAPPEvaluation;
@@ -27,6 +28,7 @@ interface ParentEvaluationDetailProps {
 }
 
 export default function ParentEvaluationDetail({ evaluation, previousEvaluation, allEvaluations, clientData, onBack }: ParentEvaluationDetailProps) {
+  const { t } = useTranslation();
   const isABLLS = evaluation.type === 'ABLLS';
 
   // ABLLS-specific logic
@@ -127,7 +129,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
         </button>
         <div>
           <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
-            {isABLLS ? "ABLLS Report" : "VB-MAPP Report"}
+            {isABLLS ? t('evaluations.skills_assessment') : t('evaluations.milestones_assessment')}
           </h2>
           <div className="flex items-center gap-2 text-sm text-neutral-500">
             <Calendar className="w-3 h-3" />
@@ -140,7 +142,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 text-white hover:bg-primary-700 transition-all text-sm font-bold shadow-lg shadow-primary-600/20"
           >
             <BarChart2 className="w-4 h-4" />
-            View Full Report
+            {t('evaluations.view_full_report')}
           </button>
         </div>
       </div>
@@ -154,7 +156,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
       )}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="opacity-80 text-sm font-medium mb-1">Overall Progress</p>
+            <p className="opacity-80 text-sm font-medium mb-1">{t('evaluations.overall_progress')}</p>
             <div className="flex items-baseline gap-2">
               <h3 className="text-4xl font-bold">
                 {isABLLS ? abllsEval?.overallPercentage : vbmappEval?.overallMilestonePercentage}%
@@ -178,8 +180,8 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
             </div>
             <p className="opacity-80 text-sm mt-1">
               {isABLLS 
-                ? `${abllsEval?.overallScore} / ${abllsEval?.overallMaxScore} points`
-                : `Level ${vbmappEval?.dominantLevel} | ${vbmappEval?.overallMilestoneScore} points`
+                ? `${abllsEval?.overallScore} / ${abllsEval?.overallMaxScore} ${t('evaluations.points')}`
+                : `${t('evaluations.level')} ${vbmappEval?.dominantLevel} | ${vbmappEval?.overallMilestoneScore} ${t('evaluations.points')}`
               }
             </p>
           </div>
@@ -216,7 +218,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
                 {interpretation.description}
               </p>
               <div className="mt-4 p-3 bg-white/50 dark:bg-black/20 rounded-xl border border-white/50 dark:border-white/5">
-                <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Therapeutic Focus</p>
+                <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">{t('evaluations.therapeutic_focus')}</p>
                 <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
                   {interpretation.recommendation}
                 </p>
@@ -231,24 +233,22 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
         <section className="bg-white dark:bg-neutral-900 rounded-3xl p-5 border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <h3 className="text-sm font-bold text-neutral-900 dark:text-white mb-4 px-1 flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary-500" />
-            Developmental Analysis
+            {t('evaluations.developmental_analysis')}
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl">
-              <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider mb-1">Chronological Age</p>
+              <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider mb-1">{t('evaluations.chronological_age')}</p>
               <p className="text-lg font-bold text-neutral-900 dark:text-white">{formatAge(age)}</p>
             </div>
             <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-800/30">
-              <p className="text-xs text-primary-600 dark:text-primary-400 font-bold uppercase tracking-wider mb-1">Estimated Dev. Age</p>
+              <p className="text-xs text-primary-600 dark:text-primary-400 font-bold uppercase tracking-wider mb-1">{t('evaluations.estimated_dev_age')}</p>
               <p className="text-lg font-bold text-neutral-900 dark:text-white">{devAge}</p>
             </div>
           </div>
           {delayStats.delayMonths > 0 && (
             <div className="mt-4 flex items-center gap-3 p-3 bg-warning-50 dark:bg-warning-900/10 rounded-xl border border-warning-100 dark:border-warning-900/30">
               <AlertTriangle className="w-5 h-5 text-warning-500 flex-shrink-0" />
-              <p className="text-sm text-warning-800 dark:text-warning-300">
-                Current assessment shows a developmental gap of <strong>{delayStats.delayMonths} months</strong> compared to same-age peers.
-              </p>
+              <p className="text-sm text-warning-800 dark:text-warning-300" dangerouslySetInnerHTML={{ __html: t('evaluations.gap_analysis', { months: delayStats.delayMonths }) }} />
             </div>
           )}
         </section>
@@ -259,7 +259,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
         <>
           {/* Radar Chart */}
           <div className="bg-white dark:bg-neutral-900 rounded-3xl p-4 border border-neutral-200 dark:border-neutral-800 shadow-sm">
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-white mb-4 px-2">Skill Profile</h3>
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white mb-4 px-2">{t('evaluations.skill_profile')}</h3>
             <EvaluationRadarChart 
               evaluation={abllsEval} 
               previousEvaluation={prevABLLS}
@@ -270,7 +270,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
 
           {/* Domain Breakdown */}
           <section className="space-y-3">
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-white px-1">Learning Domains</h3>
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white px-1">{t('evaluations.learning_domains')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {Object.entries(domainScores).map(([domain, data]) => (
                 <div key={domain} className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
@@ -308,11 +308,11 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
             <section className="space-y-3">
               <h3 className="text-sm font-bold text-neutral-900 dark:text-white px-1 flex items-center gap-2">
                 <Target className="w-4 h-4 text-warning-500" />
-                Priority Skill Building
+                {t('evaluations.priority_areas')}
               </h3>
               <div className="bg-amber-50 dark:bg-amber-900/10 rounded-3xl border border-amber-100 dark:border-amber-900/30 p-4">
                 <p className="text-xs text-amber-700 dark:text-amber-400 mb-4 leading-relaxed">
-                  Therapists have identified these areas as the most impactful for immediate focus:
+                  {t('evaluations.priority_subtitle')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {priorityAreas.map((area) => (
@@ -336,7 +336,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
           {/* Highlights */}
           <div className="space-y-3">
             <h3 className="text-sm font-bold text-neutral-900 dark:text-white px-1">
-              {improvedAreas.length > 0 ? "Top Improvements" : "Strongest Areas"}
+              {improvedAreas.length > 0 ? t('evaluations.top_improvements') : t('evaluations.strongest_areas')}
             </h3>
             <div className="grid gap-3">
               {(improvedAreas.length > 0 ? improvedAreas : strongestAreas).map((area) => (
@@ -380,13 +380,13 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
         <>
           {/* Level Breakdown */}
           <div className="space-y-3">
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-white px-1">Learning Stages</h3>
+            <h3 className="text-sm font-bold text-neutral-900 dark:text-white px-1">{t('evaluations.learning_stages')}</h3>
             <div className="grid grid-cols-1 gap-3">
               {Object.entries(vbmappEval.levelSummaries).map(([key, level]) => (
                 <div key={key} className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-bold text-neutral-900 dark:text-white">
-                      {level.levelName.replace("Nivel", "Stage")}
+                      {level.levelName.replace("Nivel", t('evaluations.level')).replace("Stage", t('evaluations.level'))}
                     </span>
                     <span className={clsx(
                       "text-xs font-bold px-2 py-0.5 rounded",
@@ -394,7 +394,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
                       level.percentage >= 50 ? "bg-warning-100 text-warning-700" :
                       "bg-neutral-100 text-neutral-500"
                     )}>
-                      {level.percentage}% Mastered
+                      {level.percentage}% {t('evaluations.mastered_label')}
                     </span>
                   </div>
                   <div className="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
@@ -418,7 +418,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-neutral-900 dark:text-white px-1 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-warning-500" />
-                Areas Needing Support
+                {t('evaluations.areas_needing_support')}
               </h3>
               <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
                 {vbmappEval.barrierSummary.severeBarriers.map((id, index) => {
@@ -457,11 +457,13 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
               <ArrowRight className="w-7 h-7" />
             </div>
             <div>
-              <p className="text-xs text-neutral-500 uppercase font-bold tracking-wider mb-0.5">Integration Readiness</p>
+              <p className="text-xs text-neutral-500 uppercase font-bold tracking-wider mb-0.5">{t('evaluations.integration_readiness')}</p>
               <p className="font-bold text-neutral-900 dark:text-white text-xl">
                 {vbmappEval.transitionSummary.readinessLevel.replace('_', ' ').toUpperCase()}
               </p>
-              <p className="text-xs text-neutral-500 mt-1">Ready for {vbmappEval.transitionSummary.readinessLevel === 'ready' ? 'mainstream settings' : 'targeted integration'}</p>
+              <p className="text-xs text-neutral-500 mt-1">
+                {t('evaluations.ready_for')} {vbmappEval.transitionSummary.readinessLevel === 'ready' ? t('evaluations.ready_mainstream') : t('evaluations.ready_targeted')}
+              </p>
             </div>
           </div>
         </>
@@ -473,10 +475,10 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
           <div className="flex items-center justify-between px-1">
             <h3 className="text-sm font-bold text-neutral-900 dark:text-white flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-primary-500" />
-              Focus Goals for Next Period
+              {t('evaluations.focus_goals')}
             </h3>
             <span className="text-[10px] font-bold bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full uppercase">
-              {suggestedGoals.length} Identified
+              {suggestedGoals.length} {t('evaluations.identified')}
             </span>
           </div>
           
@@ -506,7 +508,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
           
           {suggestedGoals.length > 5 && (
             <p className="text-center text-xs text-neutral-500 italic py-2">
-              + {suggestedGoals.length - 5} more goals identified in the clinical report
+              {t('evaluations.more_goals', { count: suggestedGoals.length - 5 })}
             </p>
           )}
         </section>
@@ -514,11 +516,9 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
 
       {/* Footer Info */}
       <section className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl p-4 border border-neutral-100 dark:border-neutral-800">
-        <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">About this report</h4>
+        <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">{t('evaluations.about_report')}</h4>
         <p className="text-xs text-neutral-500 leading-relaxed">
-          This progress report is generated based on the clinical assessment conducted by {evaluation.evaluatorName}. 
-          It provides a parent-friendly overview of skill development and learning milestones. 
-          For a full clinical analysis, please download the PDF version using the button at the top.
+          {t('evaluations.about_report_desc', { evaluator: evaluation.evaluatorName })}
         </p>
       </section>
     </div>

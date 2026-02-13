@@ -3,6 +3,7 @@ import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { EvaluationRadarChartMini } from "@/components/evaluations/EvaluationRadarChart";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 interface ParentEvaluationListProps {
   evaluations: (Evaluation | VBMAPPEvaluation)[];
@@ -10,15 +11,17 @@ interface ParentEvaluationListProps {
 }
 
 export default function ParentEvaluationList({ evaluations, onSelect }: ParentEvaluationListProps) {
+  const { t } = useTranslation();
+
   if (evaluations.length === 0) {
     return (
       <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div className="w-16 h-16 bg-neutral-50 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
           <BarChart2 className="w-8 h-8 text-neutral-300" />
         </div>
-        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">No evaluations yet</h3>
+        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t('evaluations.no_evaluations_list')}</h3>
         <p className="text-neutral-500 text-sm mt-1 max-w-xs mx-auto">
-          Completed evaluations will appear here.
+          {t('evaluations.no_evaluations_list_desc')}
         </p>
       </div>
     );
@@ -46,7 +49,7 @@ export default function ParentEvaluationList({ evaluations, onSelect }: ParentEv
                 ) : (
                   <div className="text-center">
                     <span className="block text-2xl font-bold text-primary-600">{(evaluation as VBMAPPEvaluation).overallMilestoneScore}</span>
-                    <span className="text-[10px] text-neutral-500 uppercase">Points</span>
+                    <span className="text-[10px] text-neutral-500 uppercase">{t('evaluations.points_label')}</span>
                   </div>
                 )}
               </div>
@@ -68,26 +71,26 @@ export default function ParentEvaluationList({ evaluations, onSelect }: ParentEv
                 </div>
                 
                 <h3 className="font-bold text-neutral-900 dark:text-white truncate">
-                  {isABLLS ? "Skills Assessment" : "Milestones Assessment"}
+                  {isABLLS ? t('evaluations.skills_assessment') : t('evaluations.milestones_assessment')}
                 </h3>
                 
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                   <p className="text-sm text-neutral-500">
-                    Score: <span className="font-bold text-neutral-900 dark:text-white">{score}%</span>
+                    {t('evaluations.score_label')}: <span className="font-bold text-neutral-900 dark:text-white">{score}%</span>
                   </p>
                   
                   {isABLLS ? (
                     <div className="flex items-center gap-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-success-500" />
                       <span className="text-xs text-neutral-500">
-                        {Object.values((evaluation as Evaluation).categorySummaries).filter(c => c.percentage >= 80).length} Mastered
+                        {Object.values((evaluation as Evaluation).categorySummaries).filter(c => c.percentage >= 80).length} {t('evaluations.mastered_label')}
                       </span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-warning-500" />
                       <span className="text-xs text-neutral-500">
-                        {(evaluation as VBMAPPEvaluation).barrierSummary.severeBarriers.length} Barriers
+                        {(evaluation as VBMAPPEvaluation).barrierSummary.severeBarriers.length} {t('evaluations.barriers_label')}
                       </span>
                     </div>
                   )}

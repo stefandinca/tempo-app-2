@@ -49,7 +49,7 @@ export default function TeamReportHTML({
   const clientBreakdown = events.reduce((acc: any, evt) => {
     const clientId = evt.clientId;
     if (!clientId) return acc;
-    const clientName = clients.find(c => c.id === clientId)?.name || "Unknown Client";
+    const clientName = clients.find(c => c.id === clientId)?.name || t('reports.defaults.unknown_client');
     
     if (!acc[clientId]) {
       acc[clientId] = { name: clientName, count: 0, hours: 0 };
@@ -62,7 +62,7 @@ export default function TeamReportHTML({
   // Breakdown by Service
   const serviceBreakdown = events.reduce((acc: any, evt) => {
     const serviceId = evt.type;
-    const serviceLabel = services.find(s => s.id === serviceId)?.label || serviceId || "Standard Session";
+    const serviceLabel = services.find(s => s.id === serviceId)?.label || serviceId || t('reports.defaults.standard_session');
     
     if (!acc[serviceId]) {
       acc[serviceId] = { label: serviceLabel, count: 0, hours: 0 };
@@ -110,7 +110,7 @@ export default function TeamReportHTML({
                 T
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-neutral-900 dark:text-white font-display tracking-tight leading-none">TempoApp</h1>
+                <h1 className="text-2xl font-bold text-neutral-900 dark:text-white font-display tracking-tight leading-none">{t('header.titles.app_title')}</h1>
                 <p className="text-sm text-neutral-500 font-medium">{t('reports.client.system_subtitle')}</p>
               </div>
             </div>
@@ -121,10 +121,10 @@ export default function TeamReportHTML({
           </div>
 
           <div className="text-right space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-            <p className="font-bold text-neutral-900 dark:text-white">{clinic?.name || "Clinic Name SRL"}</p>
-            <p>{clinic?.address || "Clinic Address Placeholder"}</p>
+            <p className="font-bold text-neutral-900 dark:text-white">{clinic?.name || t('reports.defaults.clinic_name')}</p>
+            <p>{clinic?.address || t('reports.defaults.clinic_address')}</p>
             <p>CUI: {clinic?.cui || "RO12345678"}</p>
-            <p>{clinic?.email || "contact@clinic.ro"}</p>
+            <p>{clinic?.email || t('reports.defaults.contact_email')}</p>
           </div>
         </div>
 
@@ -251,8 +251,8 @@ export default function TeamReportHTML({
               </thead>
               <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
                 {events.map((evt) => {
-                  const clientName = clients.find(c => c.id === evt.clientId)?.name || "Unknown Client";
-                  const serviceLabel = services.find(s => s.id === evt.type)?.label || evt.type || "Therapy";
+                  const clientName = clients.find(c => c.id === evt.clientId)?.name || t('reports.defaults.unknown_client');
+                  const serviceLabel = services.find(s => s.id === evt.type)?.label || evt.type || t('reports.defaults.therapy');
                   const date = new Date(evt.startTime).toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
                   
                   return (

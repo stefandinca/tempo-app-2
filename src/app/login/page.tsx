@@ -42,7 +42,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (user && userRole && ['Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
+    if (user && userRole && ['Superadmin', 'Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
       router.replace("/");
     }
   }, [user, userRole, authLoading, router]);
