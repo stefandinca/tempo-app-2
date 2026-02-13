@@ -6,7 +6,8 @@ import {
   useTeamMembers,
   useEvents,
   useServices,
-  usePrograms
+  usePrograms,
+  useSystemSettings
 } from "@/hooks/useCollections";
 import { collection, query, onSnapshot, collectionGroup, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -28,6 +29,7 @@ interface DataContextType {
   events: CollectionState;
   services: CollectionState;
   programs: CollectionState;
+  systemSettings: any;
   activePlans: ActivePlansMap;
   activePlansLoading: boolean;
   // Helper functions
@@ -47,6 +49,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const events = useEvents();
   const services = useServices();
   const programs = usePrograms();
+  const { data: systemSettings } = useSystemSettings();
 
   // Batch fetch all intervention plans for all clients
   const [activePlans, setActivePlans] = useState<ActivePlansMap>({});
@@ -102,6 +105,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     events,
     services,
     programs,
+    systemSettings,
     activePlans,
     activePlansLoading,
     ...helpers
@@ -111,6 +115,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     events, 
     services, 
     programs, 
+    systemSettings,
     activePlans, 
     activePlansLoading, 
     helpers

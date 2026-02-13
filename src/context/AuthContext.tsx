@@ -18,7 +18,7 @@ import i18n from "@/lib/i18n";
 interface AuthContextType {
   user: User | null;
   userData: any | null;
-  userRole: 'Admin' | 'Coordinator' | 'Therapist' | 'Parent' | null;
+  userRole: 'Superadmin' | 'Admin' | 'Coordinator' | 'Therapist' | 'Parent' | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signInAnonymous: () => Promise<void>;
@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<any | null>(null);
-  const [userRole, setUserRole] = useState<'Admin' | 'Coordinator' | 'Therapist' | 'Parent' | null>(null);
+  const [userRole, setUserRole] = useState<'Superadmin' | 'Admin' | 'Coordinator' | 'Therapist' | 'Parent' | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 

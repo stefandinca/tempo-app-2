@@ -18,8 +18,12 @@ service cloud.firestore {
              (getRole() == role || getRole() == role.lower());
     }
     
+    function isSuperadmin() {
+      return hasRole('Superadmin') || hasRole('superadmin');
+    }
+
     function isAdmin() {
-      return hasRole('Admin') || hasRole('admin');
+      return hasRole('Admin') || hasRole('admin') || isSuperadmin();
     }
     
     function isCoordinator() {
