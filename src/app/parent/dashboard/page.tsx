@@ -176,8 +176,11 @@ export default function ParentDashboard() {
       <section className="px-4">
         <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           {/* Progress Ring */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[130px] flex flex-col items-center shadow-sm">
-            <ProgressRing value={client.progress || 0} size={64} strokeWidth={5} color="#22c55e">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[120px] sm:min-w-[130px] flex flex-col items-center shadow-sm">
+            <ProgressRing value={client.progress || 0} size={48} strokeWidth={4} color="#22c55e" className="sm:hidden">
+              <span className="text-[10px] font-bold text-neutral-900 dark:text-white">{client.progress || 0}%</span>
+            </ProgressRing>
+            <ProgressRing value={client.progress || 0} size={64} strokeWidth={5} color="#22c55e" className="hidden sm:flex">
               <span className="text-sm font-bold text-neutral-900 dark:text-white">{client.progress || 0}%</span>
             </ProgressRing>
             <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
@@ -186,8 +189,11 @@ export default function ParentDashboard() {
           </div>
 
           {/* Attendance */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[130px] flex flex-col items-center shadow-sm">
-            <ProgressRing value={attendanceRate} size={64} strokeWidth={5} color="#3b82f6">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[120px] sm:min-w-[130px] flex flex-col items-center shadow-sm">
+            <ProgressRing value={attendanceRate} size={48} strokeWidth={4} color="#3b82f6" className="sm:hidden">
+              <span className="text-[10px] font-bold text-neutral-900 dark:text-white">{attendanceRate}%</span>
+            </ProgressRing>
+            <ProgressRing value={attendanceRate} size={64} strokeWidth={5} color="#3b82f6" className="hidden sm:flex">
               <span className="text-sm font-bold text-neutral-900 dark:text-white">{attendanceRate}%</span>
             </ProgressRing>
             <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
@@ -196,9 +202,9 @@ export default function ParentDashboard() {
           </div>
 
           {/* Sessions Completed */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[130px] flex flex-col items-center shadow-sm">
-            <div className="w-16 h-16 flex items-center justify-center">
-              <span className="text-2xl font-black text-neutral-900 dark:text-white">{completedThisMonth.length}</span>
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[120px] sm:min-w-[130px] flex flex-col items-center shadow-sm">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
+              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">{completedThisMonth.length}</span>
             </div>
             <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
               {t("parent_portal.dashboard.sessions_done")}
@@ -212,7 +218,7 @@ export default function ParentDashboard() {
 
       {/* 5. Quick Actions */}
       <section className="px-4">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2">
           {[
             { key: 'messages', href: "/parent/messages/", icon: MessageSquare, label: t("parent_portal.dashboard.quick_message"), color: "text-primary-500 bg-primary-50 dark:bg-primary-900/20" },
             { key: 'calendar', href: "/parent/calendar/", icon: Calendar, label: t("parent_portal.dashboard.quick_schedule"), color: "text-teal-500 bg-teal-50 dark:bg-teal-900/20" },
@@ -222,15 +228,15 @@ export default function ParentDashboard() {
             <Link
               key={action.href}
               href={action.href}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow transition-shadow relative"
+              className="flex items-center sm:flex-col gap-3 sm:gap-1.5 p-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow transition-shadow relative"
             >
-              <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center", action.color)}>
+              <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", action.color)}>
                 <action.icon className="w-5 h-5" />
               </div>
               {action.key === 'messages' && unreadMessageCount > 0 && (
                 <span className="absolute top-2 right-2 w-3 h-3 bg-error-500 border-2 border-white dark:border-neutral-900 rounded-full" />
               )}
-              <span className="text-[10px] font-medium text-neutral-600 dark:text-neutral-400 text-center leading-tight">
+              <span className="text-xs sm:text-[10px] font-medium text-neutral-600 dark:text-neutral-400 leading-tight">
                 {action.label}
               </span>
             </Link>

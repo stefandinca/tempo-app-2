@@ -1,5 +1,7 @@
 "use client";
 
+import { clsx } from "clsx";
+
 interface ProgressRingProps {
   value: number;
   size?: number;
@@ -7,6 +9,7 @@ interface ProgressRingProps {
   color?: string;
   bgColor?: string;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export default function ProgressRing({
@@ -16,6 +19,7 @@ export default function ProgressRing({
   color = "var(--color-primary-500, #3b82f6)",
   bgColor = "var(--color-neutral-200, #e5e7eb)",
   children,
+  className,
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -23,7 +27,7 @@ export default function ProgressRing({
   const offset = circumference - (clamped / 100) * circumference;
 
   return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+    <div className={clsx("relative inline-flex items-center justify-center", className)} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle

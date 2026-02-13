@@ -6,6 +6,7 @@ import CalendarToolbar from "@/components/calendar/CalendarToolbar";
 import WeekView from "@/components/calendar/WeekView";
 import MonthView from "@/components/calendar/MonthView";
 import DayView from "@/components/calendar/DayView";
+import MonthAgendaView from "@/components/calendar/MonthAgendaView";
 import FilterPanel, { FilterState } from "@/components/calendar/FilterPanel";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
 import { useData } from "@/context/DataContext";
@@ -163,13 +164,27 @@ export default function CalendarPage() {
         )}
 
         {currentView === 'month' && (
-          <MonthView 
-            currentDate={currentDate}
-            events={filteredEvents}
-            teamMembers={teamMembers.data}
-            onEventClick={handleEventClick}
-            onSlotClick={handleMonthSlotClick}
-          />
+          <>
+            <div className="hidden lg:block h-full">
+              <MonthView 
+                currentDate={currentDate}
+                events={filteredEvents}
+                teamMembers={teamMembers.data}
+                onEventClick={handleEventClick}
+                onSlotClick={handleMonthSlotClick}
+              />
+            </div>
+            <div className="block lg:hidden h-full">
+              <MonthAgendaView 
+                currentDate={currentDate}
+                events={filteredEvents}
+                teamMembers={teamMembers.data}
+                onEventClick={handleEventClick}
+                onSlotClick={handleSlotClick}
+                onDateChange={setCurrentDate}
+              />
+            </div>
+          </>
         )}
 
         {currentView === 'day' && (

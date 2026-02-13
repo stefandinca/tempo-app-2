@@ -72,41 +72,43 @@ export default function CalendarToolbar({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         
         {/* Date Navigation */}
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={onToday}
-            className="px-3 py-1.5 text-sm font-medium border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-700 dark:text-neutral-300"
-          >
-            {t('calendar.today')}
-          </button>
-          <div className="flex items-center">
+        <div className="flex items-center justify-between sm:justify-start gap-2">
+          <div className="flex items-center gap-1">
             <button 
-              onClick={() => navigate('prev')}
-              className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
+              onClick={onToday}
+              className="px-3 py-1.5 text-sm font-medium border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-700 dark:text-neutral-300"
             >
-              <ChevronLeft className="w-5 h-5" />
+              {t('calendar.today')}
             </button>
-            <button 
-              onClick={() => navigate('next')}
-              className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+            <div className="flex items-center">
+              <button 
+                onClick={() => navigate('prev')}
+                className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => navigate('next')}
+                className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-          <h3 className="font-semibold text-lg text-neutral-900 dark:text-white ml-2">
+          <h3 className="font-semibold text-base sm:text-lg text-neutral-900 dark:text-white ml-1 sm:ml-2 truncate max-w-[150px] sm:max-w-none">
             {getLabel()}
           </h3>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between sm:justify-end gap-3">
           {/* View Switcher */}
-          <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1">
+          <div className="flex flex-1 sm:flex-none items-center gap-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 overflow-x-auto scrollbar-hide">
             {['month', 'week', 'day'].map((view) => (
               <button
                 key={view}
                 onClick={() => onViewChange(view as ViewType)}
                 className={clsx(
-                  "px-3 py-1.5 text-sm font-medium rounded-md transition-all",
+                  "flex-1 sm:flex-none px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap",
                   currentView === view
                     ? "bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-white"
                     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
@@ -121,7 +123,7 @@ export default function CalendarToolbar({
           <button
             onClick={onToggleFilters}
             className={clsx(
-              "p-2 rounded-lg transition-colors relative",
+              "p-2 rounded-lg transition-colors relative shrink-0",
               activeFilterCount > 0 
                 ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
                 : "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400"

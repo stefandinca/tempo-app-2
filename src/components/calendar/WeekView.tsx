@@ -35,6 +35,7 @@ export default function WeekView({
   const { i18n } = useTranslation();
   const locale = i18n.language || 'ro';
   const [now, setNow] = useState(new Date());
+  const [isMobile, setIsMobile] = useState(false);
 
   // Format hour based on locale (24h for ro, 12h for en)
   const formatHour = (hour: number) => {
@@ -46,24 +47,45 @@ export default function WeekView({
   // Update current time every minute
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60000);
-    return () => clearInterval(timer);
+    
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
-  // Generate days for the current week (starting Monday)
+  // Generate days for the current week or 3-day view
   const weekDays = useMemo(() => {
     const days = [];
     const start = new Date(currentDate);
-    const day = start.getDay();
-    const diff = start.getDate() - day + (day === 0 ? -6 : 1);
-    const monday = new Date(start.setDate(diff));
+    
+    if (isMobile) {
+      // 3-day view: centered on currentDate
+      const day1 = new Date(start);
+      day1.setDate(start.getDate() - 1);
+      for (let i = 0; i < 3; i++) {
+        const d = new Date(day1);
+        d.setDate(day1.getDate() + i);
+        days.push(d);
+      }
+    } else {
+      // 7-day week: starting Monday
+      const day = start.getDay();
+      const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(start.setDate(diff));
 
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      days.push(d);
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        days.push(d);
+      }
     }
     return days;
-  }, [currentDate]);
+  }, [currentDate, isMobile]);
 
   // Generate time slots (7 AM to 8 PM)
   const hours = Array.from({ length: 14 }, (_, i) => i + 7);

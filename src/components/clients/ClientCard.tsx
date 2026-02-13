@@ -10,6 +10,7 @@ import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
+import { useData } from "@/context/DataContext";
 
 export interface Client {
   id: string;
@@ -70,6 +71,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
   const { openModal } = useEventModal();
   const { success, error } = useToast();
   const { confirm: customConfirm } = useConfirm();
+  const { clients: clientsData, systemSettings } = useData();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -123,6 +125,25 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
 
   // Handle Archive
   const handleArchive = async () => {
+    // If we are restoring (isArchived is true, so it will become false)
+    if (client.isArchived) {
+      const maxClients = systemSettings?.maxActiveClients || 0;
+      if (maxClients > 0) {
+        const activeCount = clientsData.data.filter((c: any) => !c.isArchived).length;
+        if (activeCount >= maxClients) {
+          customConfirm({
+            title: t('limits.client_limit_reached_title'),
+            message: t('limits.client_limit_reached_message', { max: maxClients }),
+            confirmLabel: 'OK',
+            variant: 'warning',
+            onConfirm: () => {},
+          });
+          setIsMenuOpen(false);
+          return;
+        }
+      }
+    }
+
     try {
       await updateDoc(doc(db, "clients", client.id), {
         isArchived: !client.isArchived
@@ -154,137 +175,117 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
 
   return (
     <div className={clsx(
-      "bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 hover:shadow-md transition-all group flex flex-col h-full",
+      "bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-4 md:p-5 hover:shadow-md transition-all group flex flex-col h-full",
       client.isArchived && "opacity-60"
     )}>
-      {/* Top Section */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className={clsx(
-            "w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg border-2 border-white dark:border-neutral-800 shadow-sm",
-            client.isArchived
-              ? "bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400"
-              : "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
-          )}>
-            {initials}
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <Link href={`/clients/profile?id=${client.id}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                <h3 className="font-bold text-neutral-900 dark:text-white leading-tight">{client.name}</h3>
-              </Link>
-              {client.isArchived && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded">
-                  {t('clients.status.archived')}
-                </span>
-              )}
-              {activePlan && !client.isArchived && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded flex items-center gap-0.5" title={`Active Plan: ${activePlan.name}`}>
-                  <Target className="w-2.5 h-2.5" />
-                  Plan
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-neutral-500">
-              {age !== null ? t('clients.age_years', { count: age }) : "Age: N/A"}
-              {client.birthDate && ` • ${t('clients.born')}: ${new Date(client.birthDate).toLocaleDateString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' })}`}
-            </p>
-          </div>
+      {/* Header & Main Info */}
+      <div className="flex gap-4 mb-4">
+        {/* Left: Avatar (Static size on mobile, responsive on desktop) */}
+        <div className={clsx(
+          "w-14 h-14 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-xl md:text-lg border-2 border-white dark:border-neutral-800 shadow-sm shrink-0",
+          client.isArchived
+            ? "bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400"
+            : "bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+        )}>
+          {initials}
         </div>
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-1.5 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            <MoreVertical className="w-4 h-4" />
-          </button>
 
-          {/* Dropdown Menu */}
-          {isMenuOpen && (
-            <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <Link
-                href={`/clients/profile?id=${client.id}&edit=true`}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Edit className="w-4 h-4" />
-                {t('common.edit')}
-              </Link>
-              <button
-                onClick={handleArchive}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
-              >
-                <Archive className="w-4 h-4" />
-                {client.isArchived ? t('clients.restore') : t('clients.archive')}
-              </button>
-              <button
-                onClick={handleDelete}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                {t('common.delete')}
-              </button>
+        {/* Right: Name & Details */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <Link href={`/clients/profile?id=${client.id}`} className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors truncate block">
+                  <h3 className="font-bold text-neutral-900 dark:text-white leading-tight truncate">{client.name}</h3>
+                </Link>
+                {client.isArchived && (
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-400 rounded">
+                    {t('clients.status.archived')}
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] md:text-xs text-neutral-500 mt-0.5">
+                {age !== null ? t('clients.age_years', { count: age }) : "Age: N/A"}
+                <span className="hidden sm:inline"> • {client.birthDate && `${t('clients.born')}: ${new Date(client.birthDate).toLocaleDateString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' })}`}</span>
+              </p>
             </div>
-          )}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-1.5 -mr-1 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+              {isMenuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <Link
+                    href={`/clients/profile?id=${client.id}&edit=true`}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Edit className="w-4 h-4" />
+                    {t('common.edit')}
+                  </Link>
+                  <button
+                    onClick={handleArchive}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+                  >
+                    <Archive className="w-4 h-4" />
+                    {client.isArchived ? t('clients.restore') : t('clients.archive')}
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {t('common.delete')}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+            {/* Therapist */}
+            <div className="flex items-center gap-2 text-[11px] md:text-sm text-neutral-600 dark:text-neutral-400">
+              <User className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+              {therapist ? (
+                <div className="flex items-center gap-1.5 truncate">
+                  <div
+                    className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white font-bold shrink-0"
+                    style={{ backgroundColor: therapist.color }}
+                  >
+                    {therapist.initials}
+                  </div>
+                  <span className="font-medium truncate">{therapist.name}</span>
+                </div>
+              ) : (
+                <span className="italic text-neutral-400">{t('clients.unassigned')}</span>
+              )}
+            </div>
+
+            {/* Next Session */}
+            <div className="flex items-center gap-2 text-[11px] md:text-sm text-neutral-600 dark:text-neutral-400">
+              <Calendar className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+              <span className="truncate">
+                {nextEvent ? formatNextEvent() : t('clients.no_upcoming')}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="space-y-4 flex-1">
-        {/* Therapist */}
-        <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-          <User className="w-4 h-4 text-neutral-400" />
-          <div className="flex items-center gap-1.5">
-            {therapist ? (
-              <Link href="/team/" className="flex items-center gap-1.5 hover:text-primary-600 dark:hover:text-primary-400 transition-colors group/therapist">
-                <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-bold"
-                  style={{ backgroundColor: therapist.color }}
-                >
-                  {therapist.initials}
-                </div>
-                <span className="font-medium truncate">{therapist.name}</span>
-              </Link>
-            ) : (
-              <span className="italic text-neutral-400">{t('clients.unassigned')}</span>
-            )}
-          </div>
-        </div>
-
-        {/* Phone Number */}
-        {client.phone && (
-          <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-            <Phone className="w-4 h-4 text-neutral-400" />
-            <a
-              href={`tel:${client.phone}`}
-              className="font-medium hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              {client.phone}
-            </a>
-          </div>
-        )}
-
-        {/* Next Session */}
-        <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-          <Calendar className="w-4 h-4 text-neutral-400" />
-          {nextEvent ? (
-            <span className="truncate">
-              {t('clients.next_session')}: <span className="font-medium text-neutral-900 dark:text-white">{formatNextEvent()}</span>
-            </span>
-          ) : (
-            <span className="truncate italic text-neutral-400">{t('clients.no_upcoming')}</span>
-          )}
-        </div>
-
-        {/* Progress */}
-        <div>
-          <div className="flex items-center justify-between text-xs mb-1.5">
+        {/* Progress Section */}
+        <div className="pt-1">
+          <div className="flex items-center justify-between text-[10px] mb-1.5">
             <div className="flex items-center gap-1 text-neutral-500">
               <TrendingUp className="w-3 h-3" />
               <span>{t('clients.overall_progress')}</span>
             </div>
             <span className="font-bold text-neutral-900 dark:text-white">{client.progress}%</span>
           </div>
-          <div className="h-2 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+          <div className="h-1.5 md:h-2 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
             <div 
               className={clsx("h-full transition-all duration-500 rounded-full", progressColor)}
               style={{ width: `${client.progress}%` }}
@@ -294,16 +295,16 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
       </div>
 
       {/* Footer Actions */}
-      <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-3">
+      <div className="mt-5 md:mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-2 md:gap-3">
         <Link 
           href={`/clients/profile?id=${client.id}`}
-          className="flex-1 text-center py-2 px-3 text-sm font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-xl hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 transition-all"
+          className="flex-1 text-center py-2 px-2 md:px-3 text-xs md:text-sm font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded-xl hover:bg-primary-500 hover:text-white transition-all"
         >
           {t('clients.view_profile')}
         </Link>
         <button
           onClick={handleQuickSchedule}
-          className="flex-1 text-center py-2 px-3 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all border border-transparent hover:border-primary-100 dark:hover:border-primary-900/50"
+          className="flex-1 text-center py-2 px-2 md:px-3 text-xs md:text-sm font-semibold text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all border border-transparent"
         >
           {t('clients.quick_schedule')}
         </button>
@@ -311,3 +312,4 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
     </div>
   );
 }
+

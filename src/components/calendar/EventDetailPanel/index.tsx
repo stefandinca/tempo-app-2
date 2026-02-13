@@ -76,6 +76,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
   // Permission Logic - Any team member (Admin, Coordinator, Therapist) can edit any event
   const canEdit =
+    userRole === 'Superadmin' ||
     userRole === 'Admin' ||
     userRole === 'Coordinator' ||
     userRole === 'Therapist';

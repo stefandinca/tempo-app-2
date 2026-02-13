@@ -76,7 +76,7 @@ export default function ClientList({ onAdd }: ClientListProps) {
         
         {/* Left: Search & Filter Segment */}
         <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-          <div className="relative w-full sm:w-80">
+          <div className="relative flex-1 sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
             <input 
               type="text" 
@@ -87,7 +87,7 @@ export default function ClientList({ onAdd }: ClientListProps) {
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl w-fit">
+          <div className="hidden sm:flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-xl w-fit">
             {(['active', 'archived', 'all'] as const).map((status) => (
               <button
                 key={status}
@@ -97,6 +97,24 @@ export default function ClientList({ onAdd }: ClientListProps) {
                   statusFilter === status 
                     ? "bg-white dark:bg-neutral-700 text-primary-600 dark:text-primary-400 shadow-sm" 
                     : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                )}
+              >
+                {t(`clients.status.${status}`)}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile Filter Button (Visible only on small screens) */}
+          <div className="flex sm:hidden items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {(['active', 'archived', 'all'] as const).map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={clsx(
+                  "px-4 py-2 text-xs font-bold rounded-xl transition-all capitalize whitespace-nowrap border",
+                  statusFilter === status 
+                    ? "bg-primary-600 border-primary-600 text-white shadow-md shadow-primary-500/20" 
+                    : "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400"
                 )}
               >
                 {t(`clients.status.${status}`)}
@@ -116,7 +134,7 @@ export default function ClientList({ onAdd }: ClientListProps) {
             <option value="recent">{t('clients.sort.recent')}</option>
           </select>
 
-          {(userRole === 'Admin' || userRole === 'Coordinator') && (
+          {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator') && (
             <button 
               onClick={onAdd}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20"
