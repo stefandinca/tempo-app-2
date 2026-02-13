@@ -19,9 +19,16 @@ interface MoreSheetProps {
   onClose: () => void;
   onSignOut: () => void;
   unpaidCount?: number;
+  incompleteHomeworkCount?: number;
 }
 
-export default function MoreSheet({ isOpen, onClose, onSignOut, unpaidCount = 0 }: MoreSheetProps) {
+export default function MoreSheet({ 
+  isOpen, 
+  onClose, 
+  onSignOut, 
+  unpaidCount = 0,
+  incompleteHomeworkCount = 0
+}: MoreSheetProps) {
   const { t } = useTranslation();
   const sheetRef = useRef<HTMLDivElement>(null);
 
@@ -41,10 +48,10 @@ export default function MoreSheet({ isOpen, onClose, onSignOut, unpaidCount = 0 
   }, [isOpen, onClose]);
 
   const menuItems = [
-    { href: "/parent/billing/", icon: CreditCard, label: t("parent_nav.billing"), badge: unpaidCount > 0 ? unpaidCount : undefined },
+    { href: "/parent/billing/", icon: CreditCard, label: t("parent_nav.billing"), badge: unpaidCount > 0 ? unpaidCount : undefined, variant: 'error' },
     { href: "/parent/docs/", icon: FileText, label: t("parent_nav.docs") },
     { href: "/parent/profile/", icon: User, label: t("parent_nav.profile") },
-    { href: "/parent/homework/", icon: BookOpen, label: t("parent_nav.homework") },
+    { href: "/parent/homework/", icon: BookOpen, label: t("parent_nav.homework"), badge: incompleteHomeworkCount > 0 ? incompleteHomeworkCount : undefined, variant: 'primary' },
   ];
 
   return (
@@ -100,7 +107,12 @@ export default function MoreSheet({ isOpen, onClose, onSignOut, unpaidCount = 0 
                 {item.label}
               </span>
               {item.badge && (
-                <span className="px-2 py-0.5 bg-error-100 dark:bg-error-900/30 text-error-600 dark:text-error-400 text-xs font-bold rounded-full">
+                <span className={clsx(
+                  "px-2 py-0.5 text-[10px] font-bold rounded-full",
+                  item.variant === 'error' 
+                    ? "bg-error-500 text-white shadow-sm"
+                    : "bg-primary-500 text-white shadow-sm"
+                )}>
                   {item.badge}
                 </span>
               )}

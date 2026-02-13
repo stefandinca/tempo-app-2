@@ -21,6 +21,7 @@ import { signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useParentAuth } from "@/context/ParentAuthContext";
 import { useNotifications } from "@/context/NotificationContext";
+import { useHomework, useClientInvoices } from "@/hooks/useCollections";
 import ParentNotificationBell from "@/components/notifications/ParentNotificationBell";
 import ParentNotificationDropdown from "@/components/notifications/ParentNotificationDropdown";
 import MoreSheet from "@/components/parent/MoreSheet";
@@ -30,9 +31,23 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, loading, clientName } = useParentAuth();
+  const { isAuthenticated, loading, clientName, clientId } = useParentAuth();
   const { unreadMessageCount } = useNotifications();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // Fetch homework and billing for notifications
+  const { data: homework } = useHomework(clientId || "");
+  const { data: invoices } = useClientInvoices(clientId || "");
+
+  const incompleteHomeworkCount = useMemo(() => 
+    homework.filter(h => !h.completed).length, 
+  [homework]);
+
+  const unpaidInvoiceCount = useMemo(() => 
+    invoices.filter(i => i.status === 'pending' || i.status === 'create').length, 
+  [invoices]);
+
+  const moreHasNotification = incompleteHomeworkCount > 0 || unpaidInvoiceCount > 0;
 
   const childFirstName = useMemo(() => {
     if (!clientName) return "";
@@ -169,7 +184,12 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
                 : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
             )}
           >
-            <MoreHorizontal className={clsx("w-5 h-5", isMoreActive && "fill-current")} />
+            <div className="relative">
+              <MoreHorizontal className={clsx("w-5 h-5", isMoreActive && "fill-current")} />
+              {moreHasNotification && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error-500 rounded-full border-2 border-white dark:border-neutral-900" />
+              )}
+            </div>
             <span className="text-[10px] font-medium">{t("parent_nav.more")}</span>
           </button>
         </div>
@@ -180,6 +200,8 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
         isOpen={moreOpen}
         onClose={() => setMoreOpen(false)}
         onSignOut={handleSignOut}
+        unpaidCount={unpaidInvoiceCount}
+        incompleteHomeworkCount={incompleteHomeworkCount}
       />
 
       {/* Sidebar Navigation (Desktop) */}
@@ -204,6 +226,9 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
           {allNavItems.map((item) => {
             const active = isActive(item.href);
             const isMessages = item.key === "messages";
+            const isBilling = item.key === "billing";
+            const isHomework = item.key === "homework";
+            
             return (
               <Link
                 key={item.key}
@@ -220,6 +245,16 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
                 {isMessages && unreadMessageCount > 0 && (
                   <span className="ml-auto px-1.5 py-0.5 bg-error-500 text-white text-[10px] font-bold rounded-full">
                     {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
+                  </span>
+                )}
+                {isBilling && unpaidInvoiceCount > 0 && (
+                  <span className="ml-auto px-1.5 py-0.5 bg-error-500 text-white text-[10px] font-bold rounded-full">
+                    {unpaidInvoiceCount}
+                  </span>
+                )}
+                {isHomework && incompleteHomeworkCount > 0 && (
+                  <span className="ml-auto px-1.5 py-0.5 bg-primary-500 text-white text-[10px] font-bold rounded-full">
+                    {incompleteHomeworkCount}
                   </span>
                 )}
               </Link>

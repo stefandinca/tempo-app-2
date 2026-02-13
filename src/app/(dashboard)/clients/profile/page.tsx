@@ -11,6 +11,7 @@ import ClientPlanTab from "@/components/clients/ClientPlanTab";
 import ClientDocsTab from "@/components/clients/ClientDocsTab";
 import ClientEvaluationsTab from "@/components/clients/ClientEvaluationsTab";
 import ClientBillingTab from "@/components/clients/ClientBillingTab";
+import ClientHomeworkTab from "@/components/clients/ClientHomeworkTab";
 import EditClientModal from "@/components/clients/EditClientModal";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -29,11 +30,11 @@ function ClientProfileContent() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<string | null>(actionParam);
 
-  const isAdmin = userRole === 'Admin';
+  const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
 
   // Sync tab with URL parameter
   useEffect(() => {
-    const validTabs = ["overview", "notes", "programs", "plan", "evaluations", "docs"];
+    const validTabs = ["overview", "notes", "programs", "plan", "evaluations", "docs", "homework"];
     if (isAdmin) validTabs.push("billing");
 
     if (tabParam && validTabs.includes(tabParam)) {
@@ -111,10 +112,11 @@ function ClientProfileContent() {
             onActionHandled={() => setPendingAction(null)}
           />
         )}
+        {activeTab === "homework" && <ClientHomeworkTab client={client} />}
         {activeTab === "docs" && <ClientDocsTab client={client} />}
         {activeTab === "evaluations" && <ClientEvaluationsTab client={client} />}
         {activeTab === "billing" && isAdmin && <ClientBillingTab client={client} />}
-        {!["overview", "notes", "programs", "plan", "docs", "evaluations", "billing"].includes(activeTab) && (
+        {!["overview", "notes", "programs", "plan", "docs", "evaluations", "billing", "homework"].includes(activeTab) && (
           <div className="py-20 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800">
             <h3 className="text-lg font-bold text-neutral-900 dark:text-white capitalize">{activeTab} Section</h3>
             <p className="text-neutral-500 mt-1">{t('clients.under_development')}</p>

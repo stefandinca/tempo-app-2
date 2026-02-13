@@ -637,6 +637,44 @@ export async function notifyParentDocumentShared(
 }
 
 /**
+ * Notify parents when new homework is assigned
+ */
+export async function notifyParentHomeworkAssigned(
+  clientId: string,
+  context: {
+    homeworkTitle: string;
+    therapistName: string;
+    triggeredByUserId: string;
+  }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) return;
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
+    type: "homework_assigned" as NotificationType,
+    category: "client" as NotificationCategory,
+    title: "New Homework Assigned",
+    message: `${context.therapistName} assigned new practice: "${context.homeworkTitle}"`,
+    sourceType: "client" as NotificationSourceType,
+    sourceId: clientId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Homework",
+        type: "navigate" as const,
+        route: "/parent/homework/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent homework notifications to", parentUids.length, "parents");
+}
+
+/**
  * Notify recipient about a new message
  */
 export async function notifyMessageReceived(

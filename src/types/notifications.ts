@@ -22,6 +22,7 @@ export type NotificationType =
   | 'billing_overdue'
   | 'report_ready'
   | 'document_shared'
+  | 'homework_assigned'
   | 'system_alert'
   | 'reminder'
   | 'message_received';

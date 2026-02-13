@@ -11,6 +11,7 @@ import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
+import { useData } from "@/context/DataContext";
 
 interface ClientProfileHeaderProps {
   client: any;
@@ -24,11 +25,12 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
   const { userRole } = useAuth();
   const { success, error } = useToast();
   const { confirm: customConfirm } = useConfirm();
+  const { clients: clientsData, systemSettings } = useData();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const isAdmin = userRole === 'Admin';
+  const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
   const isCoordinator = userRole === 'Coordinator';
   const canEdit = isAdmin || isCoordinator;
 
@@ -37,6 +39,7 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
     { id: "evaluations", label: t('clients.tabs.evaluations') },
     { id: "notes", label: t('clients.tabs.notes') },
     { id: "plan", label: t('clients.tabs.plan') },
+    { id: "homework", label: t('parent_nav.homework') },
     { id: "docs", label: t('clients.tabs.docs') },
   ];
 
@@ -56,6 +59,25 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
   }, []);
 
   const handleArchive = async () => {
+    // If we are restoring (isArchived is true, so it will become false)
+    if (client.isArchived) {
+      const maxClients = systemSettings?.maxActiveClients || 0;
+      if (maxClients > 0) {
+        const activeCount = clientsData.data.filter((c: any) => !c.isArchived).length;
+        if (activeCount >= maxClients) {
+          customConfirm({
+            title: t('limits.client_limit_reached_title'),
+            message: t('limits.client_limit_reached_message', { max: maxClients }),
+            confirmLabel: 'OK',
+            variant: 'warning',
+            onConfirm: () => {},
+          });
+          setIsMenuOpen(false);
+          return;
+        }
+      }
+    }
+
     try {
       const clientRef = doc(db, "clients", client.id);
       await updateDoc(clientRef, { isArchived: !client.isArchived });
@@ -157,24 +179,26 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto scrollbar-hide">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={clsx(
-              "px-6 py-3 text-sm font-medium transition-all relative whitespace-nowrap",
-              activeTab === tab.id
-                ? "text-primary-600 dark:text-primary-400"
-                : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-            )}
-          >
-            {tab.label}
-            {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
-            )}
-          </button>
-        ))}
+      <div className="relative group">
+        <div className="flex items-center gap-1 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto scrollbar-hide [mask-image:linear-gradient(to_right,white_85%,transparent)] md:[mask-image:none]">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={clsx(
+                "px-6 py-3 text-sm font-medium transition-all relative whitespace-nowrap",
+                activeTab === tab.id
+                  ? "text-primary-600 dark:text-primary-400"
+                  : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+              )}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
