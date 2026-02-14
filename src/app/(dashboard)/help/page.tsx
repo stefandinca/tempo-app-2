@@ -25,7 +25,7 @@ export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSection, setActiveSection] = useState("dashboard");
 
-  const sections = [
+  const sections = useMemo(() => [
     { id: "dashboard", icon: LayoutDashboard, color: "text-blue-500" },
     { id: "calendar", icon: Calendar, color: "text-primary-500" },
     { id: "clients", icon: Users, color: "text-teal-500" },
@@ -33,7 +33,7 @@ export default function HelpPage() {
     { id: "billing", icon: CreditCard, color: "text-warning-500" },
     { id: "analytics", icon: BarChart3, color: "text-indigo-500" },
     { id: "settings", icon: Settings, color: "text-neutral-500" }
-  ];
+  ], []);
 
   const filteredSections = useMemo(() => {
     if (!searchQuery) return sections;
