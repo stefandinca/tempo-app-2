@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, Fragment, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
-  ChevronDown,
-  ChevronRight,
   CheckCircle,
   Clock,
   FileText,
@@ -57,9 +55,8 @@ export default function ClientInvoicesTable({
   const { user: authUser } = useAuth();
   const { confirm: customConfirm } = useConfirm();
   
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Dropdown Logic
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const [activeInvoice, setActiveInvoice] = useState<any>(null);
@@ -71,21 +68,11 @@ export default function ClientInvoicesTable({
   const [showEntitySelector, setShowEntitySelector] = useState(false);
   const [pendingInvoice, setPendingInvoice] = useState<ClientInvoice | null>(null);
 
-  const filteredInvoices = useMemo(() => 
-    invoices.filter(inv => 
+  const filteredInvoices = useMemo(() =>
+    invoices.filter(inv =>
       inv.clientName.toLowerCase().includes(searchQuery.toLowerCase())
     ),
   [invoices, searchQuery]);
-
-  const toggleRow = (clientId: string) => {
-    const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(clientId)) {
-      newExpanded.delete(clientId);
-    } else {
-      newExpanded.add(clientId);
-    }
-    setExpandedRows(newExpanded);
-  };
 
   const handleMenuClick = (e: React.MouseEvent, invoice: ClientInvoice) => {
     e.stopPropagation();
@@ -292,112 +279,78 @@ export default function ClientInvoicesTable({
         />
       </div>
 
-      <div className="md:hidden space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredInvoices.map((invoice) => {
-          const isExpanded = expandedRows.has(invoice.clientId);
           const statusConfig = getStatusConfig(invoice.status);
           const StatusIcon = statusConfig.icon;
+          const isPaid = invoice.status === "paid" || invoice.status === "synced";
+
           return (
-            <div key={invoice.clientId} className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden shadow-sm">
-              <div className="p-4 flex flex-col gap-3 cursor-pointer" onClick={() => toggleRow(invoice.clientId)}>
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col">
-                    <Link href={`/clients/profile?id=${invoice.clientId}`} onClick={(e) => e.stopPropagation()} className="font-bold text-neutral-900 dark:text-white hover:text-primary-600 transition-colors flex items-center gap-2">
-                      {invoice.clientName}
-                      {invoice.hasActiveSubscription && <Zap className="w-3 h-3 text-primary-500 fill-primary-500" />}
-                    </Link>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={clsx("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase", statusConfig.classes)}>
-                        <StatusIcon className="w-3.5 h-3.5" />
-                        {statusConfig.label}
-                      </span>
-                    </div>
-                  </div>
-                  <button onClick={(e) => handleMenuClick(e, invoice)} className="p-2 -mr-2 text-neutral-400 hover:text-neutral-600">
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between py-2 border-y border-neutral-50 dark:border-neutral-800/50">
-                  <div className="text-center">
-                    <p className="text-[10px] text-neutral-400 uppercase font-bold">{t('billing_page.table.sessions')}</p>
-                    <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{invoice.billableSessions}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[10px] text-neutral-400 uppercase font-bold">{t('billing_page.table.hours')}</p>
-                    <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{invoice.totalHours}h</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] text-neutral-400 uppercase font-bold">{t('billing_page.table.amount')}</p>
-                    <p className="text-sm font-bold text-neutral-900 dark:text-white">{formatCurrency(invoice.total)} RON</p>
+            <div key={invoice.clientId} className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1 min-w-0">
+                  <Link
+                    href={`/clients/profile?id=${invoice.clientId}`}
+                    className="font-bold text-neutral-900 dark:text-white hover:text-primary-600 transition-colors truncate block flex items-center gap-2"
+                  >
+                    {invoice.clientName}
+                    {invoice.hasActiveSubscription && <Zap className="w-3 h-3 text-primary-500 fill-primary-500" />}
+                  </Link>
+                  <div className="flex items-center gap-2 mt-1 text-xs text-neutral-500">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>{invoice.billableSessions} {t('billing_page.table.sessions').toLowerCase()} • {invoice.totalHours}h</span>
                   </div>
                 </div>
-                <div className="flex items-center justify-center gap-1 text-xs text-neutral-500 font-medium">
-                  {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                  {isExpanded ? t('common.close') : t('billing_page.view_details')}
-                </div>
+                <span className={clsx("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0", statusConfig.classes)}>
+                  <StatusIcon className="w-3.5 h-3.5 inline mr-1" />
+                  {statusConfig.label}
+                </span>
               </div>
-              {isExpanded && (
-                <div className="bg-neutral-50 dark:bg-neutral-800/20 p-4 border-t border-neutral-100 dark:border-neutral-800">
-                  <div className="space-y-2">
-                    {invoice.lineItems.map((item, idx) => (
-                      <div key={idx} className="flex flex-col gap-1 p-2 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-sm text-xs">
-                        <div className="flex justify-between">
-                          <span className="font-bold text-neutral-900 dark:text-white">{item.serviceLabel}</span>
-                          <span className="font-bold">{formatCurrency(item.amount)} RON</span>
-                        </div>
-                        <div className="flex justify-between text-neutral-500">
-                          <span>{formatDate(item.date)} • {formatTime(item.date)}</span>
-                          <span>{item.duration} min</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+
+              <div className="space-y-2 py-3 border-y border-neutral-50 dark:border-neutral-800/50">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-neutral-500">{t('billing_page.table.sessions')}</span>
+                  <span className="font-medium text-neutral-900 dark:text-white">{invoice.billableSessions}</span>
                 </div>
-              )}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-neutral-500">{t('billing_page.table.hours')}</span>
+                  <span className="font-medium text-neutral-900 dark:text-white">{invoice.totalHours}h</span>
+                </div>
+                {invoice.discount > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-neutral-500">{t('billing_page.table.discount')}</span>
+                    <span className="text-success-600 font-medium">-{formatCurrency(invoice.discount)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between mt-4">
+                <div>
+                  <p className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">{t('billing_page.table.amount')}</p>
+                  <p className="text-lg font-bold text-neutral-900 dark:text-white leading-none mt-1">
+                    {formatCurrency(invoice.total)} <span className="text-xs font-normal text-neutral-400">RON</span>
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => handleMenuClick(e, invoice)}
+                  disabled={generatingId === invoice.clientId || smartBillSyncingId === invoice.clientId}
+                  className={clsx(
+                    "p-2 rounded-xl transition-colors",
+                    generatingId === invoice.clientId || smartBillSyncingId === invoice.clientId
+                      ? "opacity-50 cursor-not-allowed"
+                      : "text-neutral-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                  )}
+                >
+                  {generatingId === invoice.clientId || smartBillSyncingId === invoice.clientId ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <MoreVertical className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
           );
         })}
-      </div>
-
-      <div className="hidden md:block bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-neutral-50 dark:bg-neutral-800/50 text-neutral-500 font-medium">
-              <tr>
-                <th className="px-6 py-3 w-8"></th>
-                <th className="px-6 py-3">{t('billing_page.table.client')}</th>
-                <th className="px-6 py-3 text-center">{t('billing_page.table.sessions')}</th>
-                <th className="px-6 py-3 text-center">{t('billing_page.table.hours')}</th>
-                <th className="px-6 py-3 text-right">{t('billing_page.table.amount')}</th>
-                <th className="px-6 py-3 text-center">{t('billing_page.table.status')}</th>
-                <th className="px-6 py-3 text-right">{t('billing_page.table.actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              {filteredInvoices.map((invoice) => {
-                const isExpanded = expandedRows.has(invoice.clientId);
-                const statusConfig = getStatusConfig(invoice.status);
-                const StatusIcon = statusConfig.icon;
-                return (
-                  <Fragment key={invoice.clientId}>
-                    <tr className={clsx("hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors cursor-pointer", isExpanded && "bg-neutral-50 dark:bg-neutral-800/30")} onClick={() => toggleRow(invoice.clientId)}>
-                      <td className="px-6 py-4"><button className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">{isExpanded ? <ChevronDown className="w-4 h-4 text-neutral-500" /> : <ChevronRight className="w-4 h-4 text-neutral-500" />}</button></td>
-                      <td className="px-6 py-4"><Link href={`/clients/profile?id=${invoice.clientId}`} onClick={(e) => e.stopPropagation()} className="font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center gap-2">{invoice.clientName}{invoice.hasActiveSubscription && (<span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-[9px] font-bold uppercase rounded flex items-center gap-0.5"><Zap className="w-2.5 h-2.5" />{t('billing_page.subscription_label')}</span>)}</Link></td>
-                      <td className="px-6 py-4 text-center text-neutral-700 dark:text-neutral-300">{invoice.billableSessions}{invoice.excusedSessions > 0 && (<span className="text-xs text-neutral-400 ml-1">{t('billing_page.table.excused_info', { count: invoice.excusedSessions })}</span>)}</td>
-                      <td className="px-6 py-4 text-center text-neutral-700 dark:text-neutral-300">{invoice.totalHours}h</td>
-                      <td className="px-6 py-4 text-right"><span className="font-bold text-neutral-900 dark:text-white">{formatCurrency(invoice.total)} RON</span>{invoice.discount > 0 && (<span className="block text-xs text-success-600">{t('billing_page.table.discount_info', { amount: formatCurrency(invoice.discount) })}</span>)}</td>
-                      <td className="px-6 py-4 text-center"><span className={clsx("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold", statusConfig.classes)}><StatusIcon className="w-3.5 h-3.5" />{statusConfig.label}</span></td>
-                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}><button onClick={(e) => handleMenuClick(e, invoice)} disabled={generatingId === invoice.clientId || smartBillSyncingId === invoice.clientId} className={clsx("p-2 rounded-lg transition-colors disabled:opacity-50", activeInvoice?.clientId === invoice.clientId ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white" : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800")}>{generatingId === invoice.clientId || smartBillSyncingId === invoice.clientId ? <Loader2 className="w-4 h-4 animate-spin" /> : <MoreVertical className="w-4 h-4" />}</button></td>
-                    </tr>
-                    {isExpanded && (
-                      <tr key={`${invoice.clientId}-details`}><td colSpan={7} className="px-6 py-4 bg-neutral-50 dark:bg-neutral-800/20"><div className="pl-8 space-y-2"><p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">{t('billing_page.table.session_breakdown')}</p><div className="grid gap-2">{invoice.lineItems.map((item, idx) => (<div key={idx} className={clsx("flex items-center justify-between py-2 px-3 rounded-lg border", item.isBillable ? "bg-white dark:bg-neutral-900 border-neutral-100 dark:border-neutral-800" : "bg-neutral-100 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 opacity-60")}><div className="flex items-center gap-4"><span className="text-sm text-neutral-500 w-20">{formatDate(item.date)}</span><span className="text-sm text-neutral-500 w-16">{formatTime(item.date)}</span><span className="text-sm font-medium text-neutral-900 dark:text-white">{item.serviceLabel}</span><span className="text-xs text-neutral-400">({item.duration} min)</span>{item.attendance && (<span className={clsx("text-xs px-1.5 py-0.5 rounded font-medium", item.attendance === "present" && "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400", item.attendance === "absent" && "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400", item.attendance === "excused" && "bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400")}>{item.attendance === "present" && t('attendance.present')}{item.attendance === "absent" && t('attendance.absent')}{item.attendance === "excused" && t('attendance.excused')}</span>)}</div><span className={clsx("text-sm font-medium", item.isBillable ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-400 line-through")}>{item.isBillable ? `${formatCurrency(item.amount)} RON` : t('billing_page.table.not_billed')}</span></div>))}</div>{invoice.discount > 0 && (<div className="flex items-center justify-between py-2 px-3 mt-2 border-t border-neutral-200 dark:border-neutral-700"><span className="text-sm text-neutral-500">{t('common.subtotal') || 'Subtotal'}</span><span className="text-sm text-neutral-700 dark:text-neutral-300">{formatCurrency(invoice.subtotal)} RON</span></div>)}{invoice.discount > 0 && (<div className="flex items-center justify-between py-2 px-3"><span className="text-sm text-success-600">{t('billing_page.table.discount')}</span><span className="text-sm text-success-600">-{formatCurrency(invoice.discount)} RON</span></div>)}</div></td></tr>
-                    )}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
       </div>
 
       {menuPosition && activeInvoice && typeof document !== 'undefined' && createPortal(

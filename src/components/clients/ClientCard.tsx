@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MoreVertical, User, Calendar, TrendingUp, Phone, Edit, Trash2, Archive, Target } from "lucide-react";
+import { MoreVertical, User, Calendar, Phone, Edit, Trash2, Archive, Target } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
 import { useEventModal } from "@/context/EventModalContext";
@@ -23,6 +23,7 @@ export interface Client {
   phone?: string;
   birthDate?: string | null;
   assignedTherapistId?: string;
+  therapistIds?: string[];
   createdAt?: string;
   isArchived?: boolean;
 }
@@ -32,6 +33,7 @@ export interface TeamMember {
   name: string;
   initials: string;
   color: string;
+  photoURL?: string;
 }
 
 export interface Event {
@@ -76,12 +78,16 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const therapist = teamMembers.find(t => t.id === client.assignedTherapistId);
+  // Get all assigned therapists (support both old and new field)
+  const assignedIds = client.therapistIds && client.therapistIds.length > 0
+    ? client.therapistIds
+    : client.assignedTherapistId
+    ? [client.assignedTherapistId]
+    : [];
+  const assignedTherapists = teamMembers.filter(t => assignedIds.includes(t.id));
+
   const initials = client.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
   const age = client.age ?? calculateAge(client.birthDate);
-
-  // Progress color logic
-  const progressColor = client.progress >= 80 ? 'bg-success-500' : client.progress >= 60 ? 'bg-warning-500' : 'bg-error-500';
 
   // Find next upcoming event for this client
   const now = new Date();
@@ -246,18 +252,25 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
           </div>
 
           <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
-            {/* Therapist */}
+            {/* Therapist(s) */}
             <div className="flex items-center gap-2 text-[11px] md:text-sm text-neutral-600 dark:text-neutral-400">
               <User className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-              {therapist ? (
-                <div className="flex items-center gap-1.5 truncate">
-                  <div
-                    className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] text-white font-bold shrink-0"
-                    style={{ backgroundColor: therapist.color }}
-                  >
-                    {therapist.initials}
-                  </div>
-                  <span className="font-medium truncate">{therapist.name}</span>
+              {assignedTherapists.length > 0 ? (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {assignedTherapists.map((therapist) => (
+                    <div
+                      key={therapist.id}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs text-white font-bold shrink-0 overflow-hidden border-2 border-white dark:border-neutral-800 shadow-sm"
+                      style={{ backgroundColor: therapist.photoURL ? 'transparent' : therapist.color }}
+                      title={therapist.name}
+                    >
+                      {therapist.photoURL ? (
+                        <img src={therapist.photoURL} alt={therapist.name} className="w-full h-full object-cover" />
+                      ) : (
+                        therapist.initials
+                      )}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <span className="italic text-neutral-400">{t('clients.unassigned')}</span>
@@ -265,9 +278,9 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
             </div>
 
             {/* Next Session */}
-            <div className="flex items-center gap-2 text-[11px] md:text-sm text-neutral-600 dark:text-neutral-400">
-              <Calendar className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-              <span className="truncate">
+            <div className="flex items-start gap-2 text-[11px] md:text-sm text-neutral-600 dark:text-neutral-400">
+              <Calendar className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-0.5" />
+              <span className="break-words">
                 {nextEvent ? formatNextEvent() : t('clients.no_upcoming')}
               </span>
             </div>
@@ -275,24 +288,6 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
         </div>
       </div>
 
-      <div className="space-y-4 flex-1">
-        {/* Progress Section */}
-        <div className="pt-1">
-          <div className="flex items-center justify-between text-[10px] mb-1.5">
-            <div className="flex items-center gap-1 text-neutral-500">
-              <TrendingUp className="w-3 h-3" />
-              <span>{t('clients.overall_progress')}</span>
-            </div>
-            <span className="font-bold text-neutral-900 dark:text-white">{client.progress}%</span>
-          </div>
-          <div className="h-1.5 md:h-2 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-            <div 
-              className={clsx("h-full transition-all duration-500 rounded-full", progressColor)}
-              style={{ width: `${client.progress}%` }}
-            />
-          </div>
-        </div>
-      </div>
 
       {/* Footer Actions */}
       <div className="mt-5 md:mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-2 md:gap-3">
