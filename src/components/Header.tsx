@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   Search,
   RefreshCw,
+  HelpCircle,
   Sun,
   Moon,
   ChevronDown,
@@ -183,6 +184,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
           )}
           {!isOnline && <span className="text-xs font-bold hidden md:inline">{t('header.offline')}</span>}
         </button>
+
+        {/* Help */}
+        <Link
+          href="/help"
+          className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-neutral-600 dark:text-neutral-400"
+          title={t('header.help_tooltip')}
+        >
+          <HelpCircle className="w-5 h-5" />
+        </Link>
 
         {/* Theme Toggle */}
         <button 
