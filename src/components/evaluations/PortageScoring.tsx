@@ -56,17 +56,36 @@ export default function PortageScoring({
     <div className="space-y-8 pb-20">
       
       {/* Quick Jump Menu */}
-      <div className="sticky top-0 z-10 py-3 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 -mx-6 px-6 mb-8 flex items-center gap-3 overflow-x-auto scrollbar-hide">
-        <span className="text-[10px] font-bold uppercase text-neutral-400 whitespace-nowrap">{t('portage.jump_to')}:</span>
-        {ageBrackets.map((label) => (
-          <button
-            key={label}
-            onClick={() => scrollToBracket(label)}
-            className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-xs font-bold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all whitespace-nowrap border border-neutral-200 dark:border-neutral-700"
+      <div className="sticky top-0 z-10 py-3 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 -mx-6 px-6 mb-8">
+        {/* Mobile: Dropdown */}
+        <div className="md:hidden">
+          <label className="block text-[10px] font-bold uppercase text-neutral-400 mb-2">{t('portage.jump_to')}:</label>
+          <select
+            onChange={(e) => scrollToBracket(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
-            {label}
-          </button>
-        ))}
+            <option value="">Select age bracket...</option>
+            {ageBrackets.map((label) => (
+              <option key={label} value={label}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Desktop: Horizontal buttons */}
+        <div className="hidden md:flex items-center gap-3 overflow-x-auto scrollbar-hide">
+          <span className="text-[10px] font-bold uppercase text-neutral-400 whitespace-nowrap">{t('portage.jump_to')}:</span>
+          {ageBrackets.map((label) => (
+            <button
+              key={label}
+              onClick={() => scrollToBracket(label)}
+              className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 text-xs font-bold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-all whitespace-nowrap border border-neutral-200 dark:border-neutral-700"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {Object.entries(groupedItems).map(([ageLabel, ageItems]) => {

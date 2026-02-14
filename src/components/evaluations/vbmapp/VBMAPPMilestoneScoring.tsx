@@ -132,7 +132,7 @@ export default function VBMAPPMilestoneScoring({
             )}
           >
             <div className="p-4">
-              <div className="flex items-start gap-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start">
                 {/* Item number and milestone age */}
                 <div className="flex flex-col items-center">
                   <span className="text-sm font-bold text-neutral-400">
@@ -176,8 +176,9 @@ export default function VBMAPPMilestoneScoring({
                   )}
                 </div>
 
-                {/* Score buttons */}
-                <div className="flex items-center gap-1">
+                {/* Score buttons - responsive layout */}
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-1">
+                  <div className="flex items-center gap-1">
                   {/* N/A Button */}
                   <button
                     onClick={() => !readOnly && onScoreChange(item.id, 0, itemScore?.note, !isNA)}
@@ -209,20 +210,21 @@ export default function VBMAPPMilestoneScoring({
                       {option.label}
                     </button>
                   ))}
-                </div>
+                  </div>
 
-                {/* Note toggle */}
-                <button
-                  onClick={() => toggleItemExpanded(item.id)}
-                  className={clsx(
-                    "p-2 rounded-lg transition-colors",
-                    isExpanded || itemScore?.note
-                      ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600"
-                      : "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400"
-                  )}
-                >
-                  <MessageSquare className="w-4 h-4" />
-                </button>
+                  {/* Note toggle */}
+                  <button
+                    onClick={() => toggleItemExpanded(item.id)}
+                    className={clsx(
+                      "p-2 rounded-lg transition-colors",
+                      isExpanded || itemScore?.note
+                        ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600"
+                        : "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400"
+                    )}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Expanded note section */}

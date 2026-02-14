@@ -91,7 +91,7 @@ export default function CategoryScoring({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2 min-w-0">
-                    <p className="text-sm font-medium text-neutral-900 dark:text-white leading-relaxed truncate sm:whitespace-normal">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-white leading-relaxed whitespace-normal">
                       {item.text}
                     </p>
                     {clientAgeYears !== undefined && clientAgeYears < 5 && ["P", "Q", "R", "S"].includes(category.id) && (
@@ -137,8 +137,10 @@ export default function CategoryScoring({
                   </div>
                 )}
 
-                {/* Score buttons */}
-                <div className="flex flex-wrap items-center gap-2">
+                {/* Score buttons - Responsive layout: vertical stack on mobile, horizontal on desktop */}
+                <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:gap-2">
+                  {/* Scoring buttons group */}
+                  <div className="flex flex-wrap items-center gap-2">
                   {/* N/A Button */}
                   <button
                     onClick={() => !readOnly && onScoreChange(item.id, 0, itemScore?.note, !isNA)}
@@ -201,6 +203,7 @@ export default function CategoryScoring({
                       <MessageSquare className="w-5 h-5" />
                     </button>
                   )}
+                  </div>
 
                   {/* Previous score indicator */}
                   {previousScore !== undefined && (
