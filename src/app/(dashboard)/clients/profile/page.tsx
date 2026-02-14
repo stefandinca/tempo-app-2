@@ -87,14 +87,15 @@ function ClientProfileContent() {
 
   return (
     <div className="flex-1 p-6 space-y-8 max-w-7xl mx-auto w-full">
-      <ClientProfileHeader 
-        client={client} 
-        activeTab={activeTab} 
+      <ClientProfileHeader
+        client={client}
+        activeTab={activeTab}
         onTabChange={setActiveTab}
-        onEdit={() => setIsEditModalOpen(true)} 
+        onEdit={() => setIsEditModalOpen(true)}
       />
 
-      <ClientStatsCards client={client} />
+      {/* Only show stats cards on overview tab */}
+      {activeTab === "overview" && <ClientStatsCards client={client} />}
 
       <div className="pt-2">
         {activeTab === "overview" && (
