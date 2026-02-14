@@ -815,7 +815,14 @@
     "items": "itemi",
     "view_report": "Vezi Raportul Clinic",
     "start_reevaluation": "Începe Reevaluarea",
-    "close": "Închide"
+    "close": "Închide",
+    "mobile": {
+      "selectCategory": "Selectează Categoria",
+      "itemsScored": "itemi evaluați",
+      "closeEvaluation": "Închide Evaluarea",
+      "categoryProgress": "Progres Categorie",
+      "tapToChangeCategory": "Apasă pentru a schimba categoria"
+    }
   },
   "portage": {
     "title": "Evaluare Portage",

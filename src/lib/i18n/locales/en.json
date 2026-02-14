@@ -35,6 +35,7 @@
     "save": "Save",
     "saving": "Saving...",
     "cancel": "Cancel",
+    "close": "Close",
     "edit": "Edit",
     "delete": "Delete",
     "loading": "Loading...",
@@ -840,7 +841,14 @@
     "level": "Level",
     "ready_mainstream": "mainstream settings",
     "ready_targeted": "targeted integration",
-    "ready_for": "Ready for"
+    "ready_for": "Ready for",
+    "mobile": {
+      "selectCategory": "Select Category",
+      "itemsScored": "items scored",
+      "closeEvaluation": "Close Evaluation",
+      "categoryProgress": "Category Progress",
+      "tapToChangeCategory": "Tap to change category"
+    }
   },
   "portage": {
     "title": "Portage Evaluation",
