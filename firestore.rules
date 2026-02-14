@@ -212,6 +212,15 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    match /activities/{activityId} {
+      // Staff can read all activities (audit log)
+      allow read: if isAdmin() || isCoordinator() || isTherapist();
+      // Only staff can create activities (audit trail)
+      allow create: if isAdmin() || isCoordinator() || isTherapist();
+      // Activities are immutable - no updates or deletes
+      allow update, delete: if false;
+    }
+
     // --- Collection Group Rules (required for collectionGroup queries) ---
     
     match /{path=**}/interventionPlans/{planId} {
