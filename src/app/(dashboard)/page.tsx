@@ -24,13 +24,19 @@ import i18n from "@/lib/i18n";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/context/ToastContext";
+import { useRecentActivities } from "@/hooks/useActivities";
+import { formatDistanceToNow } from "date-fns";
+import { enUS, ro } from "date-fns/locale";
+import { logActivity } from "@/lib/activityService";
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const { events, clients, teamMembers } = useData();
-  const { user, userRole } = useAuth();
+  const { user, userData, userRole } = useAuth();
   const { success, error: showError } = useToast();
   const eventsLoading = events.loading || clients.loading || teamMembers.loading;
+  const { activities, loading: activitiesLoading } = useRecentActivities(10);
+  const locale = i18n.language === 'ro' ? ro : enUS;
 
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -42,6 +48,43 @@ export default function Dashboard() {
         attendance,
         status: "completed"
       });
+
+      // Log activity
+      if (user && userData) {
+        const event = events.data.find(e => e.id === eventId);
+        const client = event ? clients.data.find(c => c.id === event.clientId) : null;
+
+        try {
+          console.log('Logging attendance activity:', {
+            eventId,
+            clientName: client?.name,
+            attendance,
+            userName: userData.name
+          });
+
+          await logActivity({
+            type: 'attendance_updated',
+            userId: user.uid,
+            userName: userData.name || user.email || 'Unknown',
+            userPhotoURL: userData.photoURL || user.photoURL || undefined,
+            targetId: eventId,
+            targetName: client?.name || 'Unknown Client',
+            metadata: {
+              clientId: event?.clientId,
+              clientName: client?.name,
+              attendance: attendance
+            }
+          });
+
+          console.log('Activity logged successfully');
+        } catch (activityError) {
+          console.error('Failed to log activity:', activityError);
+          // Don't throw - activity logging failure shouldn't break the app
+        }
+      } else {
+        console.log('Cannot log activity - missing user or userData:', { user: !!user, userData: !!userData });
+      }
+
       success(t('calendar.event.save_success'));
     } catch (err) {
       showError(t('calendar.event.error_permission'));
@@ -232,41 +275,40 @@ export default function Dashboard() {
           onClose={() => setIsDetailOpen(false)}
         />
 
-        {/* Right Column: Activity (Still Mocked for now) */}
+        {/* Right Column: Recent Activity */}
         <div className="space-y-6">
           <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
             <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
               <h3 className="font-semibold text-neutral-900 dark:text-white">{t('dashboard.activity.title')}</h3>
-              <button className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">{t('dashboard.activity.view_all')}</button>
+              <Link href="/activity" className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">
+                {t('dashboard.activity.view_all')}
+              </Link>
             </div>
             <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              <ActivityItem
-                user="Dr. Maria Garcia"
-                action={t('dashboard.activity.actions.logged_attendance')}
-                target="John Smith"
-                time={t('dashboard.activity.time.minutes_ago', { count: 5 })}
-                icon={CheckCircle}
-                iconColor="text-primary-500"
-                iconBg="bg-primary-50 dark:bg-primary-900/20"
-              />
-              <ActivityItem
-                user="Dr. Andrei Ionescu"
-                action={t('dashboard.activity.actions.created_event')}
-                target="Team Meeting"
-                time={t('dashboard.activity.time.minutes_ago', { count: 15 })}
-                icon={CalendarPlus}
-                iconColor="text-primary-500"
-                iconBg="bg-primary-50 dark:bg-primary-900/20"
-              />
-              <ActivityItem
-                user="Dr. Elena Popescu"
-                action={t('dashboard.activity.actions.updated_progress')}
-                target="Sara Lee"
-                time={t('dashboard.activity.time.hours_ago', { count: 1 })}
-                icon={TrendingUp}
-                iconColor="text-primary-500"
-                iconBg="bg-primary-50 dark:bg-primary-900/20"
-              />
+              {activitiesLoading ? (
+                <div className="p-8 flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
+                </div>
+              ) : activities.length === 0 ? (
+                <div className="p-8 text-center text-neutral-500 text-sm">
+                  {t('dashboard.activity.no_activities')}
+                </div>
+              ) : (
+                activities.map((activity) => {
+                  const message = getActivityMessage(activity, t);
+                  const timeAgo = formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true, locale });
+
+                  return (
+                    <ActivityItem
+                      key={activity.id}
+                      user={activity.userName}
+                      action={message}
+                      time={timeAgo}
+                      photoURL={activity.userPhotoURL}
+                    />
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
@@ -384,26 +426,61 @@ function ScheduleItem({ t, time, endTime, client, clientId, type, therapist, the
   );
 }
 
-function ActivityItem({ user, action, target, time, icon: Icon, iconColor, iconBg, photoURL, userHref, targetHref }: any) {
+function ActivityItem({ user, action, time, photoURL }: any) {
   return (
     <div className="p-4 flex items-start gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
       {photoURL ? (
-        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm border border-white dark:border-neutral-800">
+        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow-sm border-2 border-white dark:border-neutral-800">
           <img src={photoURL} alt={user} className="w-full h-full object-cover" />
         </div>
       ) : (
-        <div className={`w-8 h-8 ${iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
-          <Icon className={`w-4 h-4 ${iconColor}`} />
+        <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xs">
+          {user.charAt(0).toUpperCase()}
         </div>
       )}
       <div className="flex-1 min-w-0">
         <p className="text-sm text-neutral-900 dark:text-white">
-          <Link href={userHref || "/team/"} className="font-medium hover:text-primary-600 transition-colors">{user}</Link>
-          <span className="text-neutral-500 dark:text-neutral-400"> {action} </span>
-          <Link href={targetHref || "/clients/"} className="font-medium hover:text-primary-600 transition-colors">{target}</Link>
+          <span className="font-medium">{user}</span>
+          <span className="text-neutral-500 dark:text-neutral-400"> {action}</span>
         </p>
         <p className="text-xs text-neutral-400 mt-0.5">{time}</p>
       </div>
     </div>
   );
+}
+
+function getActivityMessage(activity: any, t: any): string {
+  const metadata = activity.metadata || {};
+
+  switch (activity.type) {
+    case 'session_created':
+      return t('dashboard.activity.messages.session_created', { clientName: metadata.clientName || activity.targetName });
+    case 'session_updated':
+      return t('dashboard.activity.messages.session_updated', { clientName: metadata.clientName || activity.targetName });
+    case 'attendance_updated':
+      return t('dashboard.activity.messages.attendance_updated', {
+        clientName: metadata.clientName || activity.targetName,
+        attendance: metadata.attendance || 'present'
+      });
+    case 'evaluation_created':
+      return t('dashboard.activity.messages.evaluation_created', {
+        evaluationType: metadata.evaluationType || 'evaluation',
+        clientName: metadata.clientName || activity.targetName
+      });
+    case 'evaluation_updated':
+      return t('dashboard.activity.messages.evaluation_updated', {
+        evaluationType: metadata.evaluationType || 'evaluation',
+        clientName: metadata.clientName || activity.targetName
+      });
+    case 'client_created':
+      return t('dashboard.activity.messages.client_created', { clientName: activity.targetName });
+    case 'client_updated':
+      return t('dashboard.activity.messages.client_updated', { clientName: activity.targetName });
+    case 'team_member_created':
+      return t('dashboard.activity.messages.team_member_created', { memberName: activity.targetName });
+    case 'team_member_updated':
+      return t('dashboard.activity.messages.team_member_updated', { memberName: activity.targetName });
+    default:
+      return t('dashboard.activity.messages.default', { targetName: activity.targetName });
+  }
 }
