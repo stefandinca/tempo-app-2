@@ -15,6 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import { notifySessionCreated, notifyParentSessionCreated, notifySessionRescheduled, notifyParentSessionRescheduled } from "@/lib/notificationService";
 import { useTranslation } from "react-i18next";
+import { logActivity } from "@/lib/activityService";
 
 interface NewEventModalProps {
   isOpen: boolean;
@@ -47,7 +48,7 @@ export default function NewEventModal({
   }));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success, error } = useToast();
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const { clients, teamMembers, services } = useData();
 
   const isEditMode = !!editingEvent;
@@ -192,6 +193,31 @@ export default function NewEventModal({
         const eventRef = doc(db, "events", editingEvent.id);
         await updateDoc(eventRef, updatePayload);
 
+        // Log activity for session update
+        if (user && userData) {
+          try {
+            const clientName = formData.selectedClients[0]
+              ? (clients?.data || []).find((c: any) => c.id === formData.selectedClients[0])?.name
+              : undefined;
+
+            await logActivity({
+              type: 'session_updated',
+              userId: user.uid,
+              userName: userData.name || user.email || 'Unknown',
+              userPhotoURL: userData.photoURL || user.photoURL || undefined,
+              targetId: editingEvent.id,
+              targetName: clientName || 'Unknown Client',
+              metadata: {
+                clientId: formData.selectedClients[0],
+                clientName: clientName,
+                sessionType: formData.eventType
+              }
+            });
+          } catch (activityError) {
+            console.error('Failed to log activity:', activityError);
+          }
+        }
+
         // Check if rescheduled (date/time changed)
         const wasRescheduled = newStartTime !== editingEvent.startTime;
 
@@ -286,6 +312,31 @@ export default function NewEventModal({
 
         // Commit batch
         await batch.commit();
+
+        // Log activity for session creation
+        if (user && userData) {
+          try {
+            const clientName = formData.selectedClients[0]
+              ? (clients?.data || []).find((c: any) => c.id === formData.selectedClients[0])?.name
+              : undefined;
+
+            await logActivity({
+              type: 'session_created',
+              userId: user.uid,
+              userName: userData.name || user.email || 'Unknown',
+              userPhotoURL: userData.photoURL || user.photoURL || undefined,
+              targetId: formData.selectedClients[0] || 'batch-created',
+              targetName: clientName || formData.title || 'New Session',
+              metadata: {
+                clientId: formData.selectedClients[0],
+                clientName: clientName,
+                sessionType: formData.eventType
+              }
+            });
+          } catch (activityError) {
+            console.error('Failed to log activity:', activityError);
+          }
+        }
 
         // Send notifications to assigned team members (non-blocking)
         if (user && formData.selectedTeamMembers.length > 0) {

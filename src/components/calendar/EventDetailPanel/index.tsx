@@ -35,6 +35,7 @@ import {
   notifyParentSessionCancelled,
   notifyParentAttendanceLogged
 } from "@/lib/notificationService";
+import { logActivity } from "@/lib/activityService";
 import { useEventModal } from "@/context/EventModalContext";
 import { useConfirm } from "@/context/ConfirmContext";
 
@@ -47,7 +48,7 @@ interface EventDetailPanelProps {
 export default function EventDetailPanel({ event, isOpen, onClose }: EventDetailPanelProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
-  const { user: authUser, userRole } = useAuth();
+  const { user: authUser, userData, userRole } = useAuth();
   const { confirm: customConfirm } = useConfirm();
   const { data: clients } = useClients();
   const { data: teamMembers } = useTeamMembers();
@@ -277,6 +278,27 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               triggeredByUserId: authUser.uid,
               attendance: attendance!
             }).catch((err) => console.error("Failed to send parent attendance notification:", err));
+          }
+
+          // Log activity for attendance update
+          if (authUser && userData) {
+            try {
+              await logActivity({
+                type: 'attendance_updated',
+                userId: authUser.uid,
+                userName: userData.name || authUser.email || 'Unknown',
+                userPhotoURL: userData.photoURL || authUser.photoURL || undefined,
+                targetId: event.id,
+                targetName: client?.name || 'Unknown Client',
+                metadata: {
+                  clientId: event.clientId,
+                  clientName: client?.name,
+                  attendance: attendance as 'present' | 'absent' | 'excused'
+                }
+              });
+            } catch (activityError) {
+              console.error('Failed to log activity:', activityError);
+            }
           }
         }
       }
