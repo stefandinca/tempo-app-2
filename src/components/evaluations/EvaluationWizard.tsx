@@ -28,6 +28,7 @@ import { MobileEvaluationContainer } from "./shared/MobileEvaluationContainer";
 import { CategoryBottomSheet } from "./shared/CategoryBottomSheet";
 import { calculateAge } from "@/lib/ageUtils";
 import { useConfirm } from "@/context/ConfirmContext";
+import { logActivity } from "@/lib/activityService";
 
 interface EvaluationWizardProps {
   isOpen: boolean;
@@ -88,6 +89,27 @@ export default function EvaluationWizard({
           );
           setActiveEvaluationId(newId);
           success("Evaluation started");
+
+          // Log activity for evaluation creation
+          if (user && userData) {
+            try {
+              await logActivity({
+                type: 'evaluation_created',
+                userId: user.uid,
+                userName: userData.name || user.email || 'Unknown',
+                userPhotoURL: userData.photoURL || user.photoURL || undefined,
+                targetId: newId,
+                targetName: clientName || 'Unknown Client',
+                metadata: {
+                  clientId: clientId,
+                  clientName: clientName,
+                  evaluationType: 'ABLLS-R'
+                }
+              });
+            } catch (activityError) {
+              console.error('Failed to log activity:', activityError);
+            }
+          }
         } catch (err) {
           console.error("Failed to create evaluation:", err);
           toastError("Failed to start evaluation");
@@ -159,6 +181,28 @@ export default function EvaluationWizard({
       try {
         await completeEvaluation(clientId, activeEvaluationId, localScores);
         success("Evaluation completed!");
+
+        // Log activity for evaluation completion
+        if (user && userData) {
+          try {
+            await logActivity({
+              type: 'evaluation_updated',
+              userId: user.uid,
+              userName: userData.name || user.email || 'Unknown',
+              userPhotoURL: userData.photoURL || user.photoURL || undefined,
+              targetId: activeEvaluationId!,
+              targetName: clientName || 'Unknown Client',
+              metadata: {
+                clientId: clientId,
+                clientName: clientName,
+                evaluationType: 'ABLLS-R'
+              }
+            });
+          } catch (activityError) {
+            console.error('Failed to log activity:', activityError);
+          }
+        }
+
         onClose();
       } catch (err) {
         toastError("Failed to complete evaluation");

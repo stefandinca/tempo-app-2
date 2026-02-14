@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { logActivity } from "@/lib/activityService";
 import {
   useVBMAPPEvaluation,
   useVBMAPPActions,
@@ -118,6 +119,21 @@ export default function VBMAPPWizard({
           );
           setActiveEvaluationId(newId);
           success("VB-MAPP evaluation started");
+
+          // Log activity
+          if (user && userData) {
+            try {
+              await logActivity({
+                type: 'evaluation_created',
+                userId: user.uid,
+                userName: userData.name || user.email || 'Unknown',
+                userPhotoURL: userData.photoURL || user.photoURL || undefined,
+                targetId: newId,
+                targetName: clientName || 'Unknown Client',
+                metadata: { clientId, clientName, evaluationType: 'VB-MAPP' }
+              });
+            } catch (err) { console.error('Failed to log activity:', err); }
+          }
         } catch (err) {
           console.error("Failed to create VB-MAPP evaluation:", err);
           toastError("Failed to start evaluation");
@@ -239,6 +255,22 @@ export default function VBMAPPWizard({
       try {
         await completeEvaluation(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores);
         success("VB-MAPP evaluation completed!");
+
+        // Log activity
+        if (user && userData) {
+          try {
+            await logActivity({
+              type: 'evaluation_updated',
+              userId: user.uid,
+              userName: userData.name || user.email || 'Unknown',
+              userPhotoURL: userData.photoURL || user.photoURL || undefined,
+              targetId: activeEvaluationId,
+              targetName: clientName || 'Unknown Client',
+              metadata: { clientId, clientName, evaluationType: 'VB-MAPP' }
+            });
+          } catch (err) { console.error('Failed to log activity:', err); }
+        }
+
         onClose();
       } catch (err) {
         console.error("Failed to complete evaluation:", err);
