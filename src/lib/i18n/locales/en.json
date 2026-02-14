@@ -214,6 +214,19 @@
     "activity": {
       "title": "Recent Activity",
       "view_all": "View All",
+      "no_activities": "No recent activity",
+      "messages": {
+        "session_created": "created a session for {{clientName}}",
+        "session_updated": "updated a session for {{clientName}}",
+        "attendance_updated": "marked {{clientName}} as {{attendance}}",
+        "evaluation_created": "created a {{evaluationType}} evaluation for {{clientName}}",
+        "evaluation_updated": "updated a {{evaluationType}} evaluation for {{clientName}}",
+        "client_created": "added new client {{clientName}}",
+        "client_updated": "updated client {{clientName}}",
+        "team_member_created": "added team member {{memberName}}",
+        "team_member_updated": "updated team member {{memberName}}",
+        "default": "performed an action on {{targetName}}"
+      },
       "actions": {
         "logged_attendance": "logged attendance",
         "created_event": "created event",
@@ -223,6 +236,19 @@
         "minutes_ago": "{{count}} min ago",
         "hours_ago": "{{count}} hour ago"
       }
+    }
+  },
+  "activity": {
+    "subtitle": "View all recent system activity",
+    "no_activities": "No activities yet",
+    "no_activities_category": "There are no activities in this category.",
+    "load_more": "Load More",
+    "categories": {
+      "sessions": "Sessions",
+      "attendance": "Attendance",
+      "evaluations": "Evaluations",
+      "clients": "Clients",
+      "team": "Team"
     }
   },
   "calendar": {

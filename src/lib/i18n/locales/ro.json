@@ -220,6 +220,19 @@
     "activity": {
       "title": "Activitate Recentă",
       "view_all": "Vezi Tot",
+      "no_activities": "Nicio activitate recentă",
+      "messages": {
+        "session_created": "a creat o ședință pentru {{clientName}}",
+        "session_updated": "a actualizat o ședință pentru {{clientName}}",
+        "attendance_updated": "a marcat prezența pentru {{clientName}} ca {{attendance}}",
+        "evaluation_created": "a creat o evaluare {{evaluationType}} pentru {{clientName}}",
+        "evaluation_updated": "a actualizat o evaluare {{evaluationType}} pentru {{clientName}}",
+        "client_created": "a adăugat clientul nou {{clientName}}",
+        "client_updated": "a actualizat clientul {{clientName}}",
+        "team_member_created": "a adăugat membrul {{memberName}} în echipă",
+        "team_member_updated": "a actualizat membrul {{memberName}}",
+        "default": "a efectuat o acțiune asupra {{targetName}}"
+      },
       "actions": {
         "logged_attendance": "a înregistrat prezența",
         "created_event": "a creat un eveniment",
@@ -229,6 +242,19 @@
         "minutes_ago": "acum {{count}} min",
         "hours_ago": "acum {{count}} oră"
       }
+    }
+  },
+  "activity": {
+    "subtitle": "Vizualizați toată activitatea recentă din sistem",
+    "no_activities": "Nicio activitate încă",
+    "no_activities_category": "Nu există activități în această categorie.",
+    "load_more": "Încarcă Mai Mult",
+    "categories": {
+      "sessions": "Ședințe",
+      "attendance": "Prezență",
+      "evaluations": "Evaluări",
+      "clients": "Clienți",
+      "team": "Echipă"
     }
   },
   "calendar": {
