@@ -19,6 +19,7 @@ import {
 } from "@/hooks/useCARS";
 import { CARS_ITEMS, CARSScore } from "@/types/cars";
 import CARSScoring from "./CARSScoring";
+import { MobileEvaluationContainer } from "./shared/MobileEvaluationContainer";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
 
@@ -184,12 +185,18 @@ export default function CARSWizard({
   const progressPercentage = Math.round((scoredItemsCount / CARS_ITEMS.length) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
-
-      <div className="relative w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
+    <MobileEvaluationContainer
+      title={t('cars.wizard_title')}
+      onClose={handleClose}
+      showProgress={true}
+      progress={{
+        current: scoredItemsCount,
+        total: CARS_ITEMS.length
+      }}
+    >
+      <div className="flex flex-col h-full md:max-h-[90vh]">
+        {/* Desktop header - hidden on mobile */}
+        <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
           <div>
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
               {t('cars.wizard_title')}
@@ -201,15 +208,15 @@ export default function CARSWizard({
           </button>
         </div>
 
-        {/* Progress Bar */}
-        <div className="px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
+        {/* Progress Bar - desktop only */}
+        <div className="hidden md:block px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{t('portage.overall_progress')}</span>
             <span className="text-sm font-bold text-primary-600">{scoredItemsCount} / {CARS_ITEMS.length} {t('evaluations.items')} ({progressPercentage}%)</span>
           </div>
           <div className="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary-500 transition-all duration-300" 
+            <div
+              className="h-full bg-primary-500 transition-all duration-300"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -255,6 +262,6 @@ export default function CARSWizard({
           </div>
         </div>
       </div>
-    </div>
+    </MobileEvaluationContainer>
   );
 }

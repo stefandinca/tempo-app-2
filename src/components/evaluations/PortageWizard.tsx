@@ -20,6 +20,8 @@ import {
 } from "@/hooks/usePortage";
 import { PORTAGE_CATEGORIES, PortageScore } from "@/types/portage";
 import PortageScoring from "./PortageScoring";
+import { MobileEvaluationContainer } from "./shared/MobileEvaluationContainer";
+import { CategoryBottomSheet } from "./shared/CategoryBottomSheet";
 import { calculateAge } from "@/lib/ageUtils";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
@@ -193,12 +195,13 @@ export default function PortageWizard({
   const isLoading = isInitializing || loadingEvaluation;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
-
-      <div className="relative w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
+    <MobileEvaluationContainer
+      title={t('portage.wizard_title')}
+      onClose={handleClose}
+    >
+      <div className="flex flex-col h-full md:max-h-[90vh]">
+        {/* Desktop header - hidden on mobile */}
+        <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
           <div>
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
               {t('portage.wizard_title')}
@@ -210,8 +213,8 @@ export default function PortageWizard({
           </button>
         </div>
 
-        {/* Category Navigation */}
-        <div className="px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
+        {/* Desktop Category Navigation - hidden on mobile */}
+        <div className="hidden md:block px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex flex-wrap gap-2">
             {PORTAGE_CATEGORIES.map((cat, index) => (
               <button
@@ -230,8 +233,8 @@ export default function PortageWizard({
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Content - extra padding bottom on mobile */}
+        <div className="flex-1 overflow-y-auto p-6 pb-20 md:pb-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -247,12 +250,13 @@ export default function PortageWizard({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-between">
+        {/* Footer - adjusted for mobile */}
+        <div className="px-6 py-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-between mb-20 md:mb-0">
+          {/* Previous button - hidden on mobile */}
           <button
             onClick={() => setCurrentCategoryIndex(prev => prev - 1)}
             disabled={currentCategoryIndex === 0}
-            className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+            className="hidden md:flex px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 items-center gap-2"
           >
             <ChevronLeft className="w-4 h-4" /> {t('common.back')}
           </button>
@@ -285,7 +289,24 @@ export default function PortageWizard({
             )}
           </div>
         </div>
+
+        {/* Mobile category navigation - bottom sheet */}
+        <CategoryBottomSheet
+          categories={PORTAGE_CATEGORIES.map((cat) => ({
+            id: cat,
+            name: cat,
+            progress: {
+              scored: Object.keys(localScores).filter(k => k.startsWith(cat.substring(0, 3))).length,
+              total: 0 // Simplified - actual total varies by age bracket
+            }
+          }))}
+          currentCategory={currentCategory}
+          onSelectCategory={(categoryId) => {
+            const index = PORTAGE_CATEGORIES.findIndex(c => c === categoryId);
+            if (index !== -1) setCurrentCategoryIndex(index);
+          }}
+        />
       </div>
-    </div>
+    </MobileEvaluationContainer>
   );
 }

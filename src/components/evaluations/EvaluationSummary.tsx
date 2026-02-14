@@ -23,6 +23,7 @@ import {
 import { Evaluation, CategorySummary } from "@/types/evaluation";
 import { useEvaluation, useClientEvaluations, ABLLS_CATEGORIES } from "@/hooks/useEvaluations";
 import CategoryScoring from "./CategoryScoring";
+import { MobileEvaluationContainer } from "./shared/MobileEvaluationContainer";
 import EvaluationRadarChart, { EvaluationRadarChartMini } from "./EvaluationRadarChart";
 import EvaluationComparison from "./EvaluationComparison";
 import { ClientInfo } from "@/types/client";
@@ -118,18 +119,17 @@ export default function EvaluationSummary({
     window.open(url, '_blank');
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+  const summaryTitle = t('evaluations.title');
 
-      {/* Modal */}
-      <div className="relative w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
+  return (
+    <MobileEvaluationContainer
+      title={summaryTitle}
+      onClose={onClose}
+    >
+      {/* Inner container for desktop modal styling */}
+      <div className="flex flex-col h-full md:max-h-[90vh]">
+        {/* Desktop header - hidden on mobile */}
+        <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
           <div className="flex items-center gap-6">
             <div>
               <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
@@ -576,6 +576,6 @@ export default function EvaluationSummary({
           </div>
         </div>
       </div>
-    </div>
+    </MobileEvaluationContainer>
   );
 }

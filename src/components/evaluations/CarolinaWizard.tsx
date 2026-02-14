@@ -21,6 +21,8 @@ import {
 import { CarolinaScore, CarolinaScoreValue } from "@/types/carolina";
 import { CAROLINA_PROTOCOL } from "@/data/carolina-protocol";
 import CarolinaScoring from "./CarolinaScoring";
+import { MobileEvaluationContainer } from "./shared/MobileEvaluationContainer";
+import { CategoryBottomSheet } from "./shared/CategoryBottomSheet";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
 
@@ -227,20 +229,15 @@ export default function CarolinaWizard({
   const isLoading = isInitializing || loadingEvaluation;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
-
-      <div className="relative w-full max-w-6xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+    <MobileEvaluationContainer
+      title={t('carolina.wizard_title')}
+      onClose={handleClose}
+    >
+      <div className="flex flex-col h-full md:max-h-[90vh]">
         
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 shrink-0">
+        {/* Header - desktop only */}
+        <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 shrink-0">
           <div className="flex items-center gap-4">
-            <button 
-              className="lg:hidden p-2 hover:bg-neutral-200 rounded-lg"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
             <div>
               <h2 className="text-lg font-bold text-neutral-900 dark:text-white">{t('carolina.wizard_title')}</h2>
               <p className="text-sm text-neutral-500">{clientName}</p>
@@ -260,11 +257,8 @@ export default function CarolinaWizard({
         </div>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar Navigation */}
-          <div className={clsx(
-            "w-64 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 overflow-y-auto shrink-0 transition-all absolute lg:static inset-y-0 left-0 z-10 lg:z-0 transform lg:transform-none bg-white lg:bg-transparent shadow-xl lg:shadow-none",
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          )}>
+          {/* Desktop Sidebar Navigation - hidden on mobile */}
+          <div className="hidden md:block w-64 border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 overflow-y-auto shrink-0">
             <div className="p-4 space-y-6">
               {CAROLINA_PROTOCOL.map((domain, dIdx) => (
                 <div key={domain.id}>
@@ -304,7 +298,7 @@ export default function CarolinaWizard({
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col min-w-0">
-            <div className="flex-1 overflow-y-auto p-6 md:p-8">
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 pb-20 md:pb-8">
               {isLoading ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -323,7 +317,7 @@ export default function CarolinaWizard({
             </div>
 
             {/* Footer Actions */}
-            <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex justify-between items-center shrink-0">
+            <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex justify-between items-center shrink-0 mb-20 md:mb-0">
               <button
                 onClick={() => navigateSequence('prev')}
                 disabled={currentDomainIndex === 0 && currentSequenceIndex === 0}
@@ -362,7 +356,32 @@ export default function CarolinaWizard({
             </div>
           </div>
         </div>
+
+        {/* Mobile category navigation - bottom sheet */}
+        <CategoryBottomSheet
+          categories={CAROLINA_PROTOCOL.flatMap((domain) =>
+            domain.sequences.map((seq, sIdx) => ({
+              id: `${domain.id}-${seq.id}`,
+              name: `${domain.title}: ${seq.title}`,
+              progress: {
+                scored: seq.items.filter(i => localScores[i.id]).length,
+                total: seq.items.length
+              }
+            }))
+          )}
+          currentCategory={`${currentDomain?.id}-${currentSequence?.id}`}
+          onSelectCategory={(categoryId) => {
+            CAROLINA_PROTOCOL.forEach((domain, dIdx) => {
+              domain.sequences.forEach((seq, sIdx) => {
+                if (`${domain.id}-${seq.id}` === categoryId) {
+                  setCurrentDomainIndex(dIdx);
+                  setCurrentSequenceIndex(sIdx);
+                }
+              });
+            });
+          }}
+        />
       </div>
-    </div>
+    </MobileEvaluationContainer>
   );
 }

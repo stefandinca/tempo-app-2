@@ -31,6 +31,8 @@ import {
 import { VBMAPPItemScore, MilestoneScore, BarrierScore, TransitionScore, VBMAPPEvaluation } from "@/types/vbmapp";
 import VBMAPPMilestoneScoring from "./VBMAPPMilestoneScoring";
 import VBMAPPBarrierScoring from "./VBMAPPBarrierScoring";
+import { MobileEvaluationContainer } from "../shared/MobileEvaluationContainer";
+import { CategoryBottomSheet } from "../shared/CategoryBottomSheet";
 import { useConfirm } from "@/context/ConfirmContext";
 
 interface VBMAPPWizardProps {
@@ -339,14 +341,14 @@ export default function VBMAPPWizard({
   const isLoading = isInitializing || loadingEvaluation;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
-
-      {/* Modal */}
-      <div className="relative w-full max-w-5xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+    <MobileEvaluationContainer
+      title="VB-MAPP Evaluation"
+      onClose={handleClose}
+    >
+      {/* Inner container for desktop modal styling */}
+      <div className="flex flex-col h-full md:max-h-[90vh]">
+        {/* Desktop header - hidden on mobile */}
+        <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
           <div>
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
               VB-MAPP Evaluation
@@ -366,8 +368,8 @@ export default function VBMAPPWizard({
           </button>
         </div>
 
-        {/* Progress Bar */}
-        <div className="px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
+        {/* Progress Bar - desktop only */}
+        <div className="hidden md:block px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
               Overall Progress
@@ -384,8 +386,8 @@ export default function VBMAPPWizard({
           </div>
         </div>
 
-        {/* Section Navigation */}
-        <div className="px-6 py-3 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto">
+        {/* Desktop Section Navigation - hidden on mobile */}
+        <div className="hidden md:block px-6 py-3 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto">
           <div className="flex gap-2 min-w-max">
             {SECTIONS.map((section) => {
               const isActive = section.id === currentSection;
@@ -413,8 +415,8 @@ export default function VBMAPPWizard({
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Content - extra padding bottom on mobile for navigation */}
+        <div className="flex-1 overflow-y-auto p-6 pb-28 md:pb-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
@@ -424,8 +426,8 @@ export default function VBMAPPWizard({
               {/* Milestones for Levels 1-3 */}
               {(currentSection === 'level1' || currentSection === 'level2' || currentSection === 'level3') && currentArea && (
                 <>
-                  {/* Area selector pills */}
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  {/* Desktop Area selector pills - hidden on mobile */}
+                  <div className="hidden md:flex flex-wrap gap-2 mb-6">
                     {currentLevelAreas.map((area, idx) => {
                       const areaScored = area.items.filter((i) => milestoneScores[i.id]).length;
                       const isComplete = areaScored === area.items.length;
@@ -594,13 +596,14 @@ export default function VBMAPPWizard({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-between">
+        {/* Footer - adjusted for mobile to sit above bottom navigation */}
+        <div className="px-6 py-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 flex items-center justify-between mb-24 md:mb-0">
+          {/* Previous button - hidden on mobile */}
           <button
             onClick={goToPrevArea}
             disabled={isFirstStep}
             className={clsx(
-              "px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
+              "hidden md:flex px-4 py-2 rounded-lg text-sm font-medium transition-colors items-center gap-2",
               isFirstStep
                 ? "text-neutral-400 cursor-not-allowed"
                 : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800"
@@ -647,7 +650,88 @@ export default function VBMAPPWizard({
             )}
           </div>
         </div>
+
+        {/* Mobile navigation - unified bottom drawer like ABLLS-R */}
+        <CategoryBottomSheet
+          categories={[
+            // Level 1 areas
+            ...VBMAPP_LEVEL_1_AREAS.map((area, idx) => ({
+              id: `level1-${idx}`,
+              name: `Level 1: ${area.code} - ${area.name}`,
+              progress: {
+                scored: area.items.filter(i => milestoneScores[i.id]).length,
+                total: area.items.length
+              }
+            })),
+            // Level 2 areas
+            ...VBMAPP_LEVEL_2_AREAS.map((area, idx) => ({
+              id: `level2-${idx}`,
+              name: `Level 2: ${area.code} - ${area.name}`,
+              progress: {
+                scored: area.items.filter(i => milestoneScores[i.id]).length,
+                total: area.items.length
+              }
+            })),
+            // Level 3 areas
+            ...VBMAPP_LEVEL_3_AREAS.map((area, idx) => ({
+              id: `level3-${idx}`,
+              name: `Level 3: ${area.code} - ${area.name}`,
+              progress: {
+                scored: area.items.filter(i => milestoneScores[i.id]).length,
+                total: area.items.length
+              }
+            })),
+            // Barriers
+            {
+              id: 'barriers',
+              name: 'Barriers Assessment',
+              progress: {
+                scored: Object.keys(barrierScores).length,
+                total: VBMAPP_BARRIERS.length
+              }
+            },
+            // Transition
+            {
+              id: 'transition',
+              name: 'Transition Assessment',
+              progress: {
+                scored: Object.keys(transitionScores).length,
+                total: VBMAPP_TRANSITION.length
+              }
+            }
+          ]}
+          currentCategory={
+            currentSection === 'barriers' ? 'barriers' :
+            currentSection === 'transition' ? 'transition' :
+            (currentSection === 'level1' || currentSection === 'level2' || currentSection === 'level3')
+              ? `${currentSection}-${currentAreaIndex}`
+              : 'level1-0'
+          }
+          onSelectCategory={(categoryId) => {
+            if (categoryId === 'barriers') {
+              setCurrentSection('barriers');
+              setCurrentAreaIndex(0);
+            } else if (categoryId === 'transition') {
+              setCurrentSection('transition');
+              setCurrentAreaIndex(0);
+            } else {
+              const [level, indexStr] = categoryId.split('-');
+              const areaIndex = parseInt(indexStr);
+
+              if (level === 'level1') {
+                setCurrentSection('level1');
+                setCurrentAreaIndex(areaIndex);
+              } else if (level === 'level2') {
+                setCurrentSection('level2');
+                setCurrentAreaIndex(areaIndex);
+              } else if (level === 'level3') {
+                setCurrentSection('level3');
+                setCurrentAreaIndex(areaIndex);
+              }
+            }
+          }}
+        />
       </div>
-    </div>
+    </MobileEvaluationContainer>
   );
 }
