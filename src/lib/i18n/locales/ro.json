@@ -22,6 +22,7 @@
     },
     "new_event": "Eveniment Nou",
     "search_placeholder": "Caută...",
+    "help_tooltip": "Ajutor și Documentație",
     "offline": "OFFLINE",
     "offline_tooltip": "Offline - Verifică conexiunea",
     "refresh_tooltip": "Reîmprospătează datele",
@@ -1193,6 +1194,8 @@
     "mark_as_paid": "Marchează ca Plătită",
     "mark_pending": "Marchează ca Restantă",
     "view_details": "Vezi Detalii",
+    "view_billing": "Vezi Facturarea",
+    "generate_invoice_first": "Generați factura mai întâi",
     "no_billable_sessions": "Fără ședințe de facturat",
     "no_sessions_description": "Nu există ședințe finalizate de facturat pentru această perioadă.",
     "no_team_members": "Niciun membru al echipei găsit",
@@ -1201,17 +1204,47 @@
     "pending": "În așteptare",
     "create": "Creează",
     "synced": "Sincronizată SmartBill",
+    "table": {
+      "client": "Client",
+      "sessions": "Ședințe",
+      "hours": "Ore",
+      "amount": "Sumă",
+      "status": "Status",
+      "actions": "Acțiuni",
+      "not_billed": "Nefacturat",
+      "session_breakdown": "Detaliere Ședințe",
+      "sessions_count": "{{count}} ședințe",
+      "excused_info": "({{count}} motivate)",
+      "discount_info": "-{{amount}} reducere",
+      "discount": "Reducere",
+      "monthly_total": "Total Lunar"
+    },
     "status": {
       "paid": "Plătită",
-      "pending": "În așteptare",
+      "pending": "Restantă",
       "create": "Creează",
-      "synced": "Sincronizată SmartBill"
+      "synced": "Sincronizată",
+      "already_synced": "Deja Sincronizată",
+      "sync_smartbill": "Sincronizează SmartBill"
     },
+    "generate_invoice": "Generează Factura",
+    "delete_invoice_storno": "Șterge Factura (Storno)",
+    "mark_as_paid": "Marchează ca Plătită",
+    "mark_pending": "Marchează ca Restantă",
+    "view_details": "Vezi Detalii",
+    "errors": {
+      "smartbill_sync": "Eroare Sincronizare SmartBill",
+      "configure_clinic": "Vă rugăm să configurați datele clinicii în Setări > Configurație Facturare mai întâi.",
+      "settings_not_found": "Setările de sistem nu au fost găsite"
+    },
+    "subscription_label": "Abonament",
     "notification_payment_received": "Plată Primită",
     "notification_payment_message": "Factura pentru {{name}} a fost marcată ca PLĂTITĂ ({{total}} RON)",
     "notification_payment_confirmed": "Plată Confirmată",
     "notification_payment_confirmed_message": "Plata dumneavoastră de {{total}} RON a fost confirmată. Mulțumim!",
     "update_error": "Eroare la actualizarea statusului facturii.",
+    "mark_pending_success": "Factură marcată ca restantă.",
+    "mark_paid_success": "Factură marcată ca plătită.",
     "delete_success": "Factură ștearsă și anulată.",
     "delete_error": "Eroare la ștergerea facturii.",
     "payout_messages": {
@@ -1469,212 +1502,166 @@
       "close": "închide"
     }
   },
-  "clients": {
-    "title": "Clienți",
-    "new_client": "Client Nou",
-    "search_placeholder": "Caută clienți...",
-    "status": {
-      "active": "Activ",
-      "archived": "Arhivat",
-      "all": "Toți"
-    },
-    "sort": {
-      "name": "Sortează după nume",
-      "recent": "Sortează după cele mai recente"
-    },
-    "no_results": "Nu s-au găsit clienți",
-    "no_results_subtitle": "Încercați să ajustați căutarea sau filtrele.",
-    "clear_search": "Șterge căutarea",
-    "age_years": "{{count}} ani",
-    "born": "Născut",
-    "unassigned": "Nealocat",
-    "next_session": "Următoarea",
-    "no_upcoming": "Fără ședințe programate",
-    "overall_progress": "Progres General",
-    "view_profile": "Vezi Profil",
-    "quick_schedule": "Programare Rapidă",
-    "delete_confirm": "Ești sigur că vrei să ștergi pe {{name}}? Această acțiune este ireversibilă.",
-    "restore": "Restaurează",
-    "archive": "Arhivează",
-    "client_restored": "Client restaurat",
-    "client_archived": "Client arhivat",
-    "client_deleted": "Client șters",
-    "update_error": "Eroare la actualizarea clientului",
-    "delete_error": "Eroare la ștergerea clientului",
-    "invalid_request": "Cerere Invalidă",
-    "no_id_provided": "Nu a fost furnizat un ID de client.",
-    "client_not_found": "Clientul nu a fost găsit",
-    "client_not_found_subtitle": "Clientul pe care îl căutați nu există sau a fost șters.",
-    "back_to_list": "Înapoi la Lista de Clienți",
-    "edit_profile": "Editează Profilul",
-    "delete_forever": "Șterge Definitiv",
-    "delete_forever_confirm": "Ești sigur că vrei să ștergi DEFINITIV pe {{name}}? Această acțiune nu poate fi anulată.",
-    "restore_client": "Restaurează Clientul",
-    "archive_client": "Arhivează Clientul",
-    "under_development": "Această secțiune este în curs de dezvoltare.",
-    "personal_info": "Informații Personale",
-    "medical_notes": "Informații Medicale și Note",
-    "assigned_team": "Echipa de Terapie Alocată",
-    "clinical_actions": "Acțiuni Clinice",
-    "upcoming_schedule": "Programări Viitoare",
-    "portal_access": "Acces Portal",
-    "clinical_stats": "Statistici Clinice",
-    "latest_assessment": "Ultima Evaluare",
-    "message_parent": "Mesaj Părinte",
-    "generate_access": "Generează Acces",
-    "code_generated": "Cod de acces generat cu succes!",
-    "code_error": "Eroare la generarea codului",
-    "link_copied": "Link copiat!",
-    "no_parent": "Niciun părinte înregistrat încă.",
-    "chat_error": "Eroare la deschiderea conversației",
-    "start_evaluation": "Începe Prima Evaluare",
-    "no_assessments": "Nicio evaluare înregistrată",
-    "based_on_sessions": "Pe baza a {{count}} ședințe înregistrate",
-    "no_team_assigned": "Niciun membru al echipei alocat.",
-    "no_medical_info": "Nicio alertă medicală sau notă clinică.",
-    "billing_info": "Informații Facturare",
-    "report_description": "Generează un raport profesional cu istoric ședințe, prezență și rezultate evaluări.",
-    "member_assigned": "{{name}} alocat clientului",
-    "assign_error": "Eroare la alocarea membrului",
-    "remove_member_title": "Elimină Membru",
-    "remove_member_confirm": "Eliminați acest membru din echipa clientului?",
-    "remove_member_action": "Elimină",
-    "member_removed": "Membru eliminat",
-    "remove_error": "Eroare la eliminarea membrului",
-    "fields": {
-      "full_name": "Nume Complet",
-      "birth_date": "Data Nașterii",
-      "phone": "Telefon",
-      "parent_email": "Email Părinte",
-      "parent_name": "Nume Părinte",
-      "diagnosis": "Diagnostic Principal",
-      "diagnosis_date": "Data Diagnosticului",
-      "support_level": "Nivel Suport (DSM-5)",
-      "medical_info": "Informații Medicale",
-      "billing_address": "Adresă Facturare",
-      "cif_cui": "CIF / CUI",
-      "reg_no": "Nr. Reg. Com.",
-      "assigned_therapist": "Terapeut Alocat"
-    },
-    "tabs": {
-      "overview": "Prezentare Generală",
-      "evaluations": "Evaluări",
-      "programs": "Programe",
-      "notes": "Note",
-      "plan": "Plan",
-      "homework": "Teme",
-      "docs": "Documente",
-      "billing": "Facturare"
-    },
-    "homework": {
-      "title": "Teme și Activități",
-      "subtitle": "Gestionați sarcinile atribuite părinților pentru acasă.",
-      "add_button": "Adaugă Temă",
-      "no_homework": "Nu există teme atribuite.",
-      "form": {
-        "title": "Titlu Temă",
-        "description": "Descriere / Instrucțiuni",
-        "due_date": "Data Scadenței",
-        "frequency": "Frecvență",
-        "placeholder_title": "ex: Exersare contact vizual",
-        "placeholder_desc": "Descrieți pașii necesari pentru părinte..."
+  "help": {
+    "title": "Ajutor și Documentație",
+    "subtitle": "Tot ce trebuie să știi despre utilizarea TempoApp",
+    "search_placeholder": "Caută în documentație...",
+    "sections": {
+      "dashboard": {
+        "title": "Dashboard și Prezentare Generală",
+        "description": "Centrul tău de control clinic. Dashboard-ul oferă o vedere de ansamblu asupra operațiunilor zilnice, sarcinilor urgente și ultimelor actualizări din sistem.",
+        "features": {
+          "widgets": {
+            "title": "Widget-uri Statistice",
+            "content": "Situate în partea de sus, aceste carduri arată metrici în timp real: Clienți Activi (totalul listei non-arhivate), Rata de Prezență (procentul ședințelor finalizate vs. anulate) și Ședințe Azi. Dând click pe aceste widget-uri veți fi redirecționat către secțiunile detaliate corespunzătoare."
+          },
+          "schedule": {
+            "title": "Programul de Azi",
+            "content": "O cronologie verticală a ședințelor tale. Poți înregistra rapid prezența (Prezent, Absent, Motivat) direct de pe cardul din dashboard. Dând click pe o ședință se deschide panoul de detalii unde poți înregistra note clinice și scorurile programelor."
+          },
+          "activity": {
+            "title": "Flux de Activitate Recentă",
+            "content": "Afișează o listă cronologică a evenimentelor din sistem, cum ar fi înregistrarea clienților noi sau logarea prezenței. Acest lucru ajută echipa să rămână la curent cu schimbările fără a fi nevoie de ședințe manuale de status."
+          },
+          "user_flow": {
+            "title": "Exemplu Flux Lucru",
+            "content": "• Flux Terapeut: Începe ziua verificând 'Programul de Azi'. După fiecare ședință, folosește acțiunile rapide pentru a marca prezența și apasă pe 'Note' pentru a înregistra rezultatele intervenției.\n• Flux Admin: Verifică widget-ul 'Rata de Prezență' pentru a identifica tipare de anulare la nivelul clinicii."
+          }
+        }
       },
-      "status": {
-        "in_progress": "În lucru",
-        "completed": "Finalizat"
+      "calendar": {
+        "title": "Gestionare Calendar",
+        "description": "Programează și gestionează eficient ședințele de terapie pentru întreaga echipă. Calendarul este inima logicii de coordonare TempoApp.",
+        "features": {
+          "views": {
+            "title": "Vizualizări Calendar",
+            "content": "Comută între vizualizările Lună, Săptămână și Zi. Vizualizarea pe săptămână este optimizată pentru mobil. Vizualizarea pe lună include un mod 'Agendă' pe ecranele mici, listând evenimentele zilnice într-o listă scrollabilă."
+          },
+          "scheduling": {
+            "title": "Programarea Ședințelor",
+            "content": "Apasă butonul 'Eveniment Nou' sau dă click pe un interval orar. Alege între 'Terapie' (facturare standard) sau 'Evaluare' (protocoale standard). Sistemul preia automat planul de intervenție curent al clientului pentru a preselecta programele active."
+          },
+          "recurring": {
+            "title": "Evenimente Recurente",
+            "content": "Pentru terapia pe termen lung, configurează ședințe care se repetă săptămânal. Sistemul va verifica suprapunerile și te va alerta dacă există conflicte în programul terapeutului."
+          },
+          "filtering": {
+            "title": "Filtrare Avansată",
+            "content": "Coordonatorii pot filtra întreaga vedere a clinicii după Terapeut pentru a verifica disponibilitatea sau după Client pentru a vedea dozajul specific de terapie."
+          },
+          "user_flow": {
+            "title": "Exemplu Flux Lucru",
+            "content": "• Flux Coordonator: Deschide 'Vizualizare Săptămână', filtrează după 'Terapeut A' și 'Terapeut B' pentru a găsi un interval comun pentru o ședință de grup. Salvează ședința ca 'Recurentă'.\n• Flux Terapeut: Folosește 'Vizualizarea de Azi' pe mobil pentru a vedea alocarea sălilor și notele clientului înainte de începerea ședinței."
+          }
+        }
       },
-      "save_success": "Temă salvată cu succes",
-      "delete_confirm": "Sigur doriți să ștergeți această temă?"
-    },
-    "notes": {
-      "title": "Note și Scoruri Ședințe",
-      "no_sessions": "Nu există ședințe evaluate încă",
-      "no_sessions_subtitle": "Scorurile și notele programelor vor apărea aici după finalizarea ședințelor.",
-      "session_notes": "Note Ședință",
-      "program_notes": "Note Program",
-      "trials": "încercări",
-      "success": "succes"
-    },
-    "form": {
-      "child_name": "Nume Copil",
-      "child_name_placeholder": "ex: Ion Popescu",
-      "birth_date": "Data Nașterii",
-      "primary_diagnosis": "Diagnostic Principal",
-      "diagnosis_placeholder": "ex: Tulburare din Spectrul Autist",
-      "diagnosis_date": "Data Diagnosticului",
-      "support_level": "Nivel Suport (DSM-5)",
-      "level_1": "Nivel 1 (Necesită Suport)",
-      "level_2": "Nivel 2 (Suport Substanțial)",
-      "level_3": "Nivel 3 (Suport Foarte Substanțial)",
-      "phone": "Număr Telefon",
-      "phone_placeholder": "ex: 0721 234 567",
-      "optional": "(opțional)",
-      "parent_name": "Nume Părinte",
-      "parent_name_placeholder": "ex: Robert Popescu",
-      "parent_email": "Email Părinte",
-      "parent_email_placeholder": "parinte@exemplu.com",
-      "assigned_therapist": "Terapeut Alocat",
-      "select_therapist": "Selectați un terapeut...",
-      "medical_info": "Informații Medicale / Note",
-      "medical_info_placeholder": "Alergii, note specifice diagnosticului...",
-      "billing_section": "Informații Facturare (SmartBill)",
-      "billing_address": "Adresă Facturare",
-      "billing_address_placeholder": "Stradă, Număr, Oraș, Județ",
-      "cif_cui": "CIF / CUI",
-      "cif_placeholder": "RO12345678",
-      "reg_no": "Nr. Reg. Com.",
-      "reg_no_placeholder": "J40/123/2020"
-    },
-    "add_modal": {
-      "title": "Adaugă Client Nou",
-      "subtitle": "Înregistrați un copil nou în sistem",
-      "cancel": "Anulează",
-      "submit": "Înregistrează Client",
-      "success": "Client adăugat cu succes",
-      "error": "Eroare la adăugarea clientului"
-    },
-    "edit_modal": {
-      "title": "Editează Profilul",
-      "subtitle": "Actualizați informațiile pentru {{name}}",
-      "cancel": "Anulează",
-      "submit": "Salvează Modificările",
-      "success": "Profil actualizat cu succes",
-      "error": "Eroare la actualizarea profilului"
-    },
-    "plan_modal": {
-      "title_create": "Creează Plan de Intervenție",
-      "title_edit": "Editează Plan de Intervenție",
-      "subtitle_create": "Configurați programele pentru acest client",
-      "subtitle_edit": "Modificați detaliile planului",
-      "plan_name": "Nume Plan",
-      "plan_name_placeholder": "ex: Plan Intervenție T1 2026",
-      "start_date": "Data Începerii",
-      "end_date": "Data Încheierii",
-      "status": "Status",
-      "status_active": "Activ",
-      "status_draft": "Ciornă",
-      "status_completed": "Finalizat",
-      "select_programs": "Selectați Programele",
-      "selected_count": "({{count}} selectate)",
-      "search_programs": "Caută programe...",
-      "no_programs": "Nu s-au găsit programe",
-      "cancel": "Anulează",
-      "submit_create": "Creează Planul",
-      "submit_edit": "Salvează Modificările",
-      "success_create": "Plan creat cu succes",
-      "success_edit": "Plan actualizat cu succes",
-      "error_create": "Eroare la crearea planului",
-      "error_edit": "Eroare la actualizarea planului",
-      "delete_confirm": "Ștergeți \"{{name}}\"? Această acțiune este ireversibilă.",
-      "deleted": "Plan șters",
-      "delete_error": "Eroare la ștergerea planului",
-      "validation": {
-        "name_required": "Numele planului este obligatoriu",
-        "start_date_required": "Data începerii este obligatorie",
-        "end_date_required": "Data încheierii este obligatorie",
-        "end_after_start": "Data încheierii trebuie să fie după data începerii",
-        "select_program": "Selectați cel puțin un program"
+      "clients": {
+        "title": "Gestionare Clienți",
+        "description": "Gestionează întregul ciclu de viață clinic al pacienților tăi. De la preluarea inițială și diagnosticare până la testarea standardizată și absolvire.",
+        "features": {
+          "profiles": {
+            "title": "Profiluri Centralizate",
+            "content": "Fiecare profil de client este o sursă unică de adevăr. Poți vedea detalii personale (data nașterii, diagnostic, nivel de suport), informații de contact pentru părinți și echipa clinică alocată. Profilul folosește o interfață cu tab-uri pentru a separa istoricul medical de progresul curent."
+          },
+          "evaluations": {
+            "title": "Realizarea Evaluărilor",
+            "content": "Efectuează evaluări VB-MAPP, ABLLS-R, CARS, Portage sau Carolina. Sistemul te ghidează prin protocol, permițându-ți să salvezi ciorne. Odată 'Finalizată', rezultatele generează un grafic radar care compară abilitățile curente cu evaluările anterioare pentru a evidenția creșterea dezvoltării."
+          },
+          "plans": {
+            "title": "Planuri de Intervenție Digitale",
+            "content": "Planurile de intervenție îți permit să asociezi programe specifice (ex: 'Contact Vizual', 'Cereri Mand') unui client. Terapeuții pot înregistra apoi rezultatele încercărilor (Succes/Ajutat/Incorect) în timpul ședințelor, ceea ce actualizează automat graficele de progres ale clientului."
+          },
+          "homework": {
+            "title": "Implicarea Părinților",
+            "content": "Extinde terapia dincolo de clinică prin alocarea de 'Teme'. Terapeuții pot scrie instrucțiuni pentru practică acasă. Părinții le accesează din propriul portal, unde pot marca sarcinile ca 'Finalizate' și pot oferi feedback despre performanța copilului acasă."
+          },
+          "user_flow": {
+            "title": "Exemplu Flux Lucru",
+            "content": "• Flux Terapeut: Deschide profilul unui client, mergi la tab-ul 'Evaluări' și începe un nou 'VB-MAPP'. Notează reperele observate în timpul săptămânii. Odată terminat, apasă pe 'Vezi Raport' pentru a vedea analiza automată a vârstei de dezvoltare.\n• Flux Admin: Verifică tab-ul 'Documente' al unui client pentru a te asigura că toate formularele de consimțământ și certificatele medicale sunt încărcate și valide."
+          }
+        }
+      },
+      "team": {
+        "title": "Echipă și Permisiuni",
+        "description": "Controlează accesul la sistem, gestionează dosarele personalului și monitorizează performanța profesională.",
+        "features": {
+          "rbac": {
+            "title": "Controlul Accesului (RBAC)",
+            "content": "Securitatea este gestionată prin roluri. 'Superadmin' are acces complet, inclusiv regulile bazei de date. 'Admin' gestionează facturarea și setările clinicii. 'Coordonatorul' se ocupă de programări și alocări de echipă. 'Terapeutul' se concentrează pe datele clinice ale clienților. Poți schimba rolul unui membru în orice moment din fereastra de editare a membrului."
+          },
+          "reports": {
+            "title": "Rapoarte de Performanță Profesională",
+            "content": "Monitorizează performanța personalului generând rapoarte PDF. Acestea includ orele totale de ședințe, numărul de clienți activi și o distribuție a tipurilor de servicii oferite. Acest lucru este esențial pentru calcularea bonusurilor sau efectuarea evaluărilor de performanță."
+          },
+          "user_flow": {
+            "title": "Exemplu Flux Lucru",
+            "content": "• Flux Superadmin: Când se alătură un membru nou, mergi la 'Echipă', apasă 'Adaugă Membru', introdu email-ul său și alocă-i rolul de 'Coordonator'. Utilizatorul va primi apoi o invitație pentru a-și configura contul.\n• Flux Admin: La sfârșitul lunii, deschide cardul unui Terapeut și apasă pe 'Generează Raport' pentru a vedea totalul orelor facturabile pentru procesarea salariilor."
+          }
+        }
+      },
+      "billing": {
+        "title": "Facturare și Finanțe",
+        "description": "Sistem de facturare integrat, conceput pentru operațiuni clinice. Automatizează emiterea facturilor și urmărește cheltuielile clinicii.",
+        "features": {
+          "multi_entity": {
+            "title": "Multi-Entitate Legală",
+            "content": "Configurează mai multe clinici sau entități juridice în același cont. Când generezi facturi, selectează entitatea emitentă pentru a aplica antetul, seria și detaliile bancare corecte. Acest lucru este ideal pentru organizațiile care operează sub diferite nume înregistrate."
+          },
+          "smartbill": {
+            "title": "Sincronizare SmartBill",
+            "content": "Conectează-ți contul SmartBill pentru a sincroniza automat facturile generate. Acest lucru asigură că contabilitatea ta oficială este mereu la zi, fără introducere manuală de date. Sistemul te va alerta dacă o sincronizare eșuează."
+          },
+          "expenses": {
+            "title": "Urmărirea Cheltuielilor",
+            "content": "Înregistrează cheltuielile clinicii, cum ar fi chiria, utilitățile și consumabilele. Categorisește cheltuielile și setează-le ca recurente pentru a proiecta automat profitul lunar. Vizualizează graficele de cheltuieli în secțiunea Analize."
+          },
+          "user_flow": {
+            "title": "Exemplu Flux Lucru",
+            "content": "• Flux Admin: La sfârșitul lunii, mergi la 'Facturare', apasă 'Generează Facturi'. Revizuiește ședințele, selectează entitatea emitentă și apasă 'Sincronizează SmartBill'. Părintele va primi automat factura pe email.\n• Flux Superadmin: Mergi la 'Setări' > 'Configurație Facturare' pentru a adăuga o a doua entitate legală cu propriul IBAN și cotă TVA."
+          }
+        }
+      },
+      "analytics": {
+        "title": "Analize și Perspective",
+        "description": "Decizii bazate pe date pentru clinica ta. Monitorizează eficacitatea clinică și sănătatea financiară prin vizualizări interactive.",
+        "features": {
+          "progress": {
+            "title": "Indicele de Progres Clinic",
+            "content": "Monitorizează rata globală de atingere a obiectivelor pentru toate planurile de intervenție active. Această metrică agreghează fiecare încercare înregistrată în clinică pentru a arăta cât de eficiente sunt programele tale."
+          },
+          "revenue": {
+            "title": "Mix de Venituri",
+            "content": "Analizează care tipuri de servicii (ex: 'Logopedie' vs 'ABA') generează cea mai mare valoare. Vezi tendințele lunare ale veniturilor și venitul proiectat în funcție de ședințele programate."
+          },
+          "utilization": {
+            "title": "Gradul de Utilizare al Terapeuților",
+            "content": "Monitorizează volumul de muncă și capacitatea terapeuților. Sistemul compară orele programate cu capacitatea țintă a terapeutului pentru a identifica cine este supraîncărcat sau cine mai are loc pentru clienți noi."
+          },
+          "user_flow": {
+            "title": "Exemplu Flux Lucru",
+            "content": "• Flux Coordonator: Deschide 'Analize' și verifică 'Gradul de Utilizare'. Observă că 'Terapeutul Y' este la doar 60% din capacitate. Mergi la lista de așteptare și alocă doi clienți noi în portofoliul său.\n• Flux Admin: Revizuiește graficul 'Mix de Venituri' pentru a decide dacă clinica ar trebui să angajeze mai mulți terapeuți pe o anumită specializare."
+          }
+        }
+      },
+      "settings": {
+        "title": "Configurare Sistem",
+        "description": "Personalizează TempoApp pentru a se potrivi nevoilor specifice ale clinicii tale. Gestionează preferințele și constrângerile la nivel de sistem.",
+        "features": {
+          "notifications": {
+            "title": "Preferințe Notificări",
+            "content": "Configurează care evenimente din sistem declanșează alerte în aplicație sau notificări prin email. Fiecare membru al echipei își poate personaliza propriile preferințe pentru a evita supraîncărcarea cu informații."
+          },
+          "limits": {
+            "title": "Limite Cont",
+            "content": "Administratorii pot seta praguri maxime pentru clienții activi și membrii echipei, în funcție de nivelul abonamentului. Sistemul va împiedica adăugarea de noi clienți dacă limita a fost atinsă."
+          },
+          "user_flow": {
+            "title": "Exemplu Flux Lucru",
+            "content": "• Flux Terapeut: Mergi la 'Setări' > 'Aspect' pentru a comuta pe 'Dark Mode' pentru o vizibilitate mai bună în timpul înregistrării ședințelor de noapte.\n• Flux Admin: Mergi la 'Setări' > 'Notificări' și dezactivează 'Alertele prin Email' pentru 'Ședință Nouă' dacă preferi să le vezi doar în interiorul aplicației."
+          }
+        }
       }
     }
   }
 }
+

@@ -22,6 +22,7 @@
     },
     "new_event": "New Event",
     "search_placeholder": "Search...",
+    "help_tooltip": "Help & Documentation",
     "offline": "OFFLINE",
     "offline_tooltip": "Offline - Check connection",
     "refresh_tooltip": "Refresh data",
@@ -1218,6 +1219,8 @@
     "mark_as_paid": "Mark as Paid",
     "mark_pending": "Mark Pending",
     "view_details": "View Details",
+    "view_billing": "View Billing",
+    "generate_invoice_first": "Generate Invoice first",
     "no_billable_sessions": "No billable sessions",
     "no_sessions_description": "There are no completed sessions to bill for this period.",
     "no_team_members": "No team members found",
@@ -1226,17 +1229,47 @@
     "pending": "Pending",
     "create": "Create",
     "synced": "Synced to Smartbill",
+    "table": {
+      "client": "Client",
+      "sessions": "Sessions",
+      "hours": "Hours",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions",
+      "not_billed": "Not billed",
+      "session_breakdown": "Session Breakdown",
+      "sessions_count": "{{count}} sessions",
+      "excused_info": "({{count}} excused)",
+      "discount_info": "-{{amount}} discount",
+      "discount": "Discount",
+      "monthly_total": "Monthly Total"
+    },
     "status": {
       "paid": "Paid",
       "pending": "Pending",
       "create": "Create",
-      "synced": "Synced to Smartbill"
+      "synced": "Synced",
+      "already_synced": "Already Synced",
+      "sync_smartbill": "Sync to SmartBill"
     },
+    "generate_invoice": "Generate Invoice",
+    "delete_invoice_storno": "Delete Invoice (Storno)",
+    "mark_as_paid": "Mark as Paid",
+    "mark_pending": "Mark Pending",
+    "view_details": "View Details",
+    "errors": {
+      "smartbill_sync": "SmartBill Sync Error",
+      "configure_clinic": "Please configure clinic details in Settings > Billing Config first.",
+      "settings_not_found": "System settings not found"
+    },
+    "subscription_label": "Subscription",
     "notification_payment_received": "Payment Received",
     "notification_payment_message": "Invoice for {{name}} was marked as PAID ({{total}} RON)",
     "notification_payment_confirmed": "Payment Confirmed",
     "notification_payment_confirmed_message": "Your payment of {{total}} RON has been confirmed. Thank you!",
     "update_error": "Failed to update invoice status.",
+    "mark_pending_success": "Invoice marked as pending.",
+    "mark_paid_success": "Invoice marked as paid.",
     "delete_success": "Invoice deleted and rolled back.",
     "delete_error": "Failed to delete invoice.",
     "payout_messages": {
@@ -1487,10 +1520,173 @@
       "view_docs": "View {{name}}'s documents",
       "view_docs_desc": "Browse client documents"
     },
-    "hints": {
-      "navigate": "navigate",
-      "select": "select",
-      "close": "close"
-    }
-  }
-}
+        "hints": {
+          "navigate": "navigate",
+          "select": "select",
+          "close": "close"
+        }
+      },
+      "help": {
+        "title": "Help & Documentation",
+        "subtitle": "Everything you need to know about using TempoApp",
+        "search_placeholder": "Search help articles...",
+        "sections": {
+                "dashboard": {
+                  "title": "Dashboard & Overview",
+                  "description": "Your clinical control center. The dashboard provides a high-level view of your daily operations, urgent tasks, and recent system updates.",
+                  "features": {
+                    "widgets": {
+                      "title": "Quick Stats Widgets",
+                      "content": "Located at the top of the dashboard, these cards show real-time metrics: Active Clients (total non-archived roster), Attendance Rate (percentage of completed vs. cancelled sessions for the current month), and Sessions Today (count of scheduled events for the current date). Clicking these widgets often leads to the detailed related section."
+                    },
+                    "schedule": {
+                      "title": "Today's Schedule",
+                      "content": "A vertical timeline of your sessions. You can quickly log attendance (Present, Absent, Excused) directly from the dashboard card. Clicking a session opens the full detail panel where you can record clinical notes and program scores. This view is filtered to show your own sessions if you are a Therapist, or the whole clinic if you are an Admin."
+                    },
+                    "activity": {
+                      "title": "Recent Activity Feed",
+                      "content": "Displays a chronological list of system-wide events, such as new clients being registered, attendance being logged, or progress reports being generated. This helps the entire team stay updated on clinical changes without manual status meetings."
+                    },
+                    "user_flow": {
+                      "title": "Example Workflow",
+                      "content": "• Therapist Flow: Start your day by checking 'Today's Schedule' to see your assigned clients. After each session, use the quick actions to mark attendance and click 'Notes' to record the results of the intervention.\n• Admin Flow: Check the 'Attendance Rate' widget to identify cancellation patterns across the clinic. Review 'Recent Activity' to monitor documentation compliance by the staff."
+                    }
+                  }
+                },
+                "calendar": {
+                  "title": "Calendar Management",
+                  "description": "Efficiently schedule and manage therapy sessions for your entire team. The calendar is the heart of TempoApp's coordination logic.",
+                  "features": {
+                    "views": {
+                      "title": "Calendar Views",
+                      "content": "Switch between Month, Week, and Day views. The Week view is optimized for mobile with a 3-day toggle to maximize vertical space. The Month view features an 'Agenda' mode on small screens, listing daily events in a scrollable list rather than a dense grid."
+                    },
+                    "scheduling": {
+                      "title": "Scheduling Sessions",
+                      "content": "Click the 'New Event' button or any time slot. Choose between 'Therapy' (standard billing) or 'Evaluation' (standard protocols). You must assign at least one therapist and one client. The system automatically fetches the client's current intervention plan to pre-select active programs for the session."
+                    },
+                    "recurring": {
+                      "title": "Recurring Events",
+                      "content": "For long-term therapy, set up sessions that repeat weekly. You can specify an end date or leave it open. The system will handle overlaps and alert you if there are therapist schedule conflicts."
+                    },
+                    "filtering": {
+                      "title": "Advanced Filtering",
+                      "content": "Coordinators can filter the entire clinic view by Therapist to check for availability or by Client to see their specific therapy dosage. Filters persist during your session for easier navigation."
+                    },
+                    "user_flow": {
+                      "title": "Example Workflow",
+                      "content": "• Coordinator Flow: Open 'Week View', filter by 'Therapist A' and 'Therapist B' to find a matching gap for a sibling group session. Click the slot, add both clients, and save as a 'Recurring' session.\n• Therapist Flow: Use the 'Day View' on your mobile device to see specific room assignments and client notes before the session begins."
+                    }
+                  }
+                },
+          
+                  "clients": {
+                    "title": "Client Management",
+                    "description": "Manage the full clinical lifecycle of your patients. From initial intake and diagnosis to standardized testing and graduation.",
+                    "features": {
+                      "profiles": {
+                        "title": "Centralized Profiles",
+                        "content": "Each client profile is a single source of truth. You can view personal details (birth date, diagnosis, support level), contact information for parents, and the assigned clinical team. The profile uses a tabbed interface to separate medical history from current progress."
+                      },
+                      "evaluations": {
+                        "title": "Running Assessments",
+                        "content": "Perform VB-MAPP, ABLLS-R, CARS, Portage, or Carolina assessments. The system guides you through the protocol, allowing you to save drafts. Once 'Completed', the results generate a radar chart comparing current skills against previous assessments to highlight developmental growth."
+                      },
+                      "plans": {
+                        "title": "Digital IEPs & Plans",
+                        "content": "Intervention plans allow you to link specific programs (e.g., 'Eye Contact', 'Mand Requesting') to a client. Therapists can then record trial results (Success/Prompted/Incorrect) during sessions, which automatically updates the client's progress charts."
+                      },
+                      "homework": {
+                        "title": "Parent Engagement",
+                        "content": "Extend therapy beyond the clinic by assigning 'Homework'. Therapists can write instructions for home practice. Parents access these from their own portal, where they can mark tasks as 'Done' and provide feedback on the child's performance at home."
+                      },
+                      "user_flow": {
+                        "title": "Example Workflow",
+                        "content": "• Therapist Flow: Open a client's profile, go to the 'Evaluations' tab, and start a new 'VB-MAPP'. Score the milestones observed during the week. Once finished, click 'View Report' to see the automatically generated developmental age analysis.\n• Admin Flow: Review the 'Docs' tab of a client to ensure all consent forms and medical certificates are uploaded and valid."
+                      }
+                    }
+                  },
+                  "team": {
+                    "title": "Team & Permissions",
+                    "description": "Control system access, manage staff records, and monitor professional performance.",
+                    "features": {
+                      "rbac": {
+                        "title": "Access Control (RBAC)",
+                        "content": "Security is handled via roles. 'Superadmin' has full access including database rules. 'Admin' manages billing and clinic-wide settings. 'Coordinator' handles scheduling and team assignments. 'Therapist' focuses on client clinical data. You can change a member's role at any time from the Team Member modal."
+                      },
+                      "reports": {
+                        "title": "Professional KPI Reports",
+                        "content": "Monitor staff performance by generating PDF reports. These include total session hours, number of active clients, and a breakdown of service types provided. This is essential for calculating bonuses or conducting performance reviews."
+                      },
+                      "user_flow": {
+                        "title": "Example Workflow",
+                        "content": "• Superadmin Flow: When a new staff member joins, go to 'Team', click 'Add Member', enter their email, and assign them the 'Coordinator' role. The user will then receive an invitation to set up their account.\n• Admin Flow: At the end of the month, open a Therapist's card and click 'Generate Report' to see their total billable hours for payroll processing."
+                      }
+                    }
+                  },
+                          "billing": {
+                            "title": "Billing & Financials",
+                            "description": "Integrated billing system designed for clinical operations. Automate invoicing and track clinic overheads.",
+                            "features": {
+                              "multi_entity": {
+                                "title": "Multi-Legal Entity",
+                                "content": "Configure multiple clinics or legal entities within the same account. When generating invoices, select the issuing entity to apply the correct header, series, and bank details. This is ideal for organizations operating under different registered names."
+                              },
+                              "smartbill": {
+                                "title": "SmartBill Synchronization",
+                                "content": "Link your SmartBill account to automatically sync generated invoices. This ensures your official accounting is always up-to-date without manual data entry. The system will alert you if a sync fails."
+                              },
+                              "expenses": {
+                                "title": "Expense Tracking",
+                                "content": "Log clinic overheads such as rent, utilities, and supplies. Categorize expenses and set them as recurring to automatically project your monthly profit. View expense charts in the Analytics section."
+                              },
+                              "user_flow": {
+                                "title": "Example Workflow",
+                                "content": "• Admin Flow: At the end of the month, go to 'Billing', click 'Generate Invoices'. Review the sessions for 'Client X', select 'Clinic Entity A', and click 'Sync to SmartBill'. The parent will automatically receive the invoice via email.\n• Superadmin Flow: Go to 'Settings' > 'Billing Config' to add a second legal entity with its own IBAN and VAT rate."
+                              }
+                            }
+                          },
+                          "analytics": {
+                            "title": "Analytics & Insights",
+                            "description": "Data-driven decisions for your clinic. Monitor clinical efficacy and financial health through interactive visualizations.",
+                            "features": {
+                              "progress": {
+                                "title": "Clinical Progress Index",
+                                "content": "Monitor the global goal achievement rate across all active intervention plans. This metric aggregate's every trial recorded in the clinic to show you how effective your programs are."
+                              },
+                              "revenue": {
+                                "title": "Revenue Mix",
+                                "content": "Analyze which service types (e.g., 'Speech Therapy' vs 'ABA') are generating the most value. View monthly revenue trends and projected income based on scheduled sessions."
+                              },
+                              "utilization": {
+                                "title": "Therapist Utilization",
+                                "content": "Monitor therapist workload and capacity. The system compares scheduled hours against the therapist's target capacity to identify who is over-capacity or has room for more clients."
+                              },
+                              "user_flow": {
+                                "title": "Example Workflow",
+                                "content": "• Coordinator Flow: Open 'Analytics' and check 'Therapist Utilization'. Notice that 'Therapist Y' is at only 60% capacity. Go to the waiting list and assign two new clients to their roster.\n• Admin Flow: Review the 'Revenue Mix' chart to decide if the clinic should hire more Speech Therapists based on growing demand."
+                              }
+                            }
+                          },
+                          "settings": {
+                            "title": "System Configuration",
+                            "description": "Customize TempoApp to fit your clinic's specific needs. Manage preferences and system-wide constraints.",
+                            "features": {
+                              "notifications": {
+                                "title": "Notification Preferences",
+                                "content": "Configure which system events trigger in-app alerts or email notifications. Each team member can customize their own preferences to avoid 'notification fatigue'."
+                              },
+                              "limits": {
+                                "title": "Account Limits",
+                                "content": "Admins can set maximum caps for active clients and team members based on their subscription level. The system will prevent adding new clients if the limit is reached."
+                              },
+                              "user_flow": {
+                                "title": "Example Workflow",
+                                "content": "• Therapist Flow: Go to 'Settings' > 'Appearance' to switch to 'Dark Mode' for better visibility during late-night session logging.\n• Admin Flow: Go to 'Settings' > 'Notifications' and disable 'Email Alerts' for 'New Session' if you prefer to only see them within the app."
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    
