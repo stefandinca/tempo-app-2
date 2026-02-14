@@ -277,19 +277,21 @@ export default function Dashboard() {
 
 function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendColor, iconBg, iconColor }: any) {
   return (
-    <div className="bg-white dark:bg-neutral-900 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
-      <div className="flex justify-between items-start mb-2">
-        <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 font-display">{title}</span>
-        <div className={`p-2 rounded-lg ${iconBg} group-hover:scale-110 transition-transform`}>
-          <Icon className={`w-4 h-4 ${iconColor}`} />
+    <div className="bg-white dark:bg-neutral-900 p-3 lg:p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+      <div className="flex lg:flex-col justify-between lg:justify-start items-center lg:items-start gap-3 lg:gap-0">
+        <div className="flex flex-col lg:mb-2 flex-1 lg:flex-none">
+          <span className="text-xs lg:text-sm font-medium text-neutral-500 dark:text-neutral-400 font-display">{title}</span>
+          <div className="flex items-baseline gap-2 lg:block">
+            <h3 className="text-lg lg:text-2xl font-bold text-neutral-900 dark:text-white font-display tracking-tight leading-none lg:leading-normal">{value}</h3>
+            <p className={`text-[10px] lg:text-sm flex items-center gap-1 mt-0 lg:mt-1 ${trendColor}`}>
+              <TrendIcon className="w-2.5 h-2.5 lg:w-3 lg:h-3" />
+              {trend}
+            </p>
+          </div>
         </div>
-      </div>
-      <div>
-        <h3 className="text-2xl font-bold text-neutral-900 dark:text-white font-display tracking-tight">{value}</h3>
-        <p className={`text-sm flex items-center gap-1 mt-1 ${trendColor}`}>
-          <TrendIcon className="w-3 h-3" />
-          {trend}
-        </p>
+        <div className={`p-1.5 lg:p-2 rounded-lg ${iconBg} group-hover:scale-110 transition-transform order-first lg:order-none`}>
+          <Icon className={`w-3.5 h-3.5 lg:w-4 lg:h-4 ${iconColor}`} />
+        </div>
       </div>
     </div>
   );

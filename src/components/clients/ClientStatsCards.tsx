@@ -90,99 +90,109 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-6">
       
       {/* 1. Portal Access Card */}
-      <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between group">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.portal_access') || 'Portal Access'}</span>
-          <div className="p-2 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600">
-            <Key className="w-4 h-4" />
+      <div className="bg-white dark:bg-neutral-900 p-3 lg:p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col lg:justify-between group">
+        <div className="flex items-center justify-between mb-2 lg:mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 lg:p-2 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-600">
+              <Key className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+            </div>
+            <span className="text-[10px] lg:text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.portal_access') || 'Portal Access'}</span>
           </div>
         </div>
         
         {client.clientCode ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 rounded-xl px-4 py-2 border border-neutral-100 dark:border-neutral-800">
-              <span className="text-lg font-mono font-bold text-primary-600 tracking-wider uppercase">{client.clientCode}</span>
-              <div className="flex gap-1">
-                <button onClick={copyInviteLink} className="p-1.5 text-neutral-400 hover:text-primary-600 transition-colors">
-                  {copied ? <Check className="w-4 h-4 text-success-500" /> : <Copy className="w-4 h-4" />}
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2">
+            <div className="flex flex-1 items-center justify-between bg-neutral-50 dark:bg-neutral-800 rounded-xl px-3 py-1.5 lg:px-4 lg:py-2 border border-neutral-100 dark:border-neutral-800">
+              <span className="text-base lg:text-lg font-mono font-bold text-primary-600 tracking-wider uppercase">{client.clientCode}</span>
+              <div className="flex gap-0.5 lg:gap-1">
+                <button onClick={copyInviteLink} className="p-1 lg:p-1.5 text-neutral-400 hover:text-primary-600 transition-colors">
+                  {copied ? <Check className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-success-500" /> : <Copy className="w-3.5 h-3.5 lg:w-4 lg:h-4" />}
                 </button>
-                <button onClick={generateCode} disabled={isGenerating} className="p-1.5 text-neutral-400 hover:text-primary-600 transition-colors">
-                  <RefreshCw className={clsx("w-4 h-4", isGenerating && "animate-spin")} />
+                <button onClick={generateCode} disabled={isGenerating} className="p-1 lg:p-1.5 text-neutral-400 hover:text-primary-600 transition-colors">
+                  <RefreshCw className={clsx("w-3.5 h-3.5 lg:w-4 lg:h-4", isGenerating && "animate-spin")} />
                 </button>
               </div>
             </div>
             {client.parentUids?.length > 0 && (
-              <button onClick={handleMessageParent} disabled={isStartingChat} className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
+              <button onClick={handleMessageParent} disabled={isStartingChat} className="flex-1 flex items-center justify-center gap-2 py-1.5 lg:py-2 text-[10px] lg:text-xs font-bold text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors border border-primary-100 dark:border-primary-900/30 lg:border-none">
                 {isStartingChat ? <Loader2 className="w-3 h-3 animate-spin" /> : <MessageSquare className="w-3 h-3" />}
                 {t('clients.message_parent') || 'Message Parent'}
               </button>
             )}
           </div>
         ) : (
-          <button onClick={generateCode} disabled={isGenerating} className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-primary-600/20 transition-all flex items-center justify-center gap-2">
-            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+          <button onClick={generateCode} disabled={isGenerating} className="w-full py-2 lg:py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-xs lg:text-sm font-bold shadow-lg shadow-primary-600/20 transition-all flex items-center justify-center gap-2">
+            {isGenerating ? <Loader2 className="w-3.5 h-3.5 lg:w-4 lg:h-4 animate-spin" /> : <Key className="w-3.5 h-3.5 lg:w-4 lg:h-4" />}
             {t('clients.generate_access') || 'Generate Access'}
           </button>
         )}
       </div>
 
       {/* 2. Quick Stats Card */}
-      <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.clinical_stats') || 'Clinical Stats'}</span>
-          <div className="p-2 rounded-lg bg-success-50 dark:bg-success-900/20 text-success-600">
-            <BarChart className="w-4 h-4" />
+      <div className="bg-white dark:bg-neutral-900 p-3 lg:p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
+        <div className="flex items-center gap-3 mb-2 lg:mb-4">
+          <div className="p-1.5 lg:p-2 rounded-lg bg-success-50 dark:bg-success-900/20 text-success-600">
+            <BarChart className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
           </div>
+          <span className="text-[10px] lg:text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.clinical_stats') || 'Clinical Stats'}</span>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">{t('dashboard.attendance_rate')}</p>
-            <p className={clsx("text-xl font-bold font-display", attendanceRate >= 90 ? "text-success-600" : attendanceRate >= 75 ? "text-warning-600" : "text-error-600")}>
-              {eventsLoading ? "..." : `${attendanceRate}%`}
-            </p>
+        <div className="flex items-center justify-between lg:grid lg:grid-cols-2 gap-3 lg:gap-4">
+          <div className="flex items-center gap-4 lg:block">
+            <div>
+              <p className="text-[10px] font-bold text-neutral-400 uppercase mb-0.5 lg:mb-1">{t('dashboard.attendance_rate')}</p>
+              <p className={clsx("text-base lg:text-xl font-bold font-display", attendanceRate >= 90 ? "text-success-600" : attendanceRate >= 75 ? "text-warning-600" : "text-error-600")}>
+                {eventsLoading ? "..." : `${attendanceRate}%`}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-neutral-400 uppercase mb-0.5 lg:mb-1">{t('clients.tabs.programs')}</p>
+              <p className="text-base lg:text-xl font-bold text-primary-600 font-display">{activeProgramsCount}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-neutral-400 uppercase mb-1">{t('clients.tabs.programs')}</p>
-            <p className="text-xl font-bold text-primary-600 font-display">{activeProgramsCount}</p>
-          </div>
+          <p className="text-[10px] text-neutral-400 italic font-medium lg:col-span-2">{t('clients.based_on_sessions', { count: totalSessions })}</p>
         </div>
-        <p className="text-[10px] text-neutral-400 mt-3 italic font-medium">{t('clients.based_on_sessions', { count: totalSessions }) || `Based on ${totalSessions} total recorded sessions`}</p>
       </div>
 
       {/* 3. Latest Assessment Card */}
-      <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.latest_assessment') || 'Latest Assessment'}</span>
-          <div className="p-2 rounded-lg bg-warning-50 dark:bg-warning-900/20 text-warning-600">
-            <ClipboardCheck className="w-4 h-4" />
+      <div className="bg-white dark:bg-neutral-900 p-3 lg:p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
+        <div className="flex items-center gap-3 mb-2 lg:mb-4">
+          <div className="p-1.5 lg:p-2 rounded-lg bg-warning-50 dark:bg-warning-900/20 text-warning-600">
+            <ClipboardCheck className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
           </div>
+          <span className="text-[10px] lg:text-xs font-bold text-neutral-500 uppercase tracking-wider font-display">{t('clients.latest_assessment') || 'Latest Assessment'}</span>
         </div>
 
-        {latestEval ? (
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-lg font-bold text-neutral-900 dark:text-white font-display">{latestEval.overallPercentage}%</p>
-              <p className="text-[10px] font-bold text-neutral-400 uppercase">{latestEval.type}</p>
-            </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {latestEval ? (
+              <>
+                <div>
+                  <p className="text-base lg:text-lg font-bold text-neutral-900 dark:text-white font-display">{latestEval.overallPercentage}%</p>
+                  <p className="text-[10px] font-bold text-neutral-400 uppercase">{latestEval.type}</p>
+                </div>
+                <p className="text-[10px] text-neutral-400 font-medium hidden sm:block">
+                  {t('evaluations.completed')}: {new Date(latestEval.completedAt || latestEval.updatedAt).toLocaleDateString(i18n.language || 'ro')}
+                </p>
+              </>
+            ) : (
+              <Link href={`/clients/profile?id=${client.id}&tab=evaluations`} className="text-xs lg:text-sm font-bold text-primary-600 hover:underline flex items-center gap-1">
+                {t('clients.start_evaluation')} <ChevronRight className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+              </Link>
+            )}
+          </div>
+          {latestEval && (
             <Link 
               href={`/clients/profile?id=${client.id}&tab=evaluations`}
-              className="p-2 bg-neutral-50 dark:bg-neutral-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors text-neutral-400 hover:text-primary-600"
+              className="p-1.5 lg:p-2 bg-neutral-50 dark:bg-neutral-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors text-neutral-400 hover:text-primary-600"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
             </Link>
-          </div>
-        ) : (
-          <Link href={`/clients/profile?id=${client.id}&tab=evaluations`} className="text-sm font-bold text-primary-600 hover:underline flex items-center gap-1">
-            {t('clients.start_evaluation') || 'Start First Evaluation'} <ChevronRight className="w-4 h-4" />
-          </Link>
-        )}
-        <p className="text-[10px] text-neutral-400 mt-3 font-medium">
-          {latestEval ? `${t('evaluations.completed')}: ${new Date(latestEval.completedAt || latestEval.updatedAt).toLocaleDateString(i18n.language || 'ro')}` : t('clients.no_assessments') || "No assessments recorded yet"}
-        </p>
+          )}
+        </div>
       </div>
 
     </div>

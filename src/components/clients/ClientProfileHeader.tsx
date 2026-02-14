@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Edit, MoreVertical, Archive, Trash2, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Edit, MoreVertical, Archive, Trash2, ShieldAlert, ChevronDown, Check } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
 import { useState, useRef, useEffect } from "react";
@@ -27,8 +27,12 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
   const { confirm: customConfirm } = useConfirm();
   const { clients: clientsData, systemSettings } = useData();
   const router = useRouter();
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isTabMenuOpen, setIsTabMenuOpen] = useState(false);
+  
   const menuRef = useRef<HTMLDivElement>(null);
+  const tabMenuRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
   const isCoordinator = userRole === 'Coordinator';
@@ -39,7 +43,7 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
     { id: "evaluations", label: t('clients.tabs.evaluations') },
     { id: "notes", label: t('clients.tabs.notes') },
     { id: "plan", label: t('clients.tabs.plan') },
-    { id: "homework", label: t('parent_nav.homework') },
+    { id: "homework", label: t('clients.tabs.homework') },
     { id: "docs", label: t('clients.tabs.docs') },
   ];
 
@@ -47,11 +51,16 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
     TABS.push({ id: "billing", label: t('clients.tabs.billing') || "Billing" });
   }
 
-  // Close menu when clicking outside
+  const activeTabLabel = TABS.find(t => t.id === activeTab)?.label || activeTab;
+
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
+      }
+      if (tabMenuRef.current && !tabMenuRef.current.contains(event.target as Node)) {
+        setIsTabMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -59,7 +68,6 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
   }, []);
 
   const handleArchive = async () => {
-    // If we are restoring (isArchived is true, so it will become false)
     if (client.isArchived) {
       const maxClients = systemSettings?.maxActiveClients || 0;
       if (maxClients > 0) {
@@ -137,7 +145,7 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
               className="flex items-center gap-2 px-4 py-2 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium"
             >
               <Edit className="w-4 h-4" />
-              {t('clients.edit_profile')}
+              <span className="hidden sm:inline">{t('clients.edit_profile')}</span>
             </button>
             
             <button 
@@ -150,7 +158,6 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
               <MoreVertical className="w-5 h-5 text-neutral-500" />
             </button>
 
-            {/* Dropdown Menu */}
             {isMenuOpen && (
               <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="p-1">
@@ -178,26 +185,66 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="relative group">
-        <div className="flex items-center gap-1 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto scrollbar-hide [mask-image:linear-gradient(to_right,white_85%,transparent)] md:[mask-image:none]">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={clsx(
-                "px-6 py-3 text-sm font-medium transition-all relative whitespace-nowrap",
-                activeTab === tab.id
-                  ? "text-primary-600 dark:text-primary-400"
-                  : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-              )}
-            >
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
-              )}
-            </button>
-          ))}
+      {/* Tabs / Mobile Dropdown */}
+      <div className="relative">
+        <div className="md:hidden relative" ref={tabMenuRef}>
+          <button
+            onClick={() => setIsTabMenuOpen(!isTabMenuOpen)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-sm font-bold text-neutral-900 dark:text-white shadow-sm"
+          >
+            <span className="flex items-center gap-2 text-primary-600">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+              {activeTabLabel}
+            </span>
+            <ChevronDown className={clsx("w-4 h-4 text-neutral-400 transition-transform", isTabMenuOpen && "rotate-180")} />
+          </button>
+
+          {isTabMenuOpen && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl z-40 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="p-1 max-h-[60vh] overflow-y-auto">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      onTabChange(tab.id);
+                      setIsTabMenuOpen(false);
+                    }}
+                    className={clsx(
+                      "w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg transition-colors",
+                      activeTab === tab.id
+                        ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-bold"
+                        : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    )}
+                  >
+                    {tab.label}
+                    {activeTab === tab.id && <Check className="w-4 h-4" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block relative group">
+          <div className="flex items-center gap-1 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto scrollbar-hide">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={clsx(
+                  "px-6 py-3 text-sm font-medium transition-all relative whitespace-nowrap",
+                  activeTab === tab.id
+                    ? "text-primary-600 dark:text-primary-400"
+                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                )}
+              >
+                {tab.label}
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

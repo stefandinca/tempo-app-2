@@ -51,21 +51,22 @@ export default function AnalyticsPage() {
   return (
     <div className="flex-1 p-6 space-y-8 animate-in fade-in duration-500">
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
         {data.kpis.map((kpi, i) => (
-          <div key={i} className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{t(kpi.label)}</p>
-            <div className="flex items-baseline justify-between mt-2">
-              <h3 className="text-2xl font-bold text-neutral-900 dark:text-white">{kpi.value}</h3>
-              <div className={clsx(
-                "flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full",
-                kpi.trend === 'up' 
-                  ? "bg-success-50 text-success-600 dark:bg-success-900/20" 
-                  : "bg-error-50 text-error-600 dark:bg-error-900/20"
-              )}>
-                {kpi.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                {kpi.change.startsWith('analytics.') ? t(kpi.change) : kpi.change}
-              </div>
+          <div key={i} className="bg-white dark:bg-neutral-900 p-3 lg:p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm transition-all hover:shadow-md flex items-center lg:block justify-between lg:justify-start gap-4 lg:gap-0">
+            <div className="flex-1 lg:block">
+              <p className="text-[10px] lg:text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase lg:normal-case tracking-wider lg:tracking-normal">{t(kpi.label)}</p>
+              <h3 className="text-lg lg:text-2xl font-bold text-neutral-900 dark:text-white font-display tracking-tight leading-none lg:mt-2">{kpi.value}</h3>
+            </div>
+            
+            <div className={clsx(
+              "flex items-center gap-1 text-[10px] lg:text-xs font-bold px-2 py-0.5 lg:py-1 rounded-full lg:mt-2",
+              kpi.trend === 'up' 
+                ? "bg-success-50 text-success-600 dark:bg-success-900/20" 
+                : "bg-error-50 text-error-600 dark:bg-error-900/20"
+            )}>
+              {kpi.trend === 'up' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {kpi.change.startsWith('analytics.') ? t(kpi.change) : kpi.change}
             </div>
           </div>
         ))}
