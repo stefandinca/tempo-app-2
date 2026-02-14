@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Download, FileText, Users, DollarSign } from "lucide-react";
+import { Download, FileText, Users, DollarSign, ChevronDown, Check } from "lucide-react";
 import { clsx } from "clsx";
 import MonthSelector from "@/components/billing/MonthSelector";
 import BillingOverview from "@/components/billing/BillingOverview";
@@ -41,6 +41,7 @@ export default function BillingPage() {
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
   const [activeTab, setActiveTab] = useState<Tab>("invoices");
+  const [isTabMenuOpen, setIsTabMenuOpen] = useState(false);
 
   // Fetch data
   const { data: events, loading: eventsLoading } = useEventsByMonth(year, month);
@@ -104,7 +105,8 @@ export default function BillingPage() {
       // Notify admins
       if (authUser) {
         const clientSnap = await getDoc(doc(db, "clients", clientId));
-        const clientName = clientSnap.exists() ? clientSnap.data().name : "Unknown Client";
+        const clientData = clientSnap.exists() ? clientSnap.data() : {};
+        const clientName = clientData.name || t('common.unknown');
         const total = snapshot.docs.reduce((sum, d) => sum + (d.data().total || 0), 0);
 
         const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
@@ -114,10 +116,10 @@ export default function BillingPage() {
           .map(d => ({
             recipientId: d.id,
             recipientRole: d.data().role.toLowerCase() as any,
-            type: "system_alert" as any, // Or a more specific type if added to enum
+            type: "system_alert" as any,
             category: "billing" as any,
-            title: t('billing_page.notification_payment_received') || "Payment Received",
-            message: t('billing_page.notification_payment_message', { name: clientName, total: total.toFixed(2) }) || `Invoice for ${clientName} was marked as PAID (${total.toFixed(2)} RON)`,
+            title: t('billing_page.notification_payment_received'),
+            message: t('billing_page.notification_payment_message', { name: clientName, total: total.toFixed(2) }),
             sourceType: "billing" as any,
             sourceId: clientId,
             triggeredBy: authUser.uid
@@ -132,12 +134,12 @@ export default function BillingPage() {
             recipientRole: "parent" as any,
             type: "system_alert" as any,
             category: "billing" as any,
-            title: t('billing_page.notification_payment_confirmed') || "Payment Confirmed",
-            message: t('billing_page.notification_payment_confirmed_message', { total: total.toFixed(2) }) || `Your payment of ${total.toFixed(2)} RON has been confirmed. Thank you!`,
+            title: t('billing_page.notification_payment_confirmed'),
+            message: t('billing_page.notification_payment_confirmed_message', { total: total.toFixed(2) }),
             sourceType: "billing" as any,
             sourceId: clientId,
             triggeredBy: authUser.uid,
-            actions: [{ label: "View Billing", type: "navigate" as const, route: "/parent/billing/" }]
+            actions: [{ label: t('billing_page.view_billing'), type: "navigate" as const, route: "/parent/billing/" }]
           }));
           await createNotificationsBatch(parentNotifications);
         }
@@ -145,7 +147,7 @@ export default function BillingPage() {
 
     } catch (err) {
       console.error(err);
-      error(t('billing_page.update_error') || "Failed to update invoice status.");
+      error(t('billing_page.update_error'));
     }
   };
 
@@ -172,17 +174,17 @@ export default function BillingPage() {
 
     } catch (err) {
       console.error(err);
-      error(t('billing_page.update_error') || "Failed to update status.");
+      error(t('billing_page.update_error'));
     }
   };
 
   const handleDeleteInvoice = async (invoiceId: string) => {
     try {
       await deleteDoc(doc(db, "invoices", invoiceId));
-      success(t('billing_page.delete_success') || "Invoice deleted and rolled back.");
+      success(t('billing_page.delete_success'));
     } catch (err) {
       console.error(err);
-      error(t('billing_page.delete_error') || "Failed to delete invoice.");
+      error(t('billing_page.delete_error'));
     }
   };
 
@@ -215,40 +217,91 @@ export default function BillingPage() {
       {/* KPI Cards */}
       <BillingOverview summary={summary} loading={loading} />
 
-      {/* Tabs */}
-      <div className="border-b border-neutral-200 dark:border-neutral-800">
-        <div className="flex items-center gap-1">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={clsx(
-                  "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all relative",
-                  activeTab === tab.id
-                    ? "text-primary-600 dark:text-primary-400"
-                    : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-                )}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-                <span
+      {/* Tabs / Mobile Dropdown */}
+      <div className="relative">
+        {/* Mobile Dropdown */}
+        <div className="md:hidden relative">
+          <button
+            onClick={() => setIsTabMenuOpen(!isTabMenuOpen)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-sm font-bold text-neutral-900 dark:text-white shadow-sm"
+          >
+            <span className="flex items-center gap-2 text-primary-600">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+              {tabs.find(t => t.id === activeTab)?.label}
+            </span>
+            <ChevronDown className={clsx("w-4 h-4 text-neutral-400 transition-transform", isTabMenuOpen && "rotate-180")} />
+          </button>
+
+          {isTabMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-30" onClick={() => setIsTabMenuOpen(false)} />
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl z-40 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="p-1">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setIsTabMenuOpen(false);
+                      }}
+                      className={clsx(
+                        "w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg transition-colors",
+                        activeTab === tab.id
+                          ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-bold"
+                          : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <tab.icon className="w-4 h-4" />
+                        {tab.label}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded-full">{tab.count}</span>
+                        {activeTab === tab.id && <Check className="w-4 h-4" />}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Desktop Tabs */}
+        <div className="hidden md:block border-b border-neutral-200 dark:border-neutral-800">
+          <div className="flex items-center gap-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
                   className={clsx(
-                    "px-2 py-0.5 rounded-full text-xs font-bold",
+                    "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all relative",
                     activeTab === tab.id
-                      ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600"
-                      : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
+                      ? "text-primary-600 dark:text-primary-400"
+                      : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
                   )}
                 >
-                  {tab.count}
-                </span>
-                {activeTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
-                )}
-              </button>
-            );
-          })}
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                  <span
+                    className={clsx(
+                      "px-2 py-0.5 rounded-full text-xs font-bold",
+                      activeTab === tab.id
+                        ? "bg-primary-100 dark:bg-primary-900/30 text-primary-600"
+                        : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                  {activeTab === tab.id && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
