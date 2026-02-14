@@ -10,6 +10,7 @@ import { useTeamMembers } from "@/hooks/useCollections";
 import { useData } from "@/context/DataContext";
 import { useConfirm } from "@/context/ConfirmContext";
 import { notifyClientAssigned } from "@/lib/notificationService";
+import { logActivity } from "@/lib/activityService";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 
@@ -21,7 +22,7 @@ interface AddClientModalProps {
 export default function AddClientModal({ isOpen, onClose }: AddClientModalProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
-  const { user: authUser } = useAuth();
+  const { user: authUser, userData } = useAuth();
   const { data: teamMembers } = useTeamMembers();
   const { clients: clientsData, systemSettings } = useData();
   const { confirm } = useConfirm();
@@ -80,6 +81,22 @@ export default function AddClientModal({ isOpen, onClose }: AddClientModalProps)
 
       const docRef = await addDoc(collection(db, "clients"), payload);
       success(t('clients.add_modal.success'));
+
+      // Log activity for client creation
+      if (authUser && userData) {
+        try {
+          await logActivity({
+            type: 'client_created',
+            userId: authUser.uid,
+            userName: userData.name || authUser.email || 'Unknown',
+            userPhotoURL: userData.photoURL || authUser.photoURL || undefined,
+            targetId: docRef.id,
+            targetName: formData.name
+          });
+        } catch (activityError) {
+          console.error('Failed to log activity:', activityError);
+        }
+      }
 
       // Send notification to therapist if assigned
       if (formData.assignedTherapistId && authUser) {

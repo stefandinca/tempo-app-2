@@ -8,6 +8,7 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTeamMembers } from "@/hooks/useCollections";
 import { notifyClientAssigned } from "@/lib/notificationService";
+import { logActivity } from "@/lib/activityService";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 
@@ -20,7 +21,7 @@ interface EditClientModalProps {
 export default function EditClientModal({ isOpen, onClose, client }: EditClientModalProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
-  const { user: authUser } = useAuth();
+  const { user: authUser, userData } = useAuth();
   const { data: teamMembers } = useTeamMembers();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -95,7 +96,23 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
       };
 
       await updateDoc(clientRef, payload);
-      
+
+      // Log activity for client update
+      if (authUser && userData) {
+        try {
+          await logActivity({
+            type: 'client_updated',
+            userId: authUser.uid,
+            userName: userData.name || authUser.email || 'Unknown',
+            userPhotoURL: userData.photoURL || authUser.photoURL || undefined,
+            targetId: client.id,
+            targetName: formData.name
+          });
+        } catch (activityError) {
+          console.error('Failed to log activity:', activityError);
+        }
+      }
+
       // Notify NEWLY assigned members
       if (authUser) {
         const oldIds = client.therapistIds || (client.assignedTherapistId ? [client.assignedTherapistId] : []);
