@@ -10,6 +10,7 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { TeamMember } from "./TeamMemberCard";
 import { createNotificationsBatch } from "@/lib/notificationService";
+import { logActivity } from "@/lib/activityService";
 import { useTranslation } from "react-i18next";
 import { useData } from "@/context/DataContext";
 import { useConfirm } from "@/context/ConfirmContext";
@@ -26,7 +27,7 @@ const COLORS = ["#4A90E2", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899", "#06B6D4"
 export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamMemberModalProps) {
   const { t } = useTranslation();
   const { success, error } = useToast();
-  const { user: authUser, userRole } = useAuth();
+  const { user: authUser, userData, userRole } = useAuth();
   const { teamMembers: teamMembersData, systemSettings } = useData();
   const { confirm } = useConfirm();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -171,6 +172,22 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         await updateDoc(doc(db, "team_members", memberToEdit.id), payload);
         success(t('team.member_updated'));
 
+        // Log activity for team member update
+        if (authUser && userData) {
+          try {
+            await logActivity({
+              type: 'team_member_updated',
+              userId: authUser.uid,
+              userName: userData.name || authUser.email || 'Unknown',
+              userPhotoURL: userData.photoURL || authUser.photoURL || undefined,
+              targetId: memberToEdit.id,
+              targetName: formData.name
+            });
+          } catch (activityError) {
+            console.error('Failed to log activity:', activityError);
+          }
+        }
+
         // Notify admins if role changed
         if (memberToEdit.role !== formData.role && authUser) {
           const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
@@ -196,6 +213,22 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         memberId = newRef.id;
         await setDoc(newRef, payload);
         success(t('team.member_added'));
+
+        // Log activity for team member creation
+        if (authUser && userData) {
+          try {
+            await logActivity({
+              type: 'team_member_created',
+              userId: authUser.uid,
+              userName: userData.name || authUser.email || 'Unknown',
+              userPhotoURL: userData.photoURL || authUser.photoURL || undefined,
+              targetId: memberId,
+              targetName: formData.name
+            });
+          } catch (activityError) {
+            console.error('Failed to log activity:', activityError);
+          }
+        }
 
         // Notify admins about new team member
         if (authUser) {
