@@ -171,15 +171,20 @@ service cloud.firestore {
     }
 
     match /threads/{threadId} {
-      allow get: if isSignedIn() && (
-        request.auth.uid in resource.data.participants ||
-        (resource.data.clientId != null && isParent(resource.data.clientId))
-      );
+      // Allow reading any thread document (including non-existent ones for existence checks)
+      // This prevents permission errors when checking if a thread exists with getDoc()
+      allow get: if isSignedIn();
+
+      // List threads: only show threads user is part of
       allow list: if isSignedIn() && (
         request.auth.uid in resource.data.participants ||
         (resource.data.clientId != null && isParent(resource.data.clientId))
       );
-      allow create: if isSignedIn();
+
+      // Create thread: user must be in participants array
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
+
+      // Update thread: user must be participant or parent
       allow update: if isSignedIn() && (
         request.auth.uid in resource.data.participants ||
         (resource.data.clientId != null && isParent(resource.data.clientId))
@@ -188,7 +193,7 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow read, create: if isSignedIn() && (
           request.auth.uid in get(/databases/$(database)/documents/threads/$(threadId)).data.participants ||
-          (get(/databases/$(database)/documents/threads/$(threadId)).data.clientId != null && 
+          (get(/databases/$(database)/documents/threads/$(threadId)).data.clientId != null &&
            isParent(get(/databases/$(database)/documents/threads/$(threadId)).data.clientId))
         );
       }

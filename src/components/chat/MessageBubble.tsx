@@ -10,8 +10,15 @@ interface MessageBubbleProps {
 }
 
 export default function MessageBubble({ message }: MessageBubbleProps) {
-  const { user } = useAnyAuth();
-  const isMe = message.senderId === user?.uid;
+  const { user, isParent, clientId } = useAnyAuth();
+
+  // Determine if message is from current user
+  // Use role-based attribution if available (new messages), fall back to UID comparison (old messages)
+  const isMe = message.senderRole
+    ? (isParent
+        ? message.senderRole === 'parent' && message.senderClientId === clientId
+        : message.senderRole === 'staff' && message.senderId === user?.uid)
+    : message.senderId === user?.uid; // Backward compatibility for old messages
 
   return (
     <div className={clsx(

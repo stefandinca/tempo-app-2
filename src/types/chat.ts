@@ -37,4 +37,7 @@ export interface ChatMessage {
   timestamp: Timestamp;
   type: 'text' | 'system' | 'image';
   metadata?: Record<string, any>;
+  // Role-based attribution (fixes message attribution after parent re-login)
+  senderRole?: 'parent' | 'staff';
+  senderClientId?: string; // For parents - links to client (child) record
 }

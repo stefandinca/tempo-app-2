@@ -3,31 +3,64 @@
 import { ChatThread } from "@/types/chat";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { clsx } from "clsx";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Archive, Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 
 interface ChatSidebarProps {
   threads: ChatThread[];
+  archivedThreads: ChatThread[];
   activeThreadId: string | null;
+  viewMode: 'active' | 'archived';
+  onViewModeChange: (mode: 'active' | 'archived') => void;
   onSelectThread: (id: string) => void;
   onNewChat: () => void;
 }
 
-export default function ChatSidebar({ threads, activeThreadId, onSelectThread, onNewChat }: ChatSidebarProps) {
+export default function ChatSidebar({ threads, archivedThreads, activeThreadId, viewMode, onViewModeChange, onSelectThread, onNewChat }: ChatSidebarProps) {
   const { t } = useTranslation();
   const { user } = useAnyAuth();
+
+  const displayThreads = viewMode === 'active' ? threads : archivedThreads;
 
   return (
     <div className="w-full lg:w-80 border-r border-neutral-200 dark:border-neutral-800 flex flex-col bg-white dark:bg-neutral-900">
       {/* Header */}
       <div className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
         <h2 className="font-bold text-lg text-neutral-900 dark:text-white">{t('chat.title')}</h2>
-        <button 
+        <button
           onClick={onNewChat}
           className="p-2 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 hover:bg-primary-100 transition-colors"
         >
           <Plus className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Active/Archived Tabs */}
+      <div className="px-4 pt-4 flex gap-1 bg-neutral-50/50 dark:bg-neutral-900/50">
+        <button
+          onClick={() => onViewModeChange('active')}
+          className={clsx(
+            "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-t-lg text-sm font-medium transition-colors",
+            viewMode === 'active'
+              ? "bg-white dark:bg-neutral-900 text-primary-600 dark:text-primary-400 shadow-sm"
+              : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+          )}
+        >
+          <Inbox className="w-4 h-4" />
+          {t('chat.active')}
+        </button>
+        <button
+          onClick={() => onViewModeChange('archived')}
+          className={clsx(
+            "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-t-lg text-sm font-medium transition-colors",
+            viewMode === 'archived'
+              ? "bg-white dark:bg-neutral-900 text-primary-600 dark:text-primary-400 shadow-sm"
+              : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+          )}
+        >
+          <Archive className="w-4 h-4" />
+          {t('chat.archived')}
         </button>
       </div>
 
@@ -44,8 +77,8 @@ export default function ChatSidebar({ threads, activeThreadId, onSelectThread, o
       </div>
 
       {/* Thread List */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {threads.map((thread) => {
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-neutral-900">
+        {displayThreads.map((thread) => {
           const otherParticipantId = thread.participants.find(id => id !== user?.uid);
           const otherUser = thread.participantDetails[otherParticipantId || ""];
           const isUnread = thread.lastMessage && !thread.lastMessage.readBy.includes(user?.uid || "");
@@ -97,15 +130,19 @@ export default function ChatSidebar({ threads, activeThreadId, onSelectThread, o
           );
         })}
 
-        {threads.length === 0 && (
+        {displayThreads.length === 0 && (
           <div className="text-center py-12 px-4">
-            <p className="text-sm text-neutral-500">{t('chat.no_conversations')}</p>
-            <button 
-              onClick={onNewChat}
-              className="mt-2 text-sm text-primary-600 font-medium hover:underline"
-            >
-              {t('chat.start_chatting')}
-            </button>
+            <p className="text-sm text-neutral-500">
+              {viewMode === 'active' ? t('chat.no_conversations') : t('chat.no_archived')}
+            </p>
+            {viewMode === 'active' && (
+              <button
+                onClick={onNewChat}
+                className="mt-2 text-sm text-primary-600 font-medium hover:underline"
+              >
+                {t('chat.start_chatting')}
+              </button>
+            )}
           </div>
         )}
       </div>

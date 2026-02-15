@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import ChatSidebar from "@/components/chat/ChatSidebar";
 import ChatView from "@/components/chat/ChatView";
 import NewChatModal from "@/components/chat/NewChatModal";
-import { useThreads, useChatActions } from "@/hooks/useChat";
+import { useThreads, useArchivedThreads, useChatActions } from "@/hooks/useChat";
 import { ChatParticipant } from "@/types/chat";
 import { clsx } from "clsx";
 import { useParentAuth } from "@/context/ParentAuthContext";
@@ -19,6 +19,9 @@ export default function ParentMessagesPage() {
   const { isAuthenticated, loading: authLoading } = useParentAuth();
   const router = useRouter();
   const { threads, loading: threadsLoading } = useThreads();
+  const [viewMode, setViewMode] = useState<'active' | 'archived'>('active');
+  // Only query archived threads when user clicks "Archived" tab (prevents Firestore index error on page load)
+  const { archivedThreads, loading: archivedLoading } = useArchivedThreads(viewMode === 'archived');
   const { createOrGetThread } = useChatActions();
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
@@ -45,7 +48,8 @@ export default function ParentMessagesPage() {
     }
   };
 
-  const activeThread = threads.find((t) => t.id === activeThreadId) || null;
+  // Find active thread in both active and archived lists
+  const activeThread = threads.find((t) => t.id === activeThreadId) || archivedThreads.find((t) => t.id === activeThreadId) || null;
 
   if (authLoading) {
     return (
@@ -55,8 +59,8 @@ export default function ParentMessagesPage() {
     );
   }
 
-  // Empty state when no threads exist
-  if (!threadsLoading && threads.length === 0 && !activeThreadId) {
+  // Empty state when no threads exist (both active and archived)
+  if (!threadsLoading && !archivedLoading && threads.length === 0 && archivedThreads.length === 0 && !activeThreadId) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center h-[calc(100dvh-64px)]">
         <div className="w-16 h-16 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-4">
@@ -87,7 +91,10 @@ export default function ParentMessagesPage() {
       >
         <ChatSidebar
           threads={threads}
+          archivedThreads={archivedThreads}
           activeThreadId={activeThreadId}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
           onSelectThread={setActiveThreadId}
           onNewChat={() => setIsNewChatModalOpen(true)}
         />

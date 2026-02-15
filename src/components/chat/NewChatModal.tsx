@@ -21,13 +21,19 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
   const { user, isParent, isStaff } = useAnyAuth();
   const parentAuth = useParentAuthOptional();
   const { data: client } = useClient(parentAuth?.clientId || "");
-  const { teamMembers, clients } = useData();
+
+  // For staff: use DataContext (teamMembers, clients)
+  // For parents: use direct hooks (teamMembers only)
+  const dataContext = useData();
+  const { data: directTeamMembers, loading: teamLoading } = useTeamMembers();
+
   const [searchQuery, setSearchQuery] = useState("");
 
   if (!isOpen) return null;
 
-  const team = teamMembers.data || [];
-  const allClients = clients.data || [];
+  // Handle both staff (DataContext available) and parent (DataContext undefined)
+  const team = isStaff ? (dataContext?.teamMembers?.data || []) : (directTeamMembers || []);
+  const allClients = isStaff ? (dataContext?.clients?.data || []) : [];
 
   const filteredTeam = team.filter(member => {
     // Don't show self
@@ -40,13 +46,8 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
     
     if (!matchesSearch) return false;
 
-    // If parent, only show relevant team members
-    if (isParent) {
-      const isAssigned = member.id === client?.assignedTherapistId;
-      const isCoordinatorOrAdmin = member.role === "Coordinator" || member.role === "Admin";
-      return isAssigned || isCoordinatorOrAdmin;
-    }
-
+    // Parents can message all team members (not filtered by assignment)
+    // All staff members are available for communication
     return true;
   });
 
@@ -76,7 +77,10 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
     });
   }
 
-  const loading = teamMembers.loading || clients.loading;
+  // Handle loading state for both staff and parent contexts
+  const loading = isStaff
+    ? (dataContext?.teamMembers?.loading || dataContext?.clients?.loading || false)
+    : teamLoading;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">

@@ -5,7 +5,8 @@ import { ChatThread, ChatMessage, ChatParticipant } from "@/types/chat";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { useChatActions, useMessages } from "@/hooks/useChat";
 import MessageBubble from "./MessageBubble";
-import { Send, Phone, Video, Info, ArrowLeft, Loader2, Archive } from "lucide-react";
+import { Send, Phone, Info, ArrowLeft, Loader2, Archive } from "lucide-react";
+import { clsx } from "clsx";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
@@ -23,10 +24,13 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
   const { success, error } = useToast();
   const { confirm: customConfirm } = useConfirm();
   const { messages, loading: messagesLoading } = useMessages(thread?.id || null);
-  const { sendMessage, markAsRead, archiveThread } = useChatActions();
+  const { sendMessage, markAsRead, archiveThread, unarchiveThread } = useChatActions();
   const [inputText, setInputText] = useState("");
   const [isCalling, setIsCalling] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Check if current thread is archived by this user
+  const isArchived = thread?.archivedBy?.includes(user?.uid || "");
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -44,7 +48,7 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
 
   const handleArchive = async () => {
     if (!thread) return;
-    
+
     customConfirm({
       title: t('chat.archive_title') || "Archive Conversation",
       message: t('chat.archive_confirm'),
@@ -61,6 +65,18 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
         }
       }
     });
+  };
+
+  const handleUnarchive = async () => {
+    if (!thread) return;
+
+    try {
+      await unarchiveThread(thread.id);
+      success(t('chat.unarchive_success'));
+    } catch (err) {
+      console.error(err);
+      error(t('chat.unarchive_error'));
+    }
   };
 
   const handleCall = async () => {
@@ -153,15 +169,18 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          {isStaff && (
-            <button 
-              onClick={handleArchive}
-              title={t('chat.archive_title') || "Archive Conversation"}
-              className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              <Archive className="w-5 h-5" />
-            </button>
-          )}
+          <button
+            onClick={isArchived ? handleUnarchive : handleArchive}
+            title={isArchived ? t('chat.unarchive_title') : t('chat.archive_title')}
+            className={clsx(
+              "p-2 rounded-lg transition-colors",
+              isArchived
+                ? "text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20"
+                : "text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            )}
+          >
+            <Archive className="w-5 h-5" />
+          </button>
           <button 
             onClick={handleCall}
             disabled={isCalling}
@@ -170,7 +189,6 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
           >
             {isCalling ? <Loader2 className="w-5 h-5 animate-spin" /> : <Phone className="w-5 h-5" />}
           </button>
-          <button className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"><Video className="w-5 h-5" /></button>
           <button className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"><Info className="w-5 h-5" /></button>
         </div>
       </div>
