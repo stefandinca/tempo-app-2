@@ -67,14 +67,16 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
   };
 
   const handleMessageParent = async () => {
-    if (!client.parentUids?.length) {
-      toastError(t('clients.no_parent') || "No parent registered yet.");
-      return;
-    }
     setIsStartingChat(true);
     try {
+      // Use most recent parent UID if available, otherwise use clientId as placeholder
+      // Deterministic thread ID uses clientId, so thread will work regardless
+      const parentId = client.parentUids?.length
+        ? client.parentUids[client.parentUids.length - 1]
+        : client.id;
+
       const threadId = await createOrGetThread({
-        id: client.parentUids[client.parentUids.length - 1],
+        id: parentId,
         name: client.parentName || `Parent of ${client.name}`,
         initials: "P",
         color: "#4A90E2",
@@ -116,7 +118,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
                 </button>
               </div>
             </div>
-            {client.parentUids?.length > 0 && (
+            {client.clientCode && (
               <button onClick={handleMessageParent} disabled={isStartingChat} className="flex-1 flex items-center justify-center gap-2 py-1.5 lg:py-2 text-[10px] lg:text-xs font-bold text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors border border-primary-100 dark:border-primary-900/30 lg:border-none">
                 {isStartingChat ? <Loader2 className="w-3 h-3 animate-spin" /> : <MessageSquare className="w-3 h-3" />}
                 {t('clients.message_parent') || 'Message Parent'}
