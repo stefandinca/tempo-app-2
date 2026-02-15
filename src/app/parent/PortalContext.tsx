@@ -8,6 +8,7 @@ import { useParentAuth } from "@/context/ParentAuthContext";
 import { useTranslation } from "react-i18next";
 
 export function usePortalData() {
+  const { t } = useTranslation();
   const { isAuthenticated, clientId, loading: authLoading } = useParentAuth();
   
   const [data, setData] = useState<any>(null);
