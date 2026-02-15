@@ -134,8 +134,8 @@ export default function ClientList({ onAdd }: ClientListProps) {
             <option value="recent">{t('clients.sort.recent')}</option>
           </select>
 
-          {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator') && (
-            <button 
+          {(userRole && ['superadmin', 'admin', 'coordinator'].includes(userRole.toLowerCase())) && (
+            <button
               onClick={onAdd}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-500/20"
             >

@@ -22,8 +22,11 @@ export default function DashboardLayout({
     // Wait for auth to finish loading
     if (loading) return;
 
-    // If no user or no valid staff role, redirect to login
-    if (!user || !userRole || !['Superadmin', 'Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
+    // If no user or no valid staff role, redirect to login (case-insensitive check)
+    const staffRoles = ['superadmin', 'admin', 'coordinator', 'therapist'];
+    const hasStaffRole = userRole && staffRoles.includes(userRole.toLowerCase());
+
+    if (!user || !hasStaffRole) {
       router.replace("/login");
     }
   }, [user, userRole, loading, router]);
@@ -37,8 +40,11 @@ export default function DashboardLayout({
     );
   }
 
-  // Don't render content if not authenticated
-  if (!user || !userRole || !['Superadmin', 'Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
+  // Don't render content if not authenticated (case-insensitive check)
+  const staffRoles = ['superadmin', 'admin', 'coordinator', 'therapist'];
+  const hasStaffRole = userRole && staffRoles.includes(userRole.toLowerCase());
+
+  if (!user || !hasStaffRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
         <div className="text-center">

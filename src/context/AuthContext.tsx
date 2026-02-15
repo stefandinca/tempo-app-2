@@ -58,7 +58,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setUserData(data);
-            setUserRole(data.role as any);
+            // Normalize role to capitalized format (e.g., 'superadmin' → 'Superadmin')
+            // This ensures all role checks in the app work regardless of DB capitalization
+            const normalizedRole = data.role
+              ? data.role.charAt(0).toUpperCase() + data.role.slice(1).toLowerCase()
+              : null;
+            setUserRole(normalizedRole as any);
 
             // Apply language preference
             const userLang = data.language || 'ro';

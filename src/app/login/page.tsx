@@ -38,11 +38,14 @@ export default function LoginPage() {
     }
   }, [user]);
 
-  // Redirect if already authenticated as staff
+  // Redirect if already authenticated as staff (case-insensitive check)
   useEffect(() => {
     if (authLoading) return;
 
-    if (user && userRole && ['Superadmin', 'Admin', 'Coordinator', 'Therapist'].includes(userRole)) {
+    const staffRoles = ['superadmin', 'admin', 'coordinator', 'therapist'];
+    const hasStaffRole = userRole && staffRoles.includes(userRole.toLowerCase());
+
+    if (user && hasStaffRole) {
       router.replace("/");
     }
   }, [user, userRole, authLoading, router]);
