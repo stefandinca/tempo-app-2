@@ -1,4 +1,0 @@
-rmdir /s /q .next & rmdir /s /q out & npm run build:demo
-rmdir /s /q .next & rmdir /s /q out & npm run build:prod
-
-firebase deploy --only firestore:rules --project tempo-app-2
