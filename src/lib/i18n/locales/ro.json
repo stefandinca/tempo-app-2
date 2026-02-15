@@ -349,7 +349,8 @@
       "quick_progress": "Progres",
       "quick_billing": "Facturi",
       "balance_alert": "Aveți {{amount}} RON de plată",
-      "view_invoices": "Vezi facturile"
+      "view_invoices": "Vezi facturile",
+      "latest_summary": "Rezumat Ultima Ședință"
     },
     "alerts": {
       "title": "Alerte Recente",
@@ -488,7 +489,10 @@
       "message_therapist": "Mesaj",
       "active_goals": "Obiective Active",
       "documents": "Documente",
-      "view_documents": "Vezi toate documentele"
+      "view_documents": "Vezi toate documentele",
+      "portal_settings": "Setări Portal",
+      "push_notifications": "Notificări Push",
+      "push_notifications_desc": "Primește alerte când aplicația este închisă"
     },
     "homework": {
       "title": "Teme",
@@ -552,7 +556,110 @@
     },
     "error": {
       "title": "Eroare de Acces",
-      "back_to_login": "Înapoi la Autentificare"
+      "back_to_login": "Înapoi la Autentificare",
+      "session_invalid": "Sesiunea portalului este invalidă sau a expirat."
+    },
+    "clinical_terms": {
+      "A": "Cooperare și Eficacitatea Recompensei",
+      "B": "Performanță Vizuală (Puzzle/Potrivire)",
+      "C": "Limbaj Receptiv (Înțelegere)",
+      "D": "Imitație",
+      "E": "Imitație Vocală (Ecolalie)",
+      "F": "Cereri (Mand)",
+      "G": "Etichetare (Tact)",
+      "H": "Intraverbale (Conversație)",
+      "I": "Vocalizare Spontană",
+      "J": "Sintaxă și Gramatică",
+      "K": "Joc și Timp Liber",
+      "L": "Interacțiune Socială",
+      "M": "Instrucție de Grup",
+      "N": "Urmarea Rutinei Clasei",
+      "O": "Răspuns Generalizat",
+      "P": "Abilități de Citire",
+      "Q": "Abilități Matematice",
+      "R": "Abilități de Scriere",
+      "S": "Ortografie",
+      "T": "Arte ale Limbajului",
+      "U": "Îmbrăcare",
+      "V": "Alimentație",
+      "W": "Îngrijire Personală",
+      "X": "Folosirea Toaletei",
+      "Y": "Motricitate Grosieră",
+      "Z": "Motricitate Fină",
+      "MAND": "Cereri",
+      "TACT": "Etichetare Obiecte",
+      "LR": "Urmarea Instrucțiunilor",
+      "VP-MTS": "Potrivire Vizuală și Puzzle",
+      "ECHOIC": "Repetarea Sunetelor/Cuvintelor",
+      "MOTOR": "Copierea Mișcărilor",
+      "INTRA": "Răspunsul la Întrebări",
+      "SOCIAL": "Joaca cu Alți Copii",
+      "IMIT": "Imitație",
+      "VPMTS": "Potrivire Vizuală"
+    },
+    "interpretations": {
+      "ablls": {
+        "excellent": {
+          "title": "Abilități Bine Dezvoltate",
+          "description": "Abilitățile sunt bine dezvoltate în toate domeniile evaluate. Clientul demonstrează capacități fundamentale puternice.",
+          "recommendation": "Concentrați-vă pe generalizare, menținere și avansarea către abilități de nivel superior. Luați în considerare trecerea la un suport mai puțin intensiv."
+        },
+        "good": {
+          "title": "Progres Bun",
+          "description": "Clientul prezintă un progres bun, unele arii fiind încă în curs de dezvoltare. Cele mai multe abilități fundamentale sunt prezente.",
+          "recommendation": "Continuați planul actual de intervenție cu accent pe zonele cu lacune. Monitorizați progresul cu atenție.",
+          "hours": "se recomandă 15-25 ore/săptămână"
+        },
+        "moderate": {
+          "title": "Deficite Moderate de Abilități",
+          "description": "Există deficite moderate de abilități în mai multe domenii. Clientul necesită intervenție structurată.",
+          "recommendation": "Se recomandă intervenție ABA intensivă, cu accent pe abilitățile fundamentale și comunicare.",
+          "hours": "se recomandă 20-30 ore/săptămână"
+        },
+        "significant": {
+          "title": "Întârzieri Semnificative",
+          "description": "S-au identificat întârzieri semnificative în dezvoltare. Clientul are nevoie de suport cuprinzător în toate domeniile.",
+          "recommendation": "Este necesar un program ABA complet. Prioritizați curriculumul pentru învățare timpurie și comunicarea de bază.",
+          "hours": "se recomandă 25-35 ore/săptămână"
+        },
+        "profound": {
+          "title": "Întârzieri Profunde",
+          "description": "Sunt prezente deficite profunde de abilități. Clientul necesită intensitate maximă de intervenție.",
+          "recommendation": "Se recomandă un program ABA de intensitate maximă. Concentrați-vă pe atenție fundamentală, imitație și cereri timpurii.",
+          "hours": "se recomandă 30-40 ore/săptămână"
+        }
+      },
+      "vbmapp": {
+        "excellent": {
+          "title": "Dezvoltare Adecvată Vârstei",
+          "description": "Reperele comportamentului verbal se dezvoltă într-un ritm adecvat vârstei.",
+          "recommendation": "Continuați programarea actuală. Monitorizați menținerea și generalizarea abilităților."
+        },
+        "mild": {
+          "title": "Întârziere Ușoară în Dezvoltare",
+          "description": "Clientul funcționează la Nivelul {{level}} cu întârzieri ușoare în dezvoltarea comportamentului verbal.",
+          "recommendation": "Se recomandă ședințe regulate de terapie. Concentrați-vă pe abilitățile emergente pentru a reduce decalajul de dezvoltare.",
+          "hours": "se recomandă 10-20 ore/săptămână"
+        },
+        "moderate": {
+          "title": "Întârziere Moderată în Dezvoltare",
+          "description": "Clientul prezintă întârzieri moderate, funcționând la Nivelul {{level}}. Există lacune în mai multe operante verbale.",
+          "recommendation": "Se recomandă intervenție timpurie intensivă. Prioritizați antrenamentul pentru cereri (mand) și operantele verbale fundamentale.",
+          "hours": "se recomandă 20-30 ore/săptămână"
+        },
+        "severe": {
+          "title": "Întârziere Severă în Dezvoltare",
+          "description": "Clientul prezintă întârzieri severe, cu funcționare la Nivelul {{level}}. Lacune semnificative în toate operantele.",
+          "recommendation": "Este necesar un program ABA complet. Concentrați-vă pe stabilirea operantelor verbale de bază și reducerea barierelor.",
+          "hours": "se recomandă 25-35 ore/săptămână"
+        },
+        "profound": {
+          "title": "Întârziere Profundă în Dezvoltare",
+          "description": "Clientul prezintă întârzieri profunde, funcționând semnificativ sub vârsta cronologică, la Nivelul {{level}}.",
+          "recommendation": "Este necesară intervenție de intensitate maximă. Abordați barierele în timp ce construiți abilitățile fundamentale.",
+          "hours": "se recomandă 30-40 ore/săptămână"
+        }
+      }
     }
   },
   "clients": {
@@ -840,8 +947,54 @@
     "category_breakdown": "Detaliere pe Categorii",
     "items": "itemi",
     "view_report": "Vezi Raportul Clinic",
+    "view_full_report": "Vezi Raportul Complet",
     "start_reevaluation": "Începe Reevaluarea",
     "close": "Închide",
+    "points_label": "Puncte",
+    "skills_assessment": "Evaluarea Abilităților",
+    "milestones_assessment": "Evaluarea Etapelor de Dezvoltare",
+    "score_label": "Scor",
+    "mastered_label": "Însușit",
+    "barriers_label": "Bariere",
+    "overall_progress": "Progres General",
+    "therapeutic_focus": "Focalizare Terapeutică",
+    "chronological_age": "Vârstă Cronologică",
+    "estimated_dev_age": "Vârstă Dezvoltare Estimată",
+    "skill_profile": "Profilul Abilităților",
+    "learning_domains": "Domenii de Învățare",
+    "learning_stages": "Etape de Învățare",
+    "integration_readiness": "Pregătirea pentru Integrare",
+    "about_report": "Despre acest raport",
+    "about_report_desc": "Acest raport de progres este generat pe baza evaluării clinice efectuate de {{evaluator}}. Oferă o prezentare generală a dezvoltării abilităților și a etapelor de învățare. Pentru o analiză clinică completă, vă rugăm să descărcați versiunea PDF folosind butonul de mai sus.",
+    "focus_goals": "Obiective Prioritare pentru Perioada Următoare",
+    "identified": "Identificate",
+    "more_goals": "+ încă {{count}} obiective identificate în raportul clinic",
+    "areas_needing_support": "Arii ce Necesită Suport",
+    "top_improvements": "Cele mai Mari Progresii",
+    "strongest_areas": "Cele mai Puternice Arii",
+    "developmental_analysis": "Analiza Dezvoltării",
+    "gap_analysis": "Evaluarea curentă indică un decalaj de dezvoltare de <strong>{{months}} luni</strong> față de copiii de aceeași vârstă.",
+    "points": "puncte",
+    "level": "Nivel",
+    "ready_mainstream": "învățământ de masă",
+    "ready_targeted": "integrare direcționată",
+    "ready_for": "Pregătit pentru",
+    "readiness": {
+      "not_ready": "Nepregătit",
+      "emerging": "În curs de pregătire",
+      "ready": "Pregătit"
+    },
+    "status": {
+      "mastered": "Bine Dezvoltat",
+      "developing": "În Dezvoltare",
+      "emerging": "Emergent",
+      "priority": "Țintă Prioritară"
+    },
+    "age_units": {
+      "y": "ani",
+      "m": "luni",
+      "months": "luni"
+    },
     "mobile": {
       "selectCategory": "Selectează Categoria",
       "itemsScored": "itemi evaluați",
@@ -1111,7 +1264,10 @@
     "call": "Apelează",
     "archive_success": "Conversație arhivată",
     "archive_error": "Eroare la arhivarea conversației",
-    "no_phone": "Niciun număr de telefon disponibil pentru acest contact"
+    "no_phone": "Niciun număr de telefon disponibil pentru acest contact",
+    "parent_of": "Părintele lui {{name}}",
+    "role_parent": "Părinte",
+    "parents_section": "Părinți"
   },
   "services": {
     "title": "Servicii",
@@ -1413,12 +1569,23 @@
     "no_notifications_subtitle": "Vei vedea aici actualizări despre programări, mesaje și activități.",
     "view_all": "Vezi toate",
     "clear_all": "Șterge tot",
+    "yesterday": "Ieri",
+    "today": "Astăzi",
+    "this_week": "Săptămâna aceasta",
+    "older": "Mai vechi",
+    "unread_update": "1 actualizare necitită",
+    "unread_updates": "{{count}} actualizări necitite",
+    "empty_state": "Nicio notificare încă",
+    "loading": "Se încarcă...",
     "categories": {
       "system": "Sistem",
       "calendar": "Calendar",
       "billing": "Facturare",
       "message": "Mesaj",
-      "team": "Echipă"
+      "team": "Echipă",
+      "schedule": "Programări",
+      "attendance": "Prezență",
+      "client": "Client"
     },
     "unread_count": "{{count}} necitite",
     "unread_count_one": "1 necitită",

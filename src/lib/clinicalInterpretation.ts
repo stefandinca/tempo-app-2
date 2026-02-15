@@ -1,3 +1,5 @@
+import i18next from "i18next";
+
 /**
  * Clinical Interpretation Utilities
  * Provides context and recommendations based on evaluation scores
@@ -15,51 +17,20 @@ export interface ClinicalInterpretation {
  * Get clinical interpretation for ABLLS-R scores
  */
 export function getABLLSInterpretation(percentage: number): ClinicalInterpretation {
-  if (percentage >= 80) {
-    return {
-      level: 'excellent',
-      title: 'Well-Developed Skills',
-      description: 'Skills are well-developed across assessed domains. The client demonstrates strong foundational abilities.',
-      recommendation: 'Focus on generalization, maintenance, and advancing to higher-level skills. Consider transitioning to less intensive support.',
-    };
-  }
-
-  if (percentage >= 60) {
-    return {
-      level: 'good',
-      title: 'Good Progress',
-      description: 'Client shows good progress with some areas still developing. Most foundational skills are present.',
-      recommendation: 'Continue current intervention plan with targeted focus on gap areas. Monitor progress closely.',
-      interventionHours: '15-25 hours/week recommended'
-    };
-  }
-
-  if (percentage >= 40) {
-    return {
-      level: 'moderate',
-      title: 'Moderate Skill Deficits',
-      description: 'Moderate skill deficits present across multiple domains. Client requires structured intervention.',
-      recommendation: 'Intensive ABA intervention recommended with focus on foundational skills and communication.',
-      interventionHours: '20-30 hours/week recommended'
-    };
-  }
-
-  if (percentage >= 20) {
-    return {
-      level: 'significant',
-      title: 'Significant Delays',
-      description: 'Significant developmental delays identified. Client needs comprehensive support across all domains.',
-      recommendation: 'Comprehensive ABA program required. Prioritize early learner curriculum and basic communication.',
-      interventionHours: '25-35 hours/week recommended'
-    };
-  }
+  let level: 'excellent' | 'good' | 'moderate' | 'significant' | 'profound';
+  
+  if (percentage >= 80) level = 'excellent';
+  else if (percentage >= 60) level = 'good';
+  else if (percentage >= 40) level = 'moderate';
+  else if (percentage >= 20) level = 'significant';
+  else level = 'profound';
 
   return {
-    level: 'profound',
-    title: 'Profound Delays',
-    description: 'Profound skill deficits present. Client requires maximum intervention intensity.',
-    recommendation: 'Maximum intensity ABA program recommended. Focus on foundational attending, imitation, and early manding.',
-    interventionHours: '30-40 hours/week recommended'
+    level,
+    title: i18next.t(`parent_portal.interpretations.ablls.${level}.title`),
+    description: i18next.t(`parent_portal.interpretations.ablls.${level}.description`),
+    recommendation: i18next.t(`parent_portal.interpretations.ablls.${level}.recommendation`),
+    interventionHours: i18next.t(`parent_portal.interpretations.ablls.${level}.hours`)
   };
 }
 
@@ -71,51 +42,15 @@ export function getVBMAPPInterpretation(
   severityLabel: string,
   dominantLevel: 1 | 2 | 3
 ): ClinicalInterpretation {
-  if (delayPercentage === 0 || severityLabel === 'none') {
-    return {
-      level: 'excellent',
-      title: 'Age-Appropriate Development',
-      description: 'Verbal behavior milestones are developing at an age-appropriate rate.',
-      recommendation: 'Continue current programming. Monitor for maintenance and generalization of skills.',
-    };
-  }
-
-  if (severityLabel === 'mild') {
-    return {
-      level: 'good',
-      title: 'Mild Developmental Delay',
-      description: `Client is functioning at Level ${dominantLevel} with mild delays in verbal behavior development.`,
-      recommendation: 'Regular therapy sessions recommended. Focus on emerging skills to close the developmental gap.',
-      interventionHours: '10-20 hours/week recommended'
-    };
-  }
-
-  if (severityLabel === 'moderate') {
-    return {
-      level: 'moderate',
-      title: 'Moderate Developmental Delay',
-      description: `Client demonstrates moderate delays, functioning at Level ${dominantLevel}. Gaps exist in multiple verbal operants.`,
-      recommendation: 'Intensive early intervention recommended. Prioritize mand training and foundational verbal operants.',
-      interventionHours: '20-30 hours/week recommended'
-    };
-  }
-
-  if (severityLabel === 'severe') {
-    return {
-      level: 'significant',
-      title: 'Severe Developmental Delay',
-      description: `Client shows severe delays with verbal behavior functioning at Level ${dominantLevel}. Significant gaps across all operants.`,
-      recommendation: 'Comprehensive ABA program required. Focus on establishing basic verbal operants and reducing barriers.',
-      interventionHours: '25-35 hours/week recommended'
-    };
-  }
+  const levelKey = (delayPercentage === 0 || severityLabel === 'none') ? 'excellent' : severityLabel;
+  const level = levelKey as 'excellent' | 'mild' | 'moderate' | 'significant' | 'profound';
 
   return {
-    level: 'profound',
-    title: 'Profound Developmental Delay',
-    description: `Client demonstrates profound delays, functioning significantly below chronological age at Level ${dominantLevel}.`,
-    recommendation: 'Maximum intensity intervention required. Address barriers while building foundational skills.',
-    interventionHours: '30-40 hours/week recommended'
+    level: level === 'mild' ? 'good' : (level === 'significant' ? 'significant' : (level === 'profound' ? 'profound' : level)) as any,
+    title: i18next.t(`parent_portal.interpretations.vbmapp.${levelKey}.title`),
+    description: i18next.t(`parent_portal.interpretations.vbmapp.${levelKey}.description`, { level: dominantLevel }),
+    recommendation: i18next.t(`parent_portal.interpretations.vbmapp.${levelKey}.recommendation`),
+    interventionHours: i18next.t(`parent_portal.interpretations.vbmapp.${levelKey}.hours`)
   };
 }
 
@@ -127,15 +62,15 @@ export function getCategoryInterpretation(percentage: number): {
   label: string;
 } {
   if (percentage >= 80) {
-    return { status: 'mastered', label: 'Well-Developed' };
+    return { status: 'mastered', label: i18next.t('evaluations.status.mastered') };
   }
   if (percentage >= 60) {
-    return { status: 'developing', label: 'Developing' };
+    return { status: 'developing', label: i18next.t('evaluations.status.developing') };
   }
   if (percentage >= 40) {
-    return { status: 'emerging', label: 'Emerging' };
+    return { status: 'emerging', label: i18next.t('evaluations.status.emerging') };
   }
-  return { status: 'priority', label: 'Priority Target' };
+  return { status: 'priority', label: i18next.t('evaluations.status.priority') };
 }
 
 /**
@@ -183,7 +118,10 @@ export const PARENT_FRIENDLY_NAMES: Record<string, string> = {
 };
 
 export function getParentFriendlyName(id: string, originalName: string): string {
-  return PARENT_FRIENDLY_NAMES[id.toUpperCase()] || originalName;
+  const key = `parent_portal.clinical_terms.${id.toUpperCase()}`;
+  const translated = i18next.t(key);
+  // If translation missing, it returns the key itself or the original string
+  return translated !== key ? translated : originalName;
 }
 
 /**

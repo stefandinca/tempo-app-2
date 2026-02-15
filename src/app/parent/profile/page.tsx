@@ -101,29 +101,12 @@ export default function ParentProfilePage() {
             <p className="text-sm font-semibold text-neutral-900 dark:text-white mt-0.5">{client.supportLevel}</p>
           </div>
         )}
-
-        <div className="col-span-2 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-4">
-          <Clipboard className="w-5 h-5 text-purple-500 mb-2" />
-          <p className="text-[10px] text-neutral-400 uppercase font-semibold tracking-wider">
-            {t("parent_portal.profile.intervention_plan")}
-          </p>
-          {activePlan ? (
-            <div className="mt-1">
-              <p className="text-sm font-semibold text-neutral-900 dark:text-white">{activePlan.name}</p>
-              <p className="text-xs text-neutral-400">
-                {new Date(activePlan.startDate).toLocaleDateString(currentLang)} — {new Date(activePlan.endDate).toLocaleDateString(currentLang)}
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm text-neutral-400 mt-1">{t("parent_portal.profile.no_plan")}</p>
-          )}
-        </div>
       </div>
 
       {/* Portal Settings Section */}
       <section className="space-y-3">
         <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest px-1">
-          {t("parent_portal.profile.portal_settings") || "Portal Settings"}
+          {t("parent_portal.profile.portal_settings")}
         </h2>
         <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm divide-y divide-neutral-100 dark:divide-neutral-800">
           
@@ -134,8 +117,8 @@ export default function ParentProfilePage() {
                 <Bell className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-neutral-900 dark:text-white">Push Notifications</p>
-                <p className="text-[10px] text-neutral-400">Receive alerts when app is closed</p>
+                <p className="text-sm font-semibold text-neutral-900 dark:text-white">{t("parent_portal.profile.push_notifications")}</p>
+                <p className="text-[10px] text-neutral-400">{t("parent_portal.profile.push_notifications_desc")}</p>
               </div>
             </div>
             <button 

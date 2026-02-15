@@ -81,48 +81,62 @@ export interface CategoryMeta {
 
 export const CATEGORY_META: Record<NotificationCategory, CategoryMeta> = {
   schedule: {
-    label: 'Schedule',
+    label: i18next.t('notifications.categories.schedule'),
     color: 'text-primary-500',
     bgColor: 'bg-primary-100 dark:bg-primary-900/30',
     iconName: 'Calendar'
   },
   attendance: {
-    label: 'Attendance',
+    label: i18next.t('notifications.categories.attendance'),
     color: 'text-success-500',
     bgColor: 'bg-success-100 dark:bg-success-900/30',
     iconName: 'CheckCircle'
   },
   team: {
-    label: 'Team',
+    label: i18next.t('notifications.categories.team'),
     color: 'text-purple-500',
     bgColor: 'bg-purple-100 dark:bg-purple-900/30',
     iconName: 'Users'
   },
   billing: {
-    label: 'Billing',
+    label: i18next.t('notifications.categories.billing'),
     color: 'text-warning-500',
     bgColor: 'bg-warning-100 dark:bg-warning-900/30',
     iconName: 'CreditCard'
   },
   client: {
-    label: 'Client',
+    label: i18next.t('notifications.categories.client'),
     color: 'text-teal-500',
     bgColor: 'bg-teal-100 dark:bg-teal-900/30',
     iconName: 'User'
   },
   system: {
-    label: 'System',
+    label: i18next.t('notifications.categories.system'),
     color: 'text-error-500',
     bgColor: 'bg-error-100 dark:bg-error-900/30',
     iconName: 'AlertTriangle'
   },
   message: {
-    label: 'Message',
+    label: i18next.t('notifications.categories.message'),
     color: 'text-blue-500',
     bgColor: 'bg-blue-100 dark:bg-blue-900/30',
     iconName: 'MessageSquare'
   }
 };
+
+import i18next from "i18next";
+
+// Notification Categories (matches user preference categories)
+export type NotificationCategory =
+  | 'schedule'
+  | 'attendance'
+  | 'team'
+  | 'billing'
+  | 'client'
+  | 'system'
+  | 'message';
+
+// ... (rest of the types)
 
 // Format relative time for display
 export function formatRelativeTime(dateString: string): string {
@@ -134,11 +148,11 @@ export function formatRelativeTime(dateString: string): string {
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
 
-  if (diffSec < 60) return 'Just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHour < 24) return `${diffHour}h ago`;
-  if (diffDay === 1) return 'Yesterday';
-  if (diffDay < 7) return `${diffDay}d ago`;
+  if (diffSec < 60) return i18next.t('parent_portal.activity.just_now');
+  if (diffMin < 60) return i18next.t('parent_portal.activity.mins_ago', { count: diffMin });
+  if (diffHour < 24) return i18next.t('parent_portal.activity.hours_ago', { count: diffHour });
+  if (diffDay === 1) return i18next.t('notifications.yesterday');
+  if (diffDay < 7) return i18next.t('parent_portal.activity.days_ago', { count: diffDay });
 
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(i18next.language.startsWith('ro') ? 'ro-RO' : 'en-US', { month: 'short', day: 'numeric' });
 }

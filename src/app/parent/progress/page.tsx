@@ -14,6 +14,14 @@ import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { useTranslation } from "react-i18next";
 
+export interface SessionScore {
+  sessionId: string;
+  date: Date;
+  scores: ProgramScores;
+  sessionType: string;
+  notes?: string;
+}
+
 interface ProgramWithHistory {
   id: string;
   title: string;
@@ -69,13 +77,16 @@ export default function ParentProgressPage() {
     sessions.forEach((session) => {
       const sessionProgramIds = session.programIds || [];
       const sessionProgramScores = session.programScores || {};
+      const sessionProgramNotes = session.programNotes || {};
       const sessionDate = parseDate(session.startTime);
 
       sessionProgramIds.forEach((programId: string) => {
         const scores = sessionProgramScores[programId];
-        if (!scores) return;
-        const hasScores = scores.minus > 0 || scores.zero > 0 || scores.prompted > 0 || scores.plus > 0;
-        if (!hasScores) return;
+        const notes = sessionProgramNotes[programId];
+        if (!scores && !notes) return;
+        
+        const hasScores = scores && (scores.minus > 0 || scores.zero > 0 || scores.prompted > 0 || scores.plus > 0);
+        if (!hasScores && !notes) return;
 
         const program = programs.find((p: any) => p.id === programId);
         if (!program) return;
@@ -83,7 +94,7 @@ export default function ParentProgressPage() {
         if (!programMap.has(programId)) {
           programMap.set(programId, {
             id: programId,
-            title: program.title || "Unnamed Program",
+            title: program.title || t("common.unknown"),
             description: program.description,
             sessionHistory: [],
           });
@@ -92,8 +103,9 @@ export default function ParentProgressPage() {
         programMap.get(programId)!.sessionHistory.push({
           sessionId: session.id,
           date: sessionDate,
-          scores: scores as ProgramScores,
-          sessionType: session.type || "Therapy Session",
+          scores: (scores || { minus: 0, zero: 0, prompted: 0, plus: 0 }) as ProgramScores,
+          sessionType: session.type || t("reports.defaults.therapy"),
+          notes: notes,
         });
       });
     });

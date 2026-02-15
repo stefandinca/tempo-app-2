@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, Calendar } from "lucide-react";
+import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, Calendar, FileText } from "lucide-react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 import TrendSparkline from "./TrendSparkline";
@@ -222,6 +222,23 @@ export default function ProgramProgressCard({
             />
           </div>
         )}
+
+        {/* Latest Session Note (Always visible) */}
+        {latestSession?.notes && (
+          <div className="mt-4 p-3 bg-primary-50/30 dark:bg-primary-900/10 rounded-xl border border-primary-100/50 dark:border-primary-900/20">
+            <div className="flex gap-2 items-start">
+              <FileText className="w-3.5 h-3.5 text-primary-500 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold text-primary-600/70 dark:text-primary-400/70 uppercase tracking-wider mb-1">
+                  {t("parent_portal.session_detail.program_notes")}
+                </p>
+                <p className="text-xs text-neutral-700 dark:text-neutral-300 italic leading-relaxed">
+                  {latestSession.notes}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Expandable History Section */}
@@ -242,7 +259,7 @@ export default function ProgramProgressCard({
           </button>
 
           {isExpanded && (
-            <div className="px-4 pb-4 space-y-2 animate-in slide-in-from-top-2 duration-200">
+            <div className="px-4 pb-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
               {sortedHistory.map((session, idx) => {
                 const successRate = calculateSuccessRate(session.scores);
                 const sessionTotal = session.scores.minus + session.scores.zero + session.scores.prompted + session.scores.plus;
@@ -251,46 +268,59 @@ export default function ProgramProgressCard({
                   <div
                     key={session.sessionId}
                     className={clsx(
-                      "flex items-center justify-between py-2 px-3 rounded-lg border",
+                      "flex flex-col gap-2 p-3 rounded-lg border",
                       idx === 0
                         ? "bg-primary-50/50 dark:bg-primary-900/10 border-primary-100 dark:border-primary-900/30"
                         : "bg-neutral-50 dark:bg-neutral-800/50 border-neutral-100 dark:border-neutral-800"
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4 text-neutral-400" />
-                      <div>
-                        <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                          {session.date.toLocaleDateString(currentLang, {
-                            month: "short",
-                            day: "numeric",
-                            year: session.date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined
-                          })}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="w-4 h-4 text-neutral-400" />
+                        <div>
+                          <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                            {session.date.toLocaleDateString(currentLang, {
+                              month: "short",
+                              day: "numeric",
+                              year: session.date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined
+                            })}
+                          </p>
+                          <p className="text-[10px] text-neutral-500">{session.sessionType}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        {/* Mini score indicators */}
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-error-500">{"\u2212"}{session.scores.minus}</span>
+                          <span className="text-[10px] font-bold text-neutral-400">0:{session.scores.zero}</span>
+                          <span className="text-[10px] font-bold text-warning-500">P{session.scores.prompted}</span>
+                          <span className="text-[10px] font-bold text-success-500">+{session.scores.plus}</span>
+                        </div>
+
+                        {/* Success rate badge */}
+                        <div className={clsx(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold",
+                          successRate >= 80 ? "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400" :
+                          successRate >= 50 ? "bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400" :
+                          sessionTotal > 0 ? "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400" :
+                          "bg-neutral-100 text-neutral-500"
+                        )}>
+                          {successRate}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Program Session Note */}
+                    {session.notes && (
+                      <div className="flex gap-2 items-start mt-1 pl-7 relative">
+                        <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-neutral-200 dark:bg-neutral-700 rounded-full" />
+                        <FileText className="w-3 h-3 text-primary-400 mt-0.5 shrink-0" />
+                        <p className="text-[11px] text-neutral-600 dark:text-neutral-400 italic leading-relaxed">
+                          {session.notes}
                         </p>
-                        <p className="text-[10px] text-neutral-500">{session.sessionType}</p>
                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      {/* Mini score indicators */}
-                      <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-bold text-error-500">{"\u2212"}{session.scores.minus}</span>
-                        <span className="text-[10px] font-bold text-neutral-400">0:{session.scores.zero}</span>
-                        <span className="text-[10px] font-bold text-warning-500">P{session.scores.prompted}</span>
-                        <span className="text-[10px] font-bold text-success-500">+{session.scores.plus}</span>
-                      </div>
-
-                      {/* Success rate badge */}
-                      <div className={clsx(
-                        "px-2 py-0.5 rounded-full text-[10px] font-bold",
-                        successRate >= 80 ? "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400" :
-                        successRate >= 50 ? "bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400" :
-                        sessionTotal > 0 ? "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400" :
-                        "bg-neutral-100 text-neutral-500"
-                      )}>
-                        {successRate}%
-                      </div>
-                    </div>
+                    )}
                   </div>
                 );
               })}

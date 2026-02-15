@@ -55,7 +55,7 @@ export function usePortalData() {
 
     const unsubscribeClient = onSnapshot(clientQuery, (snapshot) => {
       if (snapshot.empty) {
-        setError("Portal session invalid or expired.");
+        setError(t("parent_portal.error.session_invalid"));
         setLoading(false);
         return;
       }

@@ -111,7 +111,7 @@ export default function ChatSidebar({ threads, archivedThreads, activeThreadId, 
                     {otherUser?.name || t('common.unknown')}
                   </h3>
                   <span className="text-[10px] text-neutral-400">
-                    {thread.updatedAt?.toDate().toLocaleDateString(i18n.language || 'ro', { month: 'short', day: 'numeric' })}
+                    {thread.updatedAt?.toDate().toLocaleDateString(i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

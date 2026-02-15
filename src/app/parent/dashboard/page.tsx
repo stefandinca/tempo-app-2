@@ -16,8 +16,7 @@ import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useTeamMembers, useClientInvoices } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
 import ProgressRing from "@/components/parent/ProgressRing";
-import ActivityTimeline from "@/components/parent/ActivityTimeline";
-import { ParentAlerts } from "@/components/notifications";
+import LatestSessionSummary from "@/components/parent/LatestSessionSummary";
 import { useNotifications } from "@/context/NotificationContext";
 import { useState, useMemo } from "react";
 import { clsx } from "clsx";
@@ -48,6 +47,14 @@ export default function ParentDashboard() {
   const unpaidCount = useMemo(() => {
     return invoices.filter((inv) => inv.status === "issued" || inv.status === "overdue").length;
   }, [invoices]);
+
+  // Latest session
+  const lastSession = useMemo(() => {
+    const past = (sessions || [])
+      .filter((s) => s.status === "completed")
+      .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+    return past[0];
+  }, [sessions]);
 
   if (loading) return <PortalLoading />;
   if (error || !client) return <PortalError message={error || t("parent_portal.dashboard.load_error")} />;
@@ -175,34 +182,8 @@ export default function ParentDashboard() {
       {/* 3. Status Ring Row */}
       <section className="px-4">
         <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
-          {/* Progress Ring */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[120px] sm:min-w-[130px] flex flex-col items-center shadow-sm">
-            <ProgressRing value={client.progress || 0} size={48} strokeWidth={4} color="#22c55e" className="sm:hidden">
-              <span className="text-[10px] font-bold text-neutral-900 dark:text-white">{client.progress || 0}%</span>
-            </ProgressRing>
-            <ProgressRing value={client.progress || 0} size={64} strokeWidth={5} color="#22c55e" className="hidden sm:flex">
-              <span className="text-sm font-bold text-neutral-900 dark:text-white">{client.progress || 0}%</span>
-            </ProgressRing>
-            <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
-              {t("parent_portal.dashboard.overall_progress")}
-            </p>
-          </div>
-
-          {/* Attendance */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[120px] sm:min-w-[130px] flex flex-col items-center shadow-sm">
-            <ProgressRing value={attendanceRate} size={48} strokeWidth={4} color="#3b82f6" className="sm:hidden">
-              <span className="text-[10px] font-bold text-neutral-900 dark:text-white">{attendanceRate}%</span>
-            </ProgressRing>
-            <ProgressRing value={attendanceRate} size={64} strokeWidth={5} color="#3b82f6" className="hidden sm:flex">
-              <span className="text-sm font-bold text-neutral-900 dark:text-white">{attendanceRate}%</span>
-            </ProgressRing>
-            <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
-              {t("parent_portal.dashboard.attendance")}
-            </p>
-          </div>
-
           {/* Sessions Completed */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 min-w-[120px] sm:min-w-[130px] flex flex-col items-center shadow-sm">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 flex-1 flex flex-col items-center shadow-sm">
             <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
               <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">{completedThisMonth.length}</span>
             </div>
@@ -213,8 +194,16 @@ export default function ParentDashboard() {
         </div>
       </section>
 
-      {/* 4. Alerts / Push Prompt */}
-      <ParentAlerts clientName={client.name} />
+      {/* 4. Latest Session Summary (New) */}
+      {lastSession && (
+        <LatestSessionSummary 
+          session={lastSession} 
+          onClick={() => {
+            setSelectedEvent(lastSession);
+            setIsDetailOpen(true);
+          }} 
+        />
+      )}
 
       {/* 5. Quick Actions */}
       <section className="px-4">
@@ -265,16 +254,6 @@ export default function ParentDashboard() {
           </div>
         </section>
       )}
-
-      {/* 6. Recent Activity Timeline */}
-      <section className="px-4">
-        <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3 px-1">
-          {t("parent_portal.activity.title")}
-        </h2>
-        <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-3">
-          <ActivityTimeline sessions={sessions} evaluations={evaluations} invoices={invoices} />
-        </div>
-      </section>
 
       <ParentEventDetailPanel
         event={selectedEvent}

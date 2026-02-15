@@ -50,9 +50,9 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
     if (!thread) return;
 
     customConfirm({
-      title: t('chat.archive_title') || "Archive Conversation",
+      title: t('chat.archive_title'),
       message: t('chat.archive_confirm'),
-      confirmLabel: t('chat.archive_action') || "Archive",
+      confirmLabel: t('chat.archive_action'),
       variant: 'warning',
       onConfirm: async () => {
         try {
@@ -184,7 +184,7 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
           <button 
             onClick={handleCall}
             disabled={isCalling}
-            title={t('chat.call') || "Call"}
+            title={t('chat.call')}
             className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
           >
             {isCalling ? <Loader2 className="w-5 h-5 animate-spin" /> : <Phone className="w-5 h-5" />}
@@ -215,7 +215,7 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
+      <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 pb-24 lg:pb-4">
         <form onSubmit={handleSend} className="flex items-center gap-2">
           <input 
             type="text" 

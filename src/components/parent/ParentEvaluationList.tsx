@@ -11,7 +11,8 @@ interface ParentEvaluationListProps {
 }
 
 export default function ParentEvaluationList({ evaluations, onSelect }: ParentEvaluationListProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
 
   if (evaluations.length === 0) {
     return (
@@ -66,7 +67,7 @@ export default function ParentEvaluationList({ evaluations, onSelect }: ParentEv
                     {evaluation.type}
                   </span>
                   <span className="text-xs text-neutral-500">
-                    {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString(currentLang, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </span>
                 </div>
                 

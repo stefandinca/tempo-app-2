@@ -33,11 +33,11 @@ export default function ParentNotificationsPage() {
             </button>
             <div>
               <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
-                Notifications
+                {t("notifications.title")}
               </h1>
               {unreadCount > 0 && (
                 <p className="text-xs text-neutral-500">
-                  {unreadCount === 1 ? "1 unread update" : `${unreadCount} unread updates`}
+                  {unreadCount === 1 ? t("notifications.unread_update") : t("notifications.unread_updates", { count: unreadCount })}
                 </p>
               )}
             </div>
@@ -48,7 +48,7 @@ export default function ParentNotificationsPage() {
               onClick={markAllAsRead}
               className="text-xs font-medium text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 px-3 py-1.5"
             >
-              Mark all as read
+              {t("notifications.mark_all_read")}
             </button>
           )}
         </div>
@@ -59,7 +59,7 @@ export default function ParentNotificationsPage() {
         <NotificationList
           notifications={notifications}
           showDateGroups={true}
-          emptyMessage="No notifications yet"
+          emptyMessage={t("notifications.empty_state")}
         />
 
         {/* Load More Button */}
@@ -73,10 +73,10 @@ export default function ParentNotificationsPage() {
               {isLoadingMore ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading...
+                  {t("notifications.loading")}
                 </>
               ) : (
-                "Load more"
+                t("notifications.load_more")
               )}
             </button>
           </div>

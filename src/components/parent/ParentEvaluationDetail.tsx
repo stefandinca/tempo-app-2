@@ -28,7 +28,8 @@ interface ParentEvaluationDetailProps {
 }
 
 export default function ParentEvaluationDetail({ evaluation, previousEvaluation, allEvaluations, clientData, onBack }: ParentEvaluationDetailProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const isABLLS = evaluation.type === 'ABLLS';
 
   // ABLLS-specific logic
@@ -133,7 +134,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
           </h2>
           <div className="flex items-center gap-2 text-sm text-neutral-500">
             <Calendar className="w-3 h-3" />
-            <span>{new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            <span>{new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString(currentLang, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
         <div className="flex items-center gap-2 ml-auto">
@@ -459,7 +460,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
             <div>
               <p className="text-xs text-neutral-500 uppercase font-bold tracking-wider mb-0.5">{t('evaluations.integration_readiness')}</p>
               <p className="font-bold text-neutral-900 dark:text-white text-xl">
-                {vbmappEval.transitionSummary.readinessLevel.replace('_', ' ').toUpperCase()}
+                {t(`evaluations.readiness.${vbmappEval.transitionSummary.readinessLevel}`)}
               </p>
               <p className="text-xs text-neutral-500 mt-1">
                 {t('evaluations.ready_for')} {vbmappEval.transitionSummary.readinessLevel === 'ready' ? t('evaluations.ready_mainstream') : t('evaluations.ready_targeted')}
@@ -495,7 +496,7 @@ export default function ParentEvaluationDetail({ evaluation, previousEvaluation,
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-neutral-800 dark:text-neutral-200">
-                      {goal.skillArea}
+                      {getParentFriendlyName(goal.skillCode || goal.skillArea, goal.skillArea)}
                     </h4>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">
                       {goal.goalText}

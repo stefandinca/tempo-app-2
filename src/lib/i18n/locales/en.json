@@ -343,7 +343,8 @@
       "quick_progress": "Progress",
       "quick_billing": "Billing",
       "balance_alert": "You have {{amount}} RON due",
-      "view_invoices": "View invoices"
+      "view_invoices": "View invoices",
+      "latest_summary": "Latest Session Summary"
     },
     "alerts": {
       "title": "Recent Alerts",
@@ -482,7 +483,10 @@
       "message_therapist": "Message",
       "active_goals": "Active Goals",
       "documents": "Documents",
-      "view_documents": "View all documents"
+      "view_documents": "View all documents",
+      "portal_settings": "Portal Settings",
+      "push_notifications": "Push Notifications",
+      "push_notifications_desc": "Receive alerts when app is closed"
     },
     "homework": {
       "title": "Homework",
@@ -546,7 +550,110 @@
     },
     "error": {
       "title": "Access Error",
-      "back_to_login": "Back to Login"
+      "back_to_login": "Back to Login",
+      "session_invalid": "Portal session invalid or expired."
+    },
+    "clinical_terms": {
+      "A": "Cooperation & Reinforcer Effectiveness",
+      "B": "Visual Performance (Puzzles/Matching)",
+      "C": "Receptive Language (Understanding)",
+      "D": "Imitation",
+      "E": "Vocal Imitation (Echoing)",
+      "F": "Requests (Manding)",
+      "G": "Labeling (Tacting)",
+      "H": "Intraverbals (Conversation)",
+      "I": "Spontaneous Vocalization",
+      "J": "Syntax & Grammar",
+      "K": "Play & Leisure",
+      "L": "Social Interaction",
+      "M": "Group Instruction",
+      "N": "Follow Classroom Routines",
+      "O": "Generalized Responding",
+      "P": "Reading Skills",
+      "Q": "Math Skills",
+      "R": "Writing Skills",
+      "S": "Spelling",
+      "T": "Language Arts",
+      "U": "Dressing",
+      "V": "Eating",
+      "W": "Grooming",
+      "X": "Toileting",
+      "Y": "Gross Motor",
+      "Z": "Fine Motor",
+      "MAND": "Requesting",
+      "TACT": "Labeling Objects",
+      "LR": "Following Directions",
+      "VP-MTS": "Visual Matching & Puzzles",
+      "ECHOIC": "Repeating Sounds/Words",
+      "MOTOR": "Copying Movements",
+      "INTRA": "Answering Questions",
+      "SOCIAL": "Playing with Peers",
+      "IMIT": "Imitation",
+      "VPMTS": "Visual Matching"
+    },
+    "interpretations": {
+      "ablls": {
+        "excellent": {
+          "title": "Well-Developed Skills",
+          "description": "Skills are well-developed across assessed domains. The client demonstrates strong foundational abilities.",
+          "recommendation": "Focus on generalization, maintenance, and advancing to higher-level skills. Consider transitioning to less intensive support."
+        },
+        "good": {
+          "title": "Good Progress",
+          "description": "Client shows good progress with some areas still developing. Most foundational skills are present.",
+          "recommendation": "Continue current intervention plan with targeted focus on gap areas. Monitor progress closely.",
+          "hours": "15-25 hours/week recommended"
+        },
+        "moderate": {
+          "title": "Moderate Skill Deficits",
+          "description": "Moderate skill deficits present across multiple domains. Client requires structured intervention.",
+          "recommendation": "Intensive ABA intervention recommended with focus on foundational skills and communication.",
+          "hours": "20-30 hours/week recommended"
+        },
+        "significant": {
+          "title": "Significant Delays",
+          "description": "Significant developmental delays identified. Client needs comprehensive support across all domains.",
+          "recommendation": "Comprehensive ABA program required. Prioritize early learner curriculum and basic communication.",
+          "hours": "25-35 hours/week recommended"
+        },
+        "profound": {
+          "title": "Profound Delays",
+          "description": "Profound skill deficits present. Client requires maximum intervention intensity.",
+          "recommendation": "Maximum intensity ABA program recommended. Focus on foundational attending, imitation, and early manding.",
+          "hours": "30-40 hours/week recommended"
+        }
+      },
+      "vbmapp": {
+        "excellent": {
+          "title": "Age-Appropriate Development",
+          "description": "Verbal behavior milestones are developing at an age-appropriate rate.",
+          "recommendation": "Continue current programming. Monitor for maintenance and generalization of skills."
+        },
+        "mild": {
+          "title": "Mild Developmental Delay",
+          "description": "Client is functioning at Level {{level}} with mild delays in verbal behavior development.",
+          "recommendation": "Regular therapy sessions recommended. Focus on emerging skills to close the developmental gap.",
+          "hours": "10-20 hours/week recommended"
+        },
+        "moderate": {
+          "title": "Moderate Developmental Delay",
+          "description": "Client demonstrates moderate delays, functioning at Level {{level}}. Gaps exist in multiple verbal operants.",
+          "recommendation": "Intensive early intervention recommended. Prioritize mand training and foundational verbal operants.",
+          "hours": "20-30 hours/week recommended"
+        },
+        "severe": {
+          "title": "Severe Developmental Delay",
+          "description": "Client shows severe delays with verbal behavior functioning at Level {{level}}. Significant gaps across all operants.",
+          "recommendation": "Comprehensive ABA program required. Focus on establishing basic verbal operants and reducing barriers.",
+          "hours": "25-35 hours/week recommended"
+        },
+        "profound": {
+          "title": "Profound Developmental Delay",
+          "description": "Client demonstrates profound delays, functioning significantly below chronological age at Level {{level}}.",
+          "recommendation": "Maximum intensity intervention required. Address barriers while building foundational skills.",
+          "hours": "30-40 hours/week recommended"
+        }
+      }
     }
   },
   "clients": {
@@ -868,6 +975,22 @@
     "ready_mainstream": "mainstream settings",
     "ready_targeted": "targeted integration",
     "ready_for": "Ready for",
+    "readiness": {
+      "not_ready": "Not Ready",
+      "emerging": "Emerging",
+      "ready": "Ready"
+    },
+    "status": {
+      "mastered": "Well-Developed",
+      "developing": "Developing",
+      "emerging": "Emerging",
+      "priority": "Priority Target"
+    },
+    "age_units": {
+      "y": "y",
+      "m": "m",
+      "months": "months"
+    },
     "mobile": {
       "selectCategory": "Select Category",
       "itemsScored": "items scored",
@@ -1131,7 +1254,10 @@
     "call": "Call",
     "archive_success": "Conversation archived",
     "archive_error": "Failed to archive conversation",
-    "no_phone": "No phone number available for this contact"
+    "no_phone": "No phone number available for this contact",
+    "parent_of": "Parent of {{name}}",
+    "role_parent": "Parent",
+    "parents_section": "Parents"
   },
   "services": {
     "title": "Services",
@@ -1438,12 +1564,23 @@
     "no_notifications_subtitle": "You'll see updates about schedules, messages, and activities here.",
     "view_all": "View all",
     "clear_all": "Clear all",
+    "yesterday": "Yesterday",
+    "today": "Today",
+    "this_week": "This Week",
+    "older": "Older",
+    "unread_update": "1 unread update",
+    "unread_updates": "{{count}} unread updates",
+    "empty_state": "No notifications yet",
+    "loading": "Loading...",
     "categories": {
       "system": "System",
       "calendar": "Calendar",
       "billing": "Billing",
       "message": "Message",
-      "team": "Team"
+      "team": "Team",
+      "schedule": "Schedule",
+      "attendance": "Attendance",
+      "client": "Client"
     },
     "unread_count": "{{count}} unread",
     "unread_count_one": "1 unread",

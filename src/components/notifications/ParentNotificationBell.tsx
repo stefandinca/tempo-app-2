@@ -2,12 +2,14 @@
 
 import { Bell } from "lucide-react";
 import { useNotifications } from "@/context/NotificationContext";
+import { useTranslation } from "react-i18next";
 
 interface ParentNotificationBellProps {
   desktop?: boolean;
 }
 
 export default function ParentNotificationBell({ desktop = false }: ParentNotificationBellProps) {
+  const { t } = useTranslation();
   const { unreadCount, isDropdownOpen, setDropdownOpen } = useNotifications();
 
   // Format badge text
@@ -31,7 +33,7 @@ export default function ParentNotificationBell({ desktop = false }: ParentNotifi
             : "text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
           }
         `}
-        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+        aria-label={unreadCount > 0 ? t("notifications.unread_updates", { count: unreadCount }) : t("notifications.title")}
       >
         <Bell className="w-6 h-6" />
 
@@ -44,7 +46,7 @@ export default function ParentNotificationBell({ desktop = false }: ParentNotifi
 
         {/* Tooltip */}
         <span className="absolute left-full ml-4 px-2 py-1 bg-neutral-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-          Notifications
+          {t("notifications.title")}
         </span>
       </button>
     );
@@ -61,7 +63,7 @@ export default function ParentNotificationBell({ desktop = false }: ParentNotifi
           : "text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
         }
       `}
-      aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+      aria-label={unreadCount > 0 ? t("notifications.unread_updates", { count: unreadCount }) : t("notifications.title")}
     >
       <Bell className="w-5 h-5" />
 

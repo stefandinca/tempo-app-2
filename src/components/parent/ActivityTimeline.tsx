@@ -23,7 +23,7 @@ function parseDate(val: any): Date {
   return new Date(val);
 }
 
-function formatRelativeTime(date: Date, t: (key: string, opts?: any) => string): string {
+function formatRelativeTime(date: Date, t: (key: string, opts?: any) => string, currentLang: string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
@@ -34,7 +34,7 @@ function formatRelativeTime(date: Date, t: (key: string, opts?: any) => string):
   if (diffMins < 60) return t("parent_portal.activity.mins_ago", { count: diffMins });
   if (diffHours < 24) return t("parent_portal.activity.hours_ago", { count: diffHours });
   if (diffDays < 7) return t("parent_portal.activity.days_ago", { count: diffDays });
-  return date.toLocaleDateString();
+  return date.toLocaleDateString(currentLang);
 }
 
 const typeConfig = {
@@ -45,7 +45,8 @@ const typeConfig = {
 };
 
 export default function ActivityTimeline({ sessions, evaluations, invoices }: ActivityTimelineProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
 
   // Build activity items from data
   const activities: ActivityItem[] = [];
@@ -107,7 +108,7 @@ export default function ActivityTimeline({ sessions, evaluations, invoices }: Ac
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">{item.text}</p>
-              <p className="text-[10px] text-neutral-400 mt-0.5">{formatRelativeTime(item.timestamp, t)}</p>
+              <p className="text-[10px] text-neutral-400 mt-0.5">{formatRelativeTime(item.timestamp, t, currentLang)}</p>
             </div>
           </div>
         );

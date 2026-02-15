@@ -1,3 +1,5 @@
+import i18next from "i18next";
+
 export interface Age {
   years: number;
   months: number;
@@ -48,16 +50,17 @@ export function calculateAge(dob: string | Date | null | undefined): Age | null 
 }
 
 export function formatAge(age: Age | null): string {
-  if (!age) return "Unknown";
-  return `${age.years}y ${age.months}m`;
+  if (!age) return i18next.t("common.unknown");
+  return `${age.years}${i18next.t("evaluations.age_units.y")} ${age.months}${i18next.t("evaluations.age_units.m")}`;
 }
 
 export function getVBMAPPDevelopmentalAge(level: 1 | 2 | 3): string {
+  const m = i18next.t("evaluations.age_units.months");
   switch (level) {
-    case 1: return "0-18 months";
-    case 2: return "18-30 months";
-    case 3: return "30-48 months";
-    default: return "Unknown";
+    case 1: return `0-18 ${m}`;
+    case 2: return `18-30 ${m}`;
+    case 3: return `30-48 ${m}`;
+    default: return i18next.t("common.unknown");
   }
 }
 

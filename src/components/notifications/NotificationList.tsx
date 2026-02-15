@@ -4,6 +4,7 @@ import { useNotifications, GroupedNotifications } from "@/context/NotificationCo
 import { Notification } from "@/types/notifications";
 import NotificationItem from "./NotificationItem";
 import { Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface NotificationListProps {
   notifications: Notification[];
@@ -51,6 +52,7 @@ export default function NotificationList({
   onItemAction,
   emptyMessage = "No notifications"
 }: NotificationListProps) {
+  const { t } = useTranslation();
   const { getGroupedNotifications, loading } = useNotifications();
 
   if (loading) {
@@ -90,25 +92,25 @@ export default function NotificationList({
   return (
     <div className="divide-y divide-neutral-200 dark:divide-neutral-800">
       <DateGroup
-        title="Today"
+        title={t("notifications.today")}
         notifications={grouped.today}
         compact={compact}
         onItemAction={onItemAction}
       />
       <DateGroup
-        title="Yesterday"
+        title={t("notifications.yesterday")}
         notifications={grouped.yesterday}
         compact={compact}
         onItemAction={onItemAction}
       />
       <DateGroup
-        title="This Week"
+        title={t("notifications.this_week")}
         notifications={grouped.thisWeek}
         compact={compact}
         onItemAction={onItemAction}
       />
       <DateGroup
-        title="Older"
+        title={t("notifications.older")}
         notifications={grouped.older}
         compact={compact}
         onItemAction={onItemAction}

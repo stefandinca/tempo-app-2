@@ -57,7 +57,7 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
     allClients.forEach(c => {
       // Show parents who have registered (have parentUids) OR have an access code
       if (c.parentUids?.length || c.clientCode) {
-        const parentName = c.parentName || `Parent of ${c.name}`;
+        const parentName = c.parentName || t("chat.parent_of", { name: c.name });
         if (parentName.toLowerCase().includes(searchQuery.toLowerCase()) || c.name.toLowerCase().includes(searchQuery.toLowerCase())) {
           // Use the most recent UID if available, otherwise use clientId as a placeholder 
           // (The parent will join this thread when they log in)
@@ -68,7 +68,7 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
             name: parentName,
             initials: "P",
             color: "#4A90E2",
-            role: "Parent",
+            role: t("chat.role_parent"),
             clientId: c.id,
             phone: c.phone
           });
@@ -160,7 +160,7 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
 
               {filteredParents.length > 0 && (
                 <div className="px-3 py-2 mt-2">
-                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{t('nav.clients')} (Parents)</p>
+                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{t('chat.parents_section')}</p>
                 </div>
               )}
               {filteredParents.map((parent) => (
