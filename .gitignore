@@ -343,3 +343,6 @@ node_modules
 documentation/old documentation/interview3.md
 public/sw.js
 tsconfig.tsbuildinfo
+.env
+.env.demoonly
+.env.liveONLY
