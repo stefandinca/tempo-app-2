@@ -79,8 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                if (clientSnap.exists()) {
                  setUserData(clientSnap.data());
                  setUserRole('Parent');
-               } else if (IS_DEMO && authUser.isAnonymous && process.env.NODE_ENV !== 'production') {
-                 // Mock data for demo users - only in non-production environments
+               } else if (IS_DEMO && authUser.isAnonymous) {
+                 // Mock data for demo users - works in both dev and production
                  setUserData({
                    name: "Demo Admin",
                    email: "demo@tempoapp.ro",
@@ -110,7 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (unsubscribeFromData) unsubscribeFromData();
       if (unsubscribeFromClientData) unsubscribeFromClientData();
     };
-  }, [router]);
+    // Auth listener should only be set up once on mount — router is stable in Next.js App Router
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
