@@ -489,6 +489,45 @@ export function useHomework(clientId: string) {
   return { data, loading, error };
 }
 
+// Events filtered by date range (for calendar views)
+export function useEventsByDateRange(startDate: Date, endDate: Date) {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const startISO = startDate.toISOString();
+    const endISO = endDate.toISOString();
+
+    const q = query(
+      collection(db, "events"),
+      where("startTime", ">=", startISO),
+      where("startTime", "<=", endISO),
+      orderBy("startTime", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q,
+      (snapshot) => {
+        const items: any[] = [];
+        snapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+        setData(items);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Error fetching events by date range:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [startDate.getTime(), endDate.getTime()]);
+
+  return { data, loading, error };
+}
+
 // Recurring Expenses (Admin)
 export function useRecurringExpenses() {
   return useCollection<any>("recurring_expenses");

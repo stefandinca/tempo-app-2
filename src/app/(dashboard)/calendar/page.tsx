@@ -10,10 +10,46 @@ import MonthAgendaView from "@/components/calendar/MonthAgendaView";
 import FilterPanel, { FilterState } from "@/components/calendar/FilterPanel";
 import EventDetailPanel from "@/components/calendar/EventDetailPanel";
 import { useData } from "@/context/DataContext";
+import { useEventsByDateRange } from "@/hooks/useCollections";
 import { CalendarEventSkeleton } from "@/components/ui/Skeleton";
 import { Loader2 } from "lucide-react";
 import { useEventModal } from "@/context/EventModalContext";
 import { useAuth } from "@/context/AuthContext";
+
+/**
+ * Compute the visible date range for the calendar based on current date and view.
+ * Month view uses a 6-week grid window to cover overflow cells from adjacent months.
+ */
+function getCalendarDateRange(currentDate: Date, currentView: 'month' | 'week' | 'day'): { start: Date; end: Date } {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const date = currentDate.getDate();
+  const day = currentDate.getDay(); // 0=Sun
+
+  if (currentView === 'day') {
+    const start = new Date(year, month, date, 0, 0, 0, 0);
+    const end = new Date(year, month, date, 23, 59, 59, 999);
+    return { start, end };
+  }
+
+  if (currentView === 'week') {
+    // Monday-based week
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const monday = new Date(year, month, date + mondayOffset, 0, 0, 0, 0);
+    const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6, 23, 59, 59, 999);
+    return { start: monday, end: sunday };
+  }
+
+  // Month view: 6-week grid covering overflow cells
+  const firstOfMonth = new Date(year, month, 1);
+  const dayOfWeek = firstOfMonth.getDay(); // 0=Sun
+  // How many days to go back to reach Monday
+  const offsetToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const gridStart = new Date(year, month, 1 - offsetToMonday, 0, 0, 0, 0);
+  // 6 weeks = 42 days
+  const gridEnd = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + 41, 23, 59, 59, 999);
+  return { start: gridStart, end: gridEnd };
+}
 
 export default function CalendarPage() {
   const searchParams = useSearchParams();
@@ -54,17 +90,26 @@ export default function CalendarPage() {
     }
   }, [clientIdParam, router]);
 
-  // Data from shared context
-  const { events, teamMembers } = useData();
-  const loading = events.loading || teamMembers.loading;
+  // Compute visible date range for the current view
+  const { start: rangeStart, end: rangeEnd } = useMemo(
+    () => getCalendarDateRange(currentDate, currentView),
+    [currentDate, currentView]
+  );
+
+  // Fetch events for the visible date range directly from Firestore
+  const { data: rangeEvents, loading: eventsLoading } = useEventsByDateRange(rangeStart, rangeEnd);
+
+  // Team members still come from shared context
+  const { teamMembers } = useData();
+  const loading = eventsLoading || teamMembers.loading;
 
   // Set default filter to show only current user's events (if they have any)
   useEffect(() => {
     if (hasInitializedFilter.current) return;
-    if (!user || !events.data || events.loading) return;
+    if (!user || !rangeEvents || eventsLoading) return;
 
     // Check if current user has any assigned events
-    const userEvents = events.data.filter(event => event.therapistId === user.uid);
+    const userEvents = rangeEvents.filter(event => event.therapistId === user.uid);
 
     if (userEvents.length > 0) {
       // User has events, filter to show only their events by default
@@ -76,13 +121,13 @@ export default function CalendarPage() {
     // If user has no events, leave filters empty to show all events
 
     hasInitializedFilter.current = true;
-  }, [user, events.data, events.loading]);
+  }, [user, rangeEvents, eventsLoading]);
 
   // Filter Logic
   const filteredEvents = useMemo(() => {
-    if (!events.data) return [];
+    if (!rangeEvents) return [];
 
-    return events.data.filter(event => {
+    return rangeEvents.filter(event => {
       // 1. Therapist Filter
       if (filters.therapists.length > 0 && !filters.therapists.includes(event.therapistId)) {
         return false;
@@ -100,7 +145,7 @@ export default function CalendarPage() {
 
       return true;
     });
-  }, [events.data, filters]);
+  }, [rangeEvents, filters]);
 
   const activeFilterCount = filters.therapists.length + filters.clients.length + filters.eventTypes.length;
 
