@@ -21,7 +21,7 @@ const categoryIcons = {
 };
 
 export default function ParentNotificationDropdown({ desktop = false }: ParentNotificationDropdownProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const {
     notifications,
@@ -128,7 +128,7 @@ export default function ParentNotificationDropdown({ desktop = false }: ParentNo
                             {notification.title}
                           </p>
                           <span className="text-xs text-neutral-400 dark:text-neutral-500 whitespace-nowrap flex-shrink-0">
-                            {formatRelativeTime(notification.createdAt)}
+                            {formatRelativeTime(notification.createdAt, t, i18n.language)}
                           </span>
                         </div>
                         <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-2">

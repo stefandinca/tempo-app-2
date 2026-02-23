@@ -16,6 +16,7 @@ import {
   formatRelativeTime
 } from "@/types/notifications";
 import { useNotifications } from "@/context/NotificationContext";
+import { useTranslation } from "react-i18next";
 
 interface NotificationItemProps {
   notification: Notification;
@@ -39,6 +40,7 @@ export default function NotificationItem({
   onAction
 }: NotificationItemProps) {
   const router = useRouter();
+  const { t, i18n } = useTranslation();
   const { markAsRead } = useNotifications();
   const meta = CATEGORY_META[notification.category];
   const Icon = categoryIcons[notification.category];
@@ -99,7 +101,7 @@ export default function NotificationItem({
             {notification.title}
           </p>
           <span className="text-xs text-neutral-400 dark:text-neutral-500 whitespace-nowrap flex-shrink-0">
-            {formatRelativeTime(notification.createdAt)}
+            {formatRelativeTime(notification.createdAt, t, i18n.language)}
           </span>
         </div>
         <p

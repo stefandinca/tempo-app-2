@@ -31,7 +31,7 @@ const categoryIcons = {
 };
 
 export default function ParentAlerts({ clientName }: ParentAlertsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { notifications, loading, markAsRead, requestPushPermission, pushPermissionStatus, pushError } = useNotifications();
   const { user } = useAnyAuth();
 
@@ -131,7 +131,7 @@ export default function ParentAlerts({ clientName }: ParentAlertsProps) {
                     {alert.title}
                   </p>
                   <span className="text-xs text-neutral-400 dark:text-neutral-500 whitespace-nowrap">
-                    {formatRelativeTime(alert.createdAt)}
+                    {formatRelativeTime(alert.createdAt, t, i18n.language)}
                   </span>
                 </div>
                 <p className="text-xs text-neutral-500 line-clamp-2">{alert.message}</p>
