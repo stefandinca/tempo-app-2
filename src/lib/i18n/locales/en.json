@@ -418,6 +418,7 @@
       "total_trials": "Total Trials",
       "overall_label": "Overall",
       "session_history": "Session History",
+      "latest_scores": "Latest Session Scores",
       "goals": {
         "title": "Therapy Goals",
         "no_plan": "No active intervention plan",

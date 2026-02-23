@@ -5,23 +5,11 @@ import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, Calendar, File
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 import TrendSparkline from "./TrendSparkline";
+import { ProgramScores, SessionScore, calculateSuccessRate, calculateTrend } from "@/lib/progressUtils";
 
-export interface ProgramScores {
-  minus: number;
-  zero: number;
-  prompted: number;
-  plus: number;
-}
-
-export interface SessionScore {
-  sessionId: string;
-  date: Date;
-  scores: ProgramScores;
-  sessionType: string;
-}
+export type { ProgramScores, SessionScore };
 
 interface ProgramProgressCardProps {
-  programId: string;
   programTitle: string;
   programDescription?: string;
   sessionHistory: SessionScore[];
@@ -33,29 +21,6 @@ const SCORE_CONFIG = [
   { key: "prompted" as const, label: "P", color: "warning" },
   { key: "plus" as const, label: "+", color: "success" },
 ];
-
-function calculateSuccessRate(scores: ProgramScores): number {
-  const total = scores.minus + scores.zero + scores.prompted + scores.plus;
-  if (total === 0) return 0;
-  return Math.round((scores.plus / total) * 100);
-}
-
-function calculateTrend(history: SessionScore[]): "improving" | "stable" | "declining" | "insufficient" {
-  if (history.length < 2) return "insufficient";
-
-  const recent = history.slice(-3);
-  const previous = history.slice(-6, -3);
-
-  if (previous.length === 0) return "insufficient";
-
-  const recentAvg = recent.reduce((sum, s) => sum + calculateSuccessRate(s.scores), 0) / recent.length;
-  const previousAvg = previous.reduce((sum, s) => sum + calculateSuccessRate(s.scores), 0) / previous.length;
-
-  const diff = recentAvg - previousAvg;
-  if (diff > 5) return "improving";
-  if (diff < -5) return "declining";
-  return "stable";
-}
 
 function aggregateScores(history: SessionScore[]): ProgramScores {
   return history.reduce(
@@ -70,7 +35,6 @@ function aggregateScores(history: SessionScore[]): ProgramScores {
 }
 
 export default function ProgramProgressCard({
-  programId,
   programTitle,
   programDescription,
   sessionHistory,
@@ -165,7 +129,7 @@ export default function ProgramProgressCard({
       {/* Latest Scores Display */}
       <div className="p-4">
         <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">
-          {t("parent_portal.progress.score_labels.correct")}
+          {t("parent_portal.progress.latest_scores")}
         </p>
 
         {/* Score Buttons (Read-only) */}

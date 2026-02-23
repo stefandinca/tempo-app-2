@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { BarChart2, TrendingUp, Award, BookOpen, ListChecks, FileText, Target, CheckCircle2, Circle, Clock } from "lucide-react";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useInterventionPlans, usePrograms as useAllPrograms } from "@/hooks/useCollections";
-import ProgramProgressCard, { SessionScore, ProgramScores } from "@/components/parent/ProgramProgressCard";
+import ProgramProgressCard from "@/components/parent/ProgramProgressCard";
 import ParentEvaluationList from "@/components/parent/ParentEvaluationList";
 import ParentEvaluationDetail from "@/components/parent/ParentEvaluationDetail";
 import ProgressRing from "@/components/parent/ProgressRing";
@@ -13,14 +13,7 @@ import { clsx } from "clsx";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import { useTranslation } from "react-i18next";
-
-export interface SessionScore {
-  sessionId: string;
-  date: Date;
-  scores: ProgramScores;
-  sessionType: string;
-  notes?: string;
-}
+import { ProgramScores, SessionScore, calculateSuccessRate, calculateTrend } from "@/lib/progressUtils";
 
 interface ProgramWithHistory {
   id: string;
@@ -30,25 +23,6 @@ interface ProgramWithHistory {
 }
 
 type Tab = "programs" | "evaluations" | "goals";
-
-function calculateSuccessRate(scores: ProgramScores): number {
-  const total = scores.minus + scores.zero + scores.prompted + scores.plus;
-  if (total === 0) return 0;
-  return Math.round((scores.plus / total) * 100);
-}
-
-function calculateTrend(history: SessionScore[]): "improving" | "stable" | "declining" | "insufficient" {
-  if (history.length < 2) return "insufficient";
-  const recent = history.slice(-3);
-  const previous = history.slice(-6, -3);
-  if (previous.length === 0) return "insufficient";
-  const recentAvg = recent.reduce((sum, s) => sum + calculateSuccessRate(s.scores), 0) / recent.length;
-  const previousAvg = previous.reduce((sum, s) => sum + calculateSuccessRate(s.scores), 0) / previous.length;
-  const diff = recentAvg - previousAvg;
-  if (diff > 5) return "improving";
-  if (diff < -5) return "declining";
-  return "stable";
-}
 
 export default function ParentProgressPage() {
   const { t } = useTranslation();
@@ -130,8 +104,8 @@ export default function ParentProgressPage() {
     programsWithHistory.forEach((program) => {
       program.sessionHistory.forEach((session) => {
         uniqueSessions.add(session.sessionId);
-        const t = session.scores.minus + session.scores.zero + session.scores.prompted + session.scores.plus;
-        totalTrials += t;
+        const trialCount = session.scores.minus + session.scores.zero + session.scores.prompted + session.scores.plus;
+        totalTrials += trialCount;
         totalCorrect += session.scores.plus;
       });
     });
@@ -266,7 +240,7 @@ export default function ParentProgressPage() {
                   </h2>
                   <div className="space-y-3">
                     {groupedPrograms.improving.map((p) => (
-                      <ProgramProgressCard key={p.id} programId={p.id} programTitle={p.title} programDescription={p.description} sessionHistory={p.sessionHistory} />
+                      <ProgramProgressCard key={p.id} programTitle={p.title} programDescription={p.description} sessionHistory={p.sessionHistory} />
                     ))}
                   </div>
                 </section>
@@ -278,7 +252,7 @@ export default function ParentProgressPage() {
                   </h2>
                   <div className="space-y-3">
                     {groupedPrograms.stable.map((p) => (
-                      <ProgramProgressCard key={p.id} programId={p.id} programTitle={p.title} programDescription={p.description} sessionHistory={p.sessionHistory} />
+                      <ProgramProgressCard key={p.id} programTitle={p.title} programDescription={p.description} sessionHistory={p.sessionHistory} />
                     ))}
                   </div>
                 </section>
@@ -290,7 +264,7 @@ export default function ParentProgressPage() {
                   </h2>
                   <div className="space-y-3">
                     {groupedPrograms.needsAttention.map((p) => (
-                      <ProgramProgressCard key={p.id} programId={p.id} programTitle={p.title} programDescription={p.description} sessionHistory={p.sessionHistory} />
+                      <ProgramProgressCard key={p.id} programTitle={p.title} programDescription={p.description} sessionHistory={p.sessionHistory} />
                     ))}
                   </div>
                 </section>
