@@ -34,7 +34,9 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "Bash(node -e:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(python3:*)",
+      "Bash(node:*)"
     ]
   }
 }

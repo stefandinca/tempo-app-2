@@ -346,3 +346,11 @@ tsconfig.tsbuildinfo
 .env
 .env.demoonly
 .env.liveONLY
+tsconfig.tsbuildinfo
+tempo-app-2.tar
+src/app/api/test-ping/route.ts
+public/sw.js
+nul
+firestore_threads_rules_fix.txt
+bugs/bug 1.png
+.claude/settings.local.json
