@@ -51,7 +51,10 @@
     "success": "Succes",
     "error": "Eroare",
     "required_field": "Acest câmp este obligatoriu",
-    "level": "Nivel"
+    "level": "Nivel",
+    "completed": "Finalizat",
+    "pending": "În așteptare",
+    "back": "Înapoi"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -300,7 +303,9 @@
       "discard": "Renunță",
       "error_update": "Nu s-a putut actualiza evenimentul",
       "error_delete": "Nu s-a putut șterge evenimentul",
-      "program_notes_placeholder": "Adaugă note pentru acest program..."
+      "program_notes_placeholder": "Adaugă note pentru acest program...",
+      "objectives": "Obiective",
+      "objective_notes_placeholder": "Adaugă note pentru acest obiectiv..."
     }
   },
   "attendance": {
@@ -432,7 +437,9 @@
         "not_started": "Neînceput",
         "in_progress": "În Desfășurare",
         "achieved": "Realizat",
-        "from_plan": "Din planul: {{name}}"
+        "from_plan": "Din planul: {{name}}",
+        "objectives_title": "Obiective",
+        "objective_notes": "Note Ședințe"
       }
     },
     "billing": {
@@ -550,7 +557,9 @@
       "absent": "Absent",
       "excused": "Motivat",
       "scheduled": "Programat",
-      "program_notes": "Note Program"
+      "program_notes": "Note Program",
+      "objectives": "Obiective",
+      "objective_notes": "Note Obiectiv"
     },
     "login": {
       "help_text": "Solicită codul unic de acces de la terapeutul sau coordonatorul clinicii."
@@ -868,6 +877,15 @@
         "end_date_required": "Data încheierii este obligatorie",
         "end_after_start": "Data încheierii trebuie să fie după data începerii",
         "select_program": "Selectați cel puțin un program"
+      },
+      "objectives_section": "Obiective",
+      "add_objective": "Adaugă Obiectiv",
+      "objective_title": "Titlu obiectiv",
+      "objective_description": "Descriere (opțional)",
+      "objective_status": {
+        "not_started": "Neînceput",
+        "in_progress": "În Desfășurare",
+        "achieved": "Realizat"
       }
     }
   },
@@ -894,7 +912,39 @@
       "services_breakdown": "Detaliere Servicii",
       "session_log": "Jurnal Complet Ședințe",
       "curriculum_status": "Status Curriculum și Programe",
-      "assessment_results": "Rezultate Evaluare Abilități"
+      "assessment_results": "Rezultate Evaluare Abilități",
+      "select_month": "Selectați luna",
+      "report_period": "Perioada raportului",
+      "program_name": "Numele Programului",
+      "total_trials": "Total Încercări",
+      "success_rate": "Rată Succes %",
+      "trend": "Tendință",
+      "trend_improving": "În creștere",
+      "trend_declining": "În scădere",
+      "trend_stable": "Stabil",
+      "trend_insufficient": "Date insuficiente",
+      "therapist_comments": "Comentarii Terapeut",
+      "no_programs": "Niciun program activ găsit pentru această perioadă.",
+      "homework_section": "Teme și Activități pentru Acasă",
+      "homework_title": "Activitate",
+      "homework_description": "Descriere",
+      "homework_frequency": "Frecvență",
+      "homework_assigned_by": "Atribuit de",
+      "no_sessions_month": "Nicio ședință înregistrată pentru această lună.",
+      "aggregate_scores": "Scoruri Agregate",
+      "notes": "Note",
+      "staff_member": "Membru Echipă",
+      "therapy_default": "Terapie",
+      "date": "Data",
+      "therapist": "Terapeut",
+      "service": "Serviciu",
+      "duration": "Durată",
+      "loading": "Se compilează datele clinice...",
+      "error_title": "Acces Refuzat",
+      "error_missing_id": "ID client lipsă",
+      "error_not_found": "Clientul nu a fost găsit",
+      "error_default": "Raportul clientului nu a putut fi generat.",
+      "no_assessment_data": "Nicio evaluare disponibilă."
     },
     "team": {
       "title": "Raport de Performanță",
@@ -1236,7 +1286,34 @@
     "access_code_placeholder": "ex: JS-1234",
     "verifying": "Se verifică codul...",
     "invalid_code": "Cod de acces invalid. Vă rugăm să verificați și să încercați din nou.",
-    "too_many_attempts": "Prea multe încercări. Vă rugăm așteptați {{seconds}} secunde."
+    "too_many_attempts": "Prea multe încercări. Vă rugăm așteptați {{seconds}} secunde.",
+    "forgot_password_title": "Resetare Parolă",
+    "forgot_password_subtitle": "Introduceți emailul și vă vom trimite un link de resetare.",
+    "send_reset_link": "Trimite Link de Resetare",
+    "reset_email_sent": "Dacă un cont există cu acest email, un link de resetare a fost trimis.",
+    "back_to_sign_in": "Înapoi la Conectare",
+    "or": "sau",
+    "sign_in_with_google": "Continuă cu Google",
+    "google_not_authorized": "Acest cont Google nu este înregistrat ca membru al echipei. Contactați administratorul.",
+    "account_needs_migration": "Contul dvs. trebuie actualizat. Contactați administratorul pentru migrare."
+  },
+  "auth_action": {
+    "title": "Setează Parola",
+    "subtitle": "Creează o parolă securizată pentru contul tău TempoApp.",
+    "new_password": "Parolă Nouă",
+    "confirm_password": "Confirmă Parola",
+    "set_password": "Setează Parola",
+    "password_min_length": "Parola trebuie să aibă minim 8 caractere.",
+    "passwords_dont_match": "Parolele nu se potrivesc.",
+    "success_title": "Parolă Setată cu Succes",
+    "success_message": "Parola a fost setată. Te poți conecta acum.",
+    "go_to_sign_in": "Mergi la Conectare",
+    "invalid_link": "Acest link este invalid sau a expirat.",
+    "expired_link": "Acest link de resetare a expirat. Solicită unul nou.",
+    "error_setting_password": "Nu s-a putut seta parola. Încearcă din nou.",
+    "verifying_link": "Se verifică linkul...",
+    "resetting": "Se setează parola...",
+    "redirecting_in": "Redirecționare către conectare în {{seconds}}s..."
   },
   "chat": {
     "title": "Mesaje",
@@ -1435,6 +1512,41 @@
       "settings_not_found": "Setările de sistem nu au fost găsite"
     },
     "subscription_label": "Abonament",
+    "fixed_session_price_label": "Preț Fix / Ședință",
+    "client_billing": {
+      "billing_settings": "Setări Facturare",
+      "subscription_plan": "Plan de Abonament",
+      "subscription_description": "Gestionați facturarea lunară fixă pentru acest client",
+      "active_subscription": "Abonament Activ",
+      "subscription_toggle_description": "Facturați o sumă fixă lunar în loc de per ședință",
+      "monthly_price": "Preț Lunar (RON)",
+      "fixed_session_price": "Preț Fix Per Ședință",
+      "fixed_session_price_description": "Facturați o sumă fixă per ședință facturabilă",
+      "fixed_session_price_toggle": "Preț Fix Per Ședință",
+      "fixed_session_price_toggle_description": "Facturați o rată fixă per ședință indiferent de tipul sau durata serviciului",
+      "price_per_session": "Preț Per Ședință (RON)",
+      "save_billing_settings": "Salvează Setările de Facturare",
+      "settings_updated": "Setările de facturare au fost actualizate",
+      "settings_update_error": "Eroare la actualizarea setărilor de facturare",
+      "invoice_history": "Istoric Facturi",
+      "invoices_count": "{{count}} Facturi",
+      "no_invoices_yet": "Nu există facturi emise pentru acest client.",
+      "share_with_parent": "Trimite la Părinte",
+      "mark_as_paid": "Marchează ca Plătită",
+      "mark_as_pending": "Marchează ca Restantă",
+      "download_pdf": "Descarcă PDF",
+      "delete_invoice_storno": "Șterge Factura (Storno)",
+      "delete_confirm_title": "Șterge Factura",
+      "delete_confirm_message": "Sigur doriți să ștergeți această factură? Această acțiune nu poate fi anulată.",
+      "invoice_shared": "Factura a fost trimisă părintelui",
+      "invoice_share_error": "Eroare la trimiterea facturii",
+      "status_updated": "Statusul facturii a fost actualizat",
+      "status_update_error": "Eroare la actualizarea statusului",
+      "invoice_deleted": "Factura a fost ștearsă cu succes",
+      "invoice_delete_error": "Eroare la ștergerea facturii",
+      "about_billing_modes": "Despre Modurile de Facturare",
+      "billing_modes_info": "Există trei moduri de facturare: (1) Abonament — un preț lunar fix indiferent de ședințe. (2) Preț Fix Per Ședință — o rată fixă per ședință facturabilă indiferent de tipul sau durata serviciului. (3) Per ședință — calculat din tariful orar al fiecărui serviciu × durata ședinței. Doar un mod special poate fi activ simultan."
+    },
     "notification_payment_received": "Plată Primită",
     "notification_payment_message": "Factura pentru {{name}} a fost marcată ca PLĂTITĂ ({{total}} RON)",
     "notification_payment_confirmed": "Plată Confirmată",
@@ -1657,6 +1769,16 @@
     "notification_role_changed": "Rolul lui {{name}} a fost schimbat din {{oldRole}} în {{newRole}}",
     "notification_new_member": "Membru Nou în Echipă",
     "notification_member_joined": "{{name}} s-a alăturat echipei ca {{role}}",
+    "member_added_invite_sent": "Membru creat. Email de invitație trimis.",
+    "email_already_exists": "Un membru cu acest email există deja.",
+    "create_failed": "Nu s-a putut crea membrul echipei.",
+    "send_reset_email": "Trimite Email de Resetare Parolă",
+    "reset_email_sent": "Email de resetare parolă trimis.",
+    "reset_email_failed": "Nu s-a putut trimite emailul de resetare.",
+    "invite_pending": "În așteptare",
+    "invite_status_pending": "Invitație în așteptare",
+    "invite_status_active": "Activ",
+    "invite_status_migrated": "Migrat",
     "roles": {
       "Admin": "Administrator",
       "Coordinator": "Coordonator",

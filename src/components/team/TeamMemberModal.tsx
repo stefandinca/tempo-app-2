@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Loader2, Check, Camera, Phone, Mail, User, Shield, Lock } from "lucide-react";
+import { X, Loader2, Check, Camera, Phone, Mail, User, Shield, KeyRound, Clock } from "lucide-react";
 import { clsx } from "clsx";
-import { db, storage } from "@/lib/firebase";
-import { doc, setDoc, updateDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { db, storage, auth as firebaseAuth } from "@/lib/firebase";
+import { doc, updateDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { callFunction } from "@/lib/callFunction";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
@@ -21,7 +23,14 @@ interface TeamMemberModalProps {
   memberToEdit?: TeamMember | null;
 }
 
-const ROLES = ["Admin", "Coordinator", "Senior ABA Therapist", "ABA Therapist", "Speech Therapist", "Occupational Therapist"];
+const ROLE_OPTIONS = [
+  { label: "Admin", role: "Admin", specialty: "" },
+  { label: "Coordinator", role: "Coordinator", specialty: "" },
+  { label: "Senior ABA Therapist", role: "Therapist", specialty: "Senior ABA Therapist" },
+  { label: "ABA Therapist", role: "Therapist", specialty: "ABA Therapist" },
+  { label: "Speech Therapist", role: "Therapist", specialty: "Speech Therapist" },
+  { label: "Occupational Therapist", role: "Therapist", specialty: "Occupational Therapist" },
+];
 const COLORS = ["#4A90E2", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899", "#06B6D4", "#84CC16", "#F97316"];
 
 export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamMemberModalProps) {
@@ -31,22 +40,38 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
   const { teamMembers: teamMembersData, systemSettings } = useData();
   const { confirm } = useConfirm();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    role: ROLES[3],
+    roleLabel: ROLE_OPTIONS[3].label, // Display label for dropdown
     color: COLORS[0],
     isActive: true,
     baseSalary: "",
     defaultBonus: "",
     photoURL: "",
-    password: "" // Admins can set/reset password
   });
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  // Helper: resolve the dropdown label from a member's stored role + specialty
+  const resolveRoleLabel = (member: TeamMember): string => {
+    const m = member as any;
+    // New format: specialty field exists
+    if (m.specialty) {
+      const match = ROLE_OPTIONS.find(o => o.specialty === m.specialty);
+      if (match) return match.label;
+    }
+    // Old format or exact match: role is the full label (e.g. "ABA Therapist")
+    const matchByRole = ROLE_OPTIONS.find(o => o.label === member.role);
+    if (matchByRole) return matchByRole.label;
+    // Fallback: find by base role
+    const matchByBase = ROLE_OPTIONS.find(o => o.role === member.role);
+    return matchByBase?.label || ROLE_OPTIONS[3].label;
+  };
 
   // Reset or populate form
   useEffect(() => {
@@ -56,13 +81,12 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           name: memberToEdit.name,
           email: memberToEdit.email,
           phone: memberToEdit.phone || "",
-          role: memberToEdit.role,
+          roleLabel: resolveRoleLabel(memberToEdit),
           color: memberToEdit.color,
           isActive: memberToEdit.isActive !== false,
           baseSalary: (memberToEdit as any).baseSalary || "",
           defaultBonus: (memberToEdit as any).defaultBonus || "",
           photoURL: (memberToEdit as any).photoURL || "",
-          password: "" // Masked/Empty for existing
         });
         setAvatarPreview((memberToEdit as any).photoURL || null);
       } else {
@@ -70,13 +94,12 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           name: "",
           email: "",
           phone: "",
-          role: ROLES[3],
+          roleLabel: ROLE_OPTIONS[3].label,
           color: COLORS[Math.floor(Math.random() * COLORS.length)],
           isActive: true,
           baseSalary: "",
           defaultBonus: "",
           photoURL: "",
-          password: ""
         });
         setAvatarPreview(null);
       }
@@ -117,6 +140,20 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
     }
   };
 
+  const handleSendResetEmail = async () => {
+    if (!memberToEdit?.email) return;
+    setIsSendingReset(true);
+    try {
+      await sendPasswordResetEmail(firebaseAuth, memberToEdit.email);
+      success(t('team.reset_email_sent'));
+    } catch (err) {
+      console.error(err);
+      error(t('team.reset_email_failed'));
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -151,24 +188,27 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         .slice(0, 2)
         .toUpperCase();
 
-      const { password, ...otherData } = formData;
-      const payload: any = {
-        ...otherData,
-        baseSalary: parseFloat(formData.baseSalary) || 0,
-        defaultBonus: parseFloat(formData.defaultBonus) || 0,
-        initials
-      };
-
-      // Only add password to payload if it's provided (Admins can reset it)
-      // Note: This only updates Firestore. Actual Auth password needs Cloud Function or manual reset.
-      if (password) {
-        payload.pendingPasswordReset = password;
-      }
-
-      let memberId = memberToEdit?.id;
+      // Resolve dropdown label to base role + specialty
+      const selectedOption = ROLE_OPTIONS.find(o => o.label === formData.roleLabel) || ROLE_OPTIONS[3];
+      const baseRole = selectedOption.role;
+      const specialty = selectedOption.specialty;
 
       if (memberToEdit) {
-        // Update
+        // === UPDATE existing member ===
+        const payload: any = {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          role: baseRole,
+          specialty,
+          color: formData.color,
+          isActive: formData.isActive,
+          baseSalary: parseFloat(formData.baseSalary as string) || 0,
+          defaultBonus: parseFloat(formData.defaultBonus as string) || 0,
+          photoURL: formData.photoURL,
+          initials
+        };
+
         await updateDoc(doc(db, "team_members", memberToEdit.id), payload);
         success(t('team.member_updated'));
 
@@ -189,7 +229,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         }
 
         // Notify admins if role changed
-        if (memberToEdit.role !== formData.role && authUser) {
+        if (resolveRoleLabel(memberToEdit) !== formData.roleLabel && authUser) {
           const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
           const adminSnaps = await getDocs(adminQuery);
           const notifications = adminSnaps.docs
@@ -200,7 +240,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               type: "system_alert" as any,
               category: "team" as any,
               title: t('team.notification_role_updated'),
-              message: t('team.notification_role_changed', { name: formData.name, oldRole: memberToEdit.role, newRole: formData.role }),
+              message: t('team.notification_role_changed', { name: formData.name, oldRole: resolveRoleLabel(memberToEdit), newRole: formData.roleLabel }),
               sourceType: "team" as any,
               sourceId: memberToEdit.id,
               triggeredBy: authUser.uid
@@ -208,11 +248,32 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           await createNotificationsBatch(notifications);
         }
       } else {
-        // Create
-        const newRef = doc(collection(db, "team_members"));
-        memberId = newRef.id;
-        await setDoc(newRef, payload);
-        success(t('team.member_added'));
+        // === CREATE new member via Cloud Function ===
+        const result = await callFunction<{ uid: string }>("createTeamMember", {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          role: baseRole,
+          specialty,
+          color: formData.color,
+          initials,
+          isActive: formData.isActive,
+          baseSalary: parseFloat(formData.baseSalary as string) || 0,
+          defaultBonus: parseFloat(formData.defaultBonus as string) || 0,
+          photoURL: formData.photoURL,
+        });
+
+        const memberId = result.uid;
+
+        // Send password reset email (acts as invitation email)
+        try {
+          await sendPasswordResetEmail(firebaseAuth, formData.email);
+        } catch (emailErr) {
+          console.error("Failed to send invitation email:", emailErr);
+          // Don't fail the whole operation — member was created
+        }
+
+        success(t('team.member_added_invite_sent'));
 
         // Log activity for team member creation
         if (authUser && userData) {
@@ -242,7 +303,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               type: "team_member_added" as any,
               category: "team" as any,
               title: t('team.notification_new_member'),
-              message: t('team.notification_member_joined', { name: formData.name, role: formData.role }),
+              message: t('team.notification_member_joined', { name: formData.name, role: formData.roleLabel }),
               sourceType: "team" as any,
               sourceId: memberId,
               triggeredBy: authUser.uid,
@@ -251,11 +312,16 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           await createNotificationsBatch(notifications);
         }
       }
-      
+
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      error(t('team.save_failed'));
+      // Handle specific Cloud Function errors
+      if (err?.code === "functions/already-exists") {
+        error(t('team.email_already_exists'));
+      } else {
+        error(memberToEdit ? t('team.save_failed') : t('team.create_failed'));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -280,11 +346,21 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-          
+
+          {/* Invite Status Badge (Edit Mode) */}
+          {memberToEdit?.inviteStatus === "pending" && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-xl">
+              <Clock className="w-4 h-4 text-warning-500" />
+              <span className="text-sm font-medium text-warning-700 dark:text-warning-400">
+                {t('team.invite_status_pending')}
+              </span>
+            </div>
+          )}
+
           {/* Avatar & Basics */}
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="relative group">
-              <div 
+              <div
                 className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-sm transition-all overflow-hidden border-4 border-white dark:border-neutral-800"
                 style={{ backgroundColor: avatarPreview ? 'transparent' : formData.color }}
               >
@@ -294,17 +370,17 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
                   formData.name.split(' ').map(n => n[0]).join('').toUpperCase() || "?"
                 )}
               </div>
-              <button 
+              <button
                 type="button"
                 onClick={handleAvatarClick}
                 className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Camera className="w-5 h-5" />
               </button>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
                 accept="image/png, image/jpeg, image/jpg"
                 onChange={handleFileChange}
               />
@@ -336,7 +412,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.profile.full_name')}</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <input 
+                <input
                   type="text"
                   required
                   className="w-full pl-10 pr-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
@@ -350,10 +426,11 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.profile.email')}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <input 
+                <input
                   type="email"
                   required
-                  className="w-full pl-10 pr-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
+                  disabled={!!memberToEdit}
+                  className="w-full pl-10 pr-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 disabled:opacity-60 disabled:cursor-not-allowed"
                   value={formData.email}
                   onChange={e => setFormData({...formData, email: e.target.value})}
                 />
@@ -364,7 +441,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.profile.phone')}</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <input 
+                <input
                   type="tel"
                   className="w-full pl-10 pr-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
                   value={formData.phone}
@@ -380,34 +457,39 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
                 <select
                   disabled={!isAdmin && !isEditingSelf}
                   className="w-full pl-10 pr-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
-                  value={formData.role}
-                  onChange={e => setFormData({...formData, role: e.target.value})}
+                  value={formData.roleLabel}
+                  onChange={e => setFormData({...formData, roleLabel: e.target.value})}
                 >
-                  {ROLES.map(r => <option key={r} value={r}>{t(`team.roles.${r}`, r)}</option>)}
+                  {ROLE_OPTIONS.map(r => <option key={r.label} value={r.label}>{t(`team.roles.${r.label}`, r.label)}</option>)}
                 </select>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.profile.password')}</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <input 
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="********"
-                  className="w-full pl-10 pr-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
-                  value={formData.password}
-                  onChange={e => setFormData({...formData, password: e.target.value})}
-                />
+            {/* Send Password Reset Email (Edit mode only, Admin only) */}
+            {memberToEdit && isAdmin && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('settings.profile.password')}</label>
+                <button
+                  type="button"
+                  onClick={handleSendResetEmail}
+                  disabled={isSendingReset}
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 transition-colors disabled:opacity-50"
+                >
+                  {isSendingReset ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <KeyRound className="w-4 h-4 text-neutral-400" />
+                  )}
+                  {t('team.send_reset_email')}
+                </button>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('team.base_salary')}</label>
-              <input 
+              <input
                 type="number"
                 min="0"
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
@@ -417,7 +499,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">{t('team.monthly_bonus')}</label>
-              <input 
+              <input
                 type="number"
                 min="0"
                 className="w-full px-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500"
@@ -428,8 +510,8 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           </div>
 
           <div className="flex items-center gap-2">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               id="isActive"
               checked={formData.isActive}
               onChange={e => setFormData({...formData, isActive: e.target.checked})}

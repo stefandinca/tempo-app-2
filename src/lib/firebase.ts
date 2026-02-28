@@ -23,6 +23,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
+
 // Messaging export with safety wrapper
 export const messaging = typeof window !== "undefined" 
   ? (() => {

@@ -82,7 +82,8 @@ export interface TeamMember {
   sessions?: number;
   clients?: number;
   isActive?: boolean;
-  weeklyCapacity?: number; // Added for utilization analytics
+  weeklyCapacity?: number;
+  inviteStatus?: "pending" | "active" | "migrated";
 }
 
 export function useTeamMembers() {
@@ -178,10 +179,18 @@ export function useEventsByMonth(year: number, month: number) {
 }
 
 // Intervention Plans - subcollection under clients
+export interface Objective {
+  id: string;
+  title: string;
+  description?: string;
+  status: "not_started" | "in_progress" | "achieved";
+}
+
 export interface InterventionPlan {
   id: string;
   name: string;
   programIds: string[];
+  objectives?: Objective[];
   startDate: string;
   endDate: string;
   status: "active" | "completed" | "draft";

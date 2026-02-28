@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, User, Mail, Calendar, Phone, MessageSquare, Loader2, FileText } from "lucide-react";
+import { Edit, User, Mail, Calendar, Phone, MessageSquare, Loader2, FileText, Clock } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -14,6 +14,7 @@ export interface TeamMember {
   name: string;
   initials: string;
   role: string;
+  specialty?: string;
   color: string;
   email: string;
   phone?: string;
@@ -23,6 +24,7 @@ export interface TeamMember {
   isActive?: boolean;
   baseSalary?: number;
   defaultBonus?: number;
+  inviteStatus?: "pending" | "active" | "migrated";
 }
 
 interface TeamMemberCardProps {
@@ -100,13 +102,19 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
               {isMe && <span className="ml-2 text-xs font-normal text-neutral-400">({t('common.you')})</span>}
             </h3>
           </Link>
-          <p className="text-sm text-primary-600 dark:text-primary-400 font-medium truncate">{member.role}</p>
+          <p className="text-sm text-primary-600 dark:text-primary-400 font-medium truncate">{member.specialty || member.role}</p>
           <div className="flex items-center gap-1.5 mt-1 text-xs text-neutral-500">
             <span className={clsx(
               "w-2 h-2 rounded-full",
               member.isActive !== false ? "bg-success-500" : "bg-neutral-300"
             )} />
             {member.isActive !== false ? t('team.active') : t('team.inactive')}
+            {member.inviteStatus === "pending" && (
+              <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 text-[10px] font-medium">
+                <Clock className="w-3 h-3" />
+                {t('team.invite_pending')}
+              </span>
+            )}
           </div>
         </div>
       </div>
