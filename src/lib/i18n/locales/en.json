@@ -299,7 +299,8 @@
       "error_delete": "Failed to delete event",
       "program_notes_placeholder": "Add notes for this program...",
       "objectives": "Objectives",
-      "objective_notes_placeholder": "Add notes for this objective..."
+      "objective_notes_placeholder": "Add notes for this objective...",
+      "score_decreased": "Score decreased"
     }
   },
   "attendance": {

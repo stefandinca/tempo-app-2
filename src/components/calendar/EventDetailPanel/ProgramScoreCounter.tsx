@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Minus, Plus } from "lucide-react";
+import { useCallback, useRef } from "react";
 import { clsx } from "clsx";
+import { useToast } from "@/context/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export interface ProgramScores {
   minus: number;
@@ -35,8 +36,10 @@ export default function ProgramScoreCounter({
   onChange,
   disabled = false,
 }: ProgramScoreCounterProps) {
-  const [longPressKey, setLongPressKey] = useState<string | null>(null);
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const { info } = useToast();
+  const { t } = useTranslation();
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const didLongPress = useRef(false);
 
   const totalTrials = scores.minus + scores.zero + scores.prompted + scores.plus;
   const successRate = totalTrials > 0 ? Math.round((scores.plus / totalTrials) * 100) : 0;
@@ -70,42 +73,40 @@ export default function ProgramScoreCounter({
         ...scores,
         [key]: scores[key] - 1,
       });
-      setLongPressKey(null);
+      info(t('calendar.event.score_decreased'), 2000);
     },
-    [programId, scores, onChange, disabled]
+    [programId, scores, onChange, disabled, info, t]
   );
 
   const handlePointerDown = (key: keyof ProgramScores) => {
     if (disabled) return;
+    didLongPress.current = false;
 
     const timer = setTimeout(() => {
-      setLongPressKey(key);
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
+      didLongPress.current = true;
+      handleDecrement(key);
     }, 500);
 
-    setLongPressTimer(timer);
+    longPressTimer.current = timer;
   };
 
   const handlePointerUp = (key: keyof ProgramScores) => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
     }
 
     // If we didn't trigger long press, it's a tap (increment)
-    if (!longPressKey) {
+    if (!didLongPress.current) {
       handleIncrement(key);
     }
   };
 
   const handlePointerLeave = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
     }
-    setLongPressKey(null);
   };
 
   const getButtonColors = (color: string, isActive: boolean) => {
@@ -153,43 +154,27 @@ export default function ProgramScoreCounter({
       <div className="grid grid-cols-4 gap-2 mb-3">
         {SCORE_CONFIG.map(({ key, label, color, description }) => {
           const colors = getButtonColors(color, scores[key] > 0);
-          const isLongPressed = longPressKey === key;
 
           return (
-            <div key={key} className="relative">
-              <button
-                type="button"
-                disabled={disabled}
-                onPointerDown={() => handlePointerDown(key)}
-                onPointerUp={() => handlePointerUp(key)}
-                onPointerLeave={handlePointerLeave}
-                onContextMenu={(e) => e.preventDefault()}
-                className={clsx(
-                  "w-full h-14 rounded-xl border-2 flex flex-col items-center justify-center transition-all select-none touch-none",
-                  disabled && "opacity-50 cursor-not-allowed",
-                  scores[key] > 0 ? colors.activeBg + " text-white" : colors.bg + " " + colors.text,
-                  !disabled && "active:scale-95"
-                )}
-                title={description}
-              >
-                <span className="text-lg font-bold leading-none">{label}</span>
-                <span className="text-xs font-medium mt-0.5 opacity-80">{scores[key]}</span>
-              </button>
-
-              {/* Decrement overlay on long press */}
-              {isLongPressed && scores[key] > 0 && (
-                <button
-                  type="button"
-                  onClick={() => handleDecrement(key)}
-                  className="absolute inset-0 bg-black/80 rounded-xl flex items-center justify-center animate-in fade-in zoom-in-95 duration-150"
-                >
-                  <div className="flex items-center gap-1 text-white">
-                    <Minus className="w-4 h-4" />
-                    <span className="text-sm font-bold">1</span>
-                  </div>
-                </button>
+            <button
+              key={key}
+              type="button"
+              disabled={disabled}
+              onPointerDown={() => handlePointerDown(key)}
+              onPointerUp={() => handlePointerUp(key)}
+              onPointerLeave={handlePointerLeave}
+              onContextMenu={(e) => e.preventDefault()}
+              className={clsx(
+                "w-full h-14 rounded-xl border-2 flex flex-col items-center justify-center transition-all select-none touch-none",
+                disabled && "opacity-50 cursor-not-allowed",
+                scores[key] > 0 ? colors.activeBg + " text-white" : colors.bg + " " + colors.text,
+                !disabled && "active:scale-95"
               )}
-            </div>
+              title={description}
+            >
+              <span className="text-lg font-bold leading-none">{label}</span>
+              <span className="text-xs font-medium mt-0.5 opacity-80">{scores[key]}</span>
+            </button>
           );
         })}
       </div>

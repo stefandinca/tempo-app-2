@@ -305,7 +305,8 @@
       "error_delete": "Nu s-a putut șterge evenimentul",
       "program_notes_placeholder": "Adaugă note pentru acest program...",
       "objectives": "Obiective",
-      "objective_notes_placeholder": "Adaugă note pentru acest obiectiv..."
+      "objective_notes_placeholder": "Adaugă note pentru acest obiectiv...",
+      "score_decreased": "Scor redus"
     }
   },
   "attendance": {
