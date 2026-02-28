@@ -49,6 +49,7 @@ const nextConfig = {
       'node_modules/@firebase/storage/dist/index.esm2017.js'
     );
 
+
     // Apply fallbacks for Node.js modules globally
     config.resolve.fallback = {
       ...config.resolve.fallback,
