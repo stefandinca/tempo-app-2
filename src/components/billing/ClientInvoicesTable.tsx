@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Trash2,
   Zap,
+  Tag,
   Building,
   X,
   Search
@@ -170,11 +171,19 @@ export default function ClientInvoicesTable({
         const dueDate = new Date();
         dueDate.setDate(today.getDate() + (currentSettings.invoicing?.defaultDueDays || 14));
         const isSubscription = clientData.hasActiveSubscription === true;
+        const isFixedSessionPrice = !isSubscription && (clientData.fixedSessionPrice || 0) > 0;
         const periodName = today.toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
-        const items = isSubscription 
+        const billableLineItems = invoice.lineItems.filter(i => i.isBillable);
+        const items = isSubscription
           ? [{ description: `${t('billing_page.subscription_label')} - ${periodName}`, quantity: 1, unit: "buc", price: clientData.subscriptionPrice || 0, amount: clientData.subscriptionPrice || 0 }]
-          : invoice.lineItems.map(item => ({ description: `${item.serviceLabel} (${formatDate(item.date)})`, quantity: item.duration / 60, unit: "hour", price: item.basePrice, amount: item.amount }));
-        const totalAmount = isSubscription ? (clientData.subscriptionPrice || 0) : invoice.total;
+          : isFixedSessionPrice
+            ? billableLineItems.map(item => ({ description: `${item.serviceLabel} (${formatDate(item.date)})`, quantity: 1, unit: "buc", price: clientData.fixedSessionPrice, amount: clientData.fixedSessionPrice }))
+            : invoice.lineItems.map(item => ({ description: `${item.serviceLabel} (${formatDate(item.date)})`, quantity: item.duration / 60, unit: "hour", price: item.basePrice, amount: item.amount }));
+        const totalAmount = isSubscription
+          ? (clientData.subscriptionPrice || 0)
+          : isFixedSessionPrice
+            ? billableLineItems.length * clientData.fixedSessionPrice
+            : invoice.total;
         const snapshot: InvoiceData = {
           series, number: nextNumber, date: today.toISOString().split('T')[0], dueDate: dueDate.toISOString().split('T')[0],
           clinic: {
@@ -295,6 +304,7 @@ export default function ClientInvoicesTable({
                   >
                     {invoice.clientName}
                     {invoice.hasActiveSubscription && <Zap className="w-3 h-3 text-primary-500 fill-primary-500" />}
+                    {invoice.hasFixedSessionPrice && <Tag className="w-3 h-3 text-amber-500" />}
                   </Link>
                   <div className="flex items-center gap-2 mt-1 text-xs text-neutral-500">
                     <FileText className="w-3.5 h-3.5" />

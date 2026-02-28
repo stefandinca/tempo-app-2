@@ -29,6 +29,7 @@ export interface ClientInvoice {
   total: number;
   status: "create" | "pending" | "paid" | "synced";
   hasActiveSubscription?: boolean;
+  hasFixedSessionPrice?: boolean;
 }
 
 export interface TeamPayout {
@@ -145,11 +146,14 @@ export function aggregateClientInvoices(
     const billableItems = lineItems.filter(item => item.isBillable);
     const excusedCount = lineItems.filter(item => !item.isBillable).length;
     
-    // Subscription Logic
+    // Billing Mode Logic: Subscription > Fixed Session Price > Per-session calculation
     const useSubscription = client.hasActiveSubscription === true;
-    const subtotal = useSubscription 
-      ? (client.subscriptionPrice || 0) 
-      : billableItems.reduce((sum, item) => sum + item.amount, 0);
+    const useFixedSessionPrice = !useSubscription && (client.fixedSessionPrice || 0) > 0;
+    const subtotal = useSubscription
+      ? (client.subscriptionPrice || 0)
+      : useFixedSessionPrice
+        ? billableItems.length * client.fixedSessionPrice
+        : billableItems.reduce((sum, item) => sum + item.amount, 0);
 
     const rawDiscountRate = useSubscription ? 0 : (client.discountRate || 0); // No discount on subscriptions typically
     const discountRate = Math.max(0, Math.min(1, rawDiscountRate)); // Clamp to 0-1
@@ -188,7 +192,8 @@ export function aggregateClientInvoices(
       discount,
       total,
       status,
-      hasActiveSubscription: client.hasActiveSubscription === true
+      hasActiveSubscription: client.hasActiveSubscription === true,
+      hasFixedSessionPrice: useFixedSessionPrice
     });
   });
 

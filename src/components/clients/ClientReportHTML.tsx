@@ -1,13 +1,14 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { 
-  User, 
-  Calendar, 
-  Clock, 
-  Target, 
-  TrendingUp, 
-  Printer, 
+import i18n from "@/lib/i18n";
+import {
+  User,
+  Calendar,
+  Clock,
+  Target,
+  TrendingUp,
+  Printer,
   ChevronLeft,
   Briefcase,
   CheckCircle2,
@@ -15,9 +16,15 @@ import {
   HelpCircle,
   Building,
   ListFilter,
-  BarChart3
+  BarChart3,
+  BookOpen,
+  ArrowUp,
+  ArrowDown,
+  Minus as MinusIcon,
 } from "lucide-react";
 import { formatAge, calculateAge } from "@/lib/ageUtils";
+import { calculateSuccessRate, calculateTrend, ProgramScores } from "@/lib/progressUtils";
+import { clsx } from "clsx";
 
 interface ClientReportHTMLProps {
   client: any;
@@ -26,6 +33,9 @@ interface ClientReportHTMLProps {
   programs: any[];
   services: any[];
   clinic: any;
+  homework: any[];
+  month: string;
+  teamMembers: any[];
   onBack: () => void;
 }
 
@@ -36,18 +46,28 @@ export default function ClientReportHTML({
   programs,
   services,
   clinic,
+  homework,
+  month,
+  teamMembers,
   onBack
 }: ClientReportHTMLProps) {
   const { t } = useTranslation();
-  
+
   const age = calculateAge(client.birthDate);
   const latestEval = evaluations.find(e => e.status === 'completed') || evaluations[0];
 
+  // Format month for display
+  const [mYear, mMon] = month.split('-').map(Number);
+  const monthDate = new Date(mYear, mMon - 1, 1);
+  const locale = i18n.language || 'ro';
+  const monthLabel = monthDate.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+  const capitalizedMonthLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+
   // --- Aggregations ---
-  
+
   const totalSessions = events.length;
   const therapistStats = events.reduce((acc: any, evt) => {
-    const name = evt.therapistName || "Staff Member";
+    const name = evt.therapistName || t('reports.client.staff_member');
     if (!acc[name]) acc[name] = 0;
     acc[name]++;
     return acc;
@@ -64,22 +84,28 @@ export default function ClientReportHTML({
   // Breakdown by Service and Therapist
   const serviceBreakdown = events.reduce((acc: any, evt) => {
     const serviceId = evt.type;
-    const serviceLabel = services.find(s => s.id === serviceId)?.label || serviceId || "Therapy Session";
-    const therapistName = evt.therapistName || "Staff Member";
-    
+    const serviceLabel = services.find(s => s.id === serviceId)?.label || serviceId || t('reports.client.therapy_default');
+    const therapistName = evt.therapistName || t('reports.client.staff_member');
+
     if (!acc[serviceId]) {
       acc[serviceId] = { label: serviceLabel, count: 0, hours: 0, therapists: {} };
     }
     acc[serviceId].count++;
     acc[serviceId].hours += (evt.duration || 60) / 60;
-    
+
     if (!acc[serviceId].therapists[therapistName]) {
       acc[serviceId].therapists[therapistName] = 0;
     }
     acc[serviceId].therapists[therapistName]++;
-    
+
     return acc;
   }, {});
+
+  // Helper to resolve team member name from ID
+  const resolveTeamMemberName = (id: string) => {
+    const tm = (teamMembers || []).find(m => m.id === id);
+    return tm?.name || id;
+  };
 
   const handlePrint = () => {
     window.print();
@@ -87,19 +113,33 @@ export default function ClientReportHTML({
 
   const clean = (txt: string) => txt || "—";
 
+  // Trend icon helper
+  const TrendIcon = ({ trend }: { trend: string }) => {
+    if (trend === "improving") return <ArrowUp className="w-4 h-4 text-success-600" />;
+    if (trend === "declining") return <ArrowDown className="w-4 h-4 text-error-600" />;
+    return <MinusIcon className="w-4 h-4 text-neutral-400" />;
+  };
+
+  const trendLabel = (trend: string) => {
+    if (trend === "improving") return t('reports.client.trend_improving');
+    if (trend === "declining") return t('reports.client.trend_declining');
+    if (trend === "stable") return t('reports.client.trend_stable');
+    return t('reports.client.trend_insufficient');
+  };
+
   return (
     <div className="min-h-screen bg-neutral-100 dark:bg-neutral-950 p-4 sm:p-8 print:bg-white print:p-0">
-      
+
       {/* Action Bar */}
       <div className="max-w-5xl mx-auto mb-6 flex items-center justify-between print:hidden font-display">
-        <button 
+        <button
           onClick={onBack}
           className="flex items-center gap-2 px-4 py-2 text-neutral-600 hover:text-neutral-900 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 transition-all shadow-sm font-medium"
         >
           <ChevronLeft className="w-4 h-4" />
           {t('common.back')}
         </button>
-        <button 
+        <button
           onClick={handlePrint}
           className="flex items-center gap-2 px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg shadow-primary-600/20 transition-all font-bold"
         >
@@ -110,7 +150,7 @@ export default function ClientReportHTML({
 
       {/* Main Report Page */}
       <div className="max-w-5xl mx-auto bg-white dark:bg-neutral-900 shadow-2xl print:shadow-none print:w-full min-h-[29.7cm] border border-neutral-200 dark:border-neutral-800 p-12 lg:p-16">
-        
+
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-primary-500 pb-10 mb-10">
           <div className="space-y-4">
@@ -125,15 +165,18 @@ export default function ClientReportHTML({
             </div>
             <div className="space-y-1">
               <h2 className="text-3xl font-bold text-neutral-900 dark:text-white font-display uppercase tracking-tight">{t('reports.client.title')}</h2>
-              <p className="text-neutral-500">{t('reports.client.generated_on')}: {new Date().toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
+              <p className="text-neutral-700 dark:text-neutral-300 font-semibold">
+                {t('reports.client.report_period')}: {capitalizedMonthLabel}
+              </p>
+              <p className="text-sm text-neutral-500">{t('reports.client.generated_on')}: {new Date().toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
             </div>
           </div>
 
           <div className="text-right space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-            <p className="font-bold text-neutral-900 dark:text-white">{clinic?.name || "Clinic Name SRL"}</p>
-            <p>{clinic?.address || "Clinic Address Placeholder"}</p>
-            <p>CUI: {clinic?.cui || "RO12345678"}</p>
-            <p>{clinic?.email || "contact@clinic.ro"}</p>
+            <p className="font-bold text-neutral-900 dark:text-white">{clinic?.name || t('reports.defaults.clinic_name')}</p>
+            <p>{clinic?.address || t('reports.defaults.clinic_address')}</p>
+            <p>CUI: {clinic?.cui || "—"}</p>
+            <p>{clinic?.email || t('reports.defaults.contact_email')}</p>
           </div>
         </div>
 
@@ -188,7 +231,7 @@ export default function ClientReportHTML({
         <div className="mb-12 space-y-6">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <Clock className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Attendance & Participation</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.client.attendance_participation')}</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 bg-success-50 dark:bg-success-900/10 border border-success-100 dark:border-success-900/30 rounded-2xl text-center">
@@ -199,7 +242,7 @@ export default function ClientReportHTML({
             <div className="p-4 bg-error-50 dark:bg-error-900/10 border border-error-100 dark:border-error-900/30 rounded-2xl text-center">
               <XCircle className="w-6 h-6 text-error-600 mx-auto mb-2" />
               <p className="text-2xl font-bold text-error-700 dark:text-error-400">{(attendanceHours.absent as number).toFixed(1)}h</p>
-              <p className="text-xs font-bold text-success-600 uppercase tracking-widest mt-1">{t('attendance.absent')}</p>
+              <p className="text-xs font-bold text-error-600 uppercase tracking-widest mt-1">{t('attendance.absent')}</p>
             </div>
             <div className="p-4 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl text-center">
               <HelpCircle className="w-6 h-6 text-neutral-500 mx-auto mb-2" />
@@ -213,7 +256,7 @@ export default function ClientReportHTML({
         <div className="mb-12 space-y-6">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <BarChart3 className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Services Breakdown</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.client.services_breakdown')}</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {Object.values(serviceBreakdown).map((item: any) => (
@@ -221,14 +264,14 @@ export default function ClientReportHTML({
                 <div className="flex items-center justify-between mb-3 border-b border-neutral-200 dark:border-neutral-700 pb-2">
                   <span className="font-bold text-neutral-900 dark:text-white">{item.label}</span>
                   <span className="px-2 py-0.5 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-[10px] font-bold uppercase rounded">
-                    {item.count} sessions ({item.hours.toFixed(1)}h)
+                    {item.count} {t('reports.client.sessions_label')} ({item.hours.toFixed(1)}h)
                   </span>
                 </div>
                 <div className="space-y-2">
                   {Object.entries(item.therapists).map(([tName, tCount]) => (
                     <div key={tName} className="flex items-center justify-between text-xs">
                       <span className="text-neutral-600 dark:text-neutral-400 font-medium">{tName}</span>
-                      <span className="text-neutral-900 dark:text-white font-bold">{tCount as any} sessions</span>
+                      <span className="text-neutral-900 dark:text-white font-bold">{tCount as any} {t('reports.client.sessions_label')}</span>
                     </div>
                   ))}
                 </div>
@@ -241,24 +284,24 @@ export default function ClientReportHTML({
         <div className="space-y-6 mb-12">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <ListFilter className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Comprehensive Session Log</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.client.session_log')}</h3>
           </div>
           <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
             <table className="w-full text-left text-sm">
               <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-display">
                 <tr>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Therapist</th>
-                  <th className="px-6 py-4">Service</th>
-                  <th className="px-6 py-4 text-right">Duration</th>
+                  <th className="px-6 py-4">{t('reports.client.date')}</th>
+                  <th className="px-6 py-4">{t('reports.client.therapist')}</th>
+                  <th className="px-6 py-4">{t('reports.client.service')}</th>
+                  <th className="px-6 py-4 text-right">{t('reports.client.duration')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
                 {events.map((evt) => {
-                  const therapistName = evt.therapistName || "Staff Member";
-                  const serviceLabel = services.find(s => s.id === evt.type)?.label || evt.type || "Therapy";
+                  const therapistName = evt.therapistName || t('reports.client.staff_member');
+                  const serviceLabel = services.find(s => s.id === evt.type)?.label || evt.type || t('reports.client.therapy_default');
                   const date = new Date(evt.startTime).toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                  
+
                   return (
                     <tr key={evt.id} className="hover:bg-neutral-100/50 dark:hover:bg-neutral-800/30 transition-colors">
                       <td className="px-6 py-4 font-medium text-neutral-600 dark:text-neutral-400 tabular-nums">{date}</td>
@@ -270,7 +313,9 @@ export default function ClientReportHTML({
                 })}
                 {events.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-neutral-500 italic">No sessions recorded in the system.</td>
+                    <td colSpan={4} className="px-6 py-12 text-center text-neutral-500 italic">
+                      {t('reports.client.no_sessions_month')}
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -278,52 +323,154 @@ export default function ClientReportHTML({
           </div>
         </div>
 
-        {/* Section: Program Progress */}
+        {/* Section: Program Progress — Real Scoring */}
         <div className="mb-12 space-y-6 page-break-before">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <Target className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Curriculum & Program Status</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.client.curriculum_status')}</h3>
           </div>
-          <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-display">
-                <tr>
-                  <th className="px-6 py-4">{t('services.name')}</th>
-                  <th className="px-6 py-4">{t('common.status')}</th>
-                  <th className="px-6 py-4 text-right">{t('reports.client.progress_label')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
-                {programs.map((prog) => (
-                  <tr key={prog.id}>
-                    <td className="px-6 py-4 font-bold text-neutral-900 dark:text-white">{prog.name}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-600 text-xs font-bold rounded-lg uppercase">
-                        {prog.status || 'Active'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-3">
-                        <div className="w-24 h-1.5 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-primary-500" style={{ width: `${prog.progress || 0}%` }} />
-                        </div>
-                        <span className="font-bold tabular-nums">{prog.progress || 0}%</span>
+          {programs.length > 0 ? (
+            <div className="space-y-6">
+              {programs.map((prog) => {
+                const scoring = prog.scoring;
+                const agg: ProgramScores = scoring?.aggregateScores || { minus: 0, zero: 0, prompted: 0, plus: 0 };
+                const totalTrials = agg.minus + agg.zero + agg.prompted + agg.plus;
+                const successRate = calculateSuccessRate(agg);
+                const trend = scoring?.sessionHistory ? calculateTrend(scoring.sessionHistory) : "insufficient";
+                const notes = scoring?.allNotes ? Array.from(new Set(scoring.allNotes)) as string[] : [];
+                const sessionHistory = scoring?.sessionHistory || [];
+
+                return (
+                  <div key={prog.id} className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+                    {/* Program Header */}
+                    <div className="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold text-neutral-900 dark:text-white">{prog.title || prog.name}</h4>
+                        {prog.description && (
+                          <p className="text-xs text-neutral-500 mt-0.5">{prog.description}</p>
+                        )}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-1.5">
+                          <TrendIcon trend={trend} />
+                          <span className="text-xs font-medium text-neutral-500">{trendLabel(trend)}</span>
+                        </div>
+                        {totalTrials > 0 && (
+                          <span className={clsx(
+                            "inline-block px-2.5 py-1 rounded-lg text-xs font-bold",
+                            successRate >= 80 && "bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400",
+                            successRate >= 50 && successRate < 80 && "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+                            successRate < 50 && "bg-error-50 text-error-700 dark:bg-error-900/20 dark:text-error-400",
+                          )}>
+                            {successRate}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Aggregate Score Boxes */}
+                    <div className="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
+                      <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-3">{t('reports.client.aggregate_scores')}</p>
+                      <div className="grid grid-cols-5 gap-3">
+                        <div className="text-center p-2.5 rounded-xl bg-error-50 dark:bg-error-900/20 border border-error-100 dark:border-error-900/30">
+                          <span className="block text-xs font-bold text-error-500">{'\u2212'}</span>
+                          <span className="block text-lg font-bold text-error-700 dark:text-error-400 tabular-nums">{agg.minus}</span>
+                        </div>
+                        <div className="text-center p-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                          <span className="block text-xs font-bold text-neutral-500">0</span>
+                          <span className="block text-lg font-bold text-neutral-700 dark:text-neutral-300 tabular-nums">{agg.zero}</span>
+                        </div>
+                        <div className="text-center p-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30">
+                          <span className="block text-xs font-bold text-amber-500">P</span>
+                          <span className="block text-lg font-bold text-amber-700 dark:text-amber-400 tabular-nums">{agg.prompted}</span>
+                        </div>
+                        <div className="text-center p-2.5 rounded-xl bg-success-50 dark:bg-success-900/20 border border-success-100 dark:border-success-900/30">
+                          <span className="block text-xs font-bold text-success-500">+</span>
+                          <span className="block text-lg font-bold text-success-700 dark:text-success-400 tabular-nums">{agg.plus}</span>
+                        </div>
+                        <div className="text-center p-2.5 rounded-xl bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-900/30">
+                          <span className="block text-xs font-bold text-primary-500">{t('reports.client.total_trials')}</span>
+                          <span className="block text-lg font-bold text-primary-700 dark:text-primary-400 tabular-nums">{totalTrials}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Session-by-Session Scores Table */}
+                    {sessionHistory.length > 0 && (
+                      <div className="overflow-hidden">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-display">
+                            <tr>
+                              <th className="px-4 py-2.5">{t('reports.client.date')}</th>
+                              <th className="px-4 py-2.5 text-center text-error-500">{'\u2212'}</th>
+                              <th className="px-4 py-2.5 text-center text-neutral-500">0</th>
+                              <th className="px-4 py-2.5 text-center text-amber-500">P</th>
+                              <th className="px-4 py-2.5 text-center text-success-500">+</th>
+                              <th className="px-4 py-2.5 text-center">{t('reports.client.success_rate')}</th>
+                              <th className="px-4 py-2.5">{t('reports.client.notes')}</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                            {sessionHistory.map((session: any, idx: number) => {
+                              const sRate = calculateSuccessRate(session.scores);
+                              const sDate = session.date instanceof Date
+                                ? session.date.toLocaleDateString(locale, { day: '2-digit', month: 'short' })
+                                : new Date(session.date).toLocaleDateString(locale, { day: '2-digit', month: 'short' });
+                              return (
+                                <tr key={session.sessionId || idx}>
+                                  <td className="px-4 py-2.5 font-medium text-neutral-600 dark:text-neutral-400 tabular-nums whitespace-nowrap">{sDate}</td>
+                                  <td className="px-4 py-2.5 text-center font-bold text-error-600 tabular-nums">{session.scores.minus}</td>
+                                  <td className="px-4 py-2.5 text-center font-bold text-neutral-500 tabular-nums">{session.scores.zero}</td>
+                                  <td className="px-4 py-2.5 text-center font-bold text-amber-600 tabular-nums">{session.scores.prompted}</td>
+                                  <td className="px-4 py-2.5 text-center font-bold text-success-600 tabular-nums">{session.scores.plus}</td>
+                                  <td className="px-4 py-2.5 text-center">
+                                    <span className={clsx(
+                                      "inline-block px-2 py-0.5 rounded text-[10px] font-bold",
+                                      sRate >= 80 && "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400",
+                                      sRate >= 50 && sRate < 80 && "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+                                      sRate < 50 && "bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400",
+                                    )}>
+                                      {sRate}%
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-2.5 text-neutral-500 italic">{session.notes || '—'}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* Therapist Comments (deduplicated) */}
+                    {notes.length > 0 && (
+                      <div className="px-5 py-3 border-t border-neutral-100 dark:border-neutral-800">
+                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">{t('reports.client.therapist_comments')}</p>
+                        <ul className="list-disc list-inside space-y-1 text-xs text-neutral-600 dark:text-neutral-400">
+                          {notes.map((note, i) => (
+                            <li key={i}>{note}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 p-12 text-center text-neutral-500 italic">
+              {t('reports.client.no_programs')}
+            </div>
+          )}
         </div>
 
         {/* Section: Latest Evaluation */}
-        <div className="space-y-6">
+        <div className="space-y-6 mb-12">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <TrendingUp className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">Skills Assessment Results</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.client.assessment_results')}</h3>
           </div>
-          
+
           {latestEval ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bg-neutral-50 dark:bg-neutral-800/50 p-8 rounded-3xl border border-neutral-100 dark:border-neutral-800">
               <div className="space-y-4 font-display">
@@ -345,10 +492,57 @@ export default function ClientReportHTML({
             </div>
           ) : (
             <div className="p-8 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl text-center text-neutral-500 italic border border-dashed border-neutral-200">
-              {t('evaluations.no_data') || 'No assessment data.'}
+              {t('reports.client.no_assessment_data')}
             </div>
           )}
         </div>
+
+        {/* Section: Homework */}
+        {homework.length > 0 && (
+          <div className="mb-12 space-y-6">
+            <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
+              <BookOpen className="w-5 h-5 text-primary-500" />
+              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-sm">{t('reports.client.homework_section')}</h3>
+            </div>
+            <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-display">
+                  <tr>
+                    <th className="px-4 py-4">{t('reports.client.homework_title')}</th>
+                    <th className="px-4 py-4">{t('reports.client.homework_description')}</th>
+                    <th className="px-4 py-4 text-center">{t('reports.client.homework_frequency')}</th>
+                    <th className="px-4 py-4">{t('reports.client.homework_assigned_by')}</th>
+                    <th className="px-4 py-4 text-center">{t('common.status')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                  {homework.map((hw) => (
+                    <tr key={hw.id}>
+                      <td className="px-4 py-4 font-bold text-neutral-900 dark:text-white">{hw.title || "—"}</td>
+                      <td className="px-4 py-4 text-xs text-neutral-600 dark:text-neutral-400">{hw.description || "—"}</td>
+                      <td className="px-4 py-4 text-center text-xs font-medium text-neutral-600 dark:text-neutral-400 capitalize">
+                        {hw.frequency ? hw.frequency.replace('_', ' ') : "—"}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-neutral-700 dark:text-neutral-300">
+                        {hw.assignedBy ? resolveTeamMemberName(hw.assignedBy) : "—"}
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        <span className={clsx(
+                          "inline-block px-2.5 py-1 rounded-lg text-xs font-bold",
+                          hw.completed
+                            ? "bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400"
+                            : "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+                        )}>
+                          {hw.completed ? t('common.completed') : t('common.pending')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Report Footer */}
         <div className="mt-20 pt-10 border-t border-neutral-100 dark:border-neutral-800 text-center space-y-4">
