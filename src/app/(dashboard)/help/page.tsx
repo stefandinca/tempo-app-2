@@ -2,19 +2,20 @@
 
 import { useState, useMemo } from "react";
 import { 
-  Search, 
-  ChevronRight, 
-  Book, 
-  LayoutDashboard, 
-  Calendar, 
-  Users, 
-  ShieldCheck, 
-  CreditCard, 
-  BarChart3, 
+  Search,
+  ChevronRight,
+  Book,
+  LayoutDashboard,
+  Calendar,
+  Users,
+  ShieldCheck,
+  CreditCard,
+  BarChart3,
   Settings,
   HelpCircle,
   ArrowLeft,
-  BookOpen
+  BookOpen,
+  Video
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { clsx } from "clsx";
@@ -32,7 +33,8 @@ export default function HelpPage() {
     { id: "team", icon: ShieldCheck, color: "text-purple-500" },
     { id: "billing", icon: CreditCard, color: "text-warning-500" },
     { id: "analytics", icon: BarChart3, color: "text-indigo-500" },
-    { id: "settings", icon: Settings, color: "text-neutral-500" }
+    { id: "settings", icon: Settings, color: "text-neutral-500" },
+    { id: "videos", icon: Video, color: "text-rose-500" }
   ], []);
 
   const filteredSections = useMemo(() => {
@@ -125,23 +127,49 @@ export default function HelpPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4">
-                {/* Feature detail blocks - we'll iterate through the known feature keys for each section */}
-                {Object.keys((t(`help.sections.${section.id}.features`, { returnObjects: true }) as any) || {}).map((featureKey) => (
-                  <div 
-                    key={featureKey}
-                    className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-                      {t(`help.sections.${section.id}.features.${featureKey}.title`)}
-                    </h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
-                      {t(`help.sections.${section.id}.features.${featureKey}.content`)}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              {section.id === "videos" ? (
+                <div className="grid gap-6">
+                  {Object.keys((t(`help.sections.videos.items`, { returnObjects: true }) as any) || {}).map((itemKey) => (
+                    <div
+                      key={itemKey}
+                      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 shadow-sm"
+                    >
+                      <video
+                        controls
+                        preload="metadata"
+                        playsInline
+                        className="w-full max-w-2xl rounded-2xl mb-4 bg-black"
+                        src={t(`help.sections.videos.items.${itemKey}.src`)}
+                      />
+                      <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-1 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        {t(`help.sections.videos.items.${itemKey}.title`)}
+                      </h3>
+                      <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
+                        {t(`help.sections.videos.items.${itemKey}.description`)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {/* Feature detail blocks - we'll iterate through the known feature keys for each section */}
+                  {Object.keys((t(`help.sections.${section.id}.features`, { returnObjects: true }) as any) || {}).map((featureKey) => (
+                    <div
+                      key={featureKey}
+                      className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+                        {t(`help.sections.${section.id}.features.${featureKey}.title`)}
+                      </h3>
+                      <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-sm">
+                        {t(`help.sections.${section.id}.features.${featureKey}.content`)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
           ))}
 

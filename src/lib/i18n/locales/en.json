@@ -1970,6 +1970,27 @@
                               }
                             }
                           },
+                          "videos": {
+                            "title": "Video Tutorials",
+                            "description": "Watch step-by-step video guides on how to use TempoApp",
+                            "items": {
+                              "create_session": {
+                                "title": "How to Create a Session",
+                                "description": "Learn how to schedule a new therapy session, assign a therapist and client, and configure session details.",
+                                "src": "/videos/adaugarea_unei_sedinte.mp4"
+                              },
+                              "create_intervention_plan": {
+                                "title": "How to Create an Intervention Plan",
+                                "description": "Learn how to create a new intervention plan for a client, add programs and goals, and configure plan details.",
+                                "src": "/videos/adaugarea_unui_plan_de_interventie.mp4"
+                              },
+                              "create_portage_evaluation": {
+                                "title": "How to Create a Portage Evaluation",
+                                "description": "Learn how to run a Portage developmental assessment, score items across domains, and review the results.",
+                                "src": "/videos/adaugarea_unei_evaluari_portage.mp4"
+                              }
+                            }
+                          },
                           "settings": {
                             "title": "System Configuration",
                             "description": "Customize TempoApp to fit your clinic's specific needs. Manage preferences and system-wide constraints.",

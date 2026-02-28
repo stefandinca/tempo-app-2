@@ -1974,6 +1974,27 @@
           }
         }
       },
+      "videos": {
+        "title": "Tutoriale Video",
+        "description": "Urmărește ghiduri video pas cu pas despre utilizarea TempoApp",
+        "items": {
+          "create_session": {
+            "title": "Cum să creezi o ședință",
+            "description": "Învață cum să programezi o nouă ședință de terapie, să aloci un terapeut și un client, și să configurezi detaliile ședinței.",
+            "src": "/videos/adaugarea_unei_sedinte.mp4"
+          },
+          "create_intervention_plan": {
+            "title": "Cum să creezi un plan de intervenție",
+            "description": "Învață cum să creezi un nou plan de intervenție pentru un client, să adaugi programe și obiective, și să configurezi detaliile planului.",
+            "src": "/videos/adaugarea_unui_plan_de_interventie.mp4"
+          },
+          "create_portage_evaluation": {
+            "title": "Cum să creezi o evaluare Portage",
+            "description": "Învață cum să realizezi o evaluare Portage a dezvoltării, să scorezi itemii pe domenii și să revizuiești rezultatele.",
+            "src": "/videos/adaugarea_unei_evaluari_portage.mp4"
+          }
+        }
+      },
       "settings": {
         "title": "Configurare Sistem",
         "description": "Personalizează TempoApp pentru a se potrivi nevoilor specifice ale clinicii tale. Gestionează preferințele și constrângerile la nivel de sistem.",
