@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart2, TrendingUp, Award, BookOpen, ListChecks, FileText, Target, CheckCircle2, Circle, Clock } from "lucide-react";
+import { BarChart2, TrendingUp, Award, BookOpen, ListChecks, FileText, Target, CheckCircle2, Circle, Clock, Flag } from "lucide-react";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useInterventionPlans, usePrograms as useAllPrograms } from "@/hooks/useCollections";
 import ProgramProgressCard from "@/components/parent/ProgramProgressCard";
@@ -342,6 +342,65 @@ export default function ParentProgressPage() {
                   </div>
                 );
               })}
+
+              {/* Objectives from active plan */}
+              {activePlan.objectives && activePlan.objectives.length > 0 && (
+                <>
+                  <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-widest px-1 mt-6 flex items-center gap-1.5">
+                    <Flag className="w-3.5 h-3.5" />
+                    {t("parent_portal.progress.goals.objectives_title")}
+                  </h3>
+                  {activePlan.objectives.map((obj) => {
+                    const statusConfig = {
+                      not_started: { icon: Circle, color: "text-neutral-400", bg: "bg-neutral-50 dark:bg-neutral-800", label: t("parent_portal.progress.goals.not_started") },
+                      in_progress: { icon: Clock, color: "text-primary-500", bg: "bg-primary-50 dark:bg-primary-900/20", label: t("parent_portal.progress.goals.in_progress") },
+                      achieved: { icon: CheckCircle2, color: "text-success-500", bg: "bg-success-50 dark:bg-success-900/20", label: t("parent_portal.progress.goals.achieved") },
+                    };
+                    const config = statusConfig[obj.status];
+
+                    // Gather objective notes from sessions
+                    const sessionNotes = (sessions || [])
+                      .filter((s: any) => s.objectiveNotes && s.objectiveNotes[obj.id])
+                      .map((s: any) => ({
+                        date: parseDate(s.startTime),
+                        note: s.objectiveNotes[obj.id],
+                      }))
+                      .sort((a: any, b: any) => b.date.getTime() - a.date.getTime())
+                      .slice(0, 5);
+
+                    return (
+                      <div key={obj.id} className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-4">
+                        <div className="flex items-start gap-3">
+                          <div className={clsx("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", config.bg)}>
+                            <Flag className={clsx("w-5 h-5", config.color)} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">{obj.title}</h4>
+                            {obj.description && (
+                              <p className="text-xs text-neutral-400 mt-0.5 line-clamp-2">{obj.description}</p>
+                            )}
+                          </div>
+                          <span className={clsx("text-[10px] font-bold px-2 py-1 rounded-full", config.bg, config.color)}>
+                            {config.label}
+                          </span>
+                        </div>
+                        {/* Recent session notes for this objective */}
+                        {sessionNotes.length > 0 && (
+                          <div className="mt-3 ml-12 space-y-2">
+                            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">{t("parent_portal.progress.goals.objective_notes")}</p>
+                            {sessionNotes.map((sn: any, idx: number) => (
+                              <div key={idx} className="flex items-start gap-2 text-xs">
+                                <span className="text-neutral-400 flex-shrink-0 mt-0.5">{sn.date.toLocaleDateString()}</span>
+                                <p className="text-neutral-600 dark:text-neutral-400 italic">{sn.note}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
             </div>
           )}
         </>

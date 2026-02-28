@@ -82,7 +82,8 @@ export default function NewEventModal({
         recurrenceDays: [],
         recurrenceEndDate: "",
         selectedClients: editingEvent.clientIds || (editingEvent.clientId ? [editingEvent.clientId] : []),
-        selectedPrograms: editingEvent.programIds || []
+        selectedPrograms: editingEvent.programIds || [],
+        objectiveNotes: editingEvent.objectiveNotes || {}
       });
     } else {
       // Create mode: Use initial values or defaults

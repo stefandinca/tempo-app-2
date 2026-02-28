@@ -8,10 +8,11 @@ import {
   CheckCircle2,
   AlertCircle,
   FileText,
-  Circle
+  Circle,
+  Flag
 } from "lucide-react";
 import { clsx } from "clsx";
-import { useTeamMembers, usePrograms } from "@/hooks/useCollections";
+import { useTeamMembers, usePrograms, useInterventionPlans } from "@/hooks/useCollections";
 import { useTranslation } from "react-i18next";
 import ProgramScoreCounter, { ProgramScores } from "../calendar/EventDetailPanel/ProgramScoreCounter";
 
@@ -27,6 +28,9 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
   const { data: team } = useTeamMembers();
   const { data: programs } = usePrograms();
 
+  // Get objectives from active plan for labels (must be before early return)
+  const { activePlan } = useInterventionPlans(event?.clientId || "");
+
   if (!event) return null;
 
   const therapist = (team || []).find(t => t.id === event.therapistId);
@@ -34,7 +38,13 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
 
   const programScores = event.programScores || {};
   const programNotes: Record<string, string> = event.programNotes || {};
+  const objectiveNotes: Record<string, string> = event.objectiveNotes || {};
   const defaultScores: ProgramScores = { minus: 0, zero: 0, prompted: 0, plus: 0 };
+
+  const planObjectives = activePlan?.objectives || [];
+
+  // Find objectives that have notes on this event
+  const objectivesWithNotes = planObjectives.filter(obj => objectiveNotes[obj.id]);
 
   const parseDate = (val: any) => {
     if (!val) return new Date(0);
@@ -173,6 +183,27 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
               </div>
             )}
           </div>
+
+          {/* Objectives */}
+          {objectivesWithNotes.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">{t("parent_portal.session_detail.objectives")}</p>
+              <div className="space-y-3">
+                {objectivesWithNotes.map(obj => (
+                  <div key={obj.id} className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 border border-neutral-100 dark:border-neutral-800">
+                    <div className="flex items-start gap-2 mb-1.5">
+                      <Flag className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm font-medium text-neutral-900 dark:text-white">{obj.title}</p>
+                    </div>
+                    <div className="ml-6 px-3 py-2 bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100/50 dark:border-primary-900/30 rounded-lg">
+                      <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">{t("parent_portal.session_detail.objective_notes")}</p>
+                      <p className="text-xs text-neutral-700 dark:text-neutral-300 italic">{objectiveNotes[obj.id]}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Session Notes */}
           <div>

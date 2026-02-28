@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, Target, Search, Check, BookOpen, Trash2 } from "lucide-react";
+import { X, Loader2, Target, Search, Check, BookOpen, Trash2, Plus, Flag } from "lucide-react";
 import { clsx } from "clsx";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
-import { usePrograms, InterventionPlan } from "@/hooks/useCollections";
+import { usePrograms, InterventionPlan, Objective } from "@/hooks/useCollections";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
 
@@ -37,6 +37,7 @@ export default function CreatePlanModal({
     startDate: "",
     endDate: "",
     programIds: [] as string[],
+    objectives: [] as Objective[],
     status: "active" as "active" | "draft" | "completed"
   });
 
@@ -48,6 +49,7 @@ export default function CreatePlanModal({
         startDate: existingPlan.startDate,
         endDate: existingPlan.endDate,
         programIds: existingPlan.programIds,
+        objectives: existingPlan.objectives || [],
         status: existingPlan.status
       });
     } else {
@@ -61,6 +63,7 @@ export default function CreatePlanModal({
         startDate: today.toISOString().split("T")[0],
         endDate: threeMonthsLater.toISOString().split("T")[0],
         programIds: [],
+        objectives: [],
         status: "active"
       });
     }
@@ -81,6 +84,35 @@ export default function CreatePlanModal({
     }));
   };
 
+  // Objectives management
+  const addObjective = () => {
+    const newObjective: Objective = {
+      id: crypto.randomUUID(),
+      title: "",
+      status: "not_started"
+    };
+    setFormData(prev => ({
+      ...prev,
+      objectives: [...prev.objectives, newObjective]
+    }));
+  };
+
+  const updateObjective = (id: string, updates: Partial<Objective>) => {
+    setFormData(prev => ({
+      ...prev,
+      objectives: prev.objectives.map(obj =>
+        obj.id === id ? { ...obj, ...updates } : obj
+      )
+    }));
+  };
+
+  const removeObjective = (id: string) => {
+    setFormData(prev => ({
+      ...prev,
+      objectives: prev.objectives.filter(obj => obj.id !== id)
+    }));
+  };
+
   const statusLabels: Record<string, string> = {
     active: t('clients.plan_modal.status_active'),
     draft: t('clients.plan_modal.status_draft'),
@@ -94,7 +126,10 @@ export default function CreatePlanModal({
     if (new Date(formData.endDate) <= new Date(formData.startDate)) {
       return t('clients.plan_modal.validation.end_after_start');
     }
-    if (formData.programIds.length === 0) return t('clients.plan_modal.validation.select_program');
+    if (formData.programIds.length === 0 && formData.objectives.length === 0) return t('clients.plan_modal.validation.select_program');
+    // Validate that all objectives have titles
+    const emptyObjective = formData.objectives.find(obj => !obj.title.trim());
+    if (emptyObjective) return t('clients.plan_modal.objective_title') + ' is required';
     return null;
   };
 
@@ -116,6 +151,12 @@ export default function CreatePlanModal({
         startDate: formData.startDate,
         endDate: formData.endDate,
         programIds: formData.programIds,
+        objectives: formData.objectives.map(obj => ({
+          id: obj.id,
+          title: obj.title.trim(),
+          ...(obj.description ? { description: obj.description.trim() } : {}),
+          status: obj.status
+        })),
         status: formData.status,
         ...(existingPlan ? {} : { createdAt: new Date().toISOString() })
       };
@@ -341,6 +382,82 @@ export default function CreatePlanModal({
                 })
               )}
             </div>
+          </div>
+
+          {/* Objectives Section */}
+          <div>
+            <label className="block text-sm font-medium mb-1.5 text-neutral-700 dark:text-neutral-300">
+              {t('clients.plan_modal.objectives_section')}
+              <span className="ml-2 text-xs text-neutral-500 font-normal">
+                ({formData.objectives.length})
+              </span>
+            </label>
+
+            <div className="space-y-2">
+              {formData.objectives.map((obj) => (
+                <div
+                  key={obj.id}
+                  className="p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-200 dark:border-neutral-700 space-y-2"
+                >
+                  <div className="flex items-start gap-2">
+                    <Flag className="w-4 h-4 text-neutral-400 mt-2 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <input
+                        type="text"
+                        placeholder={t('clients.plan_modal.objective_title')}
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        value={obj.title}
+                        onChange={(e) => updateObjective(obj.id, { title: e.target.value })}
+                      />
+                      <input
+                        type="text"
+                        placeholder={t('clients.plan_modal.objective_description')}
+                        className="w-full px-3 py-1.5 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-xs focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        value={obj.description || ""}
+                        onChange={(e) => updateObjective(obj.id, { description: e.target.value })}
+                      />
+                      <div className="flex gap-1.5">
+                        {(["not_started", "in_progress", "achieved"] as const).map((status) => (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => updateObjective(obj.id, { status })}
+                            className={clsx(
+                              "px-2 py-1 rounded text-[10px] font-bold transition-all border",
+                              obj.status === status
+                                ? status === "achieved"
+                                  ? "bg-success-500 border-success-600 text-white"
+                                  : status === "in_progress"
+                                  ? "bg-primary-500 border-primary-600 text-white"
+                                  : "bg-neutral-400 border-neutral-500 text-white"
+                                : "bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 text-neutral-500"
+                            )}
+                          >
+                            {t(`clients.plan_modal.objective_status.${status}`)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeObjective(obj.id)}
+                      className="p-1.5 text-neutral-400 hover:text-error-500 hover:bg-error-50 dark:hover:bg-error-900/20 rounded-lg transition-colors flex-shrink-0"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={addObjective}
+              className="mt-2 w-full flex items-center justify-center gap-2 py-2 border border-dashed border-neutral-300 dark:border-neutral-700 rounded-lg text-sm text-neutral-500 hover:text-primary-600 hover:border-primary-400 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {t('clients.plan_modal.add_objective')}
+            </button>
           </div>
 
           {/* Footer Actions */}

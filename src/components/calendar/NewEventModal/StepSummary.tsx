@@ -1,8 +1,8 @@
 "use client";
 
 import { EventFormData } from "./types";
-import { useClients, useTeamMembers, useServices, usePrograms } from "@/hooks/useCollections";
-import { Calendar, Clock, User, BookOpen, Repeat } from "lucide-react";
+import { useClients, useTeamMembers, useServices, usePrograms, useInterventionPlans } from "@/hooks/useCollections";
+import { Calendar, Clock, User, BookOpen, Repeat, Flag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface StepSummaryProps {
@@ -20,6 +20,10 @@ export default function StepSummary({ data }: StepSummaryProps) {
   const selectedTeam = (teamMembers || []).filter(t => data.selectedTeamMembers.includes(t.id));
   const selectedPrograms = (programs || []).filter(p => data.selectedPrograms.includes(p.id));
   const selectedService = (services || []).find(s => s.id === data.eventType);
+
+  // Get objectives from the active plan of the first selected client
+  const { activePlan } = useInterventionPlans(data.selectedClients[0] || "");
+  const planObjectives = activePlan?.objectives || [];
 
   return (
     <div className="space-y-6">
@@ -110,6 +114,24 @@ export default function StepSummary({ data }: StepSummaryProps) {
             <p className="text-xs text-neutral-400 italic">{t('event_modal.no_programs_selected')}</p>
           )}
         </div>
+
+        {/* Objectives from Active Plan */}
+        {planObjectives.length > 0 && (
+          <div>
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">{t('calendar.event.objectives')}</h4>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {planObjectives.map(obj => (
+                <div key={obj.id} className="flex items-start gap-2 p-2 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg">
+                  <Flag className="w-4 h-4 text-neutral-400 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-medium text-neutral-900 dark:text-white">{obj.title}</p>
+                    {obj.description && <p className="text-[10px] text-neutral-500">{obj.description}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {data.details && (

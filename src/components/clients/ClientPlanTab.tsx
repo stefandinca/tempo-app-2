@@ -12,10 +12,15 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
-  Target
+  Target,
+  Flag,
+  Circle,
+  CheckCircle2
 } from "lucide-react";
 import { clsx } from "clsx";
-import { useInterventionPlans, InterventionPlan, usePrograms } from "@/hooks/useCollections";
+import { useInterventionPlans, InterventionPlan, usePrograms, Objective } from "@/hooks/useCollections";
+import { useTranslation } from "react-i18next";
+import { updateObjectiveStatus } from "@/lib/objectiveUtils";
 import CreatePlanModal from "./CreatePlanModal";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
@@ -29,6 +34,7 @@ interface ClientPlanTabProps {
 }
 
 export default function ClientPlanTab({ client, pendingAction, onActionHandled }: ClientPlanTabProps) {
+  const { t } = useTranslation();
   const { data: plans, loading, activePlan } = useInterventionPlans(client.id);
   const { data: programs } = usePrograms();
   const { success, error } = useToast();
@@ -210,6 +216,61 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
               </div>
             </div>
 
+            {/* Objectives */}
+            {activePlan.objectives && activePlan.objectives.length > 0 && (
+              <div className="mt-5">
+                <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">
+                  {t('clients.plan_modal.objectives_section')} ({activePlan.objectives.length})
+                </p>
+                <div className="space-y-2">
+                  {activePlan.objectives.map((obj) => {
+                    const statusConfig = {
+                      not_started: { icon: Circle, color: "text-neutral-400", bg: "bg-neutral-100 dark:bg-neutral-800", label: t('clients.plan_modal.objective_status.not_started') },
+                      in_progress: { icon: Clock, color: "text-primary-500", bg: "bg-primary-50 dark:bg-primary-900/20", label: t('clients.plan_modal.objective_status.in_progress') },
+                      achieved: { icon: CheckCircle2, color: "text-success-500", bg: "bg-success-50 dark:bg-success-900/20", label: t('clients.plan_modal.objective_status.achieved') },
+                    };
+                    const config = statusConfig[obj.status];
+                    const handleStatusCycle = async () => {
+                      const cycle: Array<"not_started" | "in_progress" | "achieved"> = ["not_started", "in_progress", "achieved"];
+                      const nextStatus = cycle[(cycle.indexOf(obj.status) + 1) % cycle.length];
+                      try {
+                        await updateObjectiveStatus(client.id, activePlan.id, activePlan.objectives!, obj.id, nextStatus);
+                      } catch (err) {
+                        console.error("Failed to update objective status:", err);
+                        error(t('clients.plan_modal.error_edit'));
+                      }
+                    };
+                    return (
+                      <div key={obj.id} className="flex items-start gap-3 p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg border border-neutral-100 dark:border-neutral-800">
+                        <button
+                          type="button"
+                          onClick={handleStatusCycle}
+                          className={clsx("w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all hover:scale-110", config.bg)}
+                          title={config.label}
+                        >
+                          <config.icon className={clsx("w-4 h-4", config.color)} />
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-neutral-900 dark:text-white">{obj.title}</p>
+                          {obj.description && (
+                            <p className="text-xs text-neutral-500 mt-0.5">{obj.description}</p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleStatusCycle}
+                          className={clsx("text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all hover:opacity-80 cursor-pointer", config.bg, config.color)}
+                          title={t('clients.plan_modal.objective_status.not_started') + ' → ' + t('clients.plan_modal.objective_status.in_progress') + ' → ' + t('clients.plan_modal.objective_status.achieved')}
+                        >
+                          {config.label}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-3 mt-6 pt-6 border-t border-neutral-100 dark:border-neutral-800">
               <button
@@ -269,6 +330,7 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                     <p className="font-medium text-neutral-900 dark:text-white">{plan.name}</p>
                     <p className="text-xs text-neutral-500">
                       {formatDate(plan.startDate)} → {formatDate(plan.endDate)} · {plan.programIds.length} programs
+                      {plan.objectives && plan.objectives.length > 0 && ` · ${plan.objectives.length} objectives`}
                     </p>
                   </div>
                 </div>
@@ -334,6 +396,7 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                         <p className="font-medium text-neutral-700 dark:text-neutral-300">{plan.name}</p>
                         <p className="text-xs text-neutral-500">
                           {formatDate(plan.startDate)} → {formatDate(plan.endDate)} · {plan.programIds.length} programs
+                          {plan.objectives && plan.objectives.length > 0 && ` · ${plan.objectives.length} objectives`}
                         </p>
                       </div>
                     </div>

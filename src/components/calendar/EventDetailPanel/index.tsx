@@ -15,7 +15,8 @@ import {
   Plus,
   Minus,
   Search,
-  Pencil
+  Pencil,
+  Flag
 } from "lucide-react";
 import { clsx } from "clsx";
 import Link from "next/link";
@@ -23,7 +24,8 @@ import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
-import { useClients, useTeamMembers, usePrograms } from "@/hooks/useCollections";
+import { useClients, useTeamMembers, usePrograms, useInterventionPlans, Objective } from "@/hooks/useCollections";
+import { updateObjectiveStatus } from "@/lib/objectiveUtils";
 import ProgramScoreCounter, { ProgramScores } from "./ProgramScoreCounter";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
@@ -55,6 +57,10 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const { data: programs } = usePrograms();
   const { openModal } = useEventModal();
 
+  // Get active plan objectives for the event's client
+  const { activePlan } = useInterventionPlans(event?.clientId || "");
+  const planObjectives: Objective[] = activePlan?.objectives || [];
+
   // Local state for editing
   const [attendance, setAttendance] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
@@ -69,6 +75,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   const [isRemoveModeActive, setIsRemoveModeActive] = useState(false);
   const [programSearch, setProgramSearch] = useState("");
   const [programNotes, setProgramNotes] = useState<Record<string, string>>({});
+  const [objectiveNotes, setObjectiveNotes] = useState<Record<string, string>>({});
 
   // Track original values for detecting changes
   const [originalDate, setOriginalDate] = useState("");
@@ -117,6 +124,9 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       // Initialize program notes from event
       setProgramNotes(event.programNotes || {});
 
+      // Initialize objective notes from event
+      setObjectiveNotes(event.objectiveNotes || {});
+
       // Reset program selector state
       setIsProgramSelectorOpen(false);
       setIsRemoveModeActive(false);
@@ -158,7 +168,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
   }, [canEdit, defaultScores]);
 
   // Detect unsaved changes
-  const hasUnsavedChanges = attendance !== originalAttendance || date !== originalDate || time !== originalTime || notes !== (event?.details || "") || JSON.stringify(programNotes) !== JSON.stringify(event?.programNotes || {});
+  const hasUnsavedChanges = attendance !== originalAttendance || date !== originalDate || time !== originalTime || notes !== (event?.details || "") || JSON.stringify(programNotes) !== JSON.stringify(event?.programNotes || {}) || JSON.stringify(objectiveNotes) !== JSON.stringify(event?.objectiveNotes || {});
 
   const handleClose = () => {
     if (hasUnsavedChanges && canEdit) {
@@ -206,12 +216,19 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
         if (programNotes[id]) filteredProgramNotes[id] = programNotes[id];
       });
 
+      // Filter objectiveNotes to only include objectives that have content
+      const filteredObjectiveNotes: Record<string, string> = {};
+      Object.entries(objectiveNotes).forEach(([id, note]) => {
+        if (note && note.trim()) filteredObjectiveNotes[id] = note;
+      });
+
       await updateDoc(eventRef, {
         attendance,
         details: notes,
         programIds: selectedProgramIds,
         programScores,
         programNotes: filteredProgramNotes,
+        objectiveNotes: filteredObjectiveNotes,
         status: attendance ? "completed" : "upcoming",
         startTime: newStart.toISOString(),
         endTime: newEnd.toISOString()
@@ -710,6 +727,77 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               </div>
             )}
           </div>
+
+          {/* Objectives */}
+          {planObjectives.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">
+                {t('calendar.event.objectives')}
+                <span className="ml-2 text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded-full font-bold">
+                  {planObjectives.length}
+                </span>
+              </p>
+              <div className="space-y-3">
+                {planObjectives.map((obj) => {
+                  const statusLabel = obj.status === "achieved" ? t('clients.plan_modal.objective_status.achieved') :
+                    obj.status === "in_progress" ? t('clients.plan_modal.objective_status.in_progress') :
+                    t('clients.plan_modal.objective_status.not_started');
+                  const statusClasses = obj.status === "achieved" ? "bg-success-50 dark:bg-success-900/20 text-success-600" :
+                    obj.status === "in_progress" ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600" :
+                    "bg-neutral-100 dark:bg-neutral-800 text-neutral-400";
+                  const handleStatusCycle = async () => {
+                    if (!canEdit || !activePlan) return;
+                    const cycle: Array<"not_started" | "in_progress" | "achieved"> = ["not_started", "in_progress", "achieved"];
+                    const nextStatus = cycle[(cycle.indexOf(obj.status) + 1) % cycle.length];
+                    try {
+                      await updateObjectiveStatus(event.clientId, activePlan.id, activePlan.objectives!, obj.id, nextStatus);
+                    } catch (err) {
+                      console.error("Failed to update objective status:", err);
+                    }
+                  };
+                  return (
+                    <div key={obj.id} className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 border border-neutral-100 dark:border-neutral-800">
+                      <div className="flex items-start gap-2 mb-2">
+                        <Flag className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-neutral-900 dark:text-white">{obj.title}</p>
+                          {obj.description && (
+                            <p className="text-xs text-neutral-500 mt-0.5">{obj.description}</p>
+                          )}
+                        </div>
+                        {canEdit ? (
+                          <button
+                            type="button"
+                            onClick={handleStatusCycle}
+                            className={clsx(
+                              "text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 transition-all hover:opacity-80 cursor-pointer",
+                              statusClasses
+                            )}
+                          >
+                            {statusLabel}
+                          </button>
+                        ) : (
+                          <span className={clsx("text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0", statusClasses)}>
+                            {statusLabel}
+                          </span>
+                        )}
+                      </div>
+                      {(canEdit || objectiveNotes[obj.id]) && (
+                        <textarea
+                          placeholder={t('calendar.event.objective_notes_placeholder')}
+                          value={objectiveNotes[obj.id] || ""}
+                          onChange={(e) => setObjectiveNotes(prev => ({ ...prev, [obj.id]: e.target.value }))}
+                          disabled={!canEdit}
+                          rows={2}
+                          className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg text-xs focus:ring-2 focus:ring-primary-500 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Session Notes */}
           <div>

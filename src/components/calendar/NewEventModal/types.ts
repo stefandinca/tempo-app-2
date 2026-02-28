@@ -16,6 +16,9 @@ export interface EventFormData {
 
   // Step 3: Programs
   selectedPrograms: string[]; // IDs
+
+  // Objective Notes (parallel to programNotes on event docs)
+  objectiveNotes: Record<string, string>; // { [objectiveId]: "note text" }
 }
 
 export const INITIAL_DATA: EventFormData = {
@@ -30,5 +33,6 @@ export const INITIAL_DATA: EventFormData = {
   recurrenceDays: [],
   recurrenceEndDate: "",
   selectedClients: [],
-  selectedPrograms: []
+  selectedPrograms: [],
+  objectiveNotes: {}
 };

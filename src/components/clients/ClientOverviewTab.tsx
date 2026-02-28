@@ -3,7 +3,7 @@
 import { Mail, User, ShieldAlert, Calendar, Clock, BarChart, Phone, Cake, FileText, ChevronRight, MessageSquare, Loader2, ClipboardCheck, Building, Plus, X, Users, Check, Search } from "lucide-react";
 import Link from "next/link";
 import { useTeamMembers, useClientEvents } from "@/hooks/useCollections";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
@@ -33,6 +33,27 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [memberSearch, setMemberSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Month selector for report generation
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
+  });
+
+  const monthOptions = useMemo(() => {
+    const opts: { value: string; label: string }[] = [];
+    const locale = i18n.language || 'ro';
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const label = d.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+      opts.push({ value: `${y}-${m}`, label: label.charAt(0).toUpperCase() + label.slice(1) });
+    }
+    return opts;
+  }, []);
 
   const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
   const isCoordinator = userRole === 'Coordinator';
@@ -117,7 +138,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
     .slice(0, 3);
 
   const generateReport = () => {
-    window.open(`/reports/client/?id=${client.id}`, '_blank');
+    window.open(`/reports/client/?id=${client.id}&month=${selectedMonth}`, '_blank');
   };
 
   useEffect(() => {
@@ -299,6 +320,15 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
         {/* Report Generation */}
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-4 font-display">{t('clients.clinical_actions')}</h3>
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="w-full mb-3 px-3 py-2.5 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-sm font-medium text-neutral-700 dark:text-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          >
+            {monthOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
           <button
             onClick={generateReport}
             disabled={eventsLoading}
