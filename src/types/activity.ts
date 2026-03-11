@@ -7,14 +7,18 @@ export type ActivityType =
   | 'client_created'
   | 'client_updated'
   | 'team_member_created'
-  | 'team_member_updated';
+  | 'team_member_updated'
+  | 'voice_feedback_recorded'
+  | 'voice_feedback_shared'
+  | 'voice_feedback_deleted';
 
 export type ActivityCategory =
   | 'sessions'
   | 'attendance'
   | 'evaluations'
   | 'clients'
-  | 'team';
+  | 'team'
+  | 'voice_feedback';
 
 export interface Activity {
   id: string;

@@ -23,6 +23,7 @@ export type NotificationType =
   | 'report_ready'
   | 'document_shared'
   | 'homework_assigned'
+  | 'voice_feedback_shared'
   | 'system_alert'
   | 'reminder'
   | 'message_received';

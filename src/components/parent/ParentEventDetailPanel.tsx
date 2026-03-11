@@ -15,6 +15,7 @@ import { clsx } from "clsx";
 import { useTeamMembers, usePrograms, useInterventionPlans } from "@/hooks/useCollections";
 import { useTranslation } from "react-i18next";
 import ProgramScoreCounter, { ProgramScores } from "../calendar/EventDetailPanel/ProgramScoreCounter";
+import ParentVoiceFeedback from "./ParentVoiceFeedback";
 
 interface ParentEventDetailPanelProps {
   event: any;
@@ -221,6 +222,12 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
               )}
             </div>
           </div>
+
+          {/* Voice Feedback */}
+          <ParentVoiceFeedback
+            clientId={event.clientId}
+            eventId={event.id}
+          />
 
         </div>
 

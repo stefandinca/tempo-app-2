@@ -228,6 +228,9 @@
         "client_updated": "updated client {{clientName}}",
         "team_member_created": "added team member {{memberName}}",
         "team_member_updated": "updated team member {{memberName}}",
+        "voice_feedback_recorded": "recorded voice feedback for {{clientName}}",
+        "voice_feedback_shared": "shared voice feedback with parent for {{clientName}}",
+        "voice_feedback_deleted": "deleted voice feedback for {{clientName}}",
         "default": "performed an action on {{targetName}}"
       },
       "actions": {
@@ -300,7 +303,41 @@
       "program_notes_placeholder": "Add notes for this program...",
       "objectives": "Objectives",
       "objective_notes_placeholder": "Add notes for this objective...",
-      "score_decreased": "Score decreased"
+      "score_decreased": "Score decreased",
+      "voice_feedback": {
+        "title": "Voice Feedback",
+        "record": "Record",
+        "recording": "Recording...",
+        "no_feedback": "No voice feedback for this session",
+        "no_feedback_hint": "Tap Record to leave a voice note",
+        "upload_progress": "Uploading... {{progress}}%",
+        "upload_success": "Voice feedback uploaded successfully",
+        "upload_error": "Failed to upload voice feedback",
+        "delete_confirm": "Are you sure you want to delete this voice note?",
+        "delete_success": "Voice feedback deleted",
+        "shared_badge": "Shared with parent",
+        "hidden_badge": "Hidden from parent",
+        "share_with_parent": "Share with parent",
+        "hide_from_parent": "Hide from parent",
+        "size_limit_error": "Audio must be under 10MB",
+        "duration_limit_warning": "Recording limited to 3 minutes",
+        "total_limit_error": "Total voice feedback size limit reached for this session",
+        "count_limit_error": "Maximum 10 voice notes per session",
+        "mic_error": "Could not access microphone. Please check permissions.",
+        "mic_not_supported": "Audio recording is not supported in this browser",
+        "stop_recording": "Stop Recording",
+        "start_recording": "Start Recording",
+        "pause_recording": "Pause",
+        "resume_recording": "Resume",
+        "preview_title": "Review Recording",
+        "feedback_name": "Note Name",
+        "feedback_name_placeholder": "Voice note",
+        "confirm_upload": "Upload Audio",
+        "discard": "Discard",
+        "play": "Play",
+        "close": "Close",
+        "total_size": "{{size}} used of 50MB"
+      }
     }
   },
   "attendance": {
@@ -554,7 +591,13 @@
       "scheduled": "Scheduled",
       "program_notes": "Program Notes",
       "objectives": "Objectives",
-      "objective_notes": "Objective Notes"
+      "objective_notes": "Objective Notes",
+      "voice_feedback": {
+        "title": "Voice Feedback",
+        "no_feedback": "No voice feedback shared for this session",
+        "play": "Play",
+        "recorded_on": "Recorded {{date}}"
+      }
     },
     "login": {
       "help_text": "Ask your clinic therapist or coordinator for your unique parent access code."

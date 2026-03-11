@@ -40,6 +40,7 @@ import {
 import { logActivity } from "@/lib/activityService";
 import { useEventModal } from "@/context/EventModalContext";
 import { useConfirm } from "@/context/ConfirmContext";
+import VoiceFeedbackSection from "./VoiceFeedbackSection";
 
 interface EventDetailPanelProps {
   event: any; // Firestore Event Document
@@ -802,7 +803,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
           {/* Session Notes */}
           <div>
             <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">{t('calendar.event.notes')}</p>
-            <textarea 
+            <textarea
               className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-neutral-900 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               rows={4}
               placeholder={t('calendar.event.notes_placeholder')}
@@ -811,6 +812,14 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
               disabled={!canEdit}
             />
           </div>
+
+          {/* Voice Feedback */}
+          <VoiceFeedbackSection
+            eventId={event.id}
+            clientId={event.clientId}
+            clientName={client?.name}
+            canEdit={canEdit}
+          />
 
         </div>
 

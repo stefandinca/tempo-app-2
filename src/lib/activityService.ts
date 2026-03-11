@@ -45,6 +45,7 @@ function getCategoryFromType(type: ActivityType): ActivityCategory {
   if (type.startsWith('evaluation_')) return 'evaluations';
   if (type.startsWith('client_')) return 'clients';
   if (type.startsWith('team_member_')) return 'team';
+  if (type.startsWith('voice_feedback_')) return 'voice_feedback';
   return 'sessions'; // fallback
 }
 

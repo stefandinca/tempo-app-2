@@ -234,6 +234,9 @@
         "client_updated": "a actualizat clientul {{clientName}}",
         "team_member_created": "a adăugat membrul {{memberName}} în echipă",
         "team_member_updated": "a actualizat membrul {{memberName}}",
+        "voice_feedback_recorded": "a inregistrat feedback vocal pentru {{clientName}}",
+        "voice_feedback_shared": "a partajat feedback vocal cu parintele pentru {{clientName}}",
+        "voice_feedback_deleted": "a sters feedback vocal pentru {{clientName}}",
         "default": "a efectuat o acțiune asupra {{targetName}}"
       },
       "actions": {
@@ -306,7 +309,41 @@
       "program_notes_placeholder": "Adaugă note pentru acest program...",
       "objectives": "Obiective",
       "objective_notes_placeholder": "Adaugă note pentru acest obiectiv...",
-      "score_decreased": "Scor redus"
+      "score_decreased": "Scor redus",
+      "voice_feedback": {
+        "title": "Feedback Vocal",
+        "record": "Inregistreaza",
+        "recording": "Se inregistreaza...",
+        "no_feedback": "Niciun feedback vocal pentru aceasta sesiune",
+        "no_feedback_hint": "Apasa Inregistreaza pentru a lasa o nota vocala",
+        "upload_progress": "Se incarca... {{progress}}%",
+        "upload_success": "Feedback vocal incarcat cu succes",
+        "upload_error": "Incarcarea feedback-ului vocal a esuat",
+        "delete_confirm": "Esti sigur ca vrei sa stergi aceasta nota vocala?",
+        "delete_success": "Feedback vocal sters",
+        "shared_badge": "Partajat cu parintele",
+        "hidden_badge": "Ascuns de parinte",
+        "share_with_parent": "Partajeaza cu parintele",
+        "hide_from_parent": "Ascunde de parinte",
+        "size_limit_error": "Audio-ul trebuie sa fie sub 10MB",
+        "duration_limit_warning": "Inregistrarea este limitata la 3 minute",
+        "total_limit_error": "Limita totala de feedback vocal atinsa pentru aceasta sesiune",
+        "count_limit_error": "Maximum 10 note vocale per sesiune",
+        "mic_error": "Nu s-a putut accesa microfonul. Verifica permisiunile.",
+        "mic_not_supported": "Inregistrarea audio nu este suportata in acest browser",
+        "stop_recording": "Opreste Inregistrarea",
+        "start_recording": "Incepe Inregistrarea",
+        "pause_recording": "Pauza",
+        "resume_recording": "Reia",
+        "preview_title": "Revizuieste Inregistrarea",
+        "feedback_name": "Nume Nota",
+        "feedback_name_placeholder": "Nota vocala",
+        "confirm_upload": "Incarca Audio",
+        "discard": "Renunta",
+        "play": "Reda",
+        "close": "Inchide",
+        "total_size": "{{size}} utilizat din 50MB"
+      }
     }
   },
   "attendance": {
@@ -560,7 +597,13 @@
       "scheduled": "Programat",
       "program_notes": "Note Program",
       "objectives": "Obiective",
-      "objective_notes": "Note Obiectiv"
+      "objective_notes": "Note Obiectiv",
+      "voice_feedback": {
+        "title": "Feedback Vocal",
+        "no_feedback": "Niciun feedback vocal partajat pentru aceasta sesiune",
+        "play": "Reda",
+        "recorded_on": "Inregistrat pe {{date}}"
+      }
     },
     "login": {
       "help_text": "Solicită codul unic de acces de la terapeutul sau coordonatorul clinicii."

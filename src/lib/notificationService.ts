@@ -637,6 +637,49 @@ export async function notifyParentDocumentShared(
 }
 
 /**
+ * Notify parents when voice feedback is shared with them
+ */
+export async function notifyParentVoiceFeedbackShared(
+  clientId: string,
+  context: {
+    feedbackId: string;
+    feedbackName: string;
+    eventId: string;
+    sharedByName: string;
+    triggeredByUserId: string;
+  }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) {
+    console.log("[NotificationService] No parent UIDs found for client:", clientId);
+    return;
+  }
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
+    type: "voice_feedback_shared" as NotificationType,
+    category: "client" as NotificationCategory,
+    title: "New Voice Feedback Available",
+    message: `${context.sharedByName} shared a voice note: "${context.feedbackName}"`,
+    sourceType: "client" as NotificationSourceType,
+    sourceId: context.feedbackId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "Listen",
+        type: "navigate" as const,
+        route: "/parent/calendar/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent voice feedback notifications to", parentUids.length, "parents");
+}
+
+/**
  * Notify parents when new homework is assigned
  */
 export async function notifyParentHomeworkAssigned(
