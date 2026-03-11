@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { clsx } from "clsx";
 import {
   Upload,
@@ -61,10 +62,26 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
   const [docName, setDocName] = useState("");
   const [docCategory, setDocCategory] = useState<string>("other");
   const [shareWithParent, setShareWithParent] = useState(true);
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const [activeMenuItem, setActiveMenuItem] = useState<any>(null);
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleMenuClick = (e: React.MouseEvent, item: any) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setActiveMenuItem(item);
+    setMenuPosition({
+      top: rect.bottom + 4,
+      right: window.innerWidth - rect.right
+    });
+  };
+
+  const closeMenu = () => {
+    setMenuPosition(null);
+    setActiveMenuItem(null);
+  };
 
   const CATEGORIES = [
     { id: "report", label: t('reports.client.title'), color: "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400" },
@@ -230,6 +247,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
   }
 
   return (
+    <>
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -320,41 +338,12 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                     </a>
                   )}
 
-                  <div className="relative">
-                    <button 
-                      onClick={() => setActiveMenu(activeMenu === item.id ? null : item.id)}
-                      className="p-2 text-neutral-400 hover:bg-neutral-100 rounded-lg"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                    {activeMenu === item.id && (
-                      <>
-                        <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
-                        <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-neutral-900 border border-neutral-200 rounded-xl shadow-xl z-20 py-1">
-                          <button 
-                            onClick={() => {
-                              item.isReport ? handleToggleReportShare(item) : handleToggleDocumentShare(item);
-                              setActiveMenu(null);
-                            }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50"
-                          >
-                            {item.sharedWithParent ? <EyeOff className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-                            {item.sharedWithParent ? "Hide from Parent" : "Share with Parent"}
-                          </button>
-                          <button 
-                            onClick={() => {
-                              item.isReport ? handleDeleteReport(item.id) : handleDeleteDocument(item);
-                              setActiveMenu(null);
-                            }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 border-t border-neutral-100"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            {t('common.delete')}
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  <button
+                    onClick={(e) => handleMenuClick(e, item)}
+                    className="p-2 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -374,14 +363,14 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                 <button onClick={() => setIsUploadModalOpen(false)}><X className="w-5 h-5" /></button>
               </div>
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="mb-4" />
-              <input 
-                type="text" 
-                value={docName} 
-                onChange={e => setDocName(e.target.value)} 
-                placeholder="Document Name" 
+              <input
+                type="text"
+                value={docName}
+                onChange={e => setDocName(e.target.value)}
+                placeholder="Document Name"
                 className="w-full p-2 border rounded-lg mb-4 bg-neutral-50"
               />
-              <button 
+              <button
                 onClick={handleUpload}
                 disabled={isUploading}
                 className="w-full py-3 bg-primary-600 text-white rounded-xl font-bold"
@@ -392,5 +381,35 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
         </div>
       )}
     </div>
+
+    {menuPosition && activeMenuItem && typeof document !== 'undefined' && createPortal(
+      <>
+        <div className="fixed inset-0 z-[100] bg-transparent" onClick={closeMenu} />
+        <div className="fixed z-[101] w-48 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl py-1 animate-in fade-in zoom-in-95 duration-100" style={{ top: menuPosition.top, right: menuPosition.right }}>
+          <button
+            onClick={() => {
+              activeMenuItem.isReport ? handleToggleReportShare(activeMenuItem) : handleToggleDocumentShare(activeMenuItem);
+              closeMenu();
+            }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+          >
+            {activeMenuItem.sharedWithParent ? <EyeOff className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+            {activeMenuItem.sharedWithParent ? "Hide from Parent" : "Share with Parent"}
+          </button>
+          <button
+            onClick={() => {
+              activeMenuItem.isReport ? handleDeleteReport(activeMenuItem.id) : handleDeleteDocument(activeMenuItem);
+              closeMenu();
+            }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-error-600 hover:bg-error-50 dark:hover:bg-error-900/20 transition-colors border-t border-neutral-100 dark:border-neutral-700"
+          >
+            <Trash2 className="w-4 h-4" />
+            {t('common.delete')}
+          </button>
+        </div>
+      </>,
+      document.body
+    )}
+    </>
   );
 }
