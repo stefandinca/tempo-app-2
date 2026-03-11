@@ -36,7 +36,13 @@
       "Bash(node -e:*)",
       "Bash(npm install:*)",
       "Bash(python3:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(ls -la /c/_WORK/_TEMPO/FINAL/_APP_v2/tempo-app-2/src/app/\\\\\\(dashboard\\\\\\)/)",
+      "Bash(find \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2\" -type f -name \"*.ts\" -o -name \"*.tsx\" | head -50 | xargs -I {} grep -l \"events collection\\\\|events document\\\\|programScores\\\\|attendance\\\\|isPublic\" {} 2>/dev/null | head -10)",
+      "Bash(cd \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2\" && firebase --version)",
+      "Bash(cd \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2\" && firebase target:list 2>&1)",
+      "Bash(find \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2\\\\src\" -type f \\\\\\( -name \"*SessionList*\" -o -name \"*EventList*\" -o -name \"*ClientEvents*\" -o -name \"*History*\" \\\\\\) 2>/dev/null | head -10)",
+      "Bash(find . -type f -name \"*.tsx\" -exec grep -l \"ClientOverviewTab\\\\|ClientProgramsTab\\\\|ClientPlanTab\" {} \\\\; 2>/dev/null | head -10)"
     ]
   }
 }
