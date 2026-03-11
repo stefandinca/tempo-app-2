@@ -50,6 +50,15 @@ service firebase.storage {
     }
 
     // ============================================
+    // VOICE FEEDBACK
+    // Path: clients/{clientId}/voiceFeedback/{eventId}/{fileName}
+    // ============================================
+    match /clients/{clientId}/voiceFeedback/{eventId}/{fileName} {
+      allow read: if isAdmin() || isStaff() || isClientParent(clientId);
+      allow write: if isAdmin() || isStaff();
+    }
+
+    // ============================================
     // DEFAULT: Deny all other paths
     // ============================================
     match /{allPaths=**} {
