@@ -767,8 +767,20 @@
       "notes": "Note",
       "plan": "Plan",
       "homework": "Teme",
+      "sessions": "Ședințe",
       "docs": "Documente",
       "billing": "Facturare"
+    },
+    "sessions_tab": {
+      "title": "Istoric Ședințe",
+      "empty": "Nu există ședințe înregistrate",
+      "empty_subtitle": "Ședințele vor apărea aici după ce sunt programate.",
+      "has_notes": "Are note de ședință",
+      "has_programs": "Are programe",
+      "has_voice_notes": "Are feedback vocal",
+      "has_video": "Are video",
+      "session_count": "{{count}} ședință",
+      "session_count_plural": "{{count}} ședințe"
     },
     "homework": {
       "title": "Teme și Activități",

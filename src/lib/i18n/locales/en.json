@@ -761,8 +761,20 @@
       "notes": "Notes",
       "plan": "Plan",
       "homework": "Homework",
+      "sessions": "Sessions",
       "docs": "Docs",
       "billing": "Billing"
+    },
+    "sessions_tab": {
+      "title": "Session History",
+      "empty": "No sessions recorded yet",
+      "empty_subtitle": "Sessions will appear here once they are scheduled.",
+      "has_notes": "Has session notes",
+      "has_programs": "Has programs",
+      "has_voice_notes": "Has voice feedback",
+      "has_video": "Has video",
+      "session_count": "{{count}} session",
+      "session_count_plural": "{{count}} sessions"
     },
     "homework": {
       "title": "Homework & Activities",
