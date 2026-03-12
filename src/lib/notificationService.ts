@@ -680,6 +680,49 @@ export async function notifyParentVoiceFeedbackShared(
 }
 
 /**
+ * Notify parents when a session video is shared with them
+ */
+export async function notifyParentVideoShared(
+  clientId: string,
+  context: {
+    videoId: string;
+    videoName: string;
+    eventId: string;
+    sharedByName: string;
+    triggeredByUserId: string;
+  }
+): Promise<void> {
+  const parentUids = await getParentUids(clientId);
+  if (parentUids.length === 0) {
+    console.log("[NotificationService] No parent UIDs found for client:", clientId);
+    return;
+  }
+
+  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
+    recipientId: uid,
+    recipientRole: "parent" as NotificationRecipientRole,
+    clientId,
+    type: "video_shared" as NotificationType,
+    category: "client" as NotificationCategory,
+    title: "New Session Video Available",
+    message: `${context.sharedByName} shared a session video: "${context.videoName}"`,
+    sourceType: "client" as NotificationSourceType,
+    sourceId: context.videoId,
+    triggeredBy: context.triggeredByUserId,
+    actions: [
+      {
+        label: "View Session",
+        type: "navigate" as const,
+        route: "/parent/calendar/"
+      }
+    ]
+  }));
+
+  await createNotificationsBatch(notifications);
+  console.log("[NotificationService] Sent video shared notifications to", parentUids.length, "parents");
+}
+
+/**
  * Notify parents when new homework is assigned
  */
 export async function notifyParentHomeworkAssigned(

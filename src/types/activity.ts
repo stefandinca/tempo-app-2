@@ -10,7 +10,10 @@ export type ActivityType =
   | 'team_member_updated'
   | 'voice_feedback_recorded'
   | 'voice_feedback_shared'
-  | 'voice_feedback_deleted';
+  | 'voice_feedback_deleted'
+  | 'video_uploaded'
+  | 'video_shared'
+  | 'video_deleted';
 
 export type ActivityCategory =
   | 'sessions'
@@ -18,7 +21,8 @@ export type ActivityCategory =
   | 'evaluations'
   | 'clients'
   | 'team'
-  | 'voice_feedback';
+  | 'voice_feedback'
+  | 'videos';
 
 export interface Activity {
   id: string;

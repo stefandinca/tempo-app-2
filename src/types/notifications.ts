@@ -24,6 +24,7 @@ export type NotificationType =
   | 'document_shared'
   | 'homework_assigned'
   | 'voice_feedback_shared'
+  | 'video_shared'
   | 'system_alert'
   | 'reminder'
   | 'message_received';
