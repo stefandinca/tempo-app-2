@@ -331,6 +331,17 @@ export async function getParentUids(clientId: string): Promise<string[]> {
   }
 }
 
+/**
+ * Get a single representative parent UID for notification creation.
+ * Parent notifications are queried by clientId, so we only need ONE notification
+ * per client per event — not one per UID. Uses the latest UID in the array.
+ */
+async function getParentRecipientUid(clientId: string): Promise<string | null> {
+  const uids = await getParentUids(clientId);
+  if (uids.length === 0) return null;
+  return uids[uids.length - 1]; // Latest UID is most likely the active one
+}
+
 interface ParentNotificationContext {
   eventId: string;
   eventTitle: string;
@@ -347,8 +358,8 @@ export async function notifyParentSessionCreated(
   clientId: string,
   context: ParentNotificationContext
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) {
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) {
     console.log("[NotificationService] No parent UIDs found for client:", clientId);
     return;
   }
@@ -364,8 +375,8 @@ export async function notifyParentSessionCreated(
     minute: "2-digit"
   });
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "schedule_created" as NotificationType,
@@ -382,10 +393,8 @@ export async function notifyParentSessionCreated(
         route: "/parent/calendar/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent session created notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent session created notification for client", clientId);
 }
 
 /**
@@ -395,8 +404,8 @@ export async function notifyParentSessionRescheduled(
   clientId: string,
   context: ParentNotificationContext & { oldStartTime: string }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) return;
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) return;
 
   const newDate = new Date(context.startTime);
   const newTimeStr = newDate.toLocaleTimeString("en-US", {
@@ -409,8 +418,8 @@ export async function notifyParentSessionRescheduled(
     day: "numeric"
   });
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "schedule_updated" as NotificationType,
@@ -427,10 +436,8 @@ export async function notifyParentSessionRescheduled(
         route: "/parent/calendar/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent session rescheduled notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent session rescheduled notification for client", clientId);
 }
 
 /**
@@ -440,8 +447,8 @@ export async function notifyParentSessionCancelled(
   clientId: string,
   context: ParentNotificationContext
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) return;
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) return;
 
   const startDate = new Date(context.startTime);
   const dateStr = startDate.toLocaleDateString("en-US", {
@@ -450,8 +457,8 @@ export async function notifyParentSessionCancelled(
     day: "numeric"
   });
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "schedule_cancelled" as NotificationType,
@@ -468,10 +475,8 @@ export async function notifyParentSessionCancelled(
         route: "/parent/calendar/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent session cancelled notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent session cancelled notification for client", clientId);
 }
 
 /**
@@ -481,8 +486,8 @@ export async function notifyParentAttendanceLogged(
   clientId: string,
   context: ParentNotificationContext & { attendance: string }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) return;
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) return;
 
   const startDate = new Date(context.startTime);
   const dateStr = startDate.toLocaleDateString("en-US", {
@@ -490,8 +495,8 @@ export async function notifyParentAttendanceLogged(
     day: "numeric"
   });
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "attendance_logged" as NotificationType,
@@ -508,10 +513,8 @@ export async function notifyParentAttendanceLogged(
         route: "/parent/progress/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent attendance notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent attendance notification for client", clientId);
 }
 
 /**
@@ -526,11 +529,11 @@ export async function notifyParentInvoiceGenerated(
     triggeredByUserId: string;
   }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) return;
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) return;
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "billing_generated" as NotificationType,
@@ -547,10 +550,8 @@ export async function notifyParentInvoiceGenerated(
         route: "/parent/billing/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent invoice notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent invoice notification for client", clientId);
 }
 
 /**
@@ -566,11 +567,11 @@ export async function notifyParentReportGenerated(
     triggeredByUserId: string;
   }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) return;
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) return;
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "report_ready" as NotificationType,
@@ -587,10 +588,8 @@ export async function notifyParentReportGenerated(
         route: "/parent/docs/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent report notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent report notification for client", clientId);
 }
 
 /**
@@ -606,14 +605,14 @@ export async function notifyParentDocumentShared(
     triggeredByUserId: string;
   }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) {
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) {
     console.log("[NotificationService] No parent UIDs found for client:", clientId);
     return;
   }
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "document_shared" as NotificationType,
@@ -630,10 +629,8 @@ export async function notifyParentDocumentShared(
         route: "/parent/docs/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent document shared notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent document shared notification for client", clientId);
 }
 
 /**
@@ -649,14 +646,14 @@ export async function notifyParentVoiceFeedbackShared(
     triggeredByUserId: string;
   }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) {
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) {
     console.log("[NotificationService] No parent UIDs found for client:", clientId);
     return;
   }
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "voice_feedback_shared" as NotificationType,
@@ -673,10 +670,8 @@ export async function notifyParentVoiceFeedbackShared(
         route: "/parent/calendar/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent voice feedback notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent voice feedback notification for client", clientId);
 }
 
 /**
@@ -692,14 +687,14 @@ export async function notifyParentVideoShared(
     triggeredByUserId: string;
   }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) {
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) {
     console.log("[NotificationService] No parent UIDs found for client:", clientId);
     return;
   }
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "video_shared" as NotificationType,
@@ -716,10 +711,8 @@ export async function notifyParentVideoShared(
         route: "/parent/calendar/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent video shared notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent video shared notification for client", clientId);
 }
 
 /**
@@ -733,11 +726,11 @@ export async function notifyParentHomeworkAssigned(
     triggeredByUserId: string;
   }
 ): Promise<void> {
-  const parentUids = await getParentUids(clientId);
-  if (parentUids.length === 0) return;
+  const recipientUid = await getParentRecipientUid(clientId);
+  if (!recipientUid) return;
 
-  const notifications: CreateNotificationParams[] = parentUids.map((uid) => ({
-    recipientId: uid,
+  await createNotificationsBatch([{
+    recipientId: recipientUid,
     recipientRole: "parent" as NotificationRecipientRole,
     clientId,
     type: "homework_assigned" as NotificationType,
@@ -754,10 +747,8 @@ export async function notifyParentHomeworkAssigned(
         route: "/parent/homework/"
       }
     ]
-  }));
-
-  await createNotificationsBatch(notifications);
-  console.log("[NotificationService] Sent homework notifications to", parentUids.length, "parents");
+  }]);
+  console.log("[NotificationService] Sent homework notification for client", clientId);
 }
 
 /**

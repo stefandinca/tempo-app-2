@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { User, onAuthStateChanged, signInAnonymously, signOut as firebaseSignOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 
 interface ParentAuthContextType {
   user: User | null;
@@ -36,20 +36,26 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
         const storedParentUid = sessionStorage.getItem("parent_uid");
 
         if (storedClientId) {
-          // If the UID has changed (e.g. new session), we need to re-register it with the client
+          // If the UID has changed (e.g. new anonymous session), replace old UID with new one
           if (storedParentUid !== authUser.uid) {
-            console.log("[ParentAuth] UID mismatch or new session. Re-registering with client...");
+            console.log("[ParentAuth] UID mismatch or new session. Replacing old UID with new...");
             try {
               const clientRef = doc(db, "clients", storedClientId);
+              // Remove old UID first (if we had one), then add new one
+              const oldUid = storedParentUid || localStorage.getItem("parent_prev_uid");
+              if (oldUid && oldUid !== authUser.uid) {
+                await updateDoc(clientRef, {
+                  parentUids: arrayRemove(oldUid)
+                });
+              }
               await updateDoc(clientRef, {
                 parentUids: arrayUnion(authUser.uid)
               });
-              console.log("[ParentAuth] Re-registered successfully.");
+              console.log("[ParentAuth] Replaced UID successfully.");
               sessionStorage.setItem("parent_uid", authUser.uid);
+              localStorage.setItem("parent_prev_uid", authUser.uid);
             } catch (err) {
               console.error("[ParentAuth] Failed to re-register UID with client:", err);
-              // We continue anyway, as the user might already be in the list
-              // or the update might fail due to permissions if they aren't (catch-22 handled by logic flow)
             }
           }
 
@@ -101,14 +107,21 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
         currentUser = userCredential.user;
       }
 
-      // Link anonymous UID to client document
+      // Link anonymous UID to client document (replace old UID if exists)
       const clientRef = doc(db, "clients", validatedClientId);
+      const oldUid = localStorage.getItem("parent_prev_uid");
+      if (oldUid && oldUid !== currentUser.uid) {
+        await updateDoc(clientRef, {
+          parentUids: arrayRemove(oldUid)
+        });
+      }
       await updateDoc(clientRef, {
         parentUids: arrayUnion(currentUser.uid)
       });
 
-      // Store session info (sessionStorage - cleared when tab closes)
+      // Store session info + persist UID for future cleanup
       sessionStorage.setItem("parent_uid", currentUser.uid);
+      localStorage.setItem("parent_prev_uid", currentUser.uid);
       sessionStorage.setItem("parent_client_id", validatedClientId);
       sessionStorage.setItem("parent_client_name", validatedClientName);
       sessionStorage.setItem("parent_client_code", validatedClientCode.toUpperCase());
@@ -126,11 +139,27 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
 
   const signOut = useCallback(async () => {
     try {
-      // Clear session storage
+      // Remove current UID from client's parentUids before signing out
+      const currentUid = auth.currentUser?.uid;
+      const storedClientId = sessionStorage.getItem("parent_client_id");
+      if (currentUid && storedClientId) {
+        try {
+          const clientRef = doc(db, "clients", storedClientId);
+          await updateDoc(clientRef, {
+            parentUids: arrayRemove(currentUid)
+          });
+          console.log("[ParentAuth] Removed UID from parentUids on sign-out");
+        } catch (err) {
+          console.error("[ParentAuth] Failed to remove UID on sign-out:", err);
+        }
+      }
+
+      // Clear session storage and localStorage
       sessionStorage.removeItem("parent_uid");
       sessionStorage.removeItem("parent_client_id");
       sessionStorage.removeItem("parent_client_name");
       sessionStorage.removeItem("parent_client_code");
+      localStorage.removeItem("parent_prev_uid");
 
       // Sign out from Firebase
       await firebaseSignOut(auth);

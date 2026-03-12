@@ -126,12 +126,13 @@ export default function BillingPage() {
           }));
         await createNotificationsBatch(notifications);
 
-        // Also notify parents that their payment was confirmed
+        // Also notify parents that their payment was confirmed (single notification per client)
         const parentUids = await getParentUids(clientId);
         if (parentUids.length > 0) {
-          const parentNotifications = parentUids.map(uid => ({
-            recipientId: uid,
+          await createNotificationsBatch([{
+            recipientId: parentUids[parentUids.length - 1],
             recipientRole: "parent" as any,
+            clientId,
             type: "system_alert" as any,
             category: "billing" as any,
             title: t('billing_page.notification_payment_confirmed'),
@@ -140,8 +141,7 @@ export default function BillingPage() {
             sourceId: clientId,
             triggeredBy: authUser.uid,
             actions: [{ label: t('billing_page.view_billing'), type: "navigate" as const, route: "/parent/billing/" }]
-          }));
-          await createNotificationsBatch(parentNotifications);
+          }]);
         }
       }
 
