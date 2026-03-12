@@ -237,6 +237,9 @@
         "voice_feedback_recorded": "a inregistrat feedback vocal pentru {{clientName}}",
         "voice_feedback_shared": "a partajat feedback vocal cu parintele pentru {{clientName}}",
         "voice_feedback_deleted": "a sters feedback vocal pentru {{clientName}}",
+        "video_uploaded": "a incarcat un videoclip de sesiune pentru {{clientName}}",
+        "video_shared": "a partajat un videoclip de sesiune cu parintele pentru {{clientName}}",
+        "video_deleted": "a sters un videoclip de sesiune pentru {{clientName}}",
         "default": "a efectuat o acțiune asupra {{targetName}}"
       },
       "actions": {
@@ -343,6 +346,41 @@
         "play": "Reda",
         "close": "Inchide",
         "total_size": "{{size}} utilizat din 50MB"
+      },
+      "videos": {
+        "title": "Videoclipuri Sesiune",
+        "record": "Inregistreaza Video",
+        "recording": "Se inregistreaza...",
+        "no_videos": "Niciun videoclip inregistrat pentru aceasta sesiune",
+        "no_videos_hint": "Apasa Inregistreaza pentru a captura clipuri din sesiune",
+        "upload_progress": "Se incarca... {{progress}}%",
+        "upload_success": "Videoclip incarcat cu succes",
+        "upload_error": "Incarcarea videoclipului a esuat",
+        "delete_confirm": "Esti sigur ca vrei sa stergi acest videoclip?",
+        "delete_success": "Videoclip sters",
+        "shared_badge": "Partajat cu parintele",
+        "hidden_badge": "Ascuns de parinte",
+        "share_with_parent": "Partajeaza cu parintele",
+        "hide_from_parent": "Ascunde de parinte",
+        "size_limit_error": "Videoclipul trebuie sa fie sub 100MB",
+        "duration_limit_warning": "Inregistrarea este limitata la 5 minute",
+        "total_limit_error": "Limita totala de videoclipuri atinsa pentru aceasta sesiune",
+        "count_limit_error": "Maximum 20 videoclipuri per sesiune",
+        "camera_error": "Nu s-a putut accesa camera. Verifica permisiunile.",
+        "camera_not_supported": "Inregistrarea video nu este suportata in acest browser",
+        "flip_camera": "Schimba Camera",
+        "stop_recording": "Opreste Inregistrarea",
+        "start_recording": "Incepe Inregistrarea",
+        "pause_recording": "Pauza",
+        "resume_recording": "Reia",
+        "preview_title": "Revizuieste Inregistrarea",
+        "video_name": "Nume Videoclip",
+        "video_name_placeholder": "Clip sesiune",
+        "confirm_upload": "Incarca Videoclip",
+        "discard": "Renunta",
+        "play_video": "Reda Videoclip",
+        "close_player": "Inchide",
+        "total_size": "{{size}} utilizat din 500MB"
       }
     }
   },
@@ -601,6 +639,12 @@
       "voice_feedback": {
         "title": "Feedback Vocal",
         "no_feedback": "Niciun feedback vocal partajat pentru aceasta sesiune",
+        "play": "Reda",
+        "recorded_on": "Inregistrat pe {{date}}"
+      },
+      "videos": {
+        "title": "Videoclipuri Sesiune",
+        "no_videos": "Niciun videoclip partajat pentru aceasta sesiune",
         "play": "Reda",
         "recorded_on": "Inregistrat pe {{date}}"
       }

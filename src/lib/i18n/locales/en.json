@@ -231,6 +231,9 @@
         "voice_feedback_recorded": "recorded voice feedback for {{clientName}}",
         "voice_feedback_shared": "shared voice feedback with parent for {{clientName}}",
         "voice_feedback_deleted": "deleted voice feedback for {{clientName}}",
+        "video_uploaded": "uploaded a session video for {{clientName}}",
+        "video_shared": "shared a session video with parent for {{clientName}}",
+        "video_deleted": "deleted a session video for {{clientName}}",
         "default": "performed an action on {{targetName}}"
       },
       "actions": {
@@ -337,6 +340,41 @@
         "play": "Play",
         "close": "Close",
         "total_size": "{{size}} used of 50MB"
+      },
+      "videos": {
+        "title": "Session Videos",
+        "record": "Record Video",
+        "recording": "Recording...",
+        "no_videos": "No videos recorded for this session",
+        "no_videos_hint": "Tap Record to capture session clips",
+        "upload_progress": "Uploading... {{progress}}%",
+        "upload_success": "Video uploaded successfully",
+        "upload_error": "Failed to upload video",
+        "delete_confirm": "Are you sure you want to delete this video?",
+        "delete_success": "Video deleted",
+        "shared_badge": "Shared with parent",
+        "hidden_badge": "Hidden from parent",
+        "share_with_parent": "Share with parent",
+        "hide_from_parent": "Hide from parent",
+        "size_limit_error": "Video must be under 100MB",
+        "duration_limit_warning": "Recording limited to 5 minutes",
+        "total_limit_error": "Total video size limit reached for this session",
+        "count_limit_error": "Maximum 20 videos per session",
+        "camera_error": "Could not access camera. Please check permissions.",
+        "camera_not_supported": "Video recording is not supported in this browser",
+        "flip_camera": "Flip Camera",
+        "stop_recording": "Stop Recording",
+        "start_recording": "Start Recording",
+        "pause_recording": "Pause",
+        "resume_recording": "Resume",
+        "preview_title": "Review Recording",
+        "video_name": "Video Name",
+        "video_name_placeholder": "Session clip",
+        "confirm_upload": "Upload Video",
+        "discard": "Discard",
+        "play_video": "Play Video",
+        "close_player": "Close",
+        "total_size": "{{size}} used of 500MB"
       }
     }
   },
@@ -595,6 +633,12 @@
       "voice_feedback": {
         "title": "Voice Feedback",
         "no_feedback": "No voice feedback shared for this session",
+        "play": "Play",
+        "recorded_on": "Recorded {{date}}"
+      },
+      "videos": {
+        "title": "Session Videos",
+        "no_videos": "No videos shared for this session",
         "play": "Play",
         "recorded_on": "Recorded {{date}}"
       }

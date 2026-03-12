@@ -16,6 +16,7 @@ import { useTeamMembers, usePrograms, useInterventionPlans } from "@/hooks/useCo
 import { useTranslation } from "react-i18next";
 import ProgramScoreCounter, { ProgramScores } from "../calendar/EventDetailPanel/ProgramScoreCounter";
 import ParentVoiceFeedback from "./ParentVoiceFeedback";
+import ParentSessionVideos from "./ParentSessionVideos";
 
 interface ParentEventDetailPanelProps {
   event: any;
@@ -225,6 +226,12 @@ export default function ParentEventDetailPanel({ event, isOpen, onClose }: Paren
 
           {/* Voice Feedback */}
           <ParentVoiceFeedback
+            clientId={event.clientId}
+            eventId={event.id}
+          />
+
+          {/* Session Videos */}
+          <ParentSessionVideos
             clientId={event.clientId}
             eventId={event.id}
           />

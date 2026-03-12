@@ -41,6 +41,7 @@ import { logActivity } from "@/lib/activityService";
 import { useEventModal } from "@/context/EventModalContext";
 import { useConfirm } from "@/context/ConfirmContext";
 import VoiceFeedbackSection from "./VoiceFeedbackSection";
+import SessionVideosSection from "./SessionVideosSection";
 
 interface EventDetailPanelProps {
   event: any; // Firestore Event Document
@@ -815,6 +816,14 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
 
           {/* Voice Feedback */}
           <VoiceFeedbackSection
+            eventId={event.id}
+            clientId={event.clientId}
+            clientName={client?.name}
+            canEdit={canEdit}
+          />
+
+          {/* Session Videos */}
+          <SessionVideosSection
             eventId={event.id}
             clientId={event.clientId}
             clientName={client?.name}
