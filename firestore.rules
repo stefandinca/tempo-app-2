@@ -162,6 +162,15 @@ service cloud.firestore {
       allow delete: if isAdmin() || isCoordinator() || isTherapist();
     }
 
+    // SESSION VIDEOS
+    match /clients/{clientId}/videos/{videoId} {
+      allow read: if isAdmin() || isCoordinator() || isTherapist() ||
+                    (isParent(clientId) && resource.data.sharedWithParent == true);
+      allow create: if isAdmin() || isCoordinator() || isTherapist();
+      allow update: if isAdmin() || isCoordinator() || isTherapist();
+      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+    }
+
     // VOICE FEEDBACK
     match /clients/{clientId}/voiceFeedback/{feedbackId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() ||

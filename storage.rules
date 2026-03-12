@@ -50,6 +50,15 @@ service firebase.storage {
     }
 
     // ============================================
+    // SESSION VIDEOS
+    // Path: clients/{clientId}/videos/{eventId}/{fileName}
+    // ============================================
+    match /clients/{clientId}/videos/{eventId}/{fileName} {
+      allow read: if isAdmin() || isStaff() || isClientParent(clientId);
+      allow write: if isAdmin() || isStaff();
+    }
+
+    // ============================================
     // VOICE FEEDBACK
     // Path: clients/{clientId}/voiceFeedback/{eventId}/{fileName}
     // ============================================
