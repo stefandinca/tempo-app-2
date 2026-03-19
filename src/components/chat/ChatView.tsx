@@ -20,7 +20,7 @@ interface ChatViewProps {
 
 export default function ChatView({ thread, onBack }: ChatViewProps) {
   const { t } = useTranslation();
-  const { user, isStaff } = useAnyAuth();
+  const { user, isStaff, isParent, clientId } = useAnyAuth();
   const { success, error } = useToast();
   const { confirm: customConfirm } = useConfirm();
   const { messages, loading: messagesLoading } = useMessages(thread?.id || null);
@@ -30,7 +30,9 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Check if current thread is archived by this user
-  const isArchived = thread?.archivedBy?.includes(user?.uid || "");
+  // For parents, use stable clientId (anonymous UID changes each session)
+  const archiveKey = (isParent && clientId) ? clientId : (user?.uid || "");
+  const isArchived = thread?.archivedBy?.includes(archiveKey);
 
   // Auto scroll to bottom
   useEffect(() => {

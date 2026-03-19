@@ -3,7 +3,7 @@
 import { ChatThread } from "@/types/chat";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { clsx } from "clsx";
-import { Search, Plus, Archive, Inbox } from "lucide-react";
+import { Plus, Archive, Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 
@@ -19,7 +19,9 @@ interface ChatSidebarProps {
 
 export default function ChatSidebar({ threads, archivedThreads, activeThreadId, viewMode, onViewModeChange, onSelectThread, onNewChat }: ChatSidebarProps) {
   const { t } = useTranslation();
-  const { user } = useAnyAuth();
+  const { user, isParent, clientId } = useAnyAuth();
+  // For parents, use stable clientId for read-status checks (anonymous UID changes each session)
+  const readKey = (isParent && clientId) ? clientId : (user?.uid || "");
 
   const displayThreads = viewMode === 'active' ? threads : archivedThreads;
 
@@ -64,24 +66,12 @@ export default function ChatSidebar({ threads, archivedThreads, activeThreadId, 
         </button>
       </div>
 
-      {/* Search */}
-      <div className="p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-          <input 
-            type="text" 
-            placeholder={t('chat.search_placeholder')}
-            className="w-full pl-10 pr-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-          />
-        </div>
-      </div>
-
       {/* Thread List */}
       <div className="flex-1 overflow-y-auto custom-scrollbar bg-white dark:bg-neutral-900">
         {displayThreads.map((thread) => {
           const otherParticipantId = thread.participants.find(id => id !== user?.uid);
           const otherUser = thread.participantDetails[otherParticipantId || ""];
-          const isUnread = thread.lastMessage && !thread.lastMessage.readBy.includes(user?.uid || "");
+          const isUnread = thread.lastMessage && !thread.lastMessage.readBy.includes(readKey);
 
           return (
             <button

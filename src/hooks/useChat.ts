@@ -51,12 +51,15 @@ export function useThreads() {
           orderBy("updatedAt", "desc")
         );
 
+    // For parents, use stable clientId to check archive status (anonymous UID changes each session)
+    const archiveKey = (isParent && clientId) ? clientId : user.uid;
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const threadList: ChatThread[] = [];
       snapshot.forEach((doc) => {
         const data = doc.data() as ChatThread;
         // Only show if not archived by this user
-        if (!data.archivedBy?.includes(user.uid)) {
+        if (!data.archivedBy?.includes(archiveKey)) {
           threadList.push({ ...data, id: doc.id } as ChatThread);
         }
       });
@@ -86,17 +89,18 @@ export function useArchivedThreads(enabled: boolean = true) {
     setLoading(true);
 
     // Query threads where current user has archived them
-    // For parents, we still need to filter by clientId as well
+    // For parents, use stable clientId as archive key (anonymous UID changes each session)
+    const archiveKey = (isParent && clientId) ? clientId : user.uid;
     const q = (isParent && clientId)
       ? query(
           collection(db, "threads"),
           where("clientId", "==", clientId),
-          where("archivedBy", "array-contains", user.uid),
+          where("archivedBy", "array-contains", archiveKey),
           orderBy("updatedAt", "desc")
         )
       : query(
           collection(db, "threads"),
-          where("archivedBy", "array-contains", user.uid),
+          where("archivedBy", "array-contains", archiveKey),
           orderBy("updatedAt", "desc")
         );
 
@@ -179,10 +183,10 @@ export function useChatActions() {
         text: text.trim(),
         senderId: user.uid,
         timestamp: serverTimestamp(),
-        readBy: [user.uid]
+        readBy: [(isParent && clientId) ? clientId : user.uid]
       },
       updatedAt: serverTimestamp(),
-      archivedBy: arrayRemove(user.uid) // Only unarchive for sender, recipient stays archived
+      archivedBy: arrayRemove((isParent && clientId) ? clientId : user.uid) // Only unarchive for sender, recipient stays archived
     });
 
     // 3. Trigger notification
@@ -358,22 +362,27 @@ export function useChatActions() {
 
   const archiveThread = async (threadId: string) => {
     if (!user) return;
+    // For parents, use stable clientId so archive persists across anonymous sessions
+    const archiveKey = (isParent && clientId) ? clientId : user.uid;
     await updateDoc(doc(db, "threads", threadId), {
-      archivedBy: arrayUnion(user.uid)
+      archivedBy: arrayUnion(archiveKey)
     });
   };
 
   const unarchiveThread = async (threadId: string) => {
     if (!user) return;
+    const archiveKey = (isParent && clientId) ? clientId : user.uid;
     await updateDoc(doc(db, "threads", threadId), {
-      archivedBy: arrayRemove(user.uid)
+      archivedBy: arrayRemove(archiveKey)
     });
   };
 
   const markAsRead = async (threadId: string) => {
     if (!user) return;
+    // For parents, use stable clientId so read status persists across anonymous sessions
+    const readKey = (isParent && clientId) ? clientId : user.uid;
     await updateDoc(doc(db, "threads", threadId), {
-      "lastMessage.readBy": arrayUnion(user.uid)
+      "lastMessage.readBy": arrayUnion(readKey)
     });
   };
 
