@@ -388,14 +388,15 @@
     "schedule": "Schedule",
     "progress": "Progress",
     "messages": "Messages",
-    "more": "More",
     "billing": "Billing",
     "docs": "Documents",
     "profile": "Profile",
     "homework": "Homework",
     "sign_out": "Sign Out",
     "portal": "Portal",
-    "parent_portal": "Parent Portal"
+    "parent_portal": "Parent Portal",
+    "manage": "Manage",
+    "account": "Account"
   },
   "parent_portal": {
     "welcome": "Welcome back, {{name}}!",
@@ -425,7 +426,17 @@
       "quick_billing": "Billing",
       "balance_alert": "You have {{amount}} RON due",
       "view_invoices": "View invoices",
-      "latest_summary": "Latest Session Summary"
+      "latest_summary": "Latest Session Summary",
+      "needs_attention": "Needs Your Attention",
+      "unpaid_invoices": "{{count}} unpaid invoice",
+      "unpaid_invoices_plural": "{{count}} unpaid invoices",
+      "homework_pending": "{{count}} homework task",
+      "homework_pending_plural": "{{count}} homework tasks",
+      "unread_messages": "{{count}} unread message",
+      "unread_messages_plural": "{{count}} unread messages",
+      "attendance_rate": "Attendance",
+      "sessions_remaining": "Remaining",
+      "this_month": "This Month"
     },
     "alerts": {
       "title": "Recent Alerts",
@@ -570,7 +581,12 @@
       "view_documents": "View all documents",
       "portal_settings": "Portal Settings",
       "push_notifications": "Push Notifications",
-      "push_notifications_desc": "Receive alerts when app is closed"
+      "push_notifications_desc": "Receive alerts when app is closed",
+      "quick_links": "Quick Links",
+      "unpaid_invoices": "{{count}} unpaid",
+      "incomplete_homework": "{{count}} pending",
+      "child_info": "Child Information",
+      "therapy_since": "Therapy since {{date}}"
     },
     "homework": {
       "title": "Homework",

@@ -159,7 +159,7 @@ export default function ParentProgressPage() {
 
   if (selectedEvaluation) {
     return (
-      <div className="p-4 pb-24">
+      <div className="p-4 pb-20">
         <ParentEvaluationDetail
           evaluation={selectedEvaluation}
           previousEvaluation={previousEvaluation}
@@ -178,7 +178,7 @@ export default function ParentProgressPage() {
   ];
 
   return (
-    <div className="p-4 space-y-5 animate-in fade-in duration-300 pb-24">
+    <div className="p-4 space-y-5 animate-in fade-in duration-300 pb-20">
       <header>
         <h1 className="text-xl font-bold text-neutral-900 dark:text-white">{t("parent_portal.progress.title")}</h1>
         <p className="text-neutral-400 text-sm">{t("parent_portal.progress.subtitle", { name: client.name })}</p>

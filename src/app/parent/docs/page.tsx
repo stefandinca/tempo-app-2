@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Download, File, Image, Table, Presentation, FolderOpen, Loader2, Grid3X3, List } from "lucide-react";
+import { FileText, Download, File, Image, Table, Presentation, FolderOpen, Loader2, Grid3X3, List, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { db } from "@/lib/firebase";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
@@ -47,6 +48,7 @@ type ViewMode = "list" | "grid";
 
 export default function ParentDocsPage() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const currentLang = i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US';
   const { data: client, loading: clientLoading, error: clientError } = usePortalData();
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -110,15 +112,23 @@ export default function ParentDocsPage() {
   };
 
   return (
-    <div className="p-4 space-y-5 animate-in fade-in duration-300 pb-24">
+    <div className="p-4 space-y-5 animate-in fade-in duration-300 pb-20">
       <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-neutral-900 dark:text-white">{t('parent_portal.docs.title')}</h1>
-          <p className="text-neutral-400 text-sm">
-            {documents.length === 1
-              ? t('parent_portal.docs.subtitle_single', { name: client.name })
-              : t('parent_portal.docs.subtitle', { count: documents.length, name: client.name })}
-          </p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="p-2 -ml-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors lg:hidden"
+          >
+            <ArrowLeft className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold text-neutral-900 dark:text-white">{t('parent_portal.docs.title')}</h1>
+            <p className="text-neutral-400 text-sm">
+              {documents.length === 1
+                ? t('parent_portal.docs.subtitle_single', { name: client.name })
+                : t('parent_portal.docs.subtitle', { count: documents.length, name: client.name })}
+            </p>
+          </div>
         </div>
         {documents.length > 0 && (
           <div className="flex bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1">

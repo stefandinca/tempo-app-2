@@ -1,6 +1,7 @@
 "use client";
 
-import { CreditCard, Download, ArrowUpRight, CheckCircle2, Clock, AlertCircle, ChevronDown, ChevronUp, History, Receipt, FileText } from "lucide-react";
+import { CreditCard, Download, ArrowUpRight, CheckCircle2, Clock, AlertCircle, ChevronDown, ChevronUp, History, Receipt, FileText, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useClientInvoices } from "@/hooks/useCollections";
 import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
@@ -11,6 +12,7 @@ import { useToast } from "@/context/ToastContext";
 
 export default function ParentBillingPage() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const { error: toastError, info } = useToast();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, loading: portalLoading, error: portalError } = usePortalData();
@@ -102,9 +104,17 @@ export default function ParentBillingPage() {
 
   return (
     <div className="p-4 space-y-5 animate-in fade-in duration-300 pb-20 font-sans">
-      <header>
-        <h1 className="text-xl font-bold text-neutral-900 dark:text-white">{t("parent_portal.billing.title")}</h1>
-        <p className="text-neutral-400 text-sm">{t("parent_portal.billing.subtitle")}</p>
+      <header className="flex items-center gap-3">
+        <button
+          onClick={() => router.back()}
+          className="p-2 -ml-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors lg:hidden"
+        >
+          <ArrowLeft className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+        </button>
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900 dark:text-white">{t("parent_portal.billing.title")}</h1>
+          <p className="text-neutral-400 text-sm">{t("parent_portal.billing.subtitle")}</p>
+        </div>
       </header>
 
       {/* Balance Card */}

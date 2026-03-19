@@ -155,7 +155,7 @@ export default function ParentSchedulePage() {
   };
 
   return (
-    <div className="p-4 space-y-5 animate-in fade-in duration-300 pb-12">
+    <div className="p-4 space-y-5 animate-in fade-in duration-300 pb-20">
       {/* Header with view toggle */}
       <div className="flex items-center justify-between">
         <div>

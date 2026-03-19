@@ -8,7 +8,6 @@ import {
   Calendar,
   BarChart2,
   MessageSquare,
-  MoreHorizontal,
   CreditCard,
   FileText,
   User,
@@ -24,7 +23,6 @@ import { useNotifications } from "@/context/NotificationContext";
 import { useHomework, useClientInvoices } from "@/hooks/useCollections";
 import ParentNotificationBell from "@/components/notifications/ParentNotificationBell";
 import ParentNotificationDropdown from "@/components/notifications/ParentNotificationDropdown";
-import MoreSheet from "@/components/parent/MoreSheet";
 import { useTranslation } from "react-i18next";
 
 function ParentLayoutContent({ children }: { children: React.ReactNode }) {
@@ -33,21 +31,21 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, loading, clientName, clientId } = useParentAuth();
   const { unreadMessageCount } = useNotifications();
-  const [moreOpen, setMoreOpen] = useState(false);
 
-  // Fetch homework and billing for notifications
+  // Fetch homework and billing for badge counts
   const { data: homework } = useHomework(clientId || "");
   const { data: invoices } = useClientInvoices(clientId || "");
 
-  const incompleteHomeworkCount = useMemo(() => 
-    homework.filter(h => !h.completed).length, 
+  const incompleteHomeworkCount = useMemo(() =>
+    homework.filter(h => !h.completed).length,
   [homework]);
 
-  const unpaidInvoiceCount = useMemo(() => 
-    invoices.filter(i => i.status === 'pending' || i.status === 'create').length, 
+  const unpaidInvoiceCount = useMemo(() =>
+    invoices.filter(i => i.status === 'pending' || i.status === 'create').length,
   [invoices]);
 
-  const moreHasNotification = incompleteHomeworkCount > 0 || unpaidInvoiceCount > 0;
+  // Profile tab shows a dot if there are pending actions in sub-pages
+  const profileHasNotification = incompleteHomeworkCount > 0 || unpaidInvoiceCount > 0;
 
   const childFirstName = useMemo(() => {
     if (!clientName) return "";
@@ -56,21 +54,31 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
 
   const childInitial = childFirstName ? childFirstName.charAt(0).toUpperCase() : "?";
 
-  // Primary bottom nav items (5 max)
+  // Bottom nav items — 5 direct tabs, no "More"
   const navItems = [
+    { key: "home", href: "/parent/dashboard/", icon: Home, label: t("parent_nav.home") },
+    { key: "schedule", href: "/parent/calendar/", icon: Calendar, label: t("parent_nav.schedule") },
+    { key: "progress", href: "/parent/progress/", icon: BarChart2, label: t("parent_nav.progress") },
+    { key: "messages", href: "/parent/messages/", icon: MessageSquare, label: t("parent_nav.messages") },
+    { key: "profile", href: "/parent/profile/", icon: User, label: t("parent_nav.profile") },
+  ];
+
+  // Desktop sidebar — grouped navigation
+  const mainNavItems = [
     { key: "home", href: "/parent/dashboard/", icon: Home, label: t("parent_nav.home") },
     { key: "schedule", href: "/parent/calendar/", icon: Calendar, label: t("parent_nav.schedule") },
     { key: "progress", href: "/parent/progress/", icon: BarChart2, label: t("parent_nav.progress") },
     { key: "messages", href: "/parent/messages/", icon: MessageSquare, label: t("parent_nav.messages") },
   ];
 
-  // Desktop sidebar has all items
-  const allNavItems = [
-    ...navItems,
+  const manageNavItems = [
     { key: "billing", href: "/parent/billing/", icon: CreditCard, label: t("parent_nav.billing") },
-    { key: "docs", href: "/parent/docs/", icon: FileText, label: t("parent_nav.docs") },
-    { key: "profile", href: "/parent/profile/", icon: User, label: t("parent_nav.profile") },
     { key: "homework", href: "/parent/homework/", icon: BookOpen, label: t("parent_nav.homework") },
+    { key: "docs", href: "/parent/docs/", icon: FileText, label: t("parent_nav.docs") },
+  ];
+
+  const accountNavItems = [
+    { key: "profile", href: "/parent/profile/", icon: User, label: t("parent_nav.profile") },
   ];
 
   const handleSignOut = useCallback(async () => {
@@ -112,9 +120,44 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   const isActive = (href: string) => pathname === href;
-  const isMoreActive = ["/parent/billing/", "/parent/docs/", "/parent/profile/", "/parent/homework/"].some(
-    (h) => pathname === h
-  );
+
+  const renderSidebarLink = (item: { key: string; href: string; icon: any; label: string }) => {
+    const active = isActive(item.href);
+    const isMessages = item.key === "messages";
+    const isBilling = item.key === "billing";
+    const isHomework = item.key === "homework";
+
+    return (
+      <Link
+        key={item.key}
+        href={item.href}
+        className={clsx(
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium relative",
+          active
+            ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
+            : "text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
+        )}
+      >
+        <item.icon className="w-5 h-5" />
+        <span>{item.label}</span>
+        {isMessages && unreadMessageCount > 0 && (
+          <span className="ml-auto px-1.5 py-0.5 bg-error-500 text-white text-[10px] font-bold rounded-full">
+            {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
+          </span>
+        )}
+        {isBilling && unpaidInvoiceCount > 0 && (
+          <span className="ml-auto px-1.5 py-0.5 bg-error-500 text-white text-[10px] font-bold rounded-full">
+            {unpaidInvoiceCount}
+          </span>
+        )}
+        {isHomework && incompleteHomeworkCount > 0 && (
+          <span className="ml-auto px-1.5 py-0.5 bg-primary-500 text-white text-[10px] font-bold rounded-full">
+            {incompleteHomeworkCount}
+          </span>
+        )}
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-20 lg:pb-0 lg:pl-56 font-sans">
@@ -146,12 +189,13 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* Bottom Navigation (Mobile) - 5 tabs */}
+      {/* Bottom Navigation (Mobile) - 5 direct tabs */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 px-2 py-2 lg:hidden safe-area-bottom">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
             const active = isActive(item.href);
             const isMessages = item.key === "messages";
+            const isProfile = item.key === "profile";
             return (
               <Link
                 key={item.key}
@@ -163,7 +207,12 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
                     : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
                 )}
               >
-                <item.icon className={clsx("w-5 h-5", active && "fill-current")} />
+                <div className="relative">
+                  <item.icon className={clsx("w-5 h-5", active && "fill-current")} />
+                  {isProfile && profileHasNotification && !active && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error-500 rounded-full border-2 border-white dark:border-neutral-900" />
+                  )}
+                </div>
                 {isMessages && unreadMessageCount > 0 && (
                   <span className="absolute top-0.5 right-2 w-4 h-4 bg-error-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
@@ -173,38 +222,10 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
-
-          {/* More Tab */}
-          <button
-            onClick={() => setMoreOpen(true)}
-            className={clsx(
-              "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all relative",
-              isMoreActive
-                ? "text-primary-600 dark:text-primary-400"
-                : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
-            )}
-          >
-            <div className="relative">
-              <MoreHorizontal className={clsx("w-5 h-5", isMoreActive && "fill-current")} />
-              {moreHasNotification && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-error-500 rounded-full border-2 border-white dark:border-neutral-900" />
-              )}
-            </div>
-            <span className="text-[10px] font-medium">{t("parent_nav.more")}</span>
-          </button>
         </div>
       </nav>
 
-      {/* More Sheet (Mobile) */}
-      <MoreSheet
-        isOpen={moreOpen}
-        onClose={() => setMoreOpen(false)}
-        onSignOut={handleSignOut}
-        unpaidCount={unpaidInvoiceCount}
-        incompleteHomeworkCount={incompleteHomeworkCount}
-      />
-
-      {/* Sidebar Navigation (Desktop) */}
+      {/* Sidebar Navigation (Desktop) — Grouped */}
       <nav className="fixed left-0 top-0 bottom-0 w-56 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 hidden lg:flex flex-col py-6">
         {/* Profile Header */}
         <div className="px-5 pb-6 border-b border-neutral-100 dark:border-neutral-800">
@@ -221,45 +242,24 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Nav Items */}
-        <div className="flex-1 overflow-y-auto px-3 pt-4 space-y-1">
-          {allNavItems.map((item) => {
-            const active = isActive(item.href);
-            const isMessages = item.key === "messages";
-            const isBilling = item.key === "billing";
-            const isHomework = item.key === "homework";
-            
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                className={clsx(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium relative",
-                  active
-                    ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
-                    : "text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
-                )}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-                {isMessages && unreadMessageCount > 0 && (
-                  <span className="ml-auto px-1.5 py-0.5 bg-error-500 text-white text-[10px] font-bold rounded-full">
-                    {unreadMessageCount > 9 ? "9+" : unreadMessageCount}
-                  </span>
-                )}
-                {isBilling && unpaidInvoiceCount > 0 && (
-                  <span className="ml-auto px-1.5 py-0.5 bg-error-500 text-white text-[10px] font-bold rounded-full">
-                    {unpaidInvoiceCount}
-                  </span>
-                )}
-                {isHomework && incompleteHomeworkCount > 0 && (
-                  <span className="ml-auto px-1.5 py-0.5 bg-primary-500 text-white text-[10px] font-bold rounded-full">
-                    {incompleteHomeworkCount}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+        {/* Nav Items — Grouped */}
+        <div className="flex-1 overflow-y-auto px-3 pt-4 space-y-5">
+          {/* Main */}
+          <div className="space-y-1">
+            {mainNavItems.map(renderSidebarLink)}
+          </div>
+
+          {/* Manage */}
+          <div className="space-y-1">
+            <p className="px-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">{t("parent_nav.manage")}</p>
+            {manageNavItems.map(renderSidebarLink)}
+          </div>
+
+          {/* Account */}
+          <div className="space-y-1">
+            <p className="px-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">{t("parent_nav.account")}</p>
+            {accountNavItems.map(renderSidebarLink)}
+          </div>
         </div>
 
         {/* Bottom Section */}

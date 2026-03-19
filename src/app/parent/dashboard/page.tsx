@@ -6,18 +6,16 @@ import {
   Clock,
   CreditCard,
   MessageSquare,
-  BarChart2,
-  FileText,
-  AlertCircle,
-  X,
+  BookOpen,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
-import { useTeamMembers, useClientInvoices } from "@/hooks/useCollections";
+import { useTeamMembers, useClientInvoices, useHomework } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
-import ProgressRing from "@/components/parent/ProgressRing";
 import LatestSessionSummary from "@/components/parent/LatestSessionSummary";
 import { useNotifications } from "@/context/NotificationContext";
+import { useParentAuth } from "@/context/ParentAuthContext";
 import { useState, useMemo } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
@@ -25,14 +23,15 @@ import { useTranslation } from "react-i18next";
 export default function ParentDashboard() {
   const { t, i18n } = useTranslation();
   const { unreadMessageCount } = useNotifications();
+  const { clientId } = useParentAuth();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
-  const { data: client, sessions, evaluations, loading: portalLoading, error: portalError } = usePortalData();
+  const { data: client, sessions, loading: portalLoading, error: portalError } = usePortalData();
   const { data: team } = useTeamMembers();
   const { data: invoices, loading: invoicesLoading } = useClientInvoices(client?.id || "");
+  const { data: homework } = useHomework(clientId || "");
 
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [balanceDismissed, setBalanceDismissed] = useState(false);
 
   const loading = portalLoading || invoicesLoading;
   const error = portalError;
@@ -47,6 +46,10 @@ export default function ParentDashboard() {
   const unpaidCount = useMemo(() => {
     return invoices.filter((inv) => inv.status === "issued" || inv.status === "overdue").length;
   }, [invoices]);
+
+  const incompleteHomeworkCount = useMemo(() =>
+    homework.filter(h => !h.completed).length,
+  [homework]);
 
   // Latest session
   const lastSession = useMemo(() => {
@@ -101,9 +104,50 @@ export default function ParentDashboard() {
   const presentThisMonth = sessionsThisMonth.filter((s) => s.attendance === "present").length;
   const totalPastThisMonth = sessionsThisMonth.filter((s) => parseDate(s.startTime) < now).length;
   const attendanceRate = totalPastThisMonth > 0 ? Math.round((presentThisMonth / totalPastThisMonth) * 100) : 100;
+  const remainingThisMonth = sessionsThisMonth.filter((s) => parseDate(s.startTime) >= now).length;
+
+  // Action items for "Needs Attention" panel
+  const actionItems = [];
+  if (unpaidCount > 0) {
+    actionItems.push({
+      key: "billing",
+      href: "/parent/billing/",
+      icon: CreditCard,
+      label: unpaidCount > 1
+        ? t("parent_portal.dashboard.unpaid_invoices_plural", { count: unpaidCount })
+        : t("parent_portal.dashboard.unpaid_invoices", { count: unpaidCount }),
+      detail: `${displayBalance.toFixed(2)} RON`,
+      color: "text-warning-600 bg-warning-50 dark:bg-warning-900/20 dark:text-warning-400",
+      borderColor: "border-warning-100 dark:border-warning-900/30",
+    });
+  }
+  if (incompleteHomeworkCount > 0) {
+    actionItems.push({
+      key: "homework",
+      href: "/parent/homework/",
+      icon: BookOpen,
+      label: incompleteHomeworkCount > 1
+        ? t("parent_portal.dashboard.homework_pending_plural", { count: incompleteHomeworkCount })
+        : t("parent_portal.dashboard.homework_pending", { count: incompleteHomeworkCount }),
+      color: "text-primary-600 bg-primary-50 dark:bg-primary-900/20 dark:text-primary-400",
+      borderColor: "border-primary-100 dark:border-primary-900/30",
+    });
+  }
+  if (unreadMessageCount > 0) {
+    actionItems.push({
+      key: "messages",
+      href: "/parent/messages/",
+      icon: MessageSquare,
+      label: unreadMessageCount > 1
+        ? t("parent_portal.dashboard.unread_messages_plural", { count: unreadMessageCount })
+        : t("parent_portal.dashboard.unread_messages", { count: unreadMessageCount }),
+      color: "text-primary-600 bg-primary-50 dark:bg-primary-900/20 dark:text-primary-400",
+      borderColor: "border-primary-100 dark:border-primary-900/30",
+    });
+  }
 
   return (
-    <div className="space-y-5 animate-in fade-in duration-300 font-sans pb-8">
+    <div className="space-y-5 animate-in fade-in duration-300 font-sans pb-20">
       {/* 1. Header / Greeting */}
       <section className="px-4 pt-5">
         <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
@@ -126,7 +170,7 @@ export default function ParentDashboard() {
               <span className="text-primary-200 text-xs font-semibold uppercase tracking-wider">
                 {t("parent_portal.dashboard.next_session")}
               </span>
-              <span className="text-primary-200 text-xs">•</span>
+              <span className="text-primary-200 text-xs">&middot;</span>
               <span className="text-primary-200 text-xs font-medium">
                 {getCountdown(nextSession)}
               </span>
@@ -179,80 +223,88 @@ export default function ParentDashboard() {
         )}
       </section>
 
-      {/* 3. Status Ring Row */}
-      <section className="px-4">
-        <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
-          {/* Sessions Completed */}
-          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 flex-1 flex flex-col items-center shadow-sm">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
-              <span className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-white">{completedThisMonth.length}</span>
+      {/* 3. Needs Your Attention — Action Items Panel */}
+      {actionItems.length > 0 && (
+        <section className="px-4">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-warning-500" />
+              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                {t("parent_portal.dashboard.needs_attention")}
+              </h3>
             </div>
-            <p className="text-[10px] text-neutral-500 font-medium mt-2 text-center uppercase tracking-wider">
+            <div className="divide-y divide-neutral-50 dark:divide-neutral-800">
+              {actionItems.map((item) => (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors group"
+                >
+                  <div className={clsx("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", item.color)}>
+                    <item.icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                      {item.label}
+                    </p>
+                    {item.detail && (
+                      <p className="text-xs text-neutral-400">{item.detail}</p>
+                    )}
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-neutral-300 dark:text-neutral-600 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 4. Monthly Stats — 3 cards */}
+      <section className="px-4">
+        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2 px-1">
+          {t("parent_portal.dashboard.this_month")}
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          {/* Sessions Completed */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-3 flex flex-col items-center shadow-sm">
+            <span className="text-2xl font-black text-neutral-900 dark:text-white">{completedThisMonth.length}</span>
+            <p className="text-[10px] text-neutral-500 font-medium mt-1 text-center uppercase tracking-wider">
               {t("parent_portal.dashboard.sessions_done")}
+            </p>
+          </div>
+
+          {/* Attendance Rate */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-3 flex flex-col items-center shadow-sm">
+            <span className={clsx(
+              "text-2xl font-black",
+              attendanceRate >= 80 ? "text-success-600" : attendanceRate >= 50 ? "text-warning-600" : "text-error-600"
+            )}>
+              {attendanceRate}%
+            </span>
+            <p className="text-[10px] text-neutral-500 font-medium mt-1 text-center uppercase tracking-wider">
+              {t("parent_portal.dashboard.attendance_rate")}
+            </p>
+          </div>
+
+          {/* Remaining */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 p-3 flex flex-col items-center shadow-sm">
+            <span className="text-2xl font-black text-neutral-900 dark:text-white">{remainingThisMonth}</span>
+            <p className="text-[10px] text-neutral-500 font-medium mt-1 text-center uppercase tracking-wider">
+              {t("parent_portal.dashboard.sessions_remaining")}
             </p>
           </div>
         </div>
       </section>
 
-      {/* 4. Latest Session Summary (New) */}
+      {/* 5. Latest Session Summary */}
       {lastSession && (
-        <LatestSessionSummary 
-          session={lastSession} 
+        <LatestSessionSummary
+          session={lastSession}
           onClick={() => {
             setSelectedEvent(lastSession);
             setIsDetailOpen(true);
-          }} 
+          }}
         />
-      )}
-
-      {/* 5. Quick Actions */}
-      <section className="px-4">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2">
-          {[
-            { key: 'messages', href: "/parent/messages/", icon: MessageSquare, label: t("parent_portal.dashboard.quick_message"), color: "text-primary-500 bg-primary-50 dark:bg-primary-900/20" },
-            { key: 'calendar', href: "/parent/calendar/", icon: Calendar, label: t("parent_portal.dashboard.quick_schedule"), color: "text-teal-500 bg-teal-50 dark:bg-teal-900/20" },
-            { key: 'progress', href: "/parent/progress/", icon: BarChart2, label: t("parent_portal.dashboard.quick_progress"), color: "text-purple-500 bg-purple-50 dark:bg-purple-900/20" },
-            { key: 'billing', href: "/parent/billing/", icon: CreditCard, label: t("parent_portal.dashboard.quick_billing"), color: "text-warning-500 bg-warning-50 dark:bg-warning-900/20" },
-          ].map((action) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className="flex items-center sm:flex-col gap-3 sm:gap-1.5 p-3 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow transition-shadow relative"
-            >
-              <div className={clsx("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", action.color)}>
-                <action.icon className="w-5 h-5" />
-              </div>
-              {action.key === 'messages' && unreadMessageCount > 0 && (
-                <span className="absolute top-2 right-2 w-3 h-3 bg-error-500 border-2 border-white dark:border-neutral-900 rounded-full" />
-              )}
-              <span className="text-xs sm:text-[10px] font-medium text-neutral-600 dark:text-neutral-400 leading-tight">
-                {action.label}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. Balance Alert Banner */}
-      {displayBalance > 0 && !balanceDismissed && (
-        <section className="px-4">
-          <div className="bg-warning-50 dark:bg-warning-900/10 border border-warning-200 dark:border-warning-900/30 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-warning-100 dark:bg-warning-900/20 rounded-xl flex items-center justify-center text-warning-600 flex-shrink-0">
-              <AlertCircle className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-warning-800 dark:text-warning-200">
-                {t("parent_portal.dashboard.balance_alert", { amount: displayBalance.toFixed(2) })}
-              </p>
-              <Link href="/parent/billing/" className="text-xs font-medium text-warning-600 hover:underline">
-                {t("parent_portal.dashboard.view_invoices")} →
-              </Link>
-            </div>
-            <button onClick={() => setBalanceDismissed(true)} className="p-1.5 text-warning-400 hover:text-warning-600 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </section>
       )}
 
       <ParentEventDetailPanel

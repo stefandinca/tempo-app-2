@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ClipboardList, CheckCircle2, Circle, Clock, StickyNote, ChevronDown, ChevronUp, BookOpen, Loader2 } from "lucide-react";
+import { ClipboardList, CheckCircle2, Circle, Clock, StickyNote, ChevronDown, ChevronUp, BookOpen, Loader2, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useHomework } from "@/hooks/useCollections";
 import { useTeamMembers } from "@/hooks/useCollections";
@@ -14,6 +15,7 @@ type FilterTab = "active" | "completed";
 
 export default function ParentHomeworkPage() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, loading: portalLoading, error: portalError } = usePortalData();
   const { data: homework, loading: homeworkLoading } = useHomework(client?.id || "");
@@ -209,10 +211,18 @@ export default function ParentHomeworkPage() {
   };
 
   return (
-    <div className="p-4 space-y-8 animate-in fade-in duration-300 pb-24 max-w-2xl mx-auto">
-      <header>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{t("parent_portal.homework.title")}</h1>
-        <p className="text-neutral-500 text-sm mt-1">{t("parent_portal.homework.subtitle")}</p>
+    <div className="p-4 space-y-8 animate-in fade-in duration-300 pb-20 max-w-2xl mx-auto">
+      <header className="flex items-center gap-3">
+        <button
+          onClick={() => router.back()}
+          className="p-2 -ml-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors lg:hidden"
+        >
+          <ArrowLeft className="w-5 h-5 text-neutral-600 dark:text-neutral-400" />
+        </button>
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900 dark:text-white">{t("parent_portal.homework.title")}</h1>
+          <p className="text-neutral-500 text-sm">{t("parent_portal.homework.subtitle")}</p>
+        </div>
       </header>
 
       {/* Active Section */}

@@ -394,14 +394,15 @@
     "schedule": "Program",
     "progress": "Progres",
     "messages": "Mesaje",
-    "more": "Mai mult",
     "billing": "Facturare",
     "docs": "Documente",
     "profile": "Profil",
     "homework": "Teme",
     "sign_out": "Deconectare",
     "portal": "Portal",
-    "parent_portal": "Portal Părinți"
+    "parent_portal": "Portal Părinți",
+    "manage": "Gestionare",
+    "account": "Cont"
   },
   "parent_portal": {
     "welcome": "Bine ai revenit, {{name}}!",
@@ -431,7 +432,17 @@
       "quick_billing": "Facturi",
       "balance_alert": "Aveți {{amount}} RON de plată",
       "view_invoices": "Vezi facturile",
-      "latest_summary": "Rezumat Ultima Ședință"
+      "latest_summary": "Rezumat Ultima Ședință",
+      "needs_attention": "Necesită Atenție",
+      "unpaid_invoices": "{{count}} factură neplătită",
+      "unpaid_invoices_plural": "{{count}} facturi neplătite",
+      "homework_pending": "{{count}} temă de făcut",
+      "homework_pending_plural": "{{count}} teme de făcut",
+      "unread_messages": "{{count}} mesaj necitit",
+      "unread_messages_plural": "{{count}} mesaje necitite",
+      "attendance_rate": "Prezență",
+      "sessions_remaining": "Rămase",
+      "this_month": "Luna Aceasta"
     },
     "alerts": {
       "title": "Alerte Recente",
@@ -576,7 +587,12 @@
       "view_documents": "Vezi toate documentele",
       "portal_settings": "Setări Portal",
       "push_notifications": "Notificări Push",
-      "push_notifications_desc": "Primește alerte când aplicația este închisă"
+      "push_notifications_desc": "Primește alerte când aplicația este închisă",
+      "quick_links": "Acces Rapid",
+      "unpaid_invoices": "{{count}} neplătite",
+      "incomplete_homework": "{{count}} în așteptare",
+      "child_info": "Informații Copil",
+      "therapy_since": "Terapie din {{date}}"
     },
     "homework": {
       "title": "Teme",
