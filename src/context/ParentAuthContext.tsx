@@ -41,16 +41,21 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
             console.log("[ParentAuth] UID mismatch or new session. Replacing old UID with new...");
             try {
               const clientRef = doc(db, "clients", storedClientId);
-              // Remove old UID first (if we had one), then add new one
-              const oldUid = storedParentUid || localStorage.getItem("parent_prev_uid");
-              if (oldUid && oldUid !== authUser.uid) {
-                await updateDoc(clientRef, {
-                  parentUids: arrayRemove(oldUid)
-                });
-              }
+              // Add new UID first so Firestore rules pass (parentUids must contain auth.uid)
               await updateDoc(clientRef, {
                 parentUids: arrayUnion(authUser.uid)
               });
+              // Best-effort cleanup of old UID (non-critical)
+              const oldUid = storedParentUid || localStorage.getItem("parent_prev_uid");
+              if (oldUid && oldUid !== authUser.uid) {
+                try {
+                  await updateDoc(clientRef, {
+                    parentUids: arrayRemove(oldUid)
+                  });
+                } catch {
+                  // Old UID cleanup failed - not critical, new UID is registered
+                }
+              }
               console.log("[ParentAuth] Replaced UID successfully.");
               sessionStorage.setItem("parent_uid", authUser.uid);
               localStorage.setItem("parent_prev_uid", authUser.uid);
@@ -107,17 +112,22 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
         currentUser = userCredential.user;
       }
 
-      // Link anonymous UID to client document (replace old UID if exists)
+      // Link anonymous UID to client document — add new UID first so Firestore rules pass
       const clientRef = doc(db, "clients", validatedClientId);
-      const oldUid = localStorage.getItem("parent_prev_uid");
-      if (oldUid && oldUid !== currentUser.uid) {
-        await updateDoc(clientRef, {
-          parentUids: arrayRemove(oldUid)
-        });
-      }
       await updateDoc(clientRef, {
         parentUids: arrayUnion(currentUser.uid)
       });
+      // Best-effort cleanup of old UID (non-critical)
+      const oldUid = localStorage.getItem("parent_prev_uid");
+      if (oldUid && oldUid !== currentUser.uid) {
+        try {
+          await updateDoc(clientRef, {
+            parentUids: arrayRemove(oldUid)
+          });
+        } catch {
+          // Old UID cleanup failed - not critical, new UID is registered
+        }
+      }
 
       // Store session info + persist UID for future cleanup
       sessionStorage.setItem("parent_uid", currentUser.uid);

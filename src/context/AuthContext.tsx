@@ -61,6 +61,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (authUser) {
+        // Anonymous users are handled by ParentAuthContext — skip team_members lookup
+        // to avoid unmounting the component tree (setLoading(true) would unmount children).
+        // Exception: demo mode where anonymous users get mock admin data.
+        if (authUser.isAnonymous && !IS_DEMO) {
+          setUserData(null);
+          setUserRole(null);
+          setLoading(false);
+          return;
+        }
+
         // Set loading while we fetch user data to prevent premature redirects
         setLoading(true);
 
