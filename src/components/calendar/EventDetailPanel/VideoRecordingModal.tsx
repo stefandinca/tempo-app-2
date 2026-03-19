@@ -204,48 +204,50 @@ export default function VideoRecordingModal({
         {(state === "recording" || state === "review") && <div className="w-11" />}
       </div>
 
-      {/* Video area */}
-      <div className="flex-1 flex items-center justify-center px-4">
-        {/* Camera preview / Recording */}
-        {(state === "preview" || state === "recording") && (
-          <div className="relative w-full max-w-lg aspect-[9/16] sm:aspect-video bg-black rounded-2xl overflow-hidden">
-            <video
-              ref={liveVideoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-            />
-            {recorderError && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/70 p-4">
-                <p className="text-white text-sm text-center">{recorderError}</p>
-              </div>
-            )}
-            {!cameraReady && !recorderError && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Review recorded video */}
-        {state === "review" && recordedBlob && (
-          <div className="w-full max-w-lg">
-            <div className="aspect-[9/16] sm:aspect-video bg-black rounded-2xl overflow-hidden">
+      {/* Scrollable content area - enables scroll in review state on portrait mobile */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+        {/* Video area */}
+        <div className={`${state !== "review" ? "flex-1" : ""} flex items-center justify-center px-4`}>
+          {/* Camera preview / Recording */}
+          {(state === "preview" || state === "recording") && (
+            <div className="relative w-full max-w-lg aspect-[9/16] sm:aspect-video bg-black rounded-2xl overflow-hidden">
               <video
-                ref={reviewVideoRef}
-                controls
+                ref={liveVideoRef}
+                autoPlay
                 playsInline
-                className="w-full h-full object-contain"
+                muted
+                className="w-full h-full object-cover"
               />
+              {recorderError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/70 p-4">
+                  <p className="text-white text-sm text-center">{recorderError}</p>
+                </div>
+              )}
+              {!cameraReady && !recorderError && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                </div>
+              )}
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
-      {/* Bottom controls */}
-      <div className="p-4 pb-8">
+          {/* Review recorded video */}
+          {state === "review" && recordedBlob && (
+            <div className="w-full max-w-lg">
+              <div className="aspect-[9/16] sm:aspect-video max-h-[55vh] sm:max-h-none bg-black rounded-2xl overflow-hidden">
+                <video
+                  ref={reviewVideoRef}
+                  controls
+                  playsInline
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom controls */}
+        <div className="p-4 pb-8 shrink-0">
         {/* Preview state - Start button */}
         {state === "preview" && (
           <div className="flex justify-center">
@@ -335,6 +337,7 @@ export default function VideoRecordingModal({
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
