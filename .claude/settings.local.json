@@ -44,7 +44,8 @@
       "Bash(find \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2\\\\src\" -type f \\\\\\( -name \"*SessionList*\" -o -name \"*EventList*\" -o -name \"*ClientEvents*\" -o -name \"*History*\" \\\\\\) 2>/dev/null | head -10)",
       "Bash(find . -type f -name \"*.tsx\" -exec grep -l \"ClientOverviewTab\\\\|ClientProgramsTab\\\\|ClientPlanTab\" {} \\\\; 2>/dev/null | head -10)",
       "Bash(ls -la \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2/src/app/\\(dashboard\\)/\" | grep -E \"^d\")",
-      "Bash(find \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2/src/app/\\(dashboard\\)/messages\" -name \"*.tsx\" -o -name \"*.ts\" 2>/dev/null)"
+      "Bash(find \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2/src/app/\\(dashboard\\)/messages\" -name \"*.tsx\" -o -name \"*.ts\" 2>/dev/null)",
+      "Bash(cd \"C:\\\\_WORK\\\\_TEMPO\\\\FINAL\\\\_APP_v2\\\\tempo-app-2\" && grep -n '\"chat\"' src/lib/i18n/locales/en.json)"
     ]
   }
 }
