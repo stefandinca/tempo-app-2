@@ -83,6 +83,9 @@ export function NotificationProvider({
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [pushPermissionStatus, setPushPermissionStatus] = useState<NotificationPermission>('default');
 
+  // Track locally-read notification IDs so optimistic updates survive onSnapshot overwrites
+  const locallyReadIdsRef = useRef<Set<string>>(new Set());
+
   const requestPushPermission = useCallback(async () => {
     setPushError(null);
     
@@ -201,11 +204,14 @@ export function NotificationProvider({
           where("participants", "array-contains", user.uid)
         );
 
+    // For parents, use stable clientId for read-status checks (anonymous UID changes each session)
+    const readKey = (isParent && clientId) ? clientId : user.uid;
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       let count = 0;
       snapshot.forEach(doc => {
         const data = doc.data();
-        if (data.lastMessage && !data.lastMessage.readBy.includes(user.uid)) {
+        if (data.lastMessage && !data.lastMessage.readBy.includes(readKey)) {
           count++;
         }
       });
@@ -286,10 +292,11 @@ export function NotificationProvider({
       );
 
       unsubscribeSecondary = onSnapshot(qSecondary, (snap) => {
-        secondaryNotifs = snap.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || doc.data().createdAt
+        secondaryNotifs = snap.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+          read: d.data().read || locallyReadIdsRef.current.has(d.id),
+          createdAt: d.data().createdAt?.toDate?.()?.toISOString() || d.data().createdAt
         })) as NotificationData[];
         mergeAndSetNotifs(primaryNotifs, secondaryNotifs);
       });
@@ -298,12 +305,13 @@ export function NotificationProvider({
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        primaryNotifs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
+        primaryNotifs = snapshot.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+          read: d.data().read || locallyReadIdsRef.current.has(d.id),
           createdAt:
-            doc.data().createdAt?.toDate?.()?.toISOString() ||
-            doc.data().createdAt
+            d.data().createdAt?.toDate?.()?.toISOString() ||
+            d.data().createdAt
         })) as NotificationData[];
 
         if (isParent && clientId) {
@@ -344,19 +352,24 @@ export function NotificationProvider({
   // Mark single notification as read
   const markAsRead = useCallback(
     async (id: string) => {
-      if (USE_MOCK_NOTIFICATIONS) {
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === id ? { ...n, read: true, readAt: new Date().toISOString() } : n
-          )
-        );
-        return;
-      }
+      // Optimistic update — reflect immediately in UI
+      locallyReadIdsRef.current.add(id);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === id ? { ...n, read: true, readAt: new Date().toISOString() } : n
+        )
+      );
 
-      await updateDoc(doc(db, "notifications", id), {
-        read: true,
-        readAt: Timestamp.now()
-      });
+      if (USE_MOCK_NOTIFICATIONS) return;
+
+      try {
+        await updateDoc(doc(db, "notifications", id), {
+          read: true,
+          readAt: Timestamp.now()
+        });
+      } catch (err) {
+        console.error("[Notifications] Failed to mark as read:", id, err);
+      }
     },
     []
   );
@@ -364,22 +377,30 @@ export function NotificationProvider({
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
     const unread = notifications.filter((n) => !n.read);
+    if (unread.length === 0) return;
 
-    if (USE_MOCK_NOTIFICATIONS) {
-      setNotifications((prev) =>
-        prev.map((n) => ({ ...n, read: true, readAt: new Date().toISOString() }))
-      );
-      return;
-    }
-
-    await Promise.all(
-      unread.map((n) =>
-        updateDoc(doc(db, "notifications", n.id), {
-          read: true,
-          readAt: Timestamp.now()
-        })
-      )
+    // Optimistic update — reflect immediately in UI
+    unread.forEach((n) => locallyReadIdsRef.current.add(n.id));
+    setNotifications((prev) =>
+      prev.map((n) => ({ ...n, read: true, readAt: n.readAt || new Date().toISOString() }))
     );
+
+    if (USE_MOCK_NOTIFICATIONS) return;
+
+    try {
+      await Promise.all(
+        unread.map((n) =>
+          updateDoc(doc(db, "notifications", n.id), {
+            read: true,
+            readAt: Timestamp.now()
+          }).catch((err) => {
+            console.error("[Notifications] Failed to mark as read:", n.id, err);
+          })
+        )
+      );
+    } catch (err) {
+      console.error("[Notifications] Failed to mark all as read:", err);
+    }
   }, [notifications]);
 
   // Filter by category
@@ -457,11 +478,12 @@ export function NotificationProvider({
         );
 
     const snapshot = await getDocs(q);
-    let newNotifs = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+    let newNotifs = snapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+      read: d.data().read || locallyReadIdsRef.current.has(d.id),
       createdAt:
-        doc.data().createdAt?.toDate?.()?.toISOString() || doc.data().createdAt
+        d.data().createdAt?.toDate?.()?.toISOString() || d.data().createdAt
     })) as NotificationData[];
 
     if (role !== 'Admin') {
