@@ -66,14 +66,16 @@ After any agent produces code changes, the orchestrator runs this loop before de
 
 If any step fails: route the failure back to the owning agent, fix, and re-run from step 1. Do NOT mark work done until the full loop is green. If a UI step cannot be exercised (e.g. headless env), say so explicitly instead of claiming success.
 
-## Clean commit (only when the user asked to commit)
+## Clean commit (automatic after every finished task — never push)
+
+At the end of every task that produced file changes, create a commit without being asked. Pushing stays manual.
 
 - Stage only files relevant to this task — never `git add -A`
 - Conventional commit format: `<type>(<scope>): <description>` (see CLAUDE.md)
 - Subject ≤72 chars; body explains the *why*
 - Co-author trailer: `Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>`
 - If pre-commit hooks fail, fix the underlying issue and create a NEW commit (never `--amend`, never `--no-verify`)
-- Do NOT push unless the user explicitly asks
+- Do NOT run `git push`, `git push --force`, or publish the branch unless the user explicitly asks
 
 ## Non-negotiables (inherited from CLAUDE.md)
 

@@ -7,6 +7,9 @@
     "build": "next build",
     "build:demo": "dotenv -e .env.demo next build",
     "build:prod": "dotenv -e .env.live next build",
+    "package": "node scripts/build-prod.js",
+    "package:demo": "node scripts/build-prod.js --env=demo",
+    "package:gzip": "node scripts/build-prod.js --gzip",
     "start": "next start",
     "lint": "next lint"
   },
