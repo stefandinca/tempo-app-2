@@ -4,8 +4,7 @@ import { Key, Calendar, Clock, BarChart, ClipboardCheck, ChevronRight, RefreshCw
 import { clsx } from "clsx";
 import Link from "next/link";
 import { useState } from "react";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { setClientCode } from "@/lib/clientCodeSync";
 import { useToast } from "@/context/ToastContext";
 import { useClientEvents } from "@/hooks/useCollections";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
@@ -48,7 +47,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
       const initials = client.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
       const random = Math.floor(1000 + Math.random() * 9000);
       const newCode = `${initials}-${random}`;
-      await updateDoc(doc(db, "clients", client.id), { clientCode: newCode });
+      await setClientCode(client.id, client.name, client.clientCode, newCode);
       success(t('clients.code_generated') || "New access code generated!");
     } catch (err) {
       toastError(t('clients.code_error') || "Failed to generate code");

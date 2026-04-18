@@ -54,7 +54,8 @@ service cloud.firestore {
     }
 
     match /clients/{clientId} {
-      // Staff can list all; signed-in users can list (needed for parent login code lookup)
+      // Staff can list all; signed-in users can list (needed for parent login code lookup during migration)
+      // TODO: after client_codes backfill + parent login cutover, tighten to: isAdmin() || isCoordinator() || isTherapist()
       allow list: if isSignedIn();
       allow get: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow create: if isAdmin() || isCoordinator();
@@ -64,6 +65,15 @@ service cloud.firestore {
         request.resource.data.parentUids.hasAny([request.auth.uid])
       );
       allow delete: if isAdmin();
+    }
+
+    // Parent access code -> { clientId, clientName } lookup.
+    // Signed-in users (including anonymous parents) can GET a code they already know,
+    // but LIST is forbidden so no one can enumerate codes.
+    match /client_codes/{code} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin() || isCoordinator() || isTherapist();
+      allow create, update, delete: if isAdmin() || isCoordinator() || isTherapist();
     }
 
     match /events/{eventId} {

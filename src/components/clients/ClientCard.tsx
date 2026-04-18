@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEventModal } from "@/context/EventModalContext";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { removeClientCode } from "@/lib/clientCodeSync";
 import { useToast } from "@/context/ToastContext";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
@@ -26,6 +27,7 @@ export interface Client {
   therapistIds?: string[];
   createdAt?: string;
   isArchived?: boolean;
+  clientCode?: string;
 }
 
 export interface TeamMember {
@@ -171,6 +173,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
       onConfirm: async () => {
         try {
           await deleteDoc(doc(db, "clients", client.id));
+          await removeClientCode(client.clientCode);
           success(t('clients.client_deleted'));
         } catch (err) {
           error(t('clients.delete_error'));

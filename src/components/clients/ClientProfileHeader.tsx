@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { removeClientCode } from "@/lib/clientCodeSync";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
@@ -107,6 +108,7 @@ export default function ClientProfileHeader({ client, activeTab, onTabChange, on
       onConfirm: async () => {
         try {
           await deleteDoc(doc(db, "clients", client.id));
+          await removeClientCode(client.clientCode);
           success(t('clients.client_deleted'));
           router.push("/clients/");
         } catch (err) {
