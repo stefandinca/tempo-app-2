@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { 
-  User, 
-  Calendar, 
-  Clock, 
-  Printer, 
+import i18n from "@/lib/i18n";
+import {
+  User,
+  Calendar,
+  Clock,
+  Printer,
   ChevronLeft,
   Briefcase,
   Users,
@@ -24,6 +26,8 @@ interface TeamReportHTMLProps {
   clients: any[];
   services: any[];
   clinic: any;
+  month: string;
+  onMonthChange: (month: string) => void;
   onBack: () => void;
 }
 
@@ -33,9 +37,34 @@ export default function TeamReportHTML({
   clients,
   services,
   clinic,
+  month,
+  onMonthChange,
   onBack
 }: TeamReportHTMLProps) {
   const { t } = useTranslation();
+
+  // Month picker options: current month + previous 11 months
+  const monthOptions = useMemo(() => {
+    const opts: { value: string; label: string }[] = [];
+    const now = new Date();
+    const locale = i18n.language || "ro";
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const label = d.toLocaleDateString(locale, { month: "long", year: "numeric" });
+      opts.push({ value: `${y}-${m}`, label: label.charAt(0).toUpperCase() + label.slice(1) });
+    }
+    return opts;
+  }, []);
+
+  // If the selected month falls outside the last-12-months list (e.g. deep link), surface it.
+  const hasSelectedInOptions = monthOptions.some(o => o.value === month);
+  const [mYear, mMon] = month.split("-").map(Number);
+  const monthDate = new Date(mYear, mMon - 1, 1);
+  const locale = i18n.language || "ro";
+  const monthLabel = monthDate.toLocaleDateString(locale, { month: "long", year: "numeric" });
+  const capitalizedMonthLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
   // --- Data Processing & Aggregations ---
 
@@ -82,21 +111,39 @@ export default function TeamReportHTML({
     <div className="min-h-screen bg-neutral-100 dark:bg-neutral-950 p-4 sm:p-8 print:bg-white print:p-0">
       
       {/* Action Bar */}
-      <div className="max-w-5xl mx-auto mb-6 flex items-center justify-between print:hidden font-display">
-        <button 
+      <div className="max-w-5xl mx-auto mb-6 flex items-center justify-between gap-3 print:hidden font-display">
+        <button
           onClick={onBack}
           className="flex items-center gap-2 px-4 py-2 text-neutral-600 hover:text-neutral-900 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 transition-all shadow-sm font-medium"
         >
           <ChevronLeft className="w-4 h-4" />
           {t('common.back')}
         </button>
-        <button 
-          onClick={handlePrint}
-          className="flex items-center gap-2 px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg shadow-primary-600/20 transition-all font-bold"
-        >
-          <Printer className="w-4 h-4" />
-          {t('billing_page.export')}
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2">
+            <span className="sr-only">{t('reports.client.select_month')}</span>
+            <select
+              value={month}
+              onChange={(e) => onMonthChange(e.target.value)}
+              aria-label={t('reports.client.select_month')}
+              className="min-h-11 px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-sm font-medium text-neutral-700 dark:text-neutral-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            >
+              {!hasSelectedInOptions && (
+                <option value={month}>{capitalizedMonthLabel}</option>
+              )}
+              {monthOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </label>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-6 py-2 min-h-11 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg shadow-primary-600/20 transition-all font-bold"
+          >
+            <Printer className="w-4 h-4" />
+            {t('billing_page.export')}
+          </button>
+        </div>
       </div>
 
       {/* Main Report Page */}
@@ -116,7 +163,10 @@ export default function TeamReportHTML({
             </div>
             <div className="space-y-1">
               <h2 className="text-3xl font-bold text-neutral-900 dark:text-white font-display uppercase tracking-tight">{t('reports.team.title')}</h2>
-              <p className="text-neutral-500">{t('reports.client.generated_on')}: {new Date().toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
+              <p className="text-neutral-700 dark:text-neutral-300 font-semibold">
+                {t('reports.client.report_period')}: {capitalizedMonthLabel}
+              </p>
+              <p className="text-sm text-neutral-500">{t('reports.client.generated_on')}: {new Date().toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
             </div>
           </div>
 

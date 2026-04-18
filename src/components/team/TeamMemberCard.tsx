@@ -64,7 +64,9 @@ export default function TeamMemberCard({ member, onEdit }: TeamMemberCardProps) 
   };
 
   const handleGenerateReport = () => {
-    window.open(`/reports/team/?id=${member.id}`, '_blank');
+    const now = new Date();
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    window.open(`/reports/team/?id=${member.id}&month=${month}`, '_blank');
   };
 
   return (
