@@ -54,9 +54,8 @@ service cloud.firestore {
     }
 
     match /clients/{clientId} {
-      // Staff can list all; signed-in users can list (needed for parent login code lookup during migration)
-      // TODO: after client_codes backfill + parent login cutover, tighten to: isAdmin() || isCoordinator() || isTherapist()
-      allow list: if isSignedIn();
+      // Staff-only listing. Parent login goes through /client_codes/{CODE}.
+      allow list: if isAdmin() || isCoordinator() || isTherapist();
       allow get: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow create: if isAdmin() || isCoordinator();
       allow update: if isAdmin() || isCoordinator() || (

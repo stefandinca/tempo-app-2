@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, KeyRound, ChevronRight, HelpCircle } from "lucide-react";
 import { db, auth } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
 import { useParentAuth } from "@/context/ParentAuthContext";
 import { useTranslation } from "react-i18next";
@@ -68,19 +68,17 @@ function ParentLoginContent() {
     setError("");
 
     try {
-      // Ensure we are signed in anonymously before querying
+      // Ensure we are signed in anonymously before looking up the code.
       if (!auth.currentUser) {
         await signInAnonymously(auth);
       }
 
-      const q = query(
-        collection(db, "clients"),
-        where("clientCode", "==", cleanCode)
-      );
+      // Resolve the access code via the /client_codes lookup. Only GET is allowed
+      // by the security rules — listing is forbidden, so this request can only
+      // succeed if the exact code is known.
+      const codeSnap = await getDoc(doc(db, "client_codes", cleanCode));
 
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
+      if (!codeSnap.exists()) {
         const newAttempts = attempts + 1;
         setAttempts(newAttempts);
         if (newAttempts >= MAX_ATTEMPTS) {
@@ -93,10 +91,9 @@ function ParentLoginContent() {
         return;
       }
 
-      const clientDoc = querySnapshot.docs[0];
-      const clientData = clientDoc.data();
+      const { clientId, clientName } = codeSnap.data() as { clientId: string; clientName: string };
 
-      await authenticateWithCode(clientDoc.id, clientData.name, cleanCode);
+      await authenticateWithCode(clientId, clientName, cleanCode);
 
       router.push(`/parent/dashboard/`);
     } catch (err: any) {

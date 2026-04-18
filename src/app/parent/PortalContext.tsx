@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, doc } from "firebase/firestore";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useParentAuth } from "@/context/ParentAuthContext";
 import { useTranslation } from "react-i18next";
@@ -40,13 +40,10 @@ export function usePortalData() {
     setLoading(true);
     setError(null);
 
-    // 1. Fetch Client Info (using ID directly now)
-    const clientRef = collection(db, "clients");
-    // We already have the ID, but let's subscribe to the doc to get updates
-    const clientQuery = query(
-        clientRef,
-        where("__name__", "==", clientId) // Query by doc ID
-    );
+    // 1. Subscribe directly to the client doc by ID. Using onSnapshot(doc(...))
+    //    instead of a where(__name__, ==) query keeps us on the `get` rule and
+    //    avoids listing /clients (which is restricted to staff).
+    const clientDocRef = doc(db, "clients", clientId);
 
     let unsubscribeSessions: (() => void) | null = null;
     let unsubscribeServices: (() => void) | null = null;
@@ -54,14 +51,13 @@ export function usePortalData() {
     let unsubscribeEvaluations: (() => void) | null = null;
     let unsubscribeVBMAPP: (() => void) | null = null;  // Hoisted to outer scope for proper cleanup
 
-    const unsubscribeClient = onSnapshot(clientQuery, (snapshot) => {
-      if (snapshot.empty) {
+    const unsubscribeClient = onSnapshot(clientDocRef, (clientDoc) => {
+      if (!clientDoc.exists()) {
         setError(t("parent_portal.error.session_invalid"));
         setLoading(false);
         return;
       }
 
-      const clientDoc = snapshot.docs[0];
       const clientInfo = { id: clientDoc.id, ...clientDoc.data() };
       setData(clientInfo);
 
