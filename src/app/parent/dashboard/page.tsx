@@ -51,12 +51,25 @@ export default function ParentDashboard() {
     homework.filter(h => !h.completed).length,
   [homework]);
 
-  // Latest session
-  const lastSession = useMemo(() => {
+  // Latest session day — all sessions from the most recent day that had any
+  // completed session. Clients typically have 1-2 sessions on the same day,
+  // so parents need to see the full picture, not just the most recent one.
+  const lastSessionDay = useMemo(() => {
     const past = (sessions || [])
       .filter((s) => s.status === "completed")
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
-    return past[0];
+    if (past.length === 0) return [];
+    const anchor = new Date(past[0].startTime);
+    const y = anchor.getFullYear();
+    const m = anchor.getMonth();
+    const d = anchor.getDate();
+    return past
+      .filter((s) => {
+        const sd = new Date(s.startTime);
+        return sd.getFullYear() === y && sd.getMonth() === m && sd.getDate() === d;
+      })
+      // Chronological order within the day (morning first)
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
   }, [sessions]);
 
   if (loading) return <PortalLoading />;
@@ -296,12 +309,12 @@ export default function ParentDashboard() {
         </div>
       </section>
 
-      {/* 5. Latest Session Summary */}
-      {lastSession && (
+      {/* 5. Latest Session Summary — shows every session from the most recent completed day */}
+      {lastSessionDay.length > 0 && (
         <LatestSessionSummary
-          session={lastSession}
-          onClick={() => {
-            setSelectedEvent(lastSession);
+          sessions={lastSessionDay}
+          onSelect={(session) => {
+            setSelectedEvent(session);
             setIsDetailOpen(true);
           }}
         />
