@@ -127,7 +127,7 @@ if (withModules) {
 //    doesn't mistake "C:\..." for a remote host specifier).
 if (!fs.existsSync(DIST)) fs.mkdirSync(DIST, { recursive: true });
 
-const listRel = path.join("dist", ".tarfiles.txt");
+const listRel = path.join("dist", ".tarfiles.txt").replace(/\\/g, "/");
 const listFile = path.join(ROOT, listRel);
 fs.writeFileSync(listFile, entries.join("\n") + "\n", "utf8");
 
@@ -142,24 +142,17 @@ const tarPath = path.join(DIST, tarName);
 if (fs.existsSync(tarPath)) fs.unlinkSync(tarPath);
 
 // 7. Produce the tar. GNU tar and bsdtar both accept these flags.
-//    -c create  -f output  -T filelist  -C root  --format=ustar (Linux-friendly, POSIX)
-//    Belt-and-braces excludes cover anything that might sneak in.
+//    -c create  -f output  -T filelist  --format=ustar (Linux-friendly, POSIX)
+//    --force-local: GNU tar on Windows treats "C:\..." as user@host:path; force it to treat as local path.
+//    Paths are passed relative to ROOT (cwd, via execSync) so the produced tar contains repo-relative entries.
+//    We don't pass --exclude patterns: everything we don't want (.next/cache, .next/trace)
+//    was already deleted above, and only the files listed in REQUIRED are handed to tar.
 step(`Packaging ${tarName}`);
-const excludes = [
-  "**/.DS_Store",
-  "**/Thumbs.db",
-  ".next/cache",
-  ".next/trace",
-  "**/*.log",
-];
-const excludeFlags = excludes.map((e) => `--exclude=${JSON.stringify(e)}`).join(" ");
 const gzipFlag = useGzip ? "-z" : "";
-// --force-local: GNU tar on Windows treats "C:\..." as user@host:path; force it to treat as local path.
-// Paths are passed relative to ROOT (cwd) so the produced tar contains repo-relative entries.
 try {
-  run(`tar ${gzipFlag} --force-local --format=ustar ${excludeFlags} -cf ${JSON.stringify(tarRel)} -T ${JSON.stringify(listRel)}`);
+  run(`tar ${gzipFlag} --force-local --format=ustar -cf ${JSON.stringify(tarRel)} -T ${JSON.stringify(listRel)}`);
 } catch (err) {
-  fs.unlinkSync(listFile);
+  try { fs.unlinkSync(listFile); } catch {}
   fail(`tar failed: ${err.message}`);
 }
 fs.unlinkSync(listFile);
