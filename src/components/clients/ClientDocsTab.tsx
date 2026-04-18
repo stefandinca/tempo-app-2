@@ -349,7 +349,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
             </div>
           ))}
           {filteredItems.length === 0 && (
-            <div className="py-20 text-center text-neutral-500 italic">No documents found.</div>
+            <div className="py-20 text-center text-neutral-500 italic">{t('clients.docs_upload.no_documents')}</div>
           )}
         </div>
       </div>
@@ -359,7 +359,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
            <div className="bg-white dark:bg-neutral-900 rounded-2xl p-6 w-full max-w-md shadow-2xl">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold">Upload Document</h3>
+                <h3 className="text-lg font-bold">{t('clients.docs_upload.title')}</h3>
                 <button onClick={() => setIsUploadModalOpen(false)}><X className="w-5 h-5" /></button>
               </div>
               <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="mb-4" />
@@ -367,7 +367,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                 type="text"
                 value={docName}
                 onChange={e => setDocName(e.target.value)}
-                placeholder="Document Name"
+                placeholder={t('clients.docs_upload.name_placeholder')}
                 className="w-full p-2 border rounded-lg mb-4 bg-neutral-50"
               />
               <button
@@ -375,7 +375,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                 disabled={isUploading}
                 className="w-full py-3 bg-primary-600 text-white rounded-xl font-bold"
               >
-                {isUploading ? "Uploading..." : "Start Upload"}
+                {isUploading ? t('clients.docs_upload.uploading') : t('clients.docs_upload.start_upload')}
               </button>
            </div>
         </div>

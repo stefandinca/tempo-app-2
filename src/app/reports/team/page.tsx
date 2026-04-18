@@ -38,16 +38,21 @@ function TeamReportContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchAllData() {
       if (!memberId) {
-        setError("Missing team member ID");
-        setLoading(false);
+        if (!cancelled) {
+          setError("Missing team member ID");
+          setLoading(false);
+        }
         return;
       }
 
       try {
         // 1. Team member profile
         const memberDoc = await getDoc(doc(db, "team_members", memberId));
+        if (cancelled) return;
         if (!memberDoc.exists()) {
           setError("Team member not found");
           setLoading(false);
@@ -57,16 +62,19 @@ function TeamReportContent() {
 
         // 2. Clinic settings
         const clinicDoc = await getDoc(doc(db, "system_settings", "config"));
+        if (cancelled) return;
         if (clinicDoc.exists()) {
           setClinic(clinicDoc.data().clinic);
         }
 
         // 3. All clients (for label mapping)
         const clientsSnap = await getDocs(collection(db, "clients"));
+        if (cancelled) return;
         setClients(clientsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
 
         // 4. All services (for label mapping)
         const servicesSnap = await getDocs(collection(db, "services"));
+        if (cancelled) return;
         setServices(servicesSnap.docs.map(d => ({ id: d.id, ...d.data() })));
 
         // 5. Events for this therapist — fetch once, filter by month client-side so the
@@ -78,27 +86,35 @@ function TeamReportContent() {
             orderBy("startTime", "desc")
           );
           const eventsSnap = await getDocs(eventsQuery);
+          if (cancelled) return;
           setEvents(eventsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
         } catch (idxErr) {
+          if (cancelled) return;
           console.warn("Index missing for ordered events query, falling back to unsorted fetch");
           const eventsQuery = query(
             collection(db, "events"),
             where("therapistId", "==", memberId)
           );
           const eventsSnap = await getDocs(eventsQuery);
+          if (cancelled) return;
           const unsorted = eventsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
           unsorted.sort((a: any, b: any) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
           setEvents(unsorted);
         }
       } catch (err: any) {
+        if (cancelled) return;
         console.error("Error fetching report data:", err);
         setError(err.message || "Failed to load team data");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchAllData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [memberId]);
 
   // Filter events to the selected month (YYYY-MM). startTime is stored as ISO — prefix match is exact.

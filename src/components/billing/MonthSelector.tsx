@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { formatMonth } from "@/lib/billing";
+import { useTranslation } from "react-i18next";
 
 interface MonthSelectorProps {
   year: number;
@@ -10,6 +11,7 @@ interface MonthSelectorProps {
 }
 
 export default function MonthSelector({ year, month, onChange }: MonthSelectorProps) {
+  const { t, i18n } = useTranslation();
   const handlePrevMonth = () => {
     if (month === 0) {
       onChange(year - 1, 11);
@@ -42,21 +44,21 @@ export default function MonthSelector({ year, month, onChange }: MonthSelectorPr
         <button
           onClick={handlePrevMonth}
           className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          aria-label="Previous month"
+          aria-label={t('common.previous_month')}
         >
           <ChevronLeft className="w-5 h-5 text-neutral-500" />
         </button>
 
         <div className="px-4 py-2 min-w-[180px] text-center">
           <span className="font-bold text-neutral-900 dark:text-white">
-            {formatMonth(year, month)}
+            {formatMonth(year, month, i18n.language)}
           </span>
         </div>
 
         <button
           onClick={handleNextMonth}
           className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          aria-label="Next month"
+          aria-label={t('common.next_month')}
         >
           <ChevronRight className="w-5 h-5 text-neutral-500" />
         </button>
@@ -68,7 +70,7 @@ export default function MonthSelector({ year, month, onChange }: MonthSelectorPr
           className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
         >
           <Calendar className="w-4 h-4" />
-          Today
+          {t('common.today')}
         </button>
       )}
     </div>

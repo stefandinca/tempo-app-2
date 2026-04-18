@@ -68,11 +68,12 @@ export function getMonthBounds(year: number, month: number): { start: Date; end:
 }
 
 /**
- * Format month for display
+ * Format month for display. Pass i18n.language to localize; defaults to Romanian.
  */
-export function formatMonth(year: number, month: number): string {
+export function formatMonth(year: number, month: number, locale: string = "ro"): string {
   const date = new Date(year, month, 1);
-  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const label = date.toLocaleDateString(locale, { month: "long", year: "numeric" });
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 /**

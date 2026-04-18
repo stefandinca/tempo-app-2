@@ -54,7 +54,10 @@
     "level": "Nivel",
     "completed": "Finalizat",
     "pending": "În așteptare",
-    "back": "Înapoi"
+    "back": "Înapoi",
+    "today": "Astăzi",
+    "previous_month": "Luna anterioară",
+    "next_month": "Luna următoare"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -780,6 +783,13 @@
     "title": "Clienți",
     "new_client": "Client Nou",
     "search_placeholder": "Caută clienți...",
+    "docs_upload": {
+      "title": "Încarcă Document",
+      "name_placeholder": "Nume Document",
+      "start_upload": "Pornește Încărcarea",
+      "uploading": "Se încarcă...",
+      "no_documents": "Nu s-au găsit documente."
+    },
     "status": {
       "active": "Activ",
       "archived": "Arhivat",

@@ -211,7 +211,8 @@ export function NotificationProvider({
       let count = 0;
       snapshot.forEach(doc => {
         const data = doc.data();
-        if (data.lastMessage && !data.lastMessage.readBy.includes(readKey)) {
+        const readBy = data.lastMessage?.readBy;
+        if (data.lastMessage && Array.isArray(readBy) && !readBy.includes(readKey)) {
           count++;
         }
       });
@@ -274,9 +275,9 @@ export function NotificationProvider({
       combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       
       let finalNotifs = combined.slice(0, PAGE_SIZE);
-      
-      // Filter based on role
-      if (role !== 'Admin') {
+
+      // Filter based on role — Superadmin and Admin both see billing
+      if (role !== 'Admin' && role !== 'Superadmin') {
         finalNotifs = finalNotifs.filter(n => n.category !== 'billing');
       }
 
@@ -318,8 +319,8 @@ export function NotificationProvider({
           mergeAndSetNotifs(primaryNotifs, secondaryNotifs);
         } else {
           let notifs = [...primaryNotifs];
-          // Filter based on role
-          if (role !== 'Admin') {
+          // Filter based on role — Superadmin and Admin both see billing
+          if (role !== 'Admin' && role !== 'Superadmin') {
             notifs = notifs.filter(n => n.category !== 'billing');
           }
           setNotifications(notifs);
@@ -486,7 +487,7 @@ export function NotificationProvider({
         d.data().createdAt?.toDate?.()?.toISOString() || d.data().createdAt
     })) as NotificationData[];
 
-    if (role !== 'Admin') {
+    if (role !== 'Admin' && role !== 'Superadmin') {
       newNotifs = newNotifs.filter(n => n.category !== 'billing');
     }
 

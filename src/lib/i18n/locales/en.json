@@ -48,7 +48,10 @@
     "level": "Level",
     "completed": "Completed",
     "pending": "Pending",
-    "back": "Back"
+    "back": "Back",
+    "today": "Today",
+    "previous_month": "Previous month",
+    "next_month": "Next month"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -774,6 +777,13 @@
     "title": "Clients",
     "new_client": "New Client",
     "search_placeholder": "Search clients...",
+    "docs_upload": {
+      "title": "Upload Document",
+      "name_placeholder": "Document Name",
+      "start_upload": "Start Upload",
+      "uploading": "Uploading...",
+      "no_documents": "No documents found."
+    },
     "status": {
       "active": "Active",
       "archived": "Archived",
