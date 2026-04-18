@@ -141,16 +141,17 @@ const tarRel = path.join("dist", tarName).replace(/\\/g, "/");
 const tarPath = path.join(DIST, tarName);
 if (fs.existsSync(tarPath)) fs.unlinkSync(tarPath);
 
-// 7. Produce the tar. GNU tar and bsdtar both accept these flags.
+// 7. Produce the tar. Works on GNU tar (Git Bash), Windows built-in bsdtar,
+//    Linux, and macOS. Flags kept minimal for portability:
 //    -c create  -f output  -T filelist  --format=ustar (Linux-friendly, POSIX)
-//    --force-local: GNU tar on Windows treats "C:\..." as user@host:path; force it to treat as local path.
-//    Paths are passed relative to ROOT (cwd, via execSync) so the produced tar contains repo-relative entries.
-//    We don't pass --exclude patterns: everything we don't want (.next/cache, .next/trace)
-//    was already deleted above, and only the files listed in REQUIRED are handed to tar.
+//    -z when --gzip was requested
+//    All paths are relative (passed via cwd), so no --force-local is needed.
+//    Everything we don't want (.next/cache, .next/trace) was already deleted
+//    above, and only the files in REQUIRED are listed to tar.
 step(`Packaging ${tarName}`);
 const gzipFlag = useGzip ? "-z" : "";
 try {
-  run(`tar ${gzipFlag} --force-local --format=ustar -cf ${JSON.stringify(tarRel)} -T ${JSON.stringify(listRel)}`);
+  run(`tar ${gzipFlag} --format=ustar -cf ${JSON.stringify(tarRel)} -T ${JSON.stringify(listRel)}`);
 } catch (err) {
   try { fs.unlinkSync(listFile); } catch {}
   fail(`tar failed: ${err.message}`);
