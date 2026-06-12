@@ -11,6 +11,11 @@ import { IS_DEMO, db, auth as firebaseAuth } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { sendPasswordResetEmail } from "firebase/auth";
 
+// Demo account credentials — intentionally public: they are displayed on the
+// demo login page and only exist in the throwaway demo Firebase project.
+const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL || "demo@tempoapp.ro";
+const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD || "demo123";
+
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
@@ -18,6 +23,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
+  const [showDemoCredentials, setShowDemoCredentials] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
@@ -146,11 +152,12 @@ export default function LoginPage() {
         source: "demo_platform_entry"
       });
 
-      // 2. Proceed with demo login
-      await handleDemoLogin();
+      // 2. Show the demo credentials before entering the platform
+      setShowDemoCredentials(true);
     } catch (err) {
       console.error(err);
       setError("A apărut o eroare. Vă rugăm să încercați din nou.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -160,12 +167,7 @@ export default function LoginPage() {
     try {
       // Demo visitors share a real seeded staff account in the demo Firebase
       // project, so the standard security rules apply (no anonymous mock role).
-      const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL;
-      const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
-      if (!demoEmail || !demoPassword) {
-        throw new Error("Demo account is not configured: set NEXT_PUBLIC_DEMO_EMAIL and NEXT_PUBLIC_DEMO_PASSWORD");
-      }
-      await signIn(demoEmail, demoPassword);
+      await signIn(DEMO_EMAIL, DEMO_PASSWORD);
       router.push("/");
     } catch (err) {
       console.error(err);
@@ -232,7 +234,45 @@ export default function LoginPage() {
           /* DEMO VIEW */
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 shadow-sm space-y-6">
-              {!showLeadForm ? (
+              {showDemoCredentials ? (
+                /* Demo Credentials Screen (after lead capture) */
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <h3 className="font-semibold text-neutral-900 dark:text-white font-display">Datele de acces demo</h3>
+                    <p className="text-xs text-neutral-500 mt-1">Folosiți aceste date pentru a accesa platforma demo oricând.</p>
+                  </div>
+
+                  <div className="bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 space-y-4">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-neutral-400">Email</p>
+                      <p className="text-sm font-mono font-semibold text-neutral-900 dark:text-white select-all">{DEMO_EMAIL}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-neutral-400">Parolă</p>
+                      <p className="text-sm font-mono font-semibold text-neutral-900 dark:text-white select-all">{DEMO_PASSWORD}</p>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="text-xs text-error-600 bg-error-50 dark:bg-error-900/20 p-2 rounded-lg border border-error-100 dark:border-error-800">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleDemoLogin}
+                    disabled={isLoading}
+                    className="w-full flex justify-center items-center gap-3 py-4 px-6 bg-primary-600 hover:bg-primary-700 text-white text-lg font-bold rounded-xl shadow-lg shadow-primary-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70"
+                  >
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                      <>
+                        ENTER PLATFORM
+                        <Play className="w-4 h-4 fill-current" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : !showLeadForm ? (
                 /* Welcome Screen */
                 <>
                   <div className="space-y-4">
