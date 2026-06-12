@@ -152,8 +152,8 @@ export default function LoginPage() {
         source: "demo_platform_entry"
       });
 
-      // 2. Show the demo credentials before entering the platform
-      setShowDemoCredentials(true);
+      // 2. Sign straight in with the shared demo account
+      await handleDemoLogin();
     } catch (err) {
       console.error(err);
       setError("A apărut o eroare. Vă rugăm să încercați din nou.");
@@ -172,6 +172,8 @@ export default function LoginPage() {
     } catch (err) {
       console.error(err);
       setError("Failed to access demo.");
+      // Surface the credentials card so the visitor can see/retry the login
+      setShowDemoCredentials(true);
     } finally {
       setIsLoading(false);
     }
