@@ -60,6 +60,8 @@ The calendar is the heart of daily operations. It allows staff to manage all the
 - **Attendance tracking** — Mark each client as Present, Absent, or Excused directly from the calendar
 - **Session scoring** — During or after a session, therapists can record program scores (minus, zero, prompted, plus) to track how the child performed
 - **Session notes** — Add observations and notes for each session
+- **Voice feedback** — Record short audio notes (up to 3 minutes) during or after a session and optionally share them with parents
+- **Session videos** — Record video clips (up to 5 minutes) with the device camera, attach them to the session, and optionally share them with parents
 - **Filtering** — Filter the calendar by therapist, client, or service type to see exactly what you need
 - **Real-time updates** — Changes made by one team member appear instantly for everyone else
 
@@ -368,6 +370,7 @@ The Parent Portal is a separate, simplified interface designed specifically for 
 - View all upcoming therapy sessions
 - See which therapist is assigned to each session
 - View session details including programs covered
+- Listen to voice feedback and watch session videos the therapist has shared
 
 ## Progress Tracking
 
@@ -433,7 +436,7 @@ The entire platform — every button, label, message, and notification — is av
 ## Secure
 
 - Staff accounts are protected with email and password authentication
-- Parent access uses secure access codes with rate limiting (protection against guessing)
+- Parent access uses secure access codes with rate limiting (protection against guessing); codes are resolved through a get-only lookup so they cannot be listed or enumerated, and parent sessions auto-expire after 30 minutes of inactivity
 - All data access is controlled by security rules that ensure users can only see what they're authorized to see
 - Activity logging creates an immutable audit trail
 
@@ -524,4 +527,4 @@ Full dark mode support for comfortable use in any lighting condition.
 
 *TempoApp — Built for therapy centers. Designed for better outcomes.*
 
-*Last Updated: March 2026*
+*Last Updated: June 2026*
