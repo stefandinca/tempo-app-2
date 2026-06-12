@@ -9,10 +9,9 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   updateEmail,
-  updatePassword,
-  signInAnonymously as firebaseSignInAnonymously
+  updatePassword
 } from "firebase/auth";
-import { auth, db, IS_DEMO } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, onSnapshot, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import i18n from "@/lib/i18n";
@@ -25,7 +24,6 @@ interface AuthContextType {
   authError: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  signInAnonymous: () => Promise<void>;
   signOut: () => Promise<void>;
   changeEmail: (newEmail: string) => Promise<void>;
   changePassword: (newPassword: string) => Promise<void>;
@@ -63,8 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (authUser) {
         // Anonymous users are handled by ParentAuthContext — skip team_members lookup
         // to avoid unmounting the component tree (setLoading(true) would unmount children).
-        // Exception: demo mode where anonymous users get mock admin data.
-        if (authUser.isAnonymous && !IS_DEMO) {
+        // Demo staff use a real seeded account, so anonymous always means parent.
+        if (authUser.isAnonymous) {
           setUserData(null);
           setUserRole(null);
           setLoading(false);
@@ -151,17 +149,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                if (clientSnap.exists()) {
                  setUserData(clientSnap.data());
                  setUserRole('Parent');
-               } else if (IS_DEMO && authUser.isAnonymous) {
-                 // Mock data for demo users - works in both dev and production
-                 setUserData({
-                   name: "Demo Admin",
-                   email: "demo@tempoapp.ro",
-                   role: "Admin",
-                   initials: "DA",
-                   color: "#4A90E2",
-                   isDemo: true
-                 });
-                 setUserRole("Admin");
                } else {
                  setUserData(null);
                  setUserRole(null);
@@ -197,10 +184,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // onAuthStateChanged will handle the rest (UID lookup, email fallback, etc.)
   }, []);
 
-  const signInAnonymous = useCallback(async () => {
-    await firebaseSignInAnonymously(auth);
-  }, []);
-
   const signOut = useCallback(async () => {
     setAuthError(null);
     await firebaseSignOut(auth);
@@ -218,8 +201,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(() => ({
-    user, userData, userRole, loading, authError, signIn, signInWithGoogle: signInWithGoogleFn, signInAnonymous, signOut, changeEmail, changePassword
-  }), [user, userData, userRole, loading, authError, signIn, signInWithGoogleFn, signInAnonymous, signOut, changeEmail, changePassword]);
+    user, userData, userRole, loading, authError, signIn, signInWithGoogle: signInWithGoogleFn, signOut, changeEmail, changePassword
+  }), [user, userData, userRole, loading, authError, signIn, signInWithGoogleFn, signOut, changeEmail, changePassword]);
 
   return (
     <AuthContext.Provider value={value}>

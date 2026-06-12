@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const { signIn, signInWithGoogle, signInAnonymous, user, userRole, loading: authLoading, authError } = useAuth();
+  const { signIn, signInWithGoogle, user, userRole, loading: authLoading, authError } = useAuth();
 
   // Lead Form State
   const [leadData, setLeadData] = useState({
@@ -158,7 +158,14 @@ export default function LoginPage() {
   const handleDemoLogin = async () => {
     setIsLoading(true);
     try {
-      await signInAnonymous();
+      // Demo visitors share a real seeded staff account in the demo Firebase
+      // project, so the standard security rules apply (no anonymous mock role).
+      const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL;
+      const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+      if (!demoEmail || !demoPassword) {
+        throw new Error("Demo account is not configured: set NEXT_PUBLIC_DEMO_EMAIL and NEXT_PUBLIC_DEMO_PASSWORD");
+      }
+      await signIn(demoEmail, demoPassword);
       router.push("/");
     } catch (err) {
       console.error(err);
