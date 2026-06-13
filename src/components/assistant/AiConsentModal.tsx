@@ -49,12 +49,12 @@ export default function AiConsentModal({ isOpen, onClose, onGranted }: Props) {
           <p>
             {t("assistant.consent.body", {
               defaultValue:
-                "AI features send de-identified clinical data (initials, age, evaluation scores — never names, birth dates, or contact details) to Anthropic's Claude to generate insights and answer questions.",
+                "Mira generates insights and answers questions about your clients. When you ask about a specific child, identifiable clinical data (name, age, evaluation scores, sessions, goals, and billing/contact details) is sent to Anthropic's Claude to produce the answer.",
             })}
           </p>
           <p className="text-xs">
             {t("assistant.consent.privacy", {
-              defaultValue: "No data is sent without this consent. You can ask your administrator to disable AI features at any time.",
+              defaultValue: "Staff only — never parents. No data is sent without this consent, and you can ask your administrator to disable AI features at any time.",
             })}
           </p>
         </div>

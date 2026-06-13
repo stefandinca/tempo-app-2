@@ -13,6 +13,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+  // Demo / unconfigured deployments have no API key — surface a friendly
+  // "feature only in the full release" signal instead of erroring.
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
+  }
+
   const gate = await requireStaffWithConsent(req);
   if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
 

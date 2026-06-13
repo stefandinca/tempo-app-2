@@ -8,7 +8,9 @@ const STAFF_ROLES = new Set(["superadmin", "admin", "coordinator", "therapist"])
 const DAILY_LIMIT = 100;
 
 // Bump when the consent copy materially changes; forces re-consent.
-export const CONSENT_VERSION = "1";
+// v2: assistant may now send IDENTIFIABLE client data (names, contact, billing)
+// when staff ask about a specific child — a material change from v1.
+export const CONSENT_VERSION = "2";
 
 export interface GateContext {
   uid: string;

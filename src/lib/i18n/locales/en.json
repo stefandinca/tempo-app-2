@@ -1,9 +1,10 @@
 {
   "assistant": {
+    "unavailable": "This feature is only available in the full release.",
     "consent": {
       "title": "Enable AI assistance",
-      "body": "AI features send de-identified clinical data (initials, age, evaluation scores — never names, birth dates, or contact details) to Anthropic's Claude to generate insights and answer questions.",
-      "privacy": "No data is sent without this consent. You can ask your administrator to disable AI features at any time.",
+      "body": "Mira generates insights and answers questions about your clients. When you ask about a specific child, identifiable clinical data (name, age, evaluation scores, sessions, goals, and billing/contact details) is sent to Anthropic's Claude to produce the answer.",
+      "privacy": "Staff only — never parents. No data is sent without this consent, and you can ask your administrator to disable AI features at any time.",
       "accept": "I consent",
       "cancel": "Not now"
     },
@@ -23,7 +24,7 @@
       "meta": "AI-generated; review before clinical use."
     },
     "chat": {
-      "title": "TempoApp assistant",
+      "title": "Mira",
       "subtitle": "Guidance & clinical support",
       "empty": "Ask about using TempoApp or a child's evaluation results.",
       "placeholder": "Ask a question…",

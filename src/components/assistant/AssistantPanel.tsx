@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Sparkles, X, Send, Loader2 } from "lucide-react";
 import { openChatStream, AssistantError } from "@/lib/assistant/clientApi";
 import { useAiConsent } from "@/hooks/useAiConsent";
+import { IS_DEMO } from "@/lib/firebase";
 import AiConsentModal from "./AiConsentModal";
 
 interface Msg {
@@ -30,6 +31,16 @@ export default function AssistantPanel({ isOpen, onClose }: { isOpen: boolean; o
   const send = async () => {
     const text = input.trim();
     if (!text || streaming) return;
+    // Demo build ships without an API key — show the upsell instead of calling out.
+    if (IS_DEMO) {
+      setMessages([
+        ...messages,
+        { role: "user", content: text },
+        { role: "assistant", content: t("assistant.unavailable", { defaultValue: "This feature is only available in the full release." }) },
+      ]);
+      setInput("");
+      return;
+    }
     if (!consented) {
       setConsentOpen(true);
       return;
@@ -57,7 +68,9 @@ export default function AssistantPanel({ isOpen, onClose }: { isOpen: boolean; o
     } catch (err) {
       const status = err instanceof AssistantError ? err.status : 0;
       const msg =
-        status === 403
+        status === 503
+          ? t("assistant.unavailable", { defaultValue: "This feature is only available in the full release." })
+          : status === 403
           ? t("assistant.chat.consent_needed", { defaultValue: "AI consent is required." })
           : status === 429
           ? t("assistant.chat.rate_limited", { defaultValue: "Daily AI limit reached." })
@@ -76,8 +89,8 @@ export default function AssistantPanel({ isOpen, onClose }: { isOpen: boolean; o
 
   const suggestions =
     lang === "ro"
-      ? ["Cum creez o evaluare VB-MAPP?", "Cum generez o factură pentru un client?"]
-      : ["How do I create a VB-MAPP evaluation?", "How do I generate a client invoice?"];
+      ? ["Rezumă progresul unui copil (scrie numele)", "Cum creez o evaluare VB-MAPP?"]
+      : ["Summarize a child's progress (type their name)", "How do I create a VB-MAPP evaluation?"];
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
@@ -94,7 +107,7 @@ export default function AssistantPanel({ isOpen, onClose }: { isOpen: boolean; o
             </div>
             <div>
               <h3 className="font-bold text-neutral-900 dark:text-white text-sm">
-                {t("assistant.chat.title", { defaultValue: "TempoApp assistant" })}
+                {t("assistant.chat.title", { defaultValue: "Mira" })}
               </h3>
               <p className="text-[11px] text-neutral-400">
                 {t("assistant.chat.subtitle", { defaultValue: "Guidance & clinical support" })}

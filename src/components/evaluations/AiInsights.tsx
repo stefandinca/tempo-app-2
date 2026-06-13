@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, Loader2, RefreshCw, Target, Star, Lightbulb } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, IS_DEMO } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { EvalKind } from "@/lib/evaluationComparison";
@@ -59,7 +59,8 @@ export default function AiInsights({ kind, clientId, evaluation, client, readOnl
       success(t("assistant.insights.generated", { defaultValue: "AI insights generated" }));
     } catch (err) {
       const status = err instanceof AssistantError ? err.status : 0;
-      if (status === 403) toastError(t("assistant.insights.consent_needed", { defaultValue: "AI consent is required" }));
+      if (status === 503) toastError(t("assistant.unavailable", { defaultValue: "This feature is only available in the full release." }));
+      else if (status === 403) toastError(t("assistant.insights.consent_needed", { defaultValue: "AI consent is required" }));
       else if (status === 429) toastError(t("assistant.insights.rate_limited", { defaultValue: "Daily AI limit reached" }));
       else toastError(t("assistant.insights.failed", { defaultValue: "Could not generate insights" }));
     } finally {
@@ -68,6 +69,11 @@ export default function AiInsights({ kind, clientId, evaluation, client, readOnl
   };
 
   const trigger = () => {
+    // Demo build ships without an API key — show the upsell instead of calling out.
+    if (IS_DEMO) {
+      toastError(t("assistant.unavailable", { defaultValue: "This feature is only available in the full release." }));
+      return;
+    }
     if (consented) generate();
     else setConsentOpen(true);
   };

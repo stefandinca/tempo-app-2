@@ -1,9 +1,10 @@
 {
   "assistant": {
+    "unavailable": "Această funcție este disponibilă doar în versiunea completă.",
     "consent": {
       "title": "Activează asistența AI",
-      "body": "Funcțiile AI trimit date clinice anonimizate (inițiale, vârstă, scoruri de evaluare — niciodată nume, date de naștere sau contacte) către Claude (Anthropic) pentru a genera analize și a răspunde la întrebări.",
-      "privacy": "Niciun fel de date nu sunt trimise fără acest consimțământ. Poți cere administratorului să dezactiveze funcțiile AI oricând.",
+      "body": "Mira generează analize și răspunde la întrebări despre clienții tăi. Când întrebi despre un anumit copil, date clinice identificabile (nume, vârstă, scoruri de evaluare, ședințe, obiective și detalii de facturare/contact) sunt trimise către Claude (Anthropic) pentru a genera răspunsul.",
+      "privacy": "Doar pentru personal — niciodată părinți. Niciun fel de date nu sunt trimise fără acest consimțământ și poți cere administratorului să dezactiveze funcțiile AI oricând.",
       "accept": "Sunt de acord",
       "cancel": "Nu acum"
     },
@@ -23,7 +24,7 @@
       "meta": "Generat de AI; verifică înainte de utilizarea clinică."
     },
     "chat": {
-      "title": "Asistent TempoApp",
+      "title": "Mira",
       "subtitle": "Ghidare și suport clinic",
       "empty": "Întreabă despre folosirea TempoApp sau despre rezultatele unei evaluări.",
       "placeholder": "Pune o întrebare…",

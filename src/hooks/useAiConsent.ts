@@ -5,7 +5,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 
 // Keep in sync with CONSENT_VERSION in src/lib/assistant/gate.ts.
-export const CONSENT_VERSION = "1";
+export const CONSENT_VERSION = "2";
 
 /** Tracks whether the current staff user has consented to AI features.
  *  `consented` is null while loading. `grant()` records consent. */
