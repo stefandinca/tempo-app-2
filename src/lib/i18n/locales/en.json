@@ -32,8 +32,27 @@
       "consent_needed": "AI consent is required.",
       "rate_limited": "Daily AI limit reached.",
       "error": "Sorry, something went wrong.",
-      "open": "Open AI assistant"
+      "open": "Open AI assistant",
+      "history": "History",
+      "new": "New chat",
+      "back": "Back to chat",
+      "no_history": "No conversations yet.",
+      "untitled": "Conversation"
     }
+  },
+  "ai_usage": {
+    "title": "AI usage & cost",
+    "subtitle": "Every staff conversation with Mira and what it cost.",
+    "total_cost": "Total cost",
+    "conversations": "Conversations",
+    "messages": "Messages",
+    "tokens": "Tokens",
+    "cost": "Cost",
+    "staff": "Staff",
+    "conversation": "Conversation",
+    "last_active": "Last active",
+    "empty": "No AI conversations yet.",
+    "forbidden": "Only a Superadmin can view AI usage."
   },
   "vbmapp": {
     "supporting_skills": "Supporting skills"
@@ -101,6 +120,7 @@
     "billing": "Billing",
     "analytics": "Analytics",
     "services": "Services",
+    "ai_usage": "AI Usage",
     "settings": "Settings",
     "profile": "Profile",
     "admin": "Admin",

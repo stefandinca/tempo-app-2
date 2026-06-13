@@ -39,11 +39,14 @@ export async function requestInsights(args: {
   return { insights: data.insights as InsightsResult, model: data.model as string };
 }
 
-/** Returns the raw streaming Response; caller reads res.body. */
+/** Sends one user message to a (new or existing) conversation. Returns the raw
+ *  streaming Response; the assistant text is the body, and the resolved
+ *  conversation id is in the `X-Conversation-Id` header. History is persisted
+ *  server-side, so the caller only sends the new message + the conversation id. */
 export async function openChatStream(args: {
-  messages: { role: "user" | "assistant"; content: string }[];
+  conversationId?: string | null;
+  message: string;
   language: Lang;
-  evaluationContext?: EvaluationContext;
 }): Promise<Response> {
   return fetch("/api/assistant/chat", {
     method: "POST",

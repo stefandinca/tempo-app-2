@@ -32,8 +32,27 @@
       "consent_needed": "Este necesar consimțământul AI.",
       "rate_limited": "Limita zilnică AI atinsă.",
       "error": "Ne pare rău, ceva nu a funcționat.",
-      "open": "Deschide asistentul AI"
+      "open": "Deschide asistentul AI",
+      "history": "Istoric",
+      "new": "Conversație nouă",
+      "back": "Înapoi la chat",
+      "no_history": "Nicio conversație încă.",
+      "untitled": "Conversație"
     }
+  },
+  "ai_usage": {
+    "title": "Utilizare și cost AI",
+    "subtitle": "Fiecare conversație a personalului cu Mira și cât a costat.",
+    "total_cost": "Cost total",
+    "conversations": "Conversații",
+    "messages": "Mesaje",
+    "tokens": "Tokenuri",
+    "cost": "Cost",
+    "staff": "Personal",
+    "conversation": "Conversație",
+    "last_active": "Ultima activitate",
+    "empty": "Încă nu există conversații AI.",
+    "forbidden": "Doar un Superadmin poate vedea utilizarea AI."
   },
   "vbmapp": {
     "supporting_skills": "Abilități de sprijin"
@@ -107,6 +126,7 @@
     "billing": "Facturare",
     "analytics": "Analize",
     "services": "Servicii",
+    "ai_usage": "Utilizare AI",
     "settings": "Setări",
     "profile": "Profil",
     "admin": "Admin",

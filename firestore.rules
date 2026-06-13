@@ -212,6 +212,21 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Mira chat history + cost. Written server-side (Admin) only. Readable by the
+    // owner; Superadmin can read everyone's for cost oversight.
+    match /ai_conversations/{conversationId} {
+      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isSuperadmin());
+      allow write: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && (
+          get(/databases/$(database)/documents/ai_conversations/$(conversationId)).data.uid == request.auth.uid ||
+          isSuperadmin()
+        );
+        allow write: if false;
+      }
+    }
+
     match /threads/{threadId} {
       // Allow reading any thread document (including non-existent ones for existence checks)
       // This prevents permission errors when checking if a thread exists with getDoc()
