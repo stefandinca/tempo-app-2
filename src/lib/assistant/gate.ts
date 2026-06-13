@@ -25,38 +25,54 @@ export async function requireStaffWithConsent(req: NextRequest): Promise<GateRes
   const token = authz.startsWith("Bearer ") ? authz.slice(7).trim() : "";
   if (!token) return { ok: false, status: 401, error: "missing_token" };
 
+  // Verify the ID token. Distinguish a genuinely bad token (401) from the Admin
+  // SDK failing to initialize because the service-account env var is missing or
+  // malformed (500) — otherwise a config problem masquerades as an auth problem.
   let uid: string;
   try {
     const decoded = await adminAuth().verifyIdToken(token);
     uid = decoded.uid;
-  } catch {
+  } catch (e: any) {
+    const msg = String(e?.message || e);
+    if (/FIREBASE_SERVICE_ACCOUNT|service.?account|credential|private_key|initializeApp/i.test(msg)) {
+      console.error("[assistant/gate] Admin init failed:", msg);
+      return { ok: false, status: 500, error: "server_misconfigured" };
+    }
     return { ok: false, status: 401, error: "invalid_token" };
   }
 
-  const db = adminDb();
+  // Firestore reads/writes need a valid OAuth token minted from the private key.
+  // A malformed key passes verifyIdToken (public-cert check) but fails here — so
+  // wrap it and report a config error instead of crashing with a generic 500.
+  try {
+    const db = adminDb();
 
-  // Staff role (the role comes from the verified user, NOT the request body).
-  const memberSnap = await db.collection("team_members").doc(uid).get();
-  if (!memberSnap.exists) return { ok: false, status: 403, error: "not_staff" };
-  const member = memberSnap.data() as { role?: string; name?: string };
-  const role = String(member.role || "").toLowerCase();
-  if (!STAFF_ROLES.has(role)) return { ok: false, status: 403, error: "not_staff" };
+    // Staff role (the role comes from the verified user, NOT the request body).
+    const memberSnap = await db.collection("team_members").doc(uid).get();
+    if (!memberSnap.exists) return { ok: false, status: 403, error: "not_staff" };
+    const member = memberSnap.data() as { role?: string; name?: string };
+    const role = String(member.role || "").toLowerCase();
+    if (!STAFF_ROLES.has(role)) return { ok: false, status: 403, error: "not_staff" };
 
-  // Consent.
-  const consentSnap = await db.collection("user_consents").doc(uid).get();
-  const consent = consentSnap.data() as { allowExternalAI?: boolean; version?: string } | undefined;
-  if (!consent?.allowExternalAI || consent.version !== CONSENT_VERSION) {
-    return { ok: false, status: 403, error: "consent_required" };
+    // Consent.
+    const consentSnap = await db.collection("user_consents").doc(uid).get();
+    const consent = consentSnap.data() as { allowExternalAI?: boolean; version?: string } | undefined;
+    if (!consent?.allowExternalAI || consent.version !== CONSENT_VERSION) {
+      return { ok: false, status: 403, error: "consent_required" };
+    }
+
+    // Per-user daily rate limit (server-authoritative; client writes denied by rules).
+    const usageRef = db.collection("user_ai_usage").doc(uid);
+    const today = new Date().toISOString().slice(0, 10);
+    const usageSnap = await usageRef.get();
+    const usage = usageSnap.data() as { date?: string; count?: number } | undefined;
+    const count = usage && usage.date === today ? usage.count || 0 : 0;
+    if (count >= DAILY_LIMIT) return { ok: false, status: 429, error: "rate_limited" };
+    await usageRef.set({ date: today, count: count + 1 }, { merge: true });
+
+    return { ok: true, ctx: { uid, role, name: member.name || "" } };
+  } catch (e: any) {
+    console.error("[assistant/gate] Firestore access failed:", String(e?.message || e));
+    return { ok: false, status: 500, error: "server_misconfigured" };
   }
-
-  // Per-user daily rate limit (server-authoritative; client writes denied by rules).
-  const usageRef = db.collection("user_ai_usage").doc(uid);
-  const today = new Date().toISOString().slice(0, 10);
-  const usageSnap = await usageRef.get();
-  const usage = usageSnap.data() as { date?: string; count?: number } | undefined;
-  const count = usage && usage.date === today ? usage.count || 0 : 0;
-  if (count >= DAILY_LIMIT) return { ok: false, status: 429, error: "rate_limited" };
-  await usageRef.set({ date: today, count: count + 1 }, { merge: true });
-
-  return { ok: true, ctx: { uid, role, name: member.name || "" } };
 }
