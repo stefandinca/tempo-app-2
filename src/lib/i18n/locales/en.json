@@ -106,6 +106,9 @@
     "search": "Search...",
     "unknown": "Unknown",
     "you": "You",
+    "confirm": "Confirm",
+    "user": "User",
+    "sending": "Sending...",
     "actions": "Actions",
     "status": "Status",
     "role": "Role",
@@ -1876,6 +1879,16 @@
   },
   "notifications": {
     "title": "Notifications",
+    "filters": {
+      "all": "All",
+      "unread": "Unread",
+      "schedule": "Schedule",
+      "attendance": "Attendance",
+      "team": "Team",
+      "billing": "Billing",
+      "client": "Client",
+      "messages": "Messages"
+    },
     "subtitle": "Stay updated with the latest activities",
     "mark_all_read": "Mark all as read",
     "no_notifications": "No notifications yet",

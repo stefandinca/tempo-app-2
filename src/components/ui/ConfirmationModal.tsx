@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { X, AlertTriangle, Info, Trash2, HelpCircle } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 export type ConfirmVariant = "danger" | "warning" | "info" | "primary";
 
@@ -23,10 +24,14 @@ export default function ConfirmationModal({
   onConfirm,
   title,
   message,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   variant = "primary",
 }: ConfirmationModalProps) {
+  const { t } = useTranslation();
+  const confirmText = confirmLabel ?? t("common.confirm", { defaultValue: "Confirm" });
+  const cancelText = cancelLabel ?? t("common.cancel", { defaultValue: "Cancel" });
+
   // Handle ESC key
   useEffect(() => {
     if (!isOpen) return;
@@ -96,7 +101,7 @@ export default function ConfirmationModal({
               onClick={onClose}
               className="px-6 py-2.5 rounded-xl text-sm font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all"
             >
-              {cancelLabel}
+              {cancelText}
             </button>
             <button
               onClick={() => {
@@ -108,7 +113,7 @@ export default function ConfirmationModal({
                 buttonClasses[variant]
               )}
             >
-              {confirmLabel}
+              {confirmText}
             </button>
           </div>
         </div>

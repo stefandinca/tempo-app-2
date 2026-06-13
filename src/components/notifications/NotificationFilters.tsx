@@ -3,6 +3,7 @@
 import { useNotifications } from "@/context/NotificationContext";
 import { NotificationCategory, CATEGORY_META } from "@/types/notifications";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 export type FilterCategory = NotificationCategory | "all" | "unread";
 
@@ -11,21 +12,22 @@ interface NotificationFiltersProps {
   onFilterChange: (filter: FilterCategory) => void;
 }
 
-const filterOptions: { id: FilterCategory; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "unread", label: "Unread" },
-  { id: "schedule", label: "Schedule" },
-  { id: "attendance", label: "Attendance" },
-  { id: "team", label: "Team" },
-  { id: "billing", label: "Billing" },
-  { id: "client", label: "Client" },
-  { id: "message", label: "Messages" }
+const filterOptions: { id: FilterCategory; key: string }[] = [
+  { id: "all", key: "all" },
+  { id: "unread", key: "unread" },
+  { id: "schedule", key: "schedule" },
+  { id: "attendance", key: "attendance" },
+  { id: "team", key: "team" },
+  { id: "billing", key: "billing" },
+  { id: "client", key: "client" },
+  { id: "message", key: "messages" }
 ];
 
 export default function NotificationFilters({
   activeFilter,
   onFilterChange
 }: NotificationFiltersProps) {
+  const { t } = useTranslation();
   const { getCategoryCount } = useNotifications();
 
   return (
@@ -47,7 +49,7 @@ export default function NotificationFilters({
                   : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
               )}
             >
-              {option.label}
+              {t(`notifications.filters.${option.key}`, { defaultValue: option.key })}
               {showCount && count > 0 && (
                 <span
                   className={clsx(

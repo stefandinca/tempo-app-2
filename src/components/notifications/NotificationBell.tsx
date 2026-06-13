@@ -1,9 +1,11 @@
 "use client";
 
 import { Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNotifications } from "@/context/NotificationContext";
 
 export default function NotificationBell() {
+  const { t } = useTranslation();
   const { unreadCount, isDropdownOpen, setDropdownOpen } = useNotifications();
 
   // Format badge text
@@ -27,7 +29,7 @@ export default function NotificationBell() {
             : "hover:bg-neutral-100 dark:hover:bg-neutral-800"
         }
       `}
-      aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+      aria-label={`${t("notifications.title", { defaultValue: "Notifications" })}${unreadCount > 0 ? ` (${unreadCount})` : ""}`}
     >
       <Bell
         className={`w-5 h-5 ${

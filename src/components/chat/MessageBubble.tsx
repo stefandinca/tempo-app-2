@@ -36,7 +36,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
           "text-[10px] mt-1 text-right opacity-70",
           isMe ? "text-primary-100" : "text-neutral-500"
         )}>
-          {message.timestamp?.toDate().toLocaleTimeString(i18n.language || 'ro', { hour: '2-digit', minute: '2-digit' }) || "sending..."}
+          {message.timestamp?.toDate().toLocaleTimeString(i18n.language || 'ro', { hour: '2-digit', minute: '2-digit' }) || i18n.t("common.sending", { defaultValue: "Sending..." })}
         </p>
       </div>
     </div>

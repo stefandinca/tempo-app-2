@@ -240,7 +240,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-800 py-1 z-20 animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-800">
                   <p className="font-medium text-sm text-neutral-900 dark:text-white truncate">
-                    {user?.email || "User"}
+                    {user?.email || t("common.user", { defaultValue: "User" })}
                   </p>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
                     {user?.email || "user@example.com"}

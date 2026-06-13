@@ -50,7 +50,7 @@ export default function NotificationList({
   compact = false,
   showDateGroups = true,
   onItemAction,
-  emptyMessage = "No notifications"
+  emptyMessage
 }: NotificationListProps) {
   const { t } = useTranslation();
   const { getGroupedNotifications, loading } = useNotifications();
@@ -67,7 +67,7 @@ export default function NotificationList({
     return (
       <div className="flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
         <Bell className="w-12 h-12 mb-3" />
-        <p className="text-sm font-medium">{emptyMessage}</p>
+        <p className="text-sm font-medium">{emptyMessage || t("notifications.no_notifications", { defaultValue: "No notifications" })}</p>
       </div>
     );
   }
