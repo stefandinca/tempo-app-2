@@ -1,4 +1,39 @@
 {
+  "assistant": {
+    "consent": {
+      "title": "Enable AI assistance",
+      "body": "AI features send de-identified clinical data (initials, age, evaluation scores — never names, birth dates, or contact details) to Anthropic's Claude to generate insights and answer questions.",
+      "privacy": "No data is sent without this consent. You can ask your administrator to disable AI features at any time.",
+      "accept": "I consent",
+      "cancel": "Not now"
+    },
+    "insights": {
+      "title": "AI insights",
+      "generate": "Generate",
+      "regenerate": "Regenerate",
+      "generated": "AI insights generated",
+      "consent_needed": "AI consent is required",
+      "rate_limited": "Daily AI limit reached",
+      "failed": "Could not generate insights",
+      "none": "No AI insights yet.",
+      "cta": "Generate clinical observations and focus areas from these scores.",
+      "focus": "Where to focus",
+      "strengths": "Strengths",
+      "observations": "Observations",
+      "meta": "AI-generated; review before clinical use."
+    },
+    "chat": {
+      "title": "TempoApp assistant",
+      "subtitle": "Guidance & clinical support",
+      "empty": "Ask about using TempoApp or a child's evaluation results.",
+      "placeholder": "Ask a question…",
+      "disclaimer": "AI can be wrong. Verify clinical guidance.",
+      "consent_needed": "AI consent is required.",
+      "rate_limited": "Daily AI limit reached.",
+      "error": "Sorry, something went wrong.",
+      "open": "Open AI assistant"
+    }
+  },
   "vbmapp": {
     "supporting_skills": "Supporting skills"
   },

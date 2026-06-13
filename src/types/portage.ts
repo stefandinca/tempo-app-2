@@ -40,6 +40,7 @@ export interface PortageEvaluation {
   overallDevelopmentalAgeMonths: number;
   chronologicalAgeAtEvaluation: number; // in months
   previousEvaluationId?: string;
+  aiInsights?: import("./aiInsights").AiInsights;
 }
 
 export const PORTAGE_CATEGORIES: PortageCategory[] = [

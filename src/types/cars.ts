@@ -29,6 +29,7 @@ export interface CARSEvaluation {
   scores: Record<string, CARSScore>; // Key is item id as string
   totalScore: number;
   severity: CARSSeverity;
+  aiInsights?: import("./aiInsights").AiInsights;
 }
 
 export const CARS_ITEMS: CARSItem[] = [

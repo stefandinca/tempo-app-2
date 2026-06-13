@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useRouter } from "next/navigation";
+import AiInsights from "./AiInsights";
 
 interface CARSSummaryProps {
   evaluation: CARSEvaluation;
@@ -137,8 +138,12 @@ export default function CARSSummary({ evaluation, onClose }: CARSSummaryProps) {
           </div>
         </div>
         
+        <div className="mb-4">
+          <AiInsights kind="cars" clientId={evaluation.clientId} evaluation={evaluation} />
+        </div>
+
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={handlePrint}
             className="flex items-center gap-2 px-6 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-lg"
           >

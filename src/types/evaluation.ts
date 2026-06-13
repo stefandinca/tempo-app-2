@@ -51,6 +51,7 @@ export interface Evaluation {
 
   // For re-evaluations
   previousEvaluationId?: string;
+  aiInsights?: import("./aiInsights").AiInsights;
 }
 
 // Score labels for UI (Default descriptions, protocol has specific ones)

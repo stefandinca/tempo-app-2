@@ -4,6 +4,7 @@ import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import MobileSidebar from "@/components/MobileSidebar";
+import AssistantLauncher from "@/components/assistant/AssistantLauncher";
 
 export default function DashboardShell({
   children,
@@ -28,6 +29,8 @@ export default function DashboardShell({
         <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
         {children}
       </div>
+
+      <AssistantLauncher />
     </div>
   );
 }

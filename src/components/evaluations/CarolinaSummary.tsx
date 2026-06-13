@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useRouter } from "next/navigation";
+import AiInsights from "./AiInsights";
 
 interface CarolinaSummaryProps {
   evaluation: CarolinaEvaluation;
@@ -153,7 +154,11 @@ export default function CarolinaSummary({ evaluation, onClose }: CarolinaSummary
           </div>
         </div>
         
-        <button 
+        <div className="mb-4">
+          <AiInsights kind="carolina" clientId={evaluation.clientId} evaluation={evaluation} />
+        </div>
+
+        <button
           onClick={handlePrint}
           className="flex items-center gap-2 px-6 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-lg"
         >

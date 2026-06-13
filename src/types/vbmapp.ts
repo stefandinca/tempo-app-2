@@ -177,6 +177,7 @@ export interface VBMAPPEvaluation {
   dominantLevel: 1 | 2 | 3; // The level where most skills are demonstrated
 
   previousEvaluationId?: string;
+  aiInsights?: import("./aiInsights").AiInsights;
 }
 
 // Helper function to parse VB-MAPP JSON data

@@ -28,6 +28,7 @@ import { getBarrierRecommendation } from "@/lib/clinicalInterpretation";
 import { getVBMAPPInterpretation } from "@/lib/clinicalInterpretation";
 import { generateVBMAPPGoals, SuggestedGoal } from "@/lib/goalGenerator";
 import SuggestedGoals from "../SuggestedGoals";
+import AiInsights from "../AiInsights";
 
 interface VBMAPPSummaryProps {
   isOpen: boolean;
@@ -315,6 +316,11 @@ export default function VBMAPPSummary({
                   title="Suggested IEP Goals"
                   emptyMessage="No emerging skills identified for goal development."
                 />
+              )}
+
+              {/* AI insights */}
+              {evaluation && (
+                <AiInsights kind="vbmapp" clientId={clientId} evaluation={evaluation} client={clientData} />
               )}
 
               {/* Level Breakdown */}

@@ -31,6 +31,7 @@ import { calculateAge, formatAge } from "@/lib/ageUtils";
 import { getABLLSInterpretation, getPriorityAreas, calculateDomainScores } from "@/lib/clinicalInterpretation";
 import { generateABLLSGoals, SuggestedGoal } from "@/lib/goalGenerator";
 import SuggestedGoals from "./SuggestedGoals";
+import AiInsights from "./AiInsights";
 import { useTranslation } from "react-i18next";
 
 interface EvaluationSummaryProps {
@@ -386,6 +387,11 @@ export default function EvaluationSummary({
                   title={t('evaluations.suggested_goals')}
                   emptyMessage={t('evaluations.no_emerging_skills')}
                 />
+              )}
+
+              {/* AI insights */}
+              {evaluation && (
+                <AiInsights kind="ablls" clientId={clientId} evaluation={evaluation} client={clientData} />
               )}
 
               {/* Domain Breakdown */}

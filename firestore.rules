@@ -201,6 +201,17 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
 
+    // AI consent: each user owns their own consent record.
+    match /user_consents/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // AI usage counters are written server-side (Admin SDK) only.
+    match /user_ai_usage/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if false;
+    }
+
     match /threads/{threadId} {
       // Allow reading any thread document (including non-existent ones for existence checks)
       // This prevents permission errors when checking if a thread exists with getDoc()

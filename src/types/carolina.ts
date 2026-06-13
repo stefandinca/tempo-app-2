@@ -37,6 +37,7 @@ export interface CarolinaEvaluation {
   totalMastered: number;
   totalEmerging: number;
   domainProgress: Record<string, { total: number; mastered: number; emerging: number }>;
+  aiInsights?: import("./aiInsights").AiInsights;
 }
 
 export const CAROLINA_DOMAINS_LIST = [

@@ -17,6 +17,7 @@ import {
 import { clsx } from "clsx";
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from "recharts";
 import { useRouter } from "next/navigation";
+import AiInsights from "./AiInsights";
 
 interface PortageSummaryProps {
   evaluation: PortageEvaluation;
@@ -188,6 +189,10 @@ export default function PortageSummary({ evaluation, onClose }: PortageSummaryPr
           </div>
         </div>
         
+        <div className="mb-4">
+          <AiInsights kind="portage" clientId={evaluation.clientId} evaluation={evaluation} />
+        </div>
+
         <div className="flex gap-2">
           <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-neutral-600 hover:text-neutral-900 transition-all">
             <Download className="w-4 h-4" />
