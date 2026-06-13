@@ -1,425 +1,661 @@
 {
   "id": "L",
-  "title": "INTERACȚIUNE SOCIALĂ",
+  "title": "Interacțiunea socială",
   "items": [
     {
       "id": "L1",
-      "text": "Se apropie de copil, frați sau surori",
-      "objective": "Interacționează adecvat cu mai multi copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "text": "Se apropie de copii/frați sau surori.",
+      "objective": "Se joacă lângă ceilalți copii?",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Stă lângă copii 5 minute dar are nevoie de multe prompturi verbale." },
-        { "score": 2, "text": "Stă lângă copii 5 minute dar are nevoie de un singur prompt verbal." },
-        { "score": 3, "text": "Stă lângă copii 15 minute" },
-        { "score": 4, "text": "Stă lângă copii 30 de minute." }
+        {
+          "score": 1,
+          "text": "stă lângă copii 5 minute dar are nevoie de multe prompturi verbale."
+        },
+        {
+          "score": 2,
+          "text": "stă lângă copii 5 minute dar are nevoie de un prompt verbal."
+        },
+        {
+          "score": 3,
+          "text": "stă lângă copii 15 minute"
+        },
+        {
+          "score": 4,
+          "text": "stă lângă copii 30 de minute."
+        }
       ]
     },
     {
       "id": "L2",
-      "text": "Ia itemi oferiți de copii sau adulți",
-      "objective": "Interacționează adecvat cu mai multi copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "text": "Ia itemi oferiți",
+      "objective": "Când un adult sau un copil îi oferă un item ia acel item?",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Ia un item oferit de un adult sau un copil, de la o distanta mai mica de 3 pași." },
-        { "score": 2, "text": "Se duce si ia un obiect de la un adult sau copil, de la o distanta mai mare de 8 pași." }
+        {
+          "score": 1,
+          "text": "ia itemul oferit de la un adult sau copil, de la o distanță mai mică de 3 picioare."
+        },
+        {
+          "score": 2,
+          "text": "se duce și ia un obiect de la un adult sau copil, de la o distanță mai mare de 8 picioare."
+        }
       ]
     },
     {
       "id": "L3",
-      "text": "Tolerează și răspunde adecvat când un copil îl atinge",
-      "objective": "Interacționează adecvat cu mai multi copii (ex., nu plange si nu pleaca cand cineva vrea sa il tina de mana, sa il ajute sa se urce in leagan, sa bata palma, sa de-a noroc, etc.).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "text": "Tolerează/răspunde adecvat când un copil îl atinge.",
+      "objective": "Copilul nu plânge și nu pleacă când cineva vrea să îl țină de mână, să îl ajute să se urce în leagăn, să bată palma, să de-a noroc, etc.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Când este abordat cu grijă acceptă ca unele persoane să îl ajute." },
-        { "score": 2, "text": "Îi lasa pe ceilalți să îl ajute." }
+        {
+          "score": 1,
+          "text": "când este abordat cu grijă acceptă ca unele persoane să îl ajute."
+        },
+        {
+          "score": 2,
+          "text": "îi lasă pe ceilalți să îl ajute."
+        }
       ]
     },
     {
       "id": "L4",
       "text": "Arată interes pentru comportamentul celorlalți",
-      "objective": "Interacționează adecvat cu mai multi copii (ex.. urmărește copiii cum se joacă cu mașinile).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": "Urmărește copiii când se joacă cu personaje, când construiesc, etc.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Urmarește acțiunile fizice ale celorlalți copii." },
-        { "score": 2, "text": "Urmarește acțiunile fizice și verbale ale celorlalți copii." }
+        {
+          "score": 1,
+          "text": "urmărește acțiunile fizice ale celorlalți"
+        },
+        {
+          "score": 2,
+          "text": "urmărește acțiunile fizice și verbale ale celorlalți."
+        }
       ]
     },
     {
       "id": "L5",
       "text": "Se uită la ceilalți pentru a iniția interacțiunea socială",
-      "objective": "Interacționează adecvat cu mai mulți copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Ocazional inițiază interacțiunea socială (se uită la adult)" },
-        { "score": 2, "text": "De obicei initiază interacțiunea socială cu ceilalți (adult, copil) - se uită la ei." }
+        {
+          "score": 1,
+          "text": "ocazional inițiază interacțiunea socială (se uită la adult)"
+        },
+        {
+          "score": 2,
+          "text": "de obicei inițiază interacțiunea socială cu ceilalți (adult, copil) - se uită la ei."
+        }
       ]
     },
     {
       "id": "L6",
-      "text": "Se apropie și incearcă să interacționeze fizic cu ceilalți",
-      "objective": "Interacționează adecvat cu mai mulți copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "text": "Se apropie de ceilalți și încearcă să interacționeze fizic",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Se apropie ocazional și incearcă să interactioneze fizic cu ceilalți copii." },
-        { "score": 2, "text": "Se apropie frecvent de ceilalți si incearcă să interactioneze fizic cu copiii." }
+        {
+          "score": 1,
+          "text": "se apropie ocazional de ceilalți și încearcă să interacționeze fizic cu ceilalți"
+        },
+        {
+          "score": 2,
+          "text": "se apropie frecvent de ceilalți și încearcă să interacționeze fizic cu ceilalți"
+        }
       ]
     },
     {
       "id": "L7",
       "text": "Urmărește cu anticipație adultul care este pe cale să finalizeze o acțiune dorită de el",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex.. urmarește cu interes acțiunile adultului atunci când acesta este pe cale să de-a drumul la mai multe baloane in aer).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": "Urmărește cu interes acțiunile adultului atunci când acesta este pe cale să de-a drumul la mai multe baloane în aer.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Cu prompt verbal se uita cu interes cum adultul repetă o acțiune preferată." },
-        { "score": 2, "text": "De obicei se uita la persoana pentru ca aceasta sa repete o actiune preferata." }
+        {
+          "score": 1,
+          "text": "cu prompt verbal copilul se uită cu interes la repetiția unei acțiuni preferate."
+        },
+        {
+          "score": 2,
+          "text": "de obicei se uită la persoana care repetă o acțiune preferată."
+        }
       ]
     },
     {
       "id": "L8",
       "text": "Le răspunde copiilor",
-      "objective": "Interacționează adecvat cu mai multi adulți/copii (ex.. le răspunde copiilor atunci când aceștia îi cer să sa stea joc, sa se intoarca, sa vina la ei, sa se ridice).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": "Dacă un copil îi cere să realizeze acțiuni simple (să stea joc, să se întoarcă, să vină la ei, să se ridice) copilul le realizează.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Răspunde la cerințe cunoscute adresate de adulți în proporție de 75%." },
-        { "score": 2, "text": "Răspunde a cerințe cunoscute adresate de adulți și copii în proportie de 75%." }
+        {
+          "score": 1,
+          "text": "răspunde în proporție de 75% cu un adult"
+        },
+        {
+          "score": 2,
+          "text": "răspunde în proporție de 75% cu adulții și copiii."
+        }
       ]
     },
     {
       "id": "L9",
       "text": "Imită copiii (fizic și verbal)",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Imită acțiuni simple (acțiuni fizice) demonstrate de copii." },
-        { "score": 2, "text": "Imită secvențe de acțiuni fizice și verbale demonstrate de copii." }
+        {
+          "score": 1,
+          "text": "imită acțiuni simple (acțiuni fizice)"
+        },
+        {
+          "score": 2,
+          "text": "imită secvențe de acțiuni fizice și verbale"
+        }
       ]
     },
     {
       "id": "L10",
       "text": "Răspunde la salut",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "De cele mai multe ori are nevoie de prompturi indirecte pentru a răspunde la salutul copiilor." },
-        { "score": 2, "text": "Salută un copil independent." }
+        {
+          "score": 1,
+          "text": "răspunde la salutul unui copil - cu prompturi indirecte"
+        },
+        {
+          "score": 2,
+          "text": "răspunde la salutul unui copil - independent"
+        }
       ]
     },
     {
       "id": "L11",
       "text": "Îi ghidează fizic pe ceilalți într-o activitate",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Încearcă o dată să-i ajute pe ceilalți - cu prompt." },
-        { "score": 2, "text": "Încearca o dată să-i ajute pe ceilalți - independent." },
-        { "score": 3, "text": "Uneori încearca de mai multe ori să-i ajute pe ceilalți - independent." },
-        { "score": 4, "text": "De obicei încearcă de mai multe ori să-i ajute pe ceilalți - independent" }
+        {
+          "score": 1,
+          "text": "încearcă o dată - cu prompt"
+        },
+        {
+          "score": 2,
+          "text": "încearcă o dată - independent"
+        },
+        {
+          "score": 3,
+          "text": "uneori încearcă de ma multe ori - independent"
+        },
+        {
+          "score": 4,
+          "text": "de obicei încearcă de mai multe ori - independent"
+        }
       ]
     },
     {
       "id": "L12",
       "text": "Răspunde când un copil se apropie și încearcă să interacționeze cu el",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii (ex., intră într-un joc dacă un copil îl cere să se joace cu el).",
-      "response": "Interacționează cu copiii.",
+      "objective": "Când un copil îi cere să se joace cu el copilul intră în joc (Hai să ne jucăm „Rațele și vânătorii” - copilul intră în joc).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Când este abordat cu grijă acceptă să se joace cu ceilalți în anumite situații." },
-        { "score": 2, "text": "Acceptă cu ușurință să se joace cu ceilalți copii." }
+        {
+          "score": 1,
+          "text": "când este abordat cu grijă acceptă să se joace cu ceilalți, în unele situații"
+        },
+        {
+          "score": 2,
+          "text": "acceptă cu ușurință să se joace cu ceilalți"
+        }
       ]
     },
     {
       "id": "L13",
-      "text": "Oferă și împarte obiecte cu ceilalți",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "text": "Împarte obiecte cu ceilalți",
+      "objective": "Le permite celorlalți să ia obiectele lui",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Cu prompt le permite celorlalți sa ia obiectele lui." },
-        { "score": 2, "text": "De obicei le permite celorlalți sa ia obiectele lui." }
+        {
+          "score": 1,
+          "text": "cu prompt"
+        },
+        {
+          "score": 2,
+          "text": "de obicei fără prompt"
+        }
       ]
     },
     {
       "id": "L14",
       "text": "Caută persoana care lipsește",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": "Dacă adultul pleacă de el și copilul nu îl mai vede se duce să-l caute",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Cauta adultul când acesta pleacă cu un item preferat." },
-        { "score": 2, "text": "Caută adultul care pleacă în timpul unei activități preferate." }
+        {
+          "score": 1,
+          "text": "caută adultul când acesta pleacă cu un item preferat"
+        },
+        {
+          "score": 2,
+          "text": "caută adultul care pleacă în timpul unei activități preferate"
+        }
       ]
     },
     {
       "id": "L15",
       "text": "Caută activ atenția celorlalți",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex., inițiază o activitate și apoi se uită să vadă cine se uită la el (ex., se urcă pe tobogan, spune 'Vin acum!') și așteaptă ca ceilalți să se uite la el înainte de a coborî).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": "Inițiază o activitate și apoi se uită să vadă cine se uită la el (ex., se urcă pe tobogan, spune „Vin acum”) și așteaptă ca ceilalți să se uite la el înainte de a coborî.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Atrage atenția celorlalți în mod adecvat de 6 ori pe săptămână." },
-        { "score": 2, "text": "Atrage atenția celorlalți în mod adecvat de de 3 ori pe zi." }
+        {
+          "score": 1,
+          "text": "de 6 ori pe săptămână"
+        },
+        {
+          "score": 2,
+          "text": "de 3 ori pe zi"
+        }
       ]
     },
     {
       "id": "L16",
-      "text": "Numește itemi pentru ceilalți",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "text": "Numește itemi pentru ceilalți.",
+      "objective": "Când vede un avion pe cer le atrage atenția celorlalți și îl numește.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Numește un item pentru un adult, cu prompt." },
-        { "score": 2, "text": "Numește un item pentru un copil, fără prompt." },
-        { "score": 3, "text": "Numește un item pentru 5 copii și adulți - fără prompt." },
-        { "score": 4, "text": "Numește mai mulți itemi pentru 3 copii și adulți - fără prompt." }
+        {
+          "score": 1,
+          "text": "un obiect pentru adult, cu prompt"
+        },
+        {
+          "score": 2,
+          "text": "un item pentru un copil, fără prompt"
+        },
+        {
+          "score": 3,
+          "text": "un item pentru un copil și pentru mai mulți adulți - fără promt"
+        },
+        {
+          "score": 4,
+          "text": "mai mulți itemi pentru 3 copii și adulți - fără prompt"
+        }
       ]
     },
     {
       "id": "L17",
-      "text": "Se uită la ceilalți în timpul interacțiunii sociale",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "text": "Contact vizual",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Se uită la ceilalți în timpul interacțiunii sociale atunci când vorbește sau îi ascultă pe adulți." },
-        { "score": 2, "text": "Se uită la ceilalți în timpul interacțiunii sociale atunci când vorbește și ascultă adulții și copiii." }
+        {
+          "score": 1,
+          "text": "cu adulții"
+        },
+        {
+          "score": 2,
+          "text": "cu adulții și cu copiii"
+        }
       ]
     },
     {
       "id": "L18",
-      "text": "Le cere copiilor un obiect",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "text": "Îi cere colegului un obiect",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Le cere copiilor un obiect cu prompt." },
-        { "score": 2, "text": "Le cere copiilor obiecte spontan și frecvent." }
+        {
+          "score": 1,
+          "text": "cu prompt"
+        },
+        {
+          "score": 2,
+          "text": "spontan și frecvent"
+        }
       ]
     },
     {
       "id": "L19",
-      "text": "Le cere celorlalți să împartă obiectele sau alimentele lor",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "text": "Le cere celorlalți să împartă o parte din obiecte/alimente",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Le cere celorlalți să împartă obiectele sau alimentele lor cu prompt." },
-        { "score": 2, "text": "De obicei le cere celorlalți să împartă obiectele sau alimentele lor fara prompt." }
+        {
+          "score": 1,
+          "text": "cu prompt"
+        },
+        {
+          "score": 2,
+          "text": "de obicei fără prompt"
+        }
       ]
     },
     {
       "id": "L20",
-      "text": "Împarte cu ceilalți alimente și obiecte",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "text": "Împarte cu ceilalți alimente/obiecte",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Incearca o dată să împartă cu ceilalți alimente sau obiecte o data - cu prompt." },
-        { "score": 2, "text": "Incearca o dată să împartă cu ceilalți alimente sau obiecte o data - independent" },
-        { "score": 3, "text": "Câteodata încearca de mai multe ori să împarta cu ceilalți alimente sau obiecte." },
-        { "score": 4, "text": "Încearca de mai multe ori să împartă cu ceilalți alimente sau obiecte." }
+        {
+          "score": 1,
+          "text": "încearcă o dată - cu prompt"
+        },
+        {
+          "score": 2,
+          "text": "încearcă o dată - independent"
+        },
+        {
+          "score": 3,
+          "text": "câteodată încearcă de mai multe ori"
+        },
+        {
+          "score": 4,
+          "text": "de multe ori încearcă de mai multe ori"
+        }
       ]
     },
     {
       "id": "L21",
       "text": "Inițiază salutul",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": "Când intră într-o încăpere sau intră cineva în cameră el este cel care salută primul.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Salută primul cu prompt verbal (de cele mai multe ori)." },
-        { "score": 2, "text": "Salută independent primul." }
+        {
+          "score": 1,
+          "text": "salută cu prompt verbal (ce multe ori)."
+        },
+        {
+          "score": 2,
+          "text": "salută independent."
+        }
       ]
     },
     {
       "id": "L22",
       "text": "Intră într-un joc în progres",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex.. dacă colegii lui încep să construiască un castel intră și el în grup și începe să construiască alături de ei).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu copiii.",
+      "objective": "Dacă colegii loui au început să construiască un castel intră și el în grup și începe să construiască.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Când adultul îi sugerează intră într-un joc în progres." },
-        { "score": 2, "text": "Intra spontan într-un joc preferat în progres." }
+        {
+          "score": 1,
+          "text": "când adultul îi sugerează copilul intră într-un joc în progres."
+        },
+        {
+          "score": 2,
+          "text": "intră spontan în jocuri în progres."
+        }
       ]
     },
     {
       "id": "L23",
       "text": "Observă interesele celorlalți",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex., învatatoarea deschide o cutie și toți copiii se duc sa vadă ce afla în cutie - observă ca toți copiii s-au dus la învatatoare și se duce și el să vadă ce se întâmplă).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Se apropie și se uită la ce se uită ceilalti copii dacă cineva îi atrage atenția." },
-        { "score": 2, "text": "De obicei se uită și se apropie când doar câțiva colegi sunt adunați în jurul itemului de interes." }
+        {
+          "score": 1,
+          "text": "se apropie și se uită la ce se uită ceilalți dacă cineva îi atrage atenția"
+        },
+        {
+          "score": 2,
+          "text": "de obicei se uită și se apropie când doar câțiva colegi sunt adunați în jurul itemului de interes."
+        }
       ]
     },
     {
       "id": "L24",
       "text": "Acceptă feedback",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex., acceptă să i se spună ce sa facă pentru a se comporta mai adecvat).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": "Acceptă să i se spună ce să facă pentru a se comporta și mai adecvat.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Urmeaza instrucțiile de la cel puțin un copil de a-și ajusta comportamentul în cel puțin o situație." },
-        { "score": 2, "text": "De obicei urmează instrucțiile directe și indirecte în mai multe situații, venite în mai multe contexte." }
+        {
+          "score": 1,
+          "text": "urmează instrucțiile de la cel puțin o persoană, în cel puțin o situație"
+        },
+        {
+          "score": 2,
+          "text": "de obicei urmează instrucțiile în mai multe situații, venite de la multe situații"
+        }
       ]
     },
     {
       "id": "L25",
       "text": "Își modifică comportamentul în funcție de acțiunile partenerului",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex., cara o cutie cu cineva fara sa o rastoarne, se opreste daca colegul lui se oprește).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": "Cară o cutie cu cineva fără să o răstoarne, se oprește dacă colegul lui se oprește.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Ocazional își modifica comportamentul in funcție de comportamentul partenerului de joacă." },
-        { "score": 2, "text": "De obicei își modifică comportamentul în funcție de comportamentul partenerului de joacă." }
+        {
+          "score": 1,
+          "text": "ocazional își modifică comportamentul"
+        },
+        {
+          "score": 2,
+          "text": "de obicei își modifică comportamentul"
+        }
       ]
     },
     {
       "id": "L26",
-      "text": "Îl ajută pe ceilalți într-o activitate",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex., daca observa ca partenerul lui nu vede in carte o imagine, se muta mai aproape si pune cartea la mijloc).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "text": "Îi ajută pe ceilalți într-o activitate",
+      "objective": "Copilul sesizează că partenerul lui nu vede sau aude și face ceva pentru a schimba această situație (ex., dacă observă că partenerul lui nu vede în carte o imagine, se mută mai aproape și pune cartea la mijloc).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Schimbă ceva când partenerul îi cere în mod direct." },
-        { "score": 2, "text": "De obicei face schimbari cand partenerul face comentarii indirecte (ex., spune 'nu vad bine')." }
+        {
+          "score": 1,
+          "text": "schimbă ceva când partenerul îi cere"
+        },
+        {
+          "score": 2,
+          "text": "de obicei face schimbări când partenerul face comentarii indirecte (ex., spune „nu văd bine”)."
+        }
       ]
     },
     {
       "id": "L27",
       "text": "Cunoaște preferințele celorlalți",
-      "objective": "Cunoaste preferintele colegilor lui (ex., stie ca lui George ii place sa coloreze cu negru, ca Mariei îi plac bananele dar lui Edi nu ii plac. Daca este intrebat \"Cui sa îi dau jumatate de banana?\" copilul raspunde \"Mariei\").",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": "Cunoaște preferințele colegilor lui (ex., știe că lui George îi place să coloreze cu negru, că Mariei îi plac bananele dar lui Edi nu îi plac. Dacă este întrebat „Cui să îi dau jumătate de banană?” copilul răspunde „Mariei”).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Cunoaste 2 lucruri preferate sau non-preferate pentru 2 persoane." },
-        { "score": 2, "text": "Cunoaste 2 lucruri preferate sau non-preferate pentru 4 persoane." }
+        {
+          "score": 1,
+          "text": "cunoaște 2 lucruri preferate sau non-preferate pentru 2 persoane"
+        },
+        {
+          "score": 2,
+          "text": "cunoaște 2 lucruri preferate sau non-preferate pentru 4 persoane"
+        }
       ]
     },
     {
       "id": "L28",
       "text": "Le atrage atenția celorlalți asupra obiectelor lor de interes",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii (ex., Daca copilul stie ca un coleg de-al lui este interesat de magneti ii spune ca un alt coleg a adus la scoala un magnet).",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": "Dacă copilul știe că un coleg de-al lui este interesat de magneți îi spune că un alt coleg a adus la școală un magnet.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Indruma o persoana/de 2 ori pe saptamana catre activitatile ei preferate." },
-        { "score": 2, "text": "Frecvent indruma mai multi copii/adulti catre activitatile lor preferate." }
+        {
+          "score": 1,
+          "text": "o persoană/de 2 ori pe săptămână"
+        },
+        {
+          "score": 2,
+          "text": "mai mulți copii/adulți"
+        }
       ]
     },
     {
       "id": "L29",
       "text": "Urmărește reacțiile celorlalți în timpul unei conversații",
-      "objective": "Urmareste reactiile celorlalți ca feedback (daca sunt interesati de subiect, daca vor sa continue conversatia). Daca partenerul de discutie nu este interesat renunta la subiect si cauta o alta persoana cu care poate discuta ce il intereseaza.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": "Urmărește reacțiile celorlalți ca feedback (dacă sunt interesați de subiect, dacă vor să continue conversația). Dacă partenerul de discuție nu este interesat renunță la subiect și caută o altă persoană cu care poate discuta ce îl interesează.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Continua sau nu conversatia doar daca persoana ii spune direct daca este sau interesata de subiect." },
-        { "score": 2, "text": "Sesizeaza reactiile celorlalti (zambesc, se uita in alta arte, par interesati) si in functie de aceste reactii continua sau nu conversatia." }
+        {
+          "score": 1,
+          "text": "continuă sau nu conversația doar dacă persoana îi spune dacă este sau interesată de subiect."
+        },
+        {
+          "score": 2,
+          "text": "sesizează reacțiile celorlalți (zâmbesc, se uită în altă arte, par interesați) și în funcție de acestea continuă sau nu conversația."
+        }
       ]
     },
     {
       "id": "L30",
       "text": "Transmite un mesaj",
-      "objective": "Se duce la o persoana si transmite un mesaj (ex.. Mama ii spune \"Du-te la tata si spune-i sa vina sa ma ajute\" - se duce la tatal care se afla in alta camera si ii spune tatalui \"Mama are nevoie de ajutor\").",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": "Se duce la o persoană și transmite un mesaj (ex., Mama îi spune „Du-te la tata și spune-i să vină să mă ajute” - copilul se duce la tatăl care etse în altă cameră și îi spune tatălui „Mama are nevoie de ajutor”).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Transmite un mesaj din 3 cuvinte - in aceeasi camera." },
-        { "score": 2, "text": "Cauta persoana, ii atrage atentia si ii transmite un mesaj din 4 cuvinte - in alta camera." }
+        {
+          "score": 1,
+          "text": "transmite un mesaj din 3 cuvinte - în aceeași cameră"
+        },
+        {
+          "score": 2,
+          "text": "caută persoana, îi atrage atenția și îi transmite un mesaj din 4 cuvinte - în altă cameră"
+        }
       ]
     },
     {
       "id": "L31",
-      "text": "Așteaptă o pauză în conversație pentru a întrerupe sau interveni",
-      "objective": "Cand doua persoane vorbesc asteapta ca unul dintre adulti sa se uite la el inainte sa vorbeasca.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "text": "Așteaptă o pauză în conversație pentru a întrerupe/interveni",
+      "objective": "Când două persoane vorbesc copilul așteaptă ca unul dintre adulți să se uite la el înainte să vorbească.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Asteapta o pauza in conversatie daca unul dintre adultii implicati ii face semn cu mana astepte." },
-        { "score": 2, "text": "De obicei cand ceilalti vorbesc asteapta ca unul dintre adulti sa se uite la el (semnal ca poate interveni in conversatie) sau incearca sa le atraga atentia in mod adecvat." }
+        {
+          "score": 1,
+          "text": "așteaptă o pauză în conversație dacă unul dintre adulții implicați îi face semn cu mâna să aștepte."
+        },
+        {
+          "score": 2,
+          "text": "de obicei,când ceilalți vorbesc așteaptă ca unul dintre adulți să se uite la el (semnal că poate interveni în conversație) sau încearcă să le atragă atenția în mod adecvat."
+        }
       ]
     },
     {
       "id": "L32",
       "text": "Poartă conversații cu ceilalți",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
-      "maxScore": 4,
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 3,
       "criteria": [
-        { "score": 1, "text": "Face un turn-taking cu un adult." },
-        { "score": 2, "text": "Face un turn-taking cu un adult/copii." },
-        { "score": 3, "text": "Face 2 turn-takink-uri cu adultii/copiii." },
-        { "score": 4, "text": "Face cel putin 3 turn-takink-uri cu adultii/copiii." }
+        {
+          "score": 1,
+          "text": "1 turn-taking"
+        },
+        {
+          "score": 2,
+          "text": "2 turn-taking-uri"
+        },
+        {
+          "score": 3,
+          "text": "cel puțin 3 turn-takink-uri"
+        }
       ]
     },
     {
       "id": "L33",
       "text": "Cere informații",
-      "objective": "Interacționează adecvat cu mai mulți adulți/copii.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Ocazional cere informații." },
-        { "score": 2, "text": "Frecvent și spontan cere informații adulților/copiilor." }
+        {
+          "score": 1,
+          "text": "ocazional cere informații"
+        },
+        {
+          "score": 2,
+          "text": "frecvent și spontan cere informații"
+        }
       ]
     },
     {
       "id": "L34",
       "text": "Obține și menține atenția celorlalți",
-      "objective": "Obtine atentia adultului (ex., il bate usor pe umar, ii intoarce fata spre el, il striga pe nume) - chiar daca adultul initial nu îl raspunde.",
-      "sd": "Adultul stabilește situații în care copilul poate interacționa social cu adulți/copii.",
-      "response": "Interacționează cu adulți/copii.",
+      "objective": "Obține atenția adultului (îl bate ușor pe umăr, îi întoarce fața spre el, îl strigă pe nume) - chiar dacă adultul inițial nu răspunde.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Atrage atentia adultului care deja il urmareste (responsiv)." },
-        { "score": 2, "text": "Atrage atentia si copiilor (cei care sunt deja atenti la el)." },
-        { "score": 3, "text": "Persista in a obtine atentia celorlalti (adulti si copii)." },
-        { "score": 4, "text": "Obtine si mentine cu succes atentia adultilor si a copiilor." }
+        {
+          "score": 1,
+          "text": "atrage atenția adultului care deja îl urmărește (responsiv)"
+        },
+        {
+          "score": 2,
+          "text": "atrage atenția și copiilor (cei care sunt deja atenți la el)"
+        },
+        {
+          "score": 3,
+          "text": "persistă în a obține atenția celorlalți (adulți și copii)"
+        },
+        {
+          "score": 4,
+          "text": "obține și menține cu succes atenția adulților și a copiilor"
+        }
       ]
     }
   ]

@@ -1,139 +1,241 @@
 {
   "id": "S",
-  "title": "SCRIERE",
+  "title": "Scrisul",
   "items": [
     {
       "id": "S1",
       "text": "Face linii pe hârtie",
-      "objective": "Tine corect creionul și mâzgălește",
-      "sd": "Adultul îi modelează prima dată cum să țină creionul.",
-      "response": "Face pensa și mâzgălește.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Desenează linii scurte pe hârtie." },
-        { "score": 2, "text": "Realizează pensa de scris și face linii pe hârtie." }
+        {
+          "score": 1,
+          "text": "desenează linii scurte pe hârtie"
+        },
+        {
+          "score": 2,
+          "text": "realizează pensa de scris și face linii pe hârtie"
+        }
       ]
     },
     {
       "id": "S2",
       "text": "Colorează în contur",
-      "objective": "Colorează în contur diverse forme geometrice.",
-      "sd": "Colorează 'imagine'/Sus și jos. fără să mai rămână alb",
-      "response": "Colorează întreaga imagine.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Colorează fără să depășească forme geometrice mari." },
-        { "score": 2, "text": "Colorează fără să depășească forme geometrice mici." }
+        {
+          "score": 1,
+          "text": "colorează fără să depășească forme geometrice mari"
+        },
+        {
+          "score": 2,
+          "text": "colorează fără să depășească forme geometrice mici"
+        }
       ]
     },
     {
       "id": "S3",
       "text": "Trasează linii și forme geometrice",
-      "objective": "Trasează linii drepte și curbe, precum și forme drepte sau curbate.",
-      "sd": "Desenează.../Urmărește punctele",
-      "response": "Trasează pe puncte.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Trasează cu acuratețe linii drepte." },
-        { "score": 2, "text": "Trasează cu acuratețe linii drepte și curbe." },
-        { "score": 3, "text": "Trasează cu acuratețe forme drepte sau curbate." },
-        { "score": 4, "text": "Trasează cu acuratețe forme drepte și curbate." }
+        {
+          "score": 1,
+          "text": "trasează cu acuratețe linii drepte"
+        },
+        {
+          "score": 2,
+          "text": "trasează cu acuratețe linii drepte și curbe"
+        },
+        {
+          "score": 3,
+          "text": "trasează cu acuratețe forme drepte sau curbate"
+        },
+        {
+          "score": 4,
+          "text": "trasează cu acuratețe forme drepte și curbate"
+        }
       ]
     },
     {
       "id": "S4",
       "text": "Trasează litere și cifre",
-      "objective": "Trasează toate literele mici și mari de mână, precum și cifrele de la 1 la 10.",
-      "sd": "Scrie 'literă/cifră' - pe puncte",
-      "response": "Scrie pe puncte.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Trasează litere și cifre formate din linii drepte (A, E, F, 1, 4, 7)" },
-        { "score": 2, "text": "Trasează toate literele și ciferele" }
+        {
+          "score": 1,
+          "text": "trasează litere și cifre formate din linii drepte (A, E, F, 1, 4, 7)"
+        },
+        {
+          "score": 2,
+          "text": "trasează toate literele și ciferele"
+        }
       ]
     },
     {
       "id": "S5",
       "text": "Copiază linii drepte",
-      "objective": "Copiază linii drepte și forme respectând mărimea și orientarea.",
-      "sd": "Adultul îi oferă un model",
-      "response": "Copiază după model.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Copiază cu prompt fizic minim sau prompt gestual (aproximare)." },
-        { "score": 2, "text": "Copiază fără prompt linii drepte (aproximare)." },
-        { "score": 3, "text": "Copiază fără prompt linii drepte și forme (aproximare)." },
-        { "score": 4, "text": "Copiază cu acuratețe linii drepte și forme (respectă mărimea și orientarea)." }
+        {
+          "score": 1,
+          "text": "trasează cu prompt fizic minim sau prompt gestual (aproximare)"
+        },
+        {
+          "score": 2,
+          "text": "trasează fară prompt linii drepte (aproximare)"
+        },
+        {
+          "score": 3,
+          "text": "trasează fară prompt linii drepte și forme (aproximare)"
+        },
+        {
+          "score": 4,
+          "text": "trasează cu acuratețe linii drepte și forme (respectă mărimea și orientarea)"
+        }
       ]
     },
     {
       "id": "S6",
       "text": "Copiază linii curbe",
-      "objective": "Copiază linii curbe și forme respectând mărimea și orientarea.",
-      "sd": "Adultul îi oferă un model",
-      "response": "Copiază după model.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Trasează cu prompt fizic minim sau prompt gestual (aproximare)" },
-        { "score": 2, "text": "Trasează fără prompt linii curbe simple (aproximare)" },
-        { "score": 3, "text": "Trasează fără prompt linii curbe complexe (aproximare)" },
-        { "score": 4, "text": "Trasează cu acuratețe linii curbe și forme (respectă mărimea și orientarea)" }
+        {
+          "score": 1,
+          "text": "trasează cu prompt fizic minim sau prompt gestual (aproximare)"
+        },
+        {
+          "score": 2,
+          "text": "trasează fară prompt linii curbe simple (aproximare)"
+        },
+        {
+          "score": 3,
+          "text": "trasează fară prompt linii curbe complexe (aproximare)"
+        },
+        {
+          "score": 4,
+          "text": "trasează cu acuratețe linii curbe și forme (respectă mărimea și orientarea)"
+        }
       ]
     },
     {
       "id": "S7",
       "text": "Copiază litere după model",
-      "objective": "Copiază toate literele mici și mari de tipar",
-      "sd": "Adultul îi oferă un model",
-      "response": "Copiază după model.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Copiază 5 litere." },
-        { "score": 2, "text": "Copiază 10 litere." },
-        { "score": 3, "text": "Copiază 10 litere mari si mici - cu acuratețe." },
-        { "score": 4, "text": "Copiază toate literele mari și mici - cu acuratețe." }
+        {
+          "score": 1,
+          "text": "5 litere"
+        },
+        {
+          "score": 2,
+          "text": "10 litere"
+        },
+        {
+          "score": 3,
+          "text": "10 litere mari și mici - cu acuratețe"
+        },
+        {
+          "score": 4,
+          "text": "toate literele mari și mici - cu acuratețe"
+        }
       ]
     },
     {
       "id": "S8",
       "text": "Copiază numerele după model",
-      "objective": "Copiază toate cifrele de la 1 la 10.",
-      "sd": "Adultul îi oferă un model",
-      "response": "Copiază după model.",
-      "maxScore": 3,
+      "objective": null,
+      "sd": null,
+      "response": null,
+      "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Copiază 5 numere." },
-        { "score": 2, "text": "Copiază 10 numere (1-10)." },
-        { "score": 3, "text": "Copiază 20 de numere (1-20) - cu acuratețe." },
-        { "score": 4, "text": "Copiază 100 de numere (1-100) - cu acuratețe." }
+        {
+          "score": 1,
+          "text": "5 numere"
+        },
+        {
+          "score": 2,
+          "text": "10 numere (1-10)"
+        },
+        {
+          "score": 3,
+          "text": "20 de numere (1-20) - cu acuratețe"
+        },
+        {
+          "score": 4,
+          "text": "100 de numere (1-100) - cu acuratețe"
+        }
       ]
     },
     {
       "id": "S9",
       "text": "Scrie litere după dictare",
-      "objective": "Scrie toate literele mici și mari de tipar.",
-      "sd": "'Literă'",
-      "response": "Scrie litera.",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Scrie 5 litere." },
-        { "score": 2, "text": "Scrie 10 litere." },
-        { "score": 3, "text": "Scrie 10 litere mari și mici - cu acuratețe." },
-        { "score": 4, "text": "Scrie toate literele mari și mici - cu acuratețe." }
+        {
+          "score": 1,
+          "text": "5 litere"
+        },
+        {
+          "score": 2,
+          "text": "10 litere"
+        },
+        {
+          "score": 3,
+          "text": "10 litere mari și mici - cu acuratețe"
+        },
+        {
+          "score": 4,
+          "text": "toate literele mari și mici - cu acuratețe"
+        }
       ]
     },
     {
       "id": "S10",
-      "text": "Scrie numere după dictare",
-      "objective": "Scrie toate numerele de la 1 la 100.",
-      "sd": "'Număr'",
-      "response": "Scrie numărul.",
+      "text": "Scrie numerele după dictare",
+      "objective": null,
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Scrie 5 numere." },
-        { "score": 2, "text": "Scrie 10 numere (1-10)." },
-        { "score": 3, "text": "Scrie 20 de numere (1-20) - cu acuratețe." },
-        { "score": 4, "text": "Scrie 100 de numere (1-100) - cu acuratețe." }
+        {
+          "score": 1,
+          "text": "5 numere"
+        },
+        {
+          "score": 2,
+          "text": "10 numere (1-10)"
+        },
+        {
+          "score": 3,
+          "text": "20 de numere (1-20) - cu acuratețe"
+        },
+        {
+          "score": 4,
+          "text": "100 de numere (1-100) - cu acuratețe"
+        }
       ]
     }
   ]

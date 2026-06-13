@@ -1,29 +1,41 @@
 {
   "id": "P",
-  "title": "GENERALIZAREA RĂSPUNSULUI",
+  "title": "Generalizarea răspunsurilor",
   "items": [
     {
       "id": "P1",
-      "text": "Generalizează itemii",
-      "objective": null,
+      "text": "Generalizează stimulii",
+      "objective": "Dacă copilul a învățat să recunoască cana pe o cană albastră, el identifică cana și când i se arată o cană roșie, una galbenă și un cu dungi.",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Generalizeaza itemii în 10 trial-uri." },
-        { "score": 2, "text": "Învață să numească și să arate un item și imediat generalizează itemii în aceeași clasă în 2 trial-uri." }
+        {
+          "score": 1,
+          "text": "generalizează stimulii în 10 trial-uri"
+        },
+        {
+          "score": 2,
+          "text": "învață să numească și să arate cu un stimul și imediat generalizează stimulii în clasă în 2 trial-uri."
+        }
       ]
     },
     {
       "id": "P2",
-      "text": "Generalizeaza persoanele",
+      "text": "Generalizează persoanele",
       "objective": null,
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Lucrează usor cu 4 adulți." },
-        { "score": 2, "text": "Demonstrează cu ușurință abilitățile învățate cu noi adulți." }
+        {
+          "score": 1,
+          "text": "lucrează ușor cu 4 adulți"
+        },
+        {
+          "score": 2,
+          "text": "demonstrează abilitățile învățate cu noi adulți"
+        }
       ]
     },
     {
@@ -34,44 +46,68 @@
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Folosește ce a învățat în alta locație cu minim de prompt." },
-        { "score": 2, "text": "Folosește ușor ce a învățat în altă locație." }
+        {
+          "score": 1,
+          "text": "folosește ce a învățat în altă locație cu minim de prompt"
+        },
+        {
+          "score": 2,
+          "text": "folosește ușor ce a învățat în altă locație"
+        }
       ]
     },
     {
       "id": "P4",
       "text": "Folosește abilitățile învățate în grup",
-      "objective": null,
+      "objective": "După ce învățat 1:1 'cana' răspunde la 'cana' și într-un grup mic",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Folosește abilitățile învățate în grup cu prompt verbal minim." },
-        { "score": 2, "text": "Folosește abilitățile învățate în grup spontan." }
+        {
+          "score": 1,
+          "text": "cu prompt verbal minim"
+        },
+        {
+          "score": 2,
+          "text": "spontan"
+        }
       ]
     },
     {
       "id": "P5",
-      "text": "Generalizeaza forma raspunsului",
-      "objective": null,
+      "text": "Generalizează forma răspunsului",
+      "objective": "După ce a învățat să numească 'câine; îi poate spune 'Iuri', 'cățeluș' sau 'cățel'.",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Oferă forme alternative de răspuns cu prompt verbal minim (ex., câine - luri, cățeluș sau cățel)." },
-        { "score": 2, "text": "Spontan folosește mai multe alternative de răspuns." }
+        {
+          "score": 1,
+          "text": "oferă forme alternative cu prompt verbal minim"
+        },
+        {
+          "score": 2,
+          "text": "spontan folosește mai multe alternative"
+        }
       ]
     },
     {
       "id": "P6",
-      "text": "Generalizeaza abilitatile de limbaj",
-      "objective": null,
+      "text": "Generalizează abilitățile de limbaj",
+      "objective": "Dacă a învățat să numească acadea, poate să și arate acadeauna și să ceară acadeaua și să răspundă la întrebarea 'Ce este dulce?'.",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Realizează transferul din tact in mand și receptiv." },
-        { "score": 2, "text": "Realizează transferul din receptiv - funcție în intraverbal - funcție." }
+        {
+          "score": 1,
+          "text": "transfer din tact în mand și receptiv"
+        },
+        {
+          "score": 2,
+          "text": "transfer din receptiv -funcție în intraverbal - funcție"
+        }
       ]
     }
   ]

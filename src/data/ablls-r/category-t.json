@@ -10,8 +10,14 @@
       "response": "Potriveste fiecare litera pe cardul - cuvânt.",
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Potrivește literele pe cuvinte din 3 litere când literele sunt diferite și nu i se dau litere în plus." },
-        { "score": 2, "text": "Potrivește literele pe cuvinte din 5 litere când anumite litere se repetă și i se dau litere în plus." }
+        {
+          "score": 1,
+          "text": "Potrivește literele pe cuvinte din 3 litere când literele sunt diferite și nu i se dau litere în plus."
+        },
+        {
+          "score": 2,
+          "text": "Potrivește literele pe cuvinte din 5 litere când anumite litere se repetă și i se dau litere în plus."
+        }
       ]
     },
     {
@@ -22,8 +28,14 @@
       "response": "Pune în spațiul dat litera care lipsește.",
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Pune litera într-o poziție (început, mijloc sau sfârșit) pentru 5 cuvinte" },
-        { "score": 2, "text": "Pune litera în orice poziție (început, mijloc sau sfârșit) pentru 10 cuvinte" }
+        {
+          "score": 1,
+          "text": "Pune litera într-o poziție (început, mijloc sau sfârșit) pentru 5 cuvinte"
+        },
+        {
+          "score": 2,
+          "text": "Pune litera în orice poziție (început, mijloc sau sfârșit) pentru 10 cuvinte"
+        }
       ]
     },
     {
@@ -34,8 +46,14 @@
       "response": "Copiază pe hârtie sau la calculator cuvântul arătat.",
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Copiază cuvinte din 3 litere." },
-        { "score": 2, "text": "Copiază cuvinte din 6 cuvinte (scrie în spațiu, cu litere mici și mari, cu spațiu între cuvinte)." }
+        {
+          "score": 1,
+          "text": "Copiază cuvinte din 3 litere."
+        },
+        {
+          "score": 2,
+          "text": "Copiază cuvinte din 6 cuvinte (scrie în spațiu, cu litere mici și mari, cu spațiu între cuvinte)."
+        }
       ]
     },
     {
@@ -46,8 +64,14 @@
       "response": "Scrie in spatiul dat litera lipsă.",
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Scrie litera într-o poziție (început, mijloc sau sfârșit) pentru 5 cuvinte" },
-        { "score": 2, "text": "Scrie litera în orice poziție (început, mijloc sau sfârșit) pentru 10 cuvinte" }
+        {
+          "score": 1,
+          "text": "Scrie litera într-o poziție (început, mijloc sau sfârșit) pentru 5 cuvinte"
+        },
+        {
+          "score": 2,
+          "text": "Scrie litera în orice poziție (început, mijloc sau sfârșit) pentru 10 cuvinte"
+        }
       ]
     },
     {
@@ -58,10 +82,22 @@
       "response": "Spune pe litere cuvântul.",
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Spune pe litere 2 cuvinte." },
-        { "score": 2, "text": "Spune pe litere 5 cuvinte." },
-        { "score": 3, "text": "Spune pe litere 10 cuvinte." },
-        { "score": 4, "text": "Spune pe litere 25 de cuvinte." }
+        {
+          "score": 1,
+          "text": "Spune pe litere 2 cuvinte."
+        },
+        {
+          "score": 2,
+          "text": "Spune pe litere 5 cuvinte."
+        },
+        {
+          "score": 3,
+          "text": "Spune pe litere 10 cuvinte."
+        },
+        {
+          "score": 4,
+          "text": "Spune pe litere 25 de cuvinte."
+        }
       ]
     },
     {
@@ -72,10 +108,22 @@
       "response": "Scrie cuvântul.",
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Scrie 2 cuvinte." },
-        { "score": 2, "text": "Scrie 5 cuvinte." },
-        { "score": 3, "text": "Scrie 10 cuvinte." },
-        { "score": 4, "text": "Scrie 25 de cuvinte." }
+        {
+          "score": 1,
+          "text": "Scrie 2 cuvinte."
+        },
+        {
+          "score": 2,
+          "text": "Scrie 5 cuvinte."
+        },
+        {
+          "score": 3,
+          "text": "Scrie 10 cuvinte."
+        },
+        {
+          "score": 4,
+          "text": "Scrie 25 de cuvinte."
+        }
       ]
     },
     {
@@ -86,9 +134,16 @@
       "response": "Spune sau scrie 'prenume/nume'.",
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Poate să spună pe litere sau să își scrie numele." },
-        { "score": 2, "text": "Spune pe litere și își scrie numele." }
+        {
+          "score": 1,
+          "text": "Poate să spună pe litere sau să își scrie numele."
+        },
+        {
+          "score": 2,
+          "text": "Spune pe litere și își scrie numele."
+        }
       ]
     }
-  ]
+  ],
+  "needsOfficialSource": true
 }

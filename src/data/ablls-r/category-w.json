@@ -1,6 +1,6 @@
 {
   "id": "W",
-  "title": "ÎNGRIJIRE PERSONALĂ",
+  "title": "Îngrijire personală",
   "items": [
     {
       "id": "W1",
@@ -8,10 +8,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se spală pe mâini doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Se spală pe mâini independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -20,10 +22,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se șterge cu prosopul doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Se șterge cu prosopul independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -32,10 +36,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se spală pe față doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Se spală pe față independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -44,10 +50,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se șterge cu prosopul pe față doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Se șterge cu prosopul pe față independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -56,10 +64,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se piaptănă doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Se piaptănă independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -68,10 +78,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se spală pe dinți doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Se spală pe dinți independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -80,10 +92,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Suflă nasul doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Suflă nasul independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     }
   ]

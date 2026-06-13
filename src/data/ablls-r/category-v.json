@@ -1,6 +1,6 @@
 {
   "id": "V",
-  "title": "AUTOSERVIRE",
+  "title": "Abilitățile specifice mâncatului",
   "items": [
     {
       "id": "V1",
@@ -8,10 +8,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Mănâncă cu degetele doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Mănâncă cu degetele independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -20,10 +22,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Bea cu paiul doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Bea cu paiul independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -32,10 +36,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Bea cu cana doar cu prompt verbal sau gestual" },
-        { "score": 2, "text": "Bea cu cana independent" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -44,10 +50,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Mănâncă singur cu lingura/furculița doar cu prompt verbal sau gestual" },
-        { "score": 2, "text": "Mănâncă singur cu lingura/furculița independent" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -56,10 +64,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Intinde untul cu cutitul doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Întinde untul cu cuțitul independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -68,10 +78,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Toarnă în cană doar cu prompt verbal sau gestual" },
-        { "score": 2, "text": "Toarnă în cană independent" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -80,10 +92,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Taie carnea cu cuțitul doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Taie carnea cu cuțitul independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -92,10 +106,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Își ia farfuria cu mâncare și o pune pe masă doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Își ia farfuria cu mâncare și o pune pe masă independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -104,10 +120,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Face curat după masă doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Face curat după masă independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -116,10 +134,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Mănâncă fără să facă frimituri doar cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Mănâncă fără să facă frimituri independent." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     }
   ]

@@ -1,6 +1,6 @@
 {
   "id": "X",
-  "title": "TRAINING DE TOALETĂ",
+  "title": "Folosirea toaletei",
   "items": [
     {
       "id": "X1",
@@ -8,26 +8,26 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 4,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "A urinat la toaletă de cel puțin 2 ori." },
-        { "score": 2, "text": "Urinează la toaletă de 2 ori pe săptămână." },
-        { "score": 3, "text": "Urinează la toaletă da 5 ori pe săptămână." },
-        { "score": 4, "text": "Urinează de 2 sau mai multe ori la toaletă pe zi." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
       "id": "X2",
-      "text": "Nu are accidente (dacă e dus la toaletă)",
+      "text": "Nu are accidente (dacă e dus la toaletă",
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 4,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Nu are mai mult de 4 accidente pe saptamana." },
-        { "score": 2, "text": "Nu are mai mult de 2 accidente pe saptamana in medii controlate (acasa, gradinita)." },
-        { "score": 3, "text": "Nu mai are mai mult de 2 accidente pe saptamana in toate mediile." },
-        { "score": 4, "text": "Nu are accidente." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -36,10 +36,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de prompt pentru anumite aspecte ale procesului." },
-        { "score": 2, "text": "Realizează independent toți pașii din acest proces." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -48,10 +50,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Cere sa mearga la baie in medii familiare." },
-        { "score": 2, "text": "Cere sa mearga la baie in medii cunoscute si publice." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -60,10 +64,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se sterge singura, dar are nevoie de cateva prompturi verbale." },
-        { "score": 2, "text": "Se sterge singura, fara asistenta." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -72,10 +78,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "A facut treaba mare de 2 ori la toaletă." },
-        { "score": 2, "text": "Face treaba mare de cel putin 2 ori pe saptamana." }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -84,10 +92,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Nu are mai mult de 4 accidente pe saptamana" },
-        { "score": 2, "text": "Nu are mai mult de 2 accidente pe saptamana" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -96,10 +106,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Se sterge singur, dar are nevoie de verificare" },
-        { "score": 2, "text": "Se sterge singur, fara asistenta" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -108,10 +120,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de prompt verbal pentru anumite aspecte ale procesului" },
-        { "score": 2, "text": "Realizeaza toti pasii procesului independent" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -120,10 +134,12 @@
       "objective": null,
       "sd": null,
       "response": null,
-      "maxScore": 2,
+      "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de prompt verbal pentru anumite aspecte ale procesului" },
-        { "score": 2, "text": "Realizeaza toti pasii procesului independent" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     }
   ]

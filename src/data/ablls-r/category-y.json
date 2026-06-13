@@ -1,6 +1,6 @@
 {
   "id": "Y",
-  "title": "MOTRICITATE GROSIERĂ",
+  "title": "Motricitate grosieră",
   "items": [
     {
       "id": "Y1",
@@ -10,7 +10,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -21,7 +24,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -32,7 +38,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -43,7 +52,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -54,7 +66,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -65,7 +80,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -76,18 +94,24 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
       "id": "Y8",
-      "text": "Țopăie în două picioare",
+      "text": "Topăie în două picioare",
       "objective": null,
       "sd": null,
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -98,7 +122,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -109,7 +136,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -120,7 +150,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -131,18 +164,24 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
       "id": "Y13",
-      "text": "Se ghemulește",
+      "text": "Se ghemuiește",
       "objective": null,
       "sd": null,
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -153,7 +192,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -164,7 +206,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -175,7 +220,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -186,7 +234,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -197,7 +248,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -208,7 +262,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -219,7 +276,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -230,7 +290,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -241,7 +304,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -252,18 +318,24 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
       "id": "Y24",
-      "text": "Aruncă o minge in aer și o prinde cu mâinile",
+      "text": "Aruncă o minge în aer și o prinde cu mâinile",
       "objective": null,
       "sd": null,
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -274,7 +346,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -285,7 +360,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -296,7 +374,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -307,7 +388,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -318,7 +402,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     },
     {
@@ -329,7 +416,10 @@
       "response": null,
       "maxScore": 1,
       "criteria": [
-        { "score": 1, "text": "Da" }
+        {
+          "score": 1,
+          "text": "Da"
+        }
       ]
     }
   ]

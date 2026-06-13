@@ -1,355 +1,595 @@
 {
   "id": "D",
-  "title": "IMITATIE MOTORIE",
+  "title": "Imitația motorie",
   "items": [
     {
       "id": "D1",
-      "text": "Imită acțiuni motorii cu obiecte",
-      "objective": "Imită independent cel puțin 10 acțiuni cu obiecte, cu 2 acțiuni pentru fiecare obiect.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Ia obiectul și imită acțiunea",
+      "text": "Imitație motorie cu obiecte",
+      "objective": "Să imite acțiunii motorii când i se cere “Fă ca mine”. D1 - fără discriminare.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită 10 acțiuni - cu cel puțin 2 acțiuni pentru fiecare obiect." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni - cu cel puțin 2 acțiuni pentru fiecare obiect"
+        }
       ]
     },
     {
       "id": "D2",
-      "text": "Imită acțiuni motorii cu obiecte în discriminare",
-      "objective": "Imită cel puțin 10 acțiuni și imită cu ușurință acțiuni noi în câmp de 2 obiecte.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Scanează obiectul, selectează obiectul corect și imită acțiunea realizată de adult",
+      "text": "Imitație motorie cu obiecte",
+      "objective": "Să imite acțiunii motorii când i se cere “Fă ca mine” cand i se prezinta 2 obiecte( discriminare - 2 obiecte).",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită 10 acțiuni și imită cu ușurință acțiuni noi." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni - cu cel puțin 2 acțiuni pentru fiecare obiect"
+        }
       ]
     },
     {
       "id": "D3",
-      "text": "Imită acțiuni grosiere cu prompt verbal",
-      "objective": "Imită 10 acțiuni grosiere (ex., bate din palme, sari) și imita cu ușurință noi acțiuni.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Imită acțiunea",
+      "text": "Imitație grosieră cu prompt verbal",
+      "objective": "Să imite acțiunile grosiere (ex., bate din palme, sari) când i se cere “Fă ca mine”.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită 10 acțiuni și imită cu ușurință acțiuni noi." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni & repetă ușor acțiuni noi"
+        }
       ]
     },
     {
       "id": "D4",
-      "text": "Imită acțiuni grosiere cu picioarele",
-      "objective": "Imită cel puțin 10 acțiuni și imită cu ușurință noi acțiuni.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Urmărește adultul și imită acțiunea.",
+      "text": "Imitație grosieră cu picioarele.",
+      "objective": "Să imite acțiuni motorii când i se cere “Fă ca mine”.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită 10 acțiuni și imită cu ușurință acțiuni noi." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni & repetă ușor acțiuni noi"
+        }
       ]
     },
     {
       "id": "D5",
-      "text": "Imitație grosieră cu mâinile",
-      "objective": "Imită cel puțin 10 acțiuni și imită cu ușurință noi acțiuni.",
-      "sd": "Fă ca mine + adultul modelează acțiunea.",
-      "response": "Ia obiectul și imită acțiunea.",
+      "text": "Imitație grosieră cu mâinile.",
+      "objective": "Să imite acțiunii motorii când i se cere “Fă ca mine”.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită 10 acțiuni și imită cu ușurință acțiuni noi." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni & repetă ușor acțiuni noi"
+        }
       ]
     },
     {
       "id": "D6",
-      "text": "Realizează discriminarea mișcărilor motorii statice vs kinetice",
-      "objective": "Imită 10 perechi de acțiuni și imită cu ușurință noi acțiuni.",
-      "sd": "'Fă ca mine' și realizează o acțiune grosieră în mod repetat (ex., bate din palme de 3-4 ori) sau o singură dată. După prima acțiune adultul realizează imediat a doua acțiune din pereche.",
-      "response": "Ia obiectul și imită acțiunea",
+      "text": "Discriminarea mișcărilor statice și kinetice.",
+      "objective": "Să imite acțiuni motorii când i se cere “Fă ca mine” (ex., bate masa vs mâini cuminți pe masă, bate din palme vs împreunează degetele, mișcă piciorul în cerc vs ține piciorul în cerc).",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni (una statică și una kinetică)." },
-        { "score": 2, "text": "Imită 5 perechi de acțiuni (una statică și una kinetică)." },
-        { "score": 3, "text": "Imită 10 perechi de acțiuni (una statică și una kinetică)." },
-        { "score": 4, "text": "Imită 10 perechi de acțiuni (una statică și una kinetică) & repetă acțiuni noi cu ușurința." }
+        {
+          "score": 1,
+          "text": "2 acțiuni (una statică și una kinetică)"
+        },
+        {
+          "score": 2,
+          "text": "5 perechi de acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 perechi de acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 perechi de acțiuni & repetă acțiuni noi ușor."
+        }
       ]
     },
     {
       "id": "D7",
-      "text": "Răspunde la instrucții variate",
-      "objective": "Imită acțiuni grosiere învățate anterior când adultul folosește 4 instrucții diferite.",
-      "sd": "Uită-te la mine/Rândul tău/Încearcă și tu/Poți să faci și tu?/Uite cum fac eu + adultul modelează acțiunea",
-      "response": "Urmărește adultul și imită acțiunea",
+      "text": "Instrucții variate",
+      "objective": "Să imite varii acțiunii motorii când adultul îi cere “Uită-te la mine/Rândul tău/Încearcă și tu/Îți place asta?/Uite cum fac eu/etc.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Imită acțiuni cunoscute când adultul folosește 2 SD-uri diferite." },
-        { "score": 2, "text": "Imită acțiuni cunoscute când adultul folosește 4 SD-uri diferite." }
+        {
+          "score": 1,
+          "text": "imită 2 acțiuni cunoscute cu 2 SD-uri noi"
+        },
+        {
+          "score": 2,
+          "text": "imită acțiuni cunoscute cu 4 SD-uri noi"
+        }
       ]
     },
     {
       "id": "D8",
       "text": "Imită acțiuni grosiere în oglindă",
-      "objective": "Imită 10 acțiuni motorii în oglindă (mâinile pe cap, bate burtica) și imită cu ușurință noi acțiuni.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Urmărește acțiunea în oglindă și imită acțiunea.",
+      "objective": "Imită acțiuni motorii în oglindă (mâinile pe cap, bate burtica).",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită 10 acțiuni si imită cu ușurință acțiuni noi." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni & imită acțiuni noi ușor"
+        }
       ]
     },
     {
       "id": "D9",
       "text": "Imită acțiuni la nivelul capului",
-      "objective": "Imită 3 acțiuni la nivelul capului.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Urmărește adultul și imită acțiunea",
+      "objective": "Imită acțiuni la nivelul capului (mișcă capul în semn de da, de la stânga la dreapta).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Imită o acțiune." },
-        { "score": 2, "text": "Imită 3 acțiuni." }
+        {
+          "score": 1,
+          "text": "o acțiune"
+        },
+        {
+          "score": 2,
+          "text": "imită 3 acțiuni"
+        }
       ]
     },
     {
       "id": "D10",
-      "text": "Imită acțiunii la nivelul gurii (imitație orală)",
-      "objective": "Imită 4 acțiuni la nivelul gurii.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Urmărește adultul și imită acțiunea",
+      "text": "Imitație orală",
+      "objective": "Imită acțiuni orale (ex., scoate limba, umflă obrajii).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 4 acțiuni." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "4 acțiuni"
+        }
       ]
     },
     {
       "id": "D11",
-      "text": "Imită acțiunii la nivelul gurii și la nivelul feței în oglindă",
+      "text": "Imitație orală și la nivelul feței în oglindă.",
       "objective": "Imită acțiuni la nivelul capului (deschide gura, strânge buzele, plimbă limba).",
-      "sd": "Fă ca mine + adultul modelează acțiunea.",
-      "response": "Imită acțiunea.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 4 acțiuni." },
-        { "score": 3, "text": "Imită 6 acțiuni." },
-        { "score": 4, "text": "Imită 6 acțiuni repetitive și statice." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "4 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "6 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "6 acțiuni (repetitive și statice)"
+        }
       ]
     },
     {
       "id": "D12",
-      "text": "Imită acțiuni de motricitate fină",
-      "objective": "Imită 10 acțiuni fine (ex., pensa).",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Ia obiectul și imită acțiunea",
+      "text": "Imitație fină",
+      "objective": "Imită acțiuni fine (ex., pensa).",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită 10 acțiuni & imită acțiuni noi cu ușurință." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni & imită acțiuni noi ușor"
+        }
       ]
     },
     {
       "id": "D13",
-      "text": "Atinge un set de 4 obiecte în secventa - în același timp cu adultul",
+      "text": "Atinge obiecte în ordine - în același timp.",
       "objective": "Atinge 4 obiecte după model (adultul atinge mașina, pantof, cal și iepure - copilul atinge aceleași obiecte în aceeași ordine).",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Atinge obiectele în același timp cu adultul.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Imită orice secvență de 2 sau 4 obiecte." },
-        { "score": 2, "text": "Imită orice secvență de 4 sau 6 obiecte." }
+        {
+          "score": 1,
+          "text": "orice secvență de 2 sau 4 obiecte"
+        },
+        {
+          "score": 2,
+          "text": "orice secvență de 4 sau 6 obiecte"
+        }
       ]
     },
     {
       "id": "D14",
-      "text": "Suflă",
+      "text": "Suflă.",
       "objective": "Suflă pentru 2 secunde.",
-      "sd": "Fă ca mine + adultul modelează acțiunea.",
-      "response": "Imită acțiunea.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Suflă rapid sau suflă timp de 2 secunde." },
-        { "score": 2, "text": "Suflă atât rapid cât și timp de 2 secunde." }
+        {
+          "score": 1,
+          "text": "imită suflatul"
+        },
+        {
+          "score": 2,
+          "text": "imită suflatul pentru 2 secunde"
+        }
       ]
     },
     {
       "id": "D15",
-      "text": "Imită viteza cu care este realizată o acțiune cu un obiect - in același timp cu adultul",
-      "objective": "Imită viteza cu care adultul realizeaza o acțiune (bate ușor în tobă sau repede).",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Ia obiectul și imită acțiunea - în același timp cu adultul.",
+      "text": "Imită viteza de acțiune cu obiecte - în același timp",
+      "objective": "Imită viteza cu care adultul realizează o acțiune (bate ușor în tobă sau repede).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Are nevoie doar de prompt verbal pentru a imita viteza acțiunii." },
-        { "score": 2, "text": "Imită cu ușurință viteza de realizare a unei acțiuni." }
+        {
+          "score": 1,
+          "text": "are nevoie de prompt verbal pentru a imita viteza acțiunii"
+        },
+        {
+          "score": 2,
+          "text": "imită cu ușurință viteza de realizare a unei acțiuni"
+        }
       ]
     },
     {
       "id": "D16",
-      "text": "Imită viteza cu care este realizată o acțiune cu un obiect - după ce adultul i-a modelat acțiunea",
-      "objective": "Imită acțiunea și viteza de realizare a unei acțiuni după demonstrația adultului.",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Ia obiectul și imită acțiunea - după demonstrația adultului.",
+      "text": "Imită viteza de acțiune cu obiecte",
+      "objective": "După ce a urmărit viteza cu care adultul a realizat o acțiune copilul imită acțiunea și viteza cu care adultul a realizat respectiva acțiune.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Are nevoie doar de prompt verbal de a imita acțiunea imediat după demonstrația adultului." },
-        { "score": 2, "text": "Imită cu ușurință viteza de realizare a unei acțiuni imediat după de demonstrația adultului." }
+        {
+          "score": 1,
+          "text": "are nevoie de prompt verbal imediat după demonstrație"
+        },
+        {
+          "score": 2,
+          "text": "imită cu ușurință viteza de realizare a unei acțiuni imediat după de demonstrație."
+        }
       ]
     },
     {
       "id": "D17",
-      "text": "Imită viteza cu care este realizată o acțiune grosieră",
+      "text": "Imită viteza unei acțiuni grosiere",
       "objective": "Imită viteza cu care adultul realizează o acțiune (ex., ridică mâinile repede).",
-      "sd": "Fă ca mine + adultul modelează acțiunea.",
-      "response": "Ia obiectul și imită acțiunea.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de prompt verbal pentru a imita viteza acțiunii." },
-        { "score": 2, "text": "Imită cu ușurință viteza de realizare a unei acțiuni." }
+        {
+          "score": 1,
+          "text": "are nevoie de prompt verbal pentru a imita viteza acțiunii"
+        },
+        {
+          "score": 2,
+          "text": "imită cu ușurință viteza de realizare a unei acțiuni"
+        }
       ]
     },
     {
       "id": "D18",
-      "text": "Atinge în ordine un set de obiecte după demonstrație",
-      "objective": "Observă cum adultul atinge 2 - 4 obiecte și, după demonstrația adultului, atinge aceleași obiecte, în aceeași ordine.",
-      "sd": "Fă ca mine + adultul atinge 2 - 4 obiecte în ordine aleatorie.",
-      "response": "Atinge aceleași obiecte, în aceeasi ordine.",
+      "text": "Atinge în ordine un set de obiecte după demonstrație.",
+      "objective": "După ce a urmărit în ce ordine a atins adultul obiectele copilul atinge în aceeași ordine obiectele.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Atinge orice secvență de 2 din 4 obiecte prezentate, după demonstrația adultului." },
-        { "score": 2, "text": "Atinge orice secvență de 4 din 6 obiecte prezentate, după de demonstrația adultului." }
+        {
+          "score": 1,
+          "text": "atinge orice secvență de 2 sau 4 obiecte după demonstrație"
+        },
+        {
+          "score": 2,
+          "text": "atinge orice secvență de 4 sau 6 obiecte după de demonstrație."
+        }
       ]
     },
     {
       "id": "D19",
-      "text": "Imită secvențe de acțiuni grosiere - în același timp cu adultul",
-      "objective": "Imită diferite secvente de acțiunii motorii în 10 secunde.",
-      "sd": "Fă ca mine + adultul modelează acțiunile.",
-      "response": "Imită secvența de acțiuni - în același timp cu adultul.",
+      "text": "Imită secvențe de acțiuni grosiere - în același timp",
+      "objective": "În timp de adultul realizează o actiune, copilul imită și el respectiva acțiune; când adultul trece la o altă acțiune și copilul face trecerea la noua acțiune.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Imită o secvență de 4 actiuni în 10 secunde." },
-        { "score": 2, "text": "Imită o secvență de 6 acțiuni în 10 secunde." }
+        {
+          "score": 1,
+          "text": "repetă o secvență de 4 acțiuni în 10 secunde"
+        },
+        {
+          "score": 2,
+          "text": "repetă o secvență de 6 acțiuni în 10 secunde"
+        }
       ]
     },
     {
       "id": "D20",
-      "text": "Imită secvențe de acțiuni grosiere - după demonstrație",
-      "objective": "Imită 10 secvențe compuse din 2 acțiuni motorii.",
-      "sd": "Fă ca mine + adultul modelează 2 acțiuni.",
-      "response": "Reproduce cele doua acțiuni în ordinea realizata de adult.",
+      "text": "Imită secvențe de acțiuni grosiere după demonstrație",
+      "objective": "După ce adultul realizează o secventă de 2 acțiuni copilul realizează aceleași acțiuni, în aceeași ordine.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 secvențe de 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 secvențe de 2 acțiuni." },
-        { "score": 3, "text": "Imită 10 secvențe de 2 acțiuni." },
-        { "score": 4, "text": "Imită cel puțin 10 secvențe de 2 acțiuni & imită cu ușurință noi secvențe de acțiuni." }
+        {
+          "score": 1,
+          "text": "2 secvențe de 2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 secvențe de 2 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 secvențe de 2 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "cel puțin 10 secvențe de 2 acțiuni & imită ușor noi secvențe de acțiuni"
+        }
       ]
     },
     {
       "id": "D21",
-      "text": "Imită intensitatea cu care este realizată o acțiune",
-      "objective": "Imită intensitatea unei acțiuni motorii (ex., bate tare în masă, bate ușor în masă).",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Ia obiectul și imită acțiunea și intensitatea acțiunii.",
+      "text": "Imită intensitatea unei acțiuni.",
+      "objective": "Imită intensitatea unei acțiuni (ex., bate tare in masă, bate ușor în masă).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de un prompt verbal pentru a imita intensitatea unei acțiuni." },
-        { "score": 2, "text": "Imită ușor acțiunile și intensitatea lor." }
+        {
+          "score": 1,
+          "text": "are nevoie de un prompt verbal pentru a imita intensitatea unei acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "imită ușor acțiunile și intensitatea lor"
+        }
       ]
     },
     {
       "id": "D22",
       "text": "Imită numărul de repetiții a unei acțiuni",
-      "objective": "Imită numărul de repetiții a unei acțiuni.",
-      "sd": "Fă ca mine + adultul realizează o acțiune de 2 - 3 ori.",
-      "response": "Imită acțiunea și numărul de repetiții ale acesteia.",
+      "objective": "După ce adultul realizează o acțiune de 3 ori copilul repetă aceeași acțiune de tot atâtea ori.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Repetă orice acțiune de 3 ori cu prompt verbal sau gestual." },
-        { "score": 2, "text": "Repetă orice actiune de 3 ori fără prompt." }
+        {
+          "score": 1,
+          "text": "repetă orice acțiune de 3 ori cu prompt verbal sau gestual"
+        },
+        {
+          "score": 2,
+          "text": "repetă orice acțiune de 3 ori fără prompt"
+        }
       ]
     },
     {
       "id": "D23",
-      "text": "Simultan imită o acțiune grosieră și vocalizează",
-      "objective": "Imită până la 3 repetiții ale unor acțiuni cu cel puțin 4 combinații diferite de răspuns motor și vocal (ex., ridică mâinile, le mișcă de la stânga la dreapta și spune 'fâș, fâș, fâș).",
-      "sd": "Fă ca mine + adultul modelează acțiunea și vocalizează în același timp.",
-      "response": "Imită acțiunea și vocalizează.",
+      "text": "Simultan imită acțiunea grosieră cu vocalizări",
+      "objective": "Când adultul realizează o acțiune și spune un cuvânt/propoziția/fraza, copilul repetă acțiunea și repetă cuvântul/propoziția/fraza (ex., ridică mâinile, le mișcă de la stânga la dreapta și spune “fâș, fâș, fâș).",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Imită cel puțin o acțiune compusa dintr-un raspuns motor și unul vocal (fără prompt)." },
-        { "score": 2, "text": "Imită până la 3 repetiții pentru 4 combinații de răspunsuri motorii și vocale." }
+        {
+          "score": 1,
+          "text": "imită cel puțin o acțiune și răspunsul vocal combinații fără prompt"
+        },
+        {
+          "score": 2,
+          "text": "imită până la 3 repetiții pentru 4 compinații de răspunsuri vocale cu acțiuni motorii."
+        }
       ]
     },
     {
       "id": "D24",
-      "text": "Imită o secvență de acțiuni cu diferite obiecte",
-      "objective": "Imită 6 secvente compuse din 3 acțiuni pe 4 obiecte (ex., 1. amesteca cu lingura, bebe mananca; 2. catelul doarme in pat).",
-      "sd": "Fă ca mine + adultul modelează acțiunea",
-      "response": "Ia obiectele și imită acțiunea",
+      "text": "Imită secvențe de acțiuni cu diferite obiecte",
+      "objective": "Imită secvențe de acțiuni cu diferite obiecte când adultul spune “Fă ca mine”. Când în fața lui sunt: un camion, o cutie, un cub albastru, unul galben, unul roșu și unul alb, copilul imită următoarea secvență: pune cubul albastru peste cubul alb, cubul roșu în cutie și cubul galben în camion.",
+      "sd": null,
+      "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Reproduce 6 secvențe cu cel puțin două acțiuni, folosindu-se de 4 obiecte (rămâne prezent)." },
-        { "score": 2, "text": "Reproduce 6 secvențe cu cel puțin 3 acțiuni, folosindu-se de 4 obiecte (rămâne prezent)." }
+        {
+          "score": 1,
+          "text": "repetă 6 secvențe cu cel puțin două acțiuni, cu 4 obiecte - vede modelul"
+        },
+        {
+          "score": 2,
+          "text": "repetă 6 secvențe cu cel puțin 3 acțiuni, cu 4 obiecte - vede modelu"
+        }
       ]
     },
     {
       "id": "D25",
-      "text": "Imită acțiuni motorii fără prompt verbal direct",
+      "text": "Imită acțiuni motorii fără prompt verbal direct.",
       "objective": "Imită acțiunile celorlalți doar pentru satisfacția personală sau pentru recunoașterea socială (i.e. pentru ca ceilalți să vadă că și el poate să realizeze acele acțiuni).",
-      "sd": "Adultul/copilul realizează o acțiune.",
-      "response": "Imită acțiunea.",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni" },
-        { "score": 2, "text": "Imită 5 acțiuni" },
-        { "score": 3, "text": "Imită 10 acțiuni" },
-        { "score": 4, "text": "Imită 10 acțiuni & imită cu ușurință acțiuni noi." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "10 acțiuni & imită ușor acțiuni noi"
+        }
       ]
     },
     {
       "id": "D26",
       "text": "Spontan imită acțiunile celorlalți",
-      "objective": "Imită spontan acțiunile celor care nu stau direct în fața lui (fără prompt sau să i se atragă atenția să imite).",
-      "sd": "Adultul/Copilul realizează o acțiune.",
-      "response": "Imită acțiunea.",
+      "objective": "Imită spontan acțiunile celor care nu stau în fața lui (fără prompt sau atras atenția să imite).",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită 2 acțiuni." },
-        { "score": 2, "text": "Imită 5 acțiuni." },
-        { "score": 3, "text": "Imită 10 acțiuni." },
-        { "score": 4, "text": "Imită cel puțin 10 acțiuni & imită cu ușurință noi acțiuni." }
+        {
+          "score": 1,
+          "text": "2 acțiuni"
+        },
+        {
+          "score": 2,
+          "text": "5 acțiuni"
+        },
+        {
+          "score": 3,
+          "text": "10 acțiuni"
+        },
+        {
+          "score": 4,
+          "text": "cel puțin 10 acțiuni & imită ușor noi acțiuni"
+        }
       ]
     },
     {
       "id": "D27",
-      "text": "Imită acțiuni urmărite cu câteva ore în urmă",
-      "objective": "Imită acțiuni observate anterior (în urmă cu câteva ore) și își descrie spontan sau la cerere propriul comportament (ex., Așa a făcut leul/Arată-mi cum spăla Cenușăreasa podeaua).",
-      "sd": "Adultul/copilul/personajul realizează o acțiune.",
-      "response": "Imită acțiunea.",
+      "text": "Imitație întârziată",
+      "objective": "Imită acțiuni observate anterior (în urmă cu câteva ore) în timp ce își descrie spontan sau la cerere propriul comportament (ex., Așa a făcul leul/Arată-mi cum spăla Cenușăreasa podeaua).",
+      "sd": null,
+      "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Imită, la cerere, o acțiune după 5 minute." },
-        { "score": 2, "text": "Numește și imită o acțiune după 10 minute." },
-        { "score": 3, "text": "Numește și imită o acțiune după o oră." },
-        { "score": 4, "text": "Numește și imită diferite acțiuni după 4 ore." }
+        {
+          "score": 1,
+          "text": "la cerere, 1 acțiune după 5 minute"
+        },
+        {
+          "score": 2,
+          "text": "numește și imită după 10 minute"
+        },
+        {
+          "score": 3,
+          "text": "numește și imită după o oră"
+        },
+        {
+          "score": 4,
+          "text": "numește și imită diferite acțiuni după 4 ore."
+        }
       ]
     }
   ]

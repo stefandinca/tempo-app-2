@@ -1,19 +1,31 @@
 {
   "id": "M",
-  "title": "INSTRUCTII DE GRUP",
+  "title": "Instrucție de grup",
   "items": [
     {
       "id": "M1",
       "text": "Stă adecvat într-un grup mic",
-      "objective": "În grup, când educatoarea predă, stă liniștit, fără să facă zgomot și fără să încerce să plece.",
+      "objective": "În grup, când educatoarea predă, copilul stă liniștit, fără să facă zgomot și fără să încerce să plece.",
       "sd": null,
       "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Stă într-un grup de 1:2, timp de 5 minute." },
-        { "score": 2, "text": "Stă într-un grup de 1:2 - timp de 10 minute." },
-        { "score": 3, "text": "Stă într-un grup de 1:3 - timp de 10 minute." },
-        { "score": 4, "text": "Stă într-un grup de 1:4 - timp de 15 minute." }
+        {
+          "score": 1,
+          "text": "1:2 - grup de 5 minute"
+        },
+        {
+          "score": 2,
+          "text": "1:2 - grup de 10 minute"
+        },
+        {
+          "score": 3,
+          "text": "1:3 - grup de 10 minute"
+        },
+        {
+          "score": 4,
+          "text": "1:4 - grup de 15 minute"
+        }
       ]
     },
     {
@@ -24,126 +36,216 @@
       "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Stă într-un grup de 1:6 - timp de 15 minute." },
-        { "score": 2, "text": "Stă într-un grup de 1:8 - timp de 15 minute." },
-        { "score": 3, "text": "Stă într-un grup de 1:12 sau 2:16 - timp de 15 minute." },
-        { "score": 4, "text": "Stă într-un grup de 1:16 - timp de 15 minute." }
+        {
+          "score": 1,
+          "text": "1:6 - grup de 15 minute"
+        },
+        {
+          "score": 2,
+          "text": "1:8 - grup de 15 minute"
+        },
+        {
+          "score": 3,
+          "text": "1:12 sau 2:16 - grup de 15 minute"
+        },
+        {
+          "score": 4,
+          "text": "1:16 - grup de 15 minute"
+        }
       ]
     },
     {
       "id": "M3",
       "text": "Urmărește educatoarea în grup",
-      "objective": null,
+      "objective": "Copilul urmărește cum educatoarea (se întoarce spre ea și îi răspunde)",
       "sd": null,
       "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Urmărește educatoarea 50% din timp, într-un grup de 1:2." },
-        { "score": 2, "text": "Urmărește educatoarea 75% din timp, într-un grup de 1:2." },
-        { "score": 3, "text": "Urmărește educatoarea 75% din timp, într-un grup de 1:3." },
-        { "score": 4, "text": "Urmărește educatoarea 75% din timp, într-un grup de 1:4." }
+        {
+          "score": 1,
+          "text": "1:2 grup - 50% din timp"
+        },
+        {
+          "score": 2,
+          "text": "1:2 - 75%"
+        },
+        {
+          "score": 3,
+          "text": "1:3 - 75%"
+        },
+        {
+          "score": 4,
+          "text": "1:4 - 75%"
+        }
       ]
     },
     {
       "id": "M4",
-      "text": "Urmareste copiii in grup",
-      "objective": "Urmărește cum răspund copiii în grup.",
+      "text": "Urmărește copiii în grup",
+      "objective": "Copilul urmărește cum răspund copiii în grup",
       "sd": null,
       "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Urmărește cum răspunde copiii 50% din timp, într-un grup de 1:2." },
-        { "score": 2, "text": "Urmărește cum răspunde copiii 75% din timp, într-un grup de 1:2." },
-        { "score": 3, "text": "Urmărește cum răspunde copiii 75% din timp, într-un grup de 1:3." },
-        { "score": 4, "text": "Urmărește cum răspunde copiii 75% din timp, într-un grup de 1:4." }
+        {
+          "score": 1,
+          "text": "1:2 grup - 50% din timp"
+        },
+        {
+          "score": 2,
+          "text": "1:2 - 75%"
+        },
+        {
+          "score": 3,
+          "text": "1:3 - 75%"
+        },
+        {
+          "score": 4,
+          "text": "1:4 - 75%"
+        }
       ]
     },
     {
       "id": "M5",
-      "text": "Răspunde la instrucții în grup",
-      "objective": null,
+      "text": "Răspunde la instrucții în grup (când toți copiii fac la fel)",
+      "objective": "Când educatoarea le cere să-și pună mâinile pe cap - face și el la fel.",
       "sd": null,
       "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Răspunde la instrucții în grup 50% din timp, într-un grup de 1:2." },
-        { "score": 2, "text": "Răspunde la instrucții în grup 50% din timp, într-un grup de 1:2." },
-        { "score": 3, "text": "Răspunde la instrucții în grup 75% din timp, într-un grup de 1:3." },
-        { "score": 4, "text": "Răspunde la instrucții în grup 75% din timp, într-un grup de 1:4." }
+        {
+          "score": 1,
+          "text": "1:2 grup - 50% din timp"
+        },
+        {
+          "score": 2,
+          "text": "1:2 - 75%"
+        },
+        {
+          "score": 3,
+          "text": "1:3 - 75%"
+        },
+        {
+          "score": 4,
+          "text": "1:4 - 75%"
+        }
       ]
     },
     {
       "id": "M6",
       "text": "Răspunde la instrucții după un criteriu",
-      "objective": null,
+      "objective": "Dacă ai tricoul verde ridică-te în picioare.",
       "sd": null,
       "response": null,
       "maxScore": 4,
       "criteria": [
-        { "score": 1, "text": "Răspunde la instrucții după un criteriu (ex., daca ai tricpu verde ridică-te în picioare) 50% din timp, într-un grup de 1:2." },
-        { "score": 2, "text": "Răspunde la instrucții după un criteriu (ex., daca ai tricpu verde ridică-te în picioare) 75% din timp, într-un grup de 1:2." },
-        { "score": 3, "text": "Răspunde la instrucții după un criteriu (ex., daca ai tricpu verde ridică-te în picioare) 75% din timp, într-un grup de 1:3." },
-        { "score": 4, "text": "Răspunde la instrucții după un criteriu (ex., daca ai tricpu verde ridică-te în picioare) 75% din timp, într-un grup de 1:4." }
+        {
+          "score": 1,
+          "text": "1:2 grup - 50% din timp"
+        },
+        {
+          "score": 2,
+          "text": "1:2 - 75%"
+        },
+        {
+          "score": 3,
+          "text": "1:3 - 75%"
+        },
+        {
+          "score": 4,
+          "text": "1:4 - 75%"
+        }
       ]
     },
     {
       "id": "M7",
-      "text": "Ridica mana pentru a se oferi pentru o activitate preferată",
-      "objective": null,
+      "text": "Ridică mâna pentru a se oferi pentru o activitate",
+      "objective": "Cine vrea să aleagă următorul cântec?",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Ridicǎ mâna în 50% din oportunități - într-un grup de 4 copii (ex.. Cine vrea sa aleaga urmatorul cantec?)." },
-        { "score": 2, "text": "Ridicǎ mâna în 50% din oportunități - într-un grup de 8 copii (ex., Cine vrea sa aleaga urmatorul cantec?)." }
+        {
+          "score": 1,
+          "text": "50% din oportunități - grup de 4"
+        },
+        {
+          "score": 2,
+          "text": "50% - grup de 8"
+        }
       ]
     },
     {
       "id": "M8",
-      "text": "Ridica mana pentru a raspunde la o intrebare",
-      "objective": "Ridica mana daca iti place ciocolata/daca ai venit cu masina la scoala/daca ai venit cu bunicul Evaluare:",
+      "text": "Ridică mâna pentru a răspunde la o întrebare",
+      "objective": "Ridică mâna dacă îți place ciocolata/dacă ai venit cu mașina la școală/dacă ai venit cu bunicul",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de prompt gestual pentru 50% din răspunsurile la întrebările cunoscute." },
-        { "score": 2, "text": "Răspunde independent la întrebări." }
+        {
+          "score": 1,
+          "text": "are nevoie de prompt gestual pentru 50% din întrebările cunoscute."
+        },
+        {
+          "score": 2,
+          "text": "răspunde independent la întrebări"
+        }
       ]
     },
     {
       "id": "M9",
-      "text": "Ridica mana si numeste itemi",
-      "objective": null,
+      "text": "Ridică mâna și numește itemi",
+      "objective": "Când educatoarea întreba „Cine știe ce este acesta?” copilul ridică mâna și răspunde când este ales de educatoare.",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de prompt gestual pentru 50% din răspunsurile la întrebările cunoscute (ex., când educatoarea întreba 'Cine știe ce este acesta?' copilul ridică mâna și răspunde când este ales de educatoare)." },
-        { "score": 2, "text": "Răspunde independent la întrebări (ex., când educatoarea întreba 'Cine știe ce este acesta?' copilul ridică mâna și răspunde când este ales de educatoare)." }
+        {
+          "score": 1,
+          "text": "are nevoie de prompt gestual pentru 50% din întrebările cunoscute."
+        },
+        {
+          "score": 2,
+          "text": "răspunde independent la întrebări"
+        }
       ]
     },
     {
       "id": "M10",
-      "text": "Ridică mâna și răspunde la o intrebare de cultură generală",
-      "objective": null,
+      "text": "Ridică mâna și răspunde la o întrebare",
+      "objective": "Când educatoarea întreba „Cine știe ce mâncăm dimineața?” copilul ridică mâna și răspunde când este ales de educatoare.",
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Are nevoie de prompt gestual pentru 50% din răspunsurile la întrebările cunoscute." },
-        { "score": 2, "text": "Răspunde independent la întrebări." }
+        {
+          "score": 1,
+          "text": "are nevoie de prompt gestual pentru 50% din întrebările cunoscute."
+        },
+        {
+          "score": 2,
+          "text": "răspunde independent la întrebări"
+        }
       ]
     },
     {
       "id": "M11",
-      "text": "Își așteaptă rândul în timpul activităților de predare în grup",
+      "text": "Turn-taking în timpul activităților de predare în grup",
       "objective": null,
       "sd": null,
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Răspunde cu prompt în 75% din oportunități." },
-        { "score": 2, "text": "Face turn-taking și așteaptă în 75% din oportunități." }
+        {
+          "score": 1,
+          "text": "75% cu prompt"
+        },
+        {
+          "score": 2,
+          "text": "turn-taking și 75% fără prompt"
+        }
       ]
     },
     {
@@ -154,8 +256,14 @@
       "response": null,
       "maxScore": 2,
       "criteria": [
-        { "score": 1, "text": "Învață noi abilități după mai multe repetiții." },
-        { "score": 2, "text": "Învață repede noi abilități în grup." }
+        {
+          "score": 1,
+          "text": "învață după mai multe repetiții"
+        },
+        {
+          "score": 2,
+          "text": "învață repede"
+        }
       ]
     }
   ]
