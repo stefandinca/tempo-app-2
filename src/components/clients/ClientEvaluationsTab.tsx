@@ -300,7 +300,7 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
             onClose={() => setABLLSModal({ type: "none" })}
             clientId={client.id}
             clientName={client.name}
-            clientDob={client.dob}
+            clientDob={client.birthDate || client.dob}
             evaluationId={ablllsModal.type === "wizard" ? ablllsModal.evaluationId : undefined}
             previousEvaluation={ablllsModal.type === "wizard" ? ablllsModal.previousEvaluation : undefined}
           />
