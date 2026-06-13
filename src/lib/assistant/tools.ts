@@ -117,13 +117,13 @@ export async function executeAssistantTool(name: string, input: any): Promise<an
       const evals: any[] = [];
       for (const { sub, kind } of EVAL_SUBS) {
         const es = await db.collection("clients").doc(clientId).collection(sub).get();
-        for (const ed of es.docs) {
+        const ofKind = es.docs.map((ed) => {
           const data: any = { id: ed.id, ...(ed.data() as any) };
           data.completedAt = iso(data.completedAt);
           data.updatedAt = iso(data.updatedAt) || data.completedAt || "";
           try {
             const cmp = toComparable(kind, data);
-            evals.push({
+            return {
               kind,
               id: ed.id,
               date: cmp.rawDate || null,
@@ -132,14 +132,17 @@ export async function executeAssistantTool(name: string, input: any): Promise<an
               unit: cmp.unit,
               direction: cmp.direction,
               note: cmp.overallNote || null,
-              categories: cmp.categories.map((ct) => ({ name: ct.name, value: ct.value })),
+              categories: cmp.categories.slice(0, 30).map((ct) => ({ name: ct.name, value: ct.value })),
               aiInsightsSummary: data.aiInsights?.summary || null,
               aiFocusAreas: data.aiInsights?.focusAreas || null,
-            });
+            };
           } catch {
-            evals.push({ kind, id: ed.id, status: data.status || null, note: "could not summarize" });
+            return { kind, id: ed.id, status: data.status || null, note: "could not summarize" };
           }
-        }
+        });
+        // Keep only the 5 most recent of each instrument to bound the payload.
+        ofKind.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+        evals.push(...ofKind.slice(0, 5));
       }
       evals.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
       result.evaluations = evals;

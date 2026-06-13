@@ -35,13 +35,21 @@ export async function POST(req: NextRequest) {
 
   const language: Lang = body?.language === "ro" ? "ro" : "en";
   const raw: InMsg[] = Array.isArray(body?.messages) ? body.messages : [];
-  const messages: any[] = raw
+  const history: any[] = raw
     .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())
     .map((m) => ({ role: m.role, content: m.content.slice(0, 8000) }));
 
-  if (messages.length === 0 || messages[0].role !== "user") {
+  // Bound history so a long conversation can't grow input tokens without limit.
+  const messages = history.slice(-16);
+  while (messages.length && messages[0].role !== "user") messages.shift();
+  if (messages.length === 0) {
     return NextResponse.json({ error: "invalid_messages" }, { status: 400 });
   }
+
+  // Cache the conversation prefix (2nd breakpoint, after the cached system block)
+  // so follow-up turns within the cache TTL reuse it instead of re-billing history.
+  const tail = messages[messages.length - 1];
+  tail.content = [{ type: "text", text: tail.content, cache_control: { type: "ephemeral" } }];
 
   const system = chatSystemPrompt(language);
   const client = getAnthropic();
@@ -76,7 +84,7 @@ export async function POST(req: NextRequest) {
               toolResults.push({
                 type: "tool_result",
                 tool_use_id: tu.id,
-                content: JSON.stringify(res).slice(0, 60000),
+                content: JSON.stringify(res).slice(0, 20000),
               });
             }
             messages.push({ role: "user", content: toolResults });

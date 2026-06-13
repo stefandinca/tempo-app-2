@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 import { Sparkles, X, Send, Loader2 } from "lucide-react";
+
+// Lazy so react-markdown only loads when the chat is actually opened.
+const MarkdownMessage = dynamic(() => import("./MarkdownMessage"), { ssr: false });
 import { openChatStream, AssistantError } from "@/lib/assistant/clientApi";
 import { useAiConsent } from "@/hooks/useAiConsent";
 import { IS_DEMO } from "@/lib/firebase";
@@ -144,13 +148,19 @@ export default function AssistantPanel({ isOpen, onClose }: { isOpen: boolean; o
               <div key={i} className={clsx("flex", m.role === "user" ? "justify-end" : "justify-start")}>
                 <div
                   className={clsx(
-                    "max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm whitespace-pre-wrap leading-relaxed",
+                    "max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed",
                     m.role === "user"
-                      ? "bg-primary-600 text-white rounded-br-md"
+                      ? "bg-primary-600 text-white rounded-br-md whitespace-pre-wrap"
                       : "bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 rounded-bl-md"
                   )}
                 >
-                  {m.content || (streaming && i === messages.length - 1 ? <Loader2 className="w-4 h-4 animate-spin" /> : "")}
+                  {m.role === "user" ? (
+                    m.content
+                  ) : m.content ? (
+                    <MarkdownMessage content={m.content} />
+                  ) : streaming && i === messages.length - 1 ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : null}
                 </div>
               </div>
             ))

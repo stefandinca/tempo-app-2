@@ -1,11 +1,11 @@
-// Curated app-guidance knowledge base for the assistant, EN + RO. Injected into
-// the (cacheable) system prompt so the assistant can answer "how do I use
-// TempoApp" questions grounded in real workflows. Keep factual and current.
+// Curated app-guidance knowledge base for the assistant, split by language.
+// Injected into the (cacheable) system prompt so the assistant can answer "how do
+// I use TempoApp" questions grounded in real workflows. Only the language of the
+// current conversation is sent — sending both would ~double the cached prefix.
+// Keep factual and current.
 
-export const APP_KNOWLEDGE = `
+const EN = `
 # TempoApp — how it works (reference for the assistant)
-
-## EN
 
 **Roles.** Superadmin/Admin: full access incl. billing, analytics, team, settings. Coordinator: clients, scheduling, evaluations, intervention plans, analytics (no billing/team/settings). Therapist: own sessions, assigned clients, scoring, evaluations, voice/video. Parent: read-only portal for their own child (separate login with an access code).
 
@@ -32,8 +32,10 @@ export const APP_KNOWLEDGE = `
 **Settings.** Profile, appearance (light/dark/system), language (EN/RO), billing config, account limits, notification preferences.
 
 **Parent portal.** Login with the access code (no account). Shows: home (next session, latest summary, billing), schedule, progress (programs, evaluations), homework, messages, documents, billing, child profile. Parents can listen to shared voice feedback and watch shared session videos.
+`.trim();
 
-## RO
+const RO = `
+# TempoApp — cum funcționează (referință pentru asistent)
 
 **Roluri.** Superadmin/Admin: acces complet, inclusiv facturare, analize, echipă, setări. Coordonator: clienți, programare, evaluări, planuri de intervenție, analize (fără facturare/echipă/setări). Terapeut: propriile sesiuni, clienții alocați, scorare, evaluări, feedback vocal/video. Părinte: portal read-only pentru propriul copil (autentificare separată cu cod de acces).
 
@@ -61,3 +63,8 @@ export const APP_KNOWLEDGE = `
 
 **Portal părinte.** Autentificare cu codul de acces. Afișează: acasă (următoarea sesiune, ultimul sumar, facturare), program, progres, teme, mesaje, documente, facturare, profil copil. Părinții pot asculta feedback vocal și viziona videoclipuri partajate.
 `.trim();
+
+/** Only the conversation's language is injected, to keep the cached prefix small. */
+export function appKnowledge(lang: "en" | "ro"): string {
+  return lang === "ro" ? RO : EN;
+}

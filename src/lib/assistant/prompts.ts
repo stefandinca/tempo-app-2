@@ -1,4 +1,4 @@
-import { APP_KNOWLEDGE } from "./knowledge";
+import { appKnowledge } from "./knowledge";
 import type { EvaluationContext } from "./context";
 import type { InsightsResult } from "@/types/aiInsights";
 
@@ -27,9 +27,11 @@ Boundaries:
 - Frame clinical suggestions as options to consider, not directives.
 - This data is confidential. Only discuss it with the authenticated staff member you are talking to, and only the client(s) they asked about.
 
+Format answers in clean Markdown: short paragraphs, **bold** for emphasis, bullet lists, and Markdown tables when comparing values across categories or dates. Do not draw ASCII tables or boxes.
+
 Always respond in ${langName(lang)}.
 
-${APP_KNOWLEDGE}`;
+${appKnowledge(lang)}`;
 }
 
 export function insightsSystemPrompt(lang: Lang): string {
