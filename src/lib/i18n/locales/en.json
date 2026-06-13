@@ -1,4 +1,7 @@
 {
+  "vbmapp": {
+    "supporting_skills": "Supporting skills"
+  },
   "header": {
     "titles": {
       "dashboard": "Dashboard",

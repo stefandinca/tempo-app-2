@@ -1,4 +1,7 @@
 {
+  "vbmapp": {
+    "supporting_skills": "Abilități de sprijin"
+  },
   "header": {
     "titles": {
       "dashboard": "Dashboard",

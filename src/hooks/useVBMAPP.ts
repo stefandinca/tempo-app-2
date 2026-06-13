@@ -170,6 +170,7 @@ export function useVBMAPPActions() {
           milestoneScores: {},
           barrierScores: {},
           transitionScores: {},
+          supportingSkillScores: {},
           levelSummaries,
           barrierSummary,
           transitionSummary,
@@ -198,7 +199,8 @@ export function useVBMAPPActions() {
       evaluationId: string,
       milestoneScores: Record<string, VBMAPPItemScore>,
       barrierScores: Record<string, VBMAPPItemScore>,
-      transitionScores: Record<string, VBMAPPItemScore>
+      transitionScores: Record<string, VBMAPPItemScore>,
+      supportingSkillScores: Record<string, boolean>
     ) => {
       setSaving(true);
       try {
@@ -226,6 +228,7 @@ export function useVBMAPPActions() {
           milestoneScores,
           barrierScores,
           transitionScores,
+          supportingSkillScores,
           levelSummaries,
           barrierSummary,
           transitionSummary,
@@ -249,7 +252,8 @@ export function useVBMAPPActions() {
       evaluationId: string,
       milestoneScores: Record<string, VBMAPPItemScore>,
       barrierScores: Record<string, VBMAPPItemScore>,
-      transitionScores: Record<string, VBMAPPItemScore>
+      transitionScores: Record<string, VBMAPPItemScore>,
+      supportingSkillScores: Record<string, boolean>
     ) => {
       setSaving(true);
       try {
@@ -277,6 +281,7 @@ export function useVBMAPPActions() {
           milestoneScores,
           barrierScores,
           transitionScores,
+          supportingSkillScores,
           levelSummaries,
           barrierSummary,
           transitionSummary,

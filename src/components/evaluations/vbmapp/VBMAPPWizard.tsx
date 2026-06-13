@@ -75,6 +75,7 @@ export default function VBMAPPWizard({
   const [milestoneScores, setMilestoneScores] = useState<Record<string, VBMAPPItemScore>>({});
   const [barrierScores, setBarrierScores] = useState<Record<string, VBMAPPItemScore>>({});
   const [transitionScores, setTransitionScores] = useState<Record<string, VBMAPPItemScore>>({});
+  const [supportingSkillScores, setSupportingSkillScores] = useState<Record<string, boolean>>({});
   const [activeEvaluationId, setActiveEvaluationId] = useState<string | null>(evaluationId || null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -154,6 +155,7 @@ export default function VBMAPPWizard({
       setMilestoneScores(existingEvaluation.milestoneScores || {});
       setBarrierScores(existingEvaluation.barrierScores || {});
       setTransitionScores(existingEvaluation.transitionScores || {});
+      setSupportingSkillScores(existingEvaluation.supportingSkillScores || {});
     }
   }, [existingEvaluation]);
 
@@ -165,6 +167,7 @@ export default function VBMAPPWizard({
       setMilestoneScores({});
       setBarrierScores({});
       setTransitionScores({});
+      setSupportingSkillScores({});
       setActiveEvaluationId(evaluationId || null);
       setHasUnsavedChanges(false);
       isCreatingRef.current = false;
@@ -183,6 +186,23 @@ export default function VBMAPPWizard({
           ...(note !== undefined && note !== "" && { note })
         }
       }));
+      setHasUnsavedChanges(true);
+    },
+    []
+  );
+
+  // Handle supporting-skill checkbox toggle (independent of milestone score)
+  const handleSupportingSkillChange = useCallback(
+    (supportingSkillId: string, checked: boolean) => {
+      setSupportingSkillScores((prev) => {
+        const next = { ...prev };
+        if (checked) {
+          next[supportingSkillId] = true;
+        } else {
+          delete next[supportingSkillId];
+        }
+        return next;
+      });
       setHasUnsavedChanges(true);
     },
     []
@@ -235,7 +255,7 @@ export default function VBMAPPWizard({
     if (!activeEvaluationId) return;
 
     try {
-      await saveProgress(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores);
+      await saveProgress(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores, supportingSkillScores);
       setHasUnsavedChanges(false);
       success("Progress saved");
     } catch (err) {
@@ -253,7 +273,7 @@ export default function VBMAPPWizard({
 
     const doComplete = async () => {
       try {
-        await completeEvaluation(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores);
+        await completeEvaluation(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores, supportingSkillScores);
         success("VB-MAPP evaluation completed!");
 
         // Log activity
@@ -518,6 +538,8 @@ export default function VBMAPPWizard({
                     scores={milestoneScores}
                     previousScores={previousEvaluation?.milestoneScores}
                     onScoreChange={handleMilestoneScoreChange}
+                    supportingSkillScores={supportingSkillScores}
+                    onSupportingSkillChange={handleSupportingSkillChange}
                   />
                 </>
               )}

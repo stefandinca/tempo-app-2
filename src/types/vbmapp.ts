@@ -16,10 +16,19 @@ export interface VBMAPPItemScore {
   updatedAt: string;
 }
 
+export interface VBMAPPSupportingSkill {
+  id: string;    // `${milestoneId}-${label}` (e.g. "mand-1-1-a")
+  label: string; // "a", "b", "c", ...
+  text: string;
+}
+
 export interface VBMAPPMilestoneItem {
   id: string;
   text: string;
   months: number; // Developmental milestone age in months
+  mNum?: number;  // Official milestone number as printed on the source sheet (display)
+  guidance?: string; // Examiner determinant note ("Determină dacă...") from the official sheet
+  supportingSkills?: VBMAPPSupportingSkill[]; // Task-analysis sub-skills (trackable checkboxes)
 }
 
 export interface VBMAPPSkillArea {
@@ -152,6 +161,9 @@ export interface VBMAPPEvaluation {
   milestoneScores: Record<string, VBMAPPItemScore>;
   barrierScores: Record<string, VBMAPPItemScore>;
   transitionScores: Record<string, VBMAPPItemScore>;
+
+  // Supporting-skill checkboxes (independent of milestone score) keyed by supporting-skill id
+  supportingSkillScores: Record<string, boolean>;
 
   // Summaries
   levelSummaries: Record<string, LevelSummary>;

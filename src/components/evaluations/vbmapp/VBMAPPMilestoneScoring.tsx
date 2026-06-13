@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { clsx } from "clsx";
-import { MessageSquare, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, AlertCircle } from "lucide-react";
+import { MessageSquare, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus, AlertCircle, ListChecks, Check } from "lucide-react";
 import { ParsedSkillArea, VBMAPPItemScore, MilestoneScore } from "@/types/vbmapp";
 
 interface VBMAPPMilestoneScoringProps {
@@ -10,6 +11,8 @@ interface VBMAPPMilestoneScoringProps {
   scores: Record<string, VBMAPPItemScore>;
   previousScores?: Record<string, VBMAPPItemScore>;
   onScoreChange: (itemId: string, score: MilestoneScore, note?: string, isNA?: boolean) => void;
+  supportingSkillScores?: Record<string, boolean>;
+  onSupportingSkillChange?: (supportingSkillId: string, checked: boolean) => void;
   readOnly?: boolean;
 }
 
@@ -24,11 +27,24 @@ export default function VBMAPPMilestoneScoring({
   scores,
   previousScores,
   onScoreChange,
+  supportingSkillScores = {},
+  onSupportingSkillChange,
   readOnly = false
 }: VBMAPPMilestoneScoringProps) {
+  const { t } = useTranslation();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [ceilingItemId, setCeilingItemId] = useState<string | null>(null);
+
+  const toggleSkillsExpanded = (itemId: string) => {
+    setExpandedSkills((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) next.delete(itemId);
+      else next.add(itemId);
+      return next;
+    });
+  };
 
   // Ceiling Rule Logic: Stop testing when 3 consecutive 0s are achieved in a skill area
   useEffect(() => {
@@ -136,7 +152,7 @@ export default function VBMAPPMilestoneScoring({
                 {/* Item number and milestone age */}
                 <div className="flex flex-col items-center">
                   <span className="text-sm font-bold text-neutral-400">
-                    {index + 1}
+                    {item.mNum ?? index + 1}
                   </span>
                   <span className="text-[10px] text-neutral-400 mt-0.5">
                     {item.months}mo
@@ -148,6 +164,13 @@ export default function VBMAPPMilestoneScoring({
                   <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
                     {item.text}
                   </p>
+
+                  {/* Examiner guidance from the official sheet */}
+                  {item.guidance && (
+                    <p className="mt-1 text-xs italic text-neutral-400 dark:text-neutral-500 leading-relaxed">
+                      {item.guidance}
+                    </p>
+                  )}
 
                   {/* Comparison indicator */}
                   {comparison && !isNA && (
@@ -241,6 +264,63 @@ export default function VBMAPPMilestoneScoring({
                   />
                 </div>
               )}
+
+              {/* Supporting skills (task-analysis checkboxes) */}
+              {item.supportingSkills && item.supportingSkills.length > 0 && (() => {
+                const skills = item.supportingSkills;
+                const doneCount = skills.filter((s) => supportingSkillScores[s.id]).length;
+                const skillsOpen = expandedSkills.has(item.id);
+                return (
+                  <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700">
+                    <button
+                      type="button"
+                      onClick={() => toggleSkillsExpanded(item.id)}
+                      className="flex items-center gap-2 text-xs font-semibold text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors min-h-11"
+                    >
+                      <ListChecks className="w-4 h-4 text-primary-500" />
+                      <span>
+                        {t("vbmapp.supporting_skills")} ({doneCount}/{skills.length})
+                      </span>
+                      {skillsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+
+                    {skillsOpen && (
+                      <div className="mt-1 space-y-0.5">
+                        {skills.map((skill) => {
+                          const checked = !!supportingSkillScores[skill.id];
+                          return (
+                            <button
+                              key={skill.id}
+                              type="button"
+                              onClick={() => !readOnly && onSupportingSkillChange?.(skill.id, !checked)}
+                              disabled={readOnly}
+                              className={clsx(
+                                "w-full flex items-start gap-2.5 text-left px-2 py-2 rounded-lg min-h-11 transition-colors",
+                                readOnly ? "cursor-default" : "hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
+                              )}
+                            >
+                              <span
+                                className={clsx(
+                                  "mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors",
+                                  checked
+                                    ? "bg-success-500 border-success-500 text-white"
+                                    : "border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900"
+                                )}
+                              >
+                                {checked && <Check className="w-3.5 h-3.5" strokeWidth={3} />}
+                              </span>
+                              <span className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                                <span className="font-bold text-neutral-500 dark:text-neutral-300 mr-1">{skill.label}.</span>
+                                {skill.text}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         );
