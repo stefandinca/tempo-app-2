@@ -12,6 +12,7 @@
       "title": "Analize AI",
       "generate": "Generează",
       "regenerate": "Regenerează",
+      "view": "Vezi",
       "generated": "Analize AI generate",
       "consent_needed": "Este necesar consimțământul AI",
       "rate_limited": "Limita zilnică AI atinsă",

@@ -12,6 +12,7 @@
       "title": "AI insights",
       "generate": "Generate",
       "regenerate": "Regenerate",
+      "view": "View",
       "generated": "AI insights generated",
       "consent_needed": "AI consent is required",
       "rate_limited": "Daily AI limit reached",
