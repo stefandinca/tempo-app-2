@@ -3,6 +3,7 @@
 // (initials only), NO birth dates (age in months), NO emails/phones/raw ids.
 // Reuses the evaluation-comparison adapter so the normalized shape stays consistent.
 import { EvalKind, toComparable } from "@/lib/evaluationComparison";
+import { isAbllsSectionAgeExpected } from "@/lib/abllsAgeReference";
 
 function initials(name?: string): string {
   if (!name) return "—";
@@ -34,7 +35,7 @@ export function buildChildContext(client: any): ChildContext {
   return {
     initials: initials(client?.name),
     ageMonths: ageInMonths(client?.birthDate),
-    diagnosis: client?.diagnosis || undefined,
+    diagnosis: client?.diagnosis || client?.primaryDiagnosis || undefined,
     diagnosisLevel: client?.diagnosisLevel || undefined,
   };
 }
@@ -43,12 +44,16 @@ export interface EvaluationContext {
   instrument: EvalKind;
   date: string;
   overall: { value: number; unit: string; direction: string; note?: string };
-  categories: { name: string; value: number }[];
+  // ageExpected (ABLLS-R only) is false when the section is typically NOT yet
+  // age-expected for this child — a low value there is not necessarily a deficit.
+  categories: { name: string; value: number; ageExpected?: boolean }[];
   child?: ChildContext;
 }
 
 export function buildEvaluationContext(kind: EvalKind, evaluation: any, client?: any): EvaluationContext {
   const c = toComparable(kind, evaluation);
+  const child = client ? buildChildContext(client) : undefined;
+  const ageMonths = child?.ageMonths ?? null;
   return {
     instrument: kind,
     date: c.dateLabel,
@@ -58,7 +63,11 @@ export function buildEvaluationContext(kind: EvalKind, evaluation: any, client?:
       direction: c.direction,
       note: c.overallNote,
     },
-    categories: c.categories.map((cat) => ({ name: cat.name, value: cat.value })),
-    child: client ? buildChildContext(client) : undefined,
+    categories: c.categories.map((cat) => ({
+      name: cat.name,
+      value: cat.value,
+      ...(kind === "ablls" ? { ageExpected: isAbllsSectionAgeExpected(cat.key, ageMonths) } : {}),
+    })),
+    child,
   };
 }

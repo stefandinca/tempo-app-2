@@ -27,6 +27,7 @@ import CategoryScoring from "./CategoryScoring";
 import { MobileEvaluationContainer } from "./shared/MobileEvaluationContainer";
 import { CategoryBottomSheet } from "./shared/CategoryBottomSheet";
 import { calculateAge } from "@/lib/ageUtils";
+import { getAbllsAgeRef } from "@/lib/abllsAgeReference";
 import { useConfirm } from "@/context/ConfirmContext";
 import { logActivity } from "@/lib/activityService";
 
@@ -141,6 +142,12 @@ export default function EvaluationWizard({
 
   const currentCategory = ABLLS_CATEGORIES[currentCategoryIndex];
 
+  // Age-aware section guidance (ABLLS-R is criterion-referenced, not age-normed).
+  const ageMonths = age ? age.totalMonths : null;
+  const currentRef = currentCategory ? getAbllsAgeRef(currentCategory.id) : undefined;
+  const sectionNotYetExpected = !!(currentRef && ageMonths != null && ageMonths < currentRef.expectedFromMonths);
+  const sectionAllNA = currentCategory ? currentCategory.items.every((it) => localScores[it.id]?.isNA) : false;
+
   const handleScoreChange = useCallback((itemId: string, score: number, note?: string, isNA?: boolean) => {
     setLocalScores((prev) => ({
       ...prev,
@@ -151,6 +158,28 @@ export default function EvaluationWizard({
         ...(note !== undefined && note !== "" && { note })
       }
     }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  // Bulk mark/un-mark a whole section N/A (age-aware helper). Reversible:
+  // un-marking removes the entries so they return to "unscored".
+  const markCategoryNA = useCallback((items: { id: string }[], makeNA: boolean) => {
+    setLocalScores((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (makeNA) {
+          next[item.id] = {
+            score: 0,
+            updatedAt: new Date().toISOString(),
+            isNA: true,
+            ...(prev[item.id]?.note ? { note: prev[item.id].note } : {}),
+          };
+        } else {
+          delete next[item.id];
+        }
+      }
+      return next;
+    });
     setHasUnsavedChanges(true);
   }, []);
 
@@ -341,19 +370,25 @@ export default function EvaluationWizard({
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl px-4 py-2 flex items-center gap-3">
                     <Info className="w-4 h-4 text-blue-500" />
                     <p className="text-xs text-blue-700 dark:text-blue-300">
-                      <span className="font-bold">Protocol Adaptat:</span> Afișăm recomandări pentru vârsta de <span className="font-bold">{age.years} ani</span>.
+                      {t('ev_wizard.age_adapted', { defaultValue: 'Age-adapted — showing recommendations for age {{years}}.', years: age.years })}
                     </p>
                   </div>
                 )}
               </div>
 
-              {age && age.years < 5 && ["P", "Q", "R", "S"].includes(currentCategory.id) && (
-                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex gap-3 animate-in slide-in-from-top-2 duration-300">
+              {sectionNotYetExpected && currentRef && (
+                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-3 animate-in slide-in-from-top-2 duration-300">
                   <Lightbulb className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                  <div className="text-sm text-amber-800 dark:text-amber-200">
-                    <p className="font-bold mb-1">Notă Clinică: Recomandare Vârstă</p>
-                    <p>Abilitățile din categoria <strong>{currentCategory.title}</strong> sunt de obicei dezvoltate după vârsta de 5 ani. Pentru un copil de {age.years} ani, prioritizați ariile fundamentale (A-E) dacă există lacune.</p>
+                  <div className="text-sm text-amber-800 dark:text-amber-200 flex-1">
+                    <p className="font-bold mb-1">{t('ev_wizard.age_note_title', { defaultValue: 'Age note' })}</p>
+                    <p>{t('ev_wizard.age_note_body', { defaultValue: 'Skills in "{{section}}" are typically expected from about {{years}} years, so they may not yet be age-expected for this child. You can mark this section N/A so it does not lower the overall score.', section: currentCategory.title, years: Math.round(currentRef.expectedFromMonths / 12) })}</p>
                   </div>
+                  <button
+                    onClick={() => markCategoryNA(currentCategory.items, !sectionAllNA)}
+                    className="shrink-0 px-3 py-2 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors min-h-11"
+                  >
+                    {sectionAllNA ? t('ev_wizard.undo_section_na', { defaultValue: 'Undo N/A' }) : t('ev_wizard.mark_section_na', { defaultValue: 'Mark section N/A' })}
+                  </button>
                 </div>
               )}
 

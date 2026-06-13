@@ -1,5 +1,10 @@
 {
   "ev_wizard": {
+    "age_adapted": "Age-adapted — showing recommendations for age {{years}}.",
+    "age_note_title": "Age note",
+    "age_note_body": "Skills in \"{{section}}\" are typically expected from about {{years}} years, so they may not yet be age-expected for this child. You can mark this section N/A so it does not lower the overall score.",
+    "mark_section_na": "Mark section N/A",
+    "undo_section_na": "Undo N/A",
     "ablls_started": "Evaluation started",
     "start_failed": "Failed to start evaluation",
     "progress_saved": "Progress saved",
@@ -1546,6 +1551,7 @@
     "close": "Close",
     "no_evaluations_list": "No evaluations yet",
     "no_evaluations_list_desc": "Completed evaluations will appear here.",
+    "criterion_caveat": "The ABLLS-R is criterion-referenced, not age-normed. A low overall percentage may simply mean advanced or academic skills are not age-expected yet — interpret results per section.",
     "points_label": "Points",
     "skills_assessment": "Skills Assessment",
     "milestones_assessment": "Milestones Assessment",

@@ -1,5 +1,10 @@
 {
   "ev_wizard": {
+    "age_adapted": "Protocol adaptat — afișăm recomandări pentru vârsta de {{years}} ani.",
+    "age_note_title": "Notă privind vârsta",
+    "age_note_body": "Abilitățile din „{{section}}” sunt de obicei așteptate de la aproximativ {{years}} ani, deci e posibil să nu fie încă potrivite vârstei acestui copil. Poți marca această secțiune ca N/A pentru a nu reduce scorul general.",
+    "mark_section_na": "Marchează secțiunea ca N/A",
+    "undo_section_na": "Anulează N/A",
     "ablls_started": "Evaluare începută",
     "start_failed": "Pornirea evaluării a eșuat",
     "progress_saved": "Progres salvat",
@@ -1552,6 +1557,7 @@
     "close": "Închide",
     "no_evaluations_list": "Încă nu există evaluări",
     "no_evaluations_list_desc": "Evaluările finalizate vor apărea aici.",
+    "criterion_caveat": "ABLLS-R este bazat pe criterii, nu raportat la vârstă. Un procent general scăzut poate însemna doar că abilitățile avansate sau academice nu sunt încă așteptate pentru vârstă — interpretați rezultatele pe secțiuni.",
     "points_label": "Puncte",
     "skills_assessment": "Evaluarea Abilităților",
     "milestones_assessment": "Evaluarea Etapelor de Dezvoltare",

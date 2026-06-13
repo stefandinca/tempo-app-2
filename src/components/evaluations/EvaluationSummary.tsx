@@ -289,6 +289,11 @@ export default function EvaluationSummary({
                     <EvaluationRadarChartMini evaluation={evaluation} />
                   </div>
                 </div>
+
+                {/* Criterion-referenced caveat — ABLLS-R is not age-normed */}
+                <p className="mt-4 text-xs text-primary-700/80 dark:text-primary-300/80 leading-relaxed">
+                  {t('evaluations.criterion_caveat', { defaultValue: 'The ABLLS-R is criterion-referenced, not age-normed. A low overall percentage may simply mean advanced or academic skills are not age-expected yet — interpret results per section.' })}
+                </p>
               </div>
 
               {/* Clinical Interpretation */}
