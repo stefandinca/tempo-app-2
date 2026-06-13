@@ -47,7 +47,7 @@ export default function AiInsights({ kind, clientId, evaluation, client, readOnl
     setLoading(true);
     try {
       const context = buildEvaluationContext(kind, evaluation, client);
-      const { insights: result, model } = await requestInsights({ kind, context, language: lang });
+      const { insights: result, model } = await requestInsights({ kind, clientId, context, language: lang });
       const data: AiInsightsData = {
         ...result,
         model,

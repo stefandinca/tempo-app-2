@@ -30,6 +30,15 @@ interface DetailMsg {
   toolsUsed?: string[];
   createdAt?: { toDate: () => Date } | null;
 }
+interface UsageEvent {
+  id: string;
+  userName?: string;
+  evalKind?: string | null;
+  instrument?: string | null;
+  costUsd?: number;
+  usage?: TokenUsage;
+  createdAt?: { toDate: () => Date } | null;
+}
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -48,6 +57,7 @@ export default function AiUsagePage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Conv | null>(null);
   const [detail, setDetail] = useState<DetailMsg[]>([]);
+  const [events, setEvents] = useState<UsageEvent[]>([]);
 
   useEffect(() => {
     if (userRole !== "Superadmin") return;
@@ -62,6 +72,13 @@ export default function AiUsagePage() {
     );
   }, [userRole]);
 
+  // Per-call usage ledger (evaluation insights).
+  useEffect(() => {
+    if (userRole !== "Superadmin") return;
+    const qy = query(collection(db, "ai_usage_events"), orderBy("createdAt", "desc"), limit(200));
+    return onSnapshot(qy, (snap) => setEvents(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }))), () => {});
+  }, [userRole]);
+
   useEffect(() => {
     if (!selected) {
       setDetail([]);
@@ -71,19 +88,32 @@ export default function AiUsagePage() {
     return onSnapshot(qy, (snap) => setDetail(snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) } as DetailMsg))));
   }, [selected]);
 
-  const totals = useMemo(
+  const chat = useMemo(
     () =>
       convs.reduce(
         (a, c) => {
           a.cost += c.costUsd || 0;
-          a.messages += c.messageCount || 0;
           a.tokens += (c.inputTokens || 0) + (c.outputTokens || 0) + (c.cacheReadTokens || 0) + (c.cacheWriteTokens || 0);
           return a;
         },
-        { cost: 0, messages: 0, tokens: 0 },
+        { cost: 0, tokens: 0 },
       ),
     [convs],
   );
+  const insightsTotals = useMemo(
+    () =>
+      events.reduce(
+        (a, e) => {
+          a.cost += e.costUsd || 0;
+          a.tokens += e.usage ? totalTokens(e.usage) : 0;
+          return a;
+        },
+        { cost: 0, tokens: 0 },
+      ),
+    [events],
+  );
+  const grandCost = chat.cost + insightsTotals.cost;
+  const grandTokens = chat.tokens + insightsTotals.tokens;
 
   const fmtDate = (ts?: { toDate: () => Date } | null) =>
     ts?.toDate
@@ -102,12 +132,14 @@ export default function AiUsagePage() {
       </div>
       <p className="text-sm text-neutral-500 mb-5">{t("ai_usage.subtitle", { defaultValue: "Every staff conversation with Mira and what it cost." })}</p>
 
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <Stat label={t("ai_usage.total_cost", { defaultValue: "Total cost" })} value={formatUsd(totals.cost)} />
-        <Stat label={t("ai_usage.conversations", { defaultValue: "Conversations" })} value={String(convs.length)} />
-        <Stat label={t("ai_usage.tokens", { defaultValue: "Tokens" })} value={totals.tokens.toLocaleString()} />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <Stat label={t("ai_usage.total_cost", { defaultValue: "Total cost" })} value={formatUsd(grandCost)} />
+        <Stat label={t("ai_usage.chat", { defaultValue: "Chat" })} value={formatUsd(chat.cost)} />
+        <Stat label={t("ai_usage.insights", { defaultValue: "Evaluation insights" })} value={formatUsd(insightsTotals.cost)} />
+        <Stat label={t("ai_usage.tokens", { defaultValue: "Tokens" })} value={grandTokens.toLocaleString()} />
       </div>
 
+      <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-2">{t("ai_usage.chat_section", { defaultValue: "Chat conversations" })}</h2>
       {loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-neutral-400" />
@@ -144,6 +176,36 @@ export default function AiUsagePage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {events.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-sm font-bold text-neutral-900 dark:text-white mb-2">{t("ai_usage.insights_section", { defaultValue: "Evaluation insights" })}</h2>
+          <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-900">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-neutral-500 border-b border-neutral-200 dark:border-neutral-800">
+                  <th className="px-4 py-2.5 font-semibold">{t("ai_usage.staff", { defaultValue: "Staff" })}</th>
+                  <th className="px-4 py-2.5 font-semibold">{t("ai_usage.type", { defaultValue: "Type" })}</th>
+                  <th className="px-4 py-2.5 font-semibold text-right hidden sm:table-cell">{t("ai_usage.tokens", { defaultValue: "Tokens" })}</th>
+                  <th className="px-4 py-2.5 font-semibold text-right">{t("ai_usage.cost", { defaultValue: "Cost" })}</th>
+                  <th className="px-4 py-2.5 font-semibold text-right hidden md:table-cell">{t("ai_usage.last_active", { defaultValue: "Date" })}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {events.map((e) => (
+                  <tr key={e.id} className="border-b border-neutral-100 dark:border-neutral-800/60 last:border-0">
+                    <td className="px-4 py-3 text-neutral-700 dark:text-neutral-300 whitespace-nowrap">{e.userName || "—"}</td>
+                    <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400 uppercase">{e.evalKind || e.instrument || "—"}</td>
+                    <td className="px-4 py-3 text-right text-neutral-500 hidden sm:table-cell">{e.usage ? totalTokens(e.usage).toLocaleString() : "—"}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-neutral-900 dark:text-white">{formatUsd(e.costUsd || 0)}</td>
+                    <td className="px-4 py-3 text-right text-neutral-400 text-xs hidden md:table-cell whitespace-nowrap">{fmtDate(e.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

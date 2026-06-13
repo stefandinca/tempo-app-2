@@ -227,6 +227,13 @@ service cloud.firestore {
       }
     }
 
+    // Per-call AI usage ledger (currently evaluation-insights generations).
+    // Written server-side (Admin) only; owner or Superadmin can read.
+    match /ai_usage_events/{eventId} {
+      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isSuperadmin());
+      allow write: if false;
+    }
+
     match /threads/{threadId} {
       // Allow reading any thread document (including non-existent ones for existence checks)
       // This prevents permission errors when checking if a thread exists with getDoc()

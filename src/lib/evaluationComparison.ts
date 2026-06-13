@@ -41,6 +41,11 @@ function fmtDate(iso: string): string {
 }
 
 const round = (n: number) => Math.round(n);
+// Round to 1 decimal and kill float artifacts like 11.299999999999997 / -0.
+const round1 = (n: number) => {
+  const r = Math.round(n * 10) / 10;
+  return Object.is(r, -0) ? 0 : r;
+};
 
 // --- Per-type adapters ----------------------------------------------------
 
@@ -154,14 +159,14 @@ export function computeComparison(current: ComparableEvaluation, previous: Compa
   const prevByKey = new Map(previous.categories.map((c) => [c.key, c.value]));
   const categories: CategoryDelta[] = current.categories.map((c) => {
     const prev = prevByKey.get(c.key) ?? 0;
-    const change = c.value - prev;
+    const change = round1(c.value - prev);
     return {
       key: c.key, name: c.name, current: c.value, previous: prev, change,
       isImprovement: change !== 0 && isUp(change, current.direction),
       isUnchanged: change === 0,
     };
   });
-  const overallChange = current.overallValue - previous.overallValue;
+  const overallChange = round1(current.overallValue - previous.overallValue);
   return {
     unit: current.unit,
     direction: current.direction,
@@ -174,5 +179,5 @@ export function computeComparison(current: ComparableEvaluation, previous: Compa
   };
 }
 
-export const fmtValue = (n: number, unit: string) => `${n}${unit}`;
-export const fmtDelta = (n: number, unit: string) => `${n > 0 ? "+" : ""}${n}${unit}`;
+export const fmtValue = (n: number, unit: string) => `${round1(n)}${unit}`;
+export const fmtDelta = (n: number, unit: string) => `${n > 0 ? "+" : ""}${round1(n)}${unit}`;

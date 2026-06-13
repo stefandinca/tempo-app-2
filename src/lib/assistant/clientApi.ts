@@ -23,6 +23,7 @@ export class AssistantError extends Error {
 
 export async function requestInsights(args: {
   kind: EvalKind;
+  clientId?: string;
   context: EvaluationContext;
   language: Lang;
 }): Promise<{ insights: InsightsResult; model: string }> {
