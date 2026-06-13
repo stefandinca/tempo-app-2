@@ -1,7 +1,8 @@
 import { ChevronRight, Calendar, BarChart2 } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
-import { EvaluationRadarChartMini } from "@/components/evaluations/EvaluationRadarChart";
+import EvaluationRadarChart, { EvaluationRadarChartMini } from "@/components/evaluations/EvaluationRadarChart";
+import CompareEvaluationsButton from "@/components/evaluations/CompareEvaluationsButton";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 
@@ -28,8 +29,25 @@ export default function ParentEvaluationList({ evaluations, onSelect }: ParentEv
     );
   }
 
+  const completed = evaluations.filter((e) => e.status === "completed");
+  const abllsEvals = completed.filter((e) => e.type === "ABLLS");
+  const vbmappEvals = completed.filter((e) => e.type === "VB-MAPP");
+  const canCompare = abllsEvals.length >= 2 || vbmappEvals.length >= 2;
+
   return (
     <div className="space-y-4">
+      {canCompare && (
+        <div className="flex flex-wrap gap-2">
+          <CompareEvaluationsButton
+            kind="ablls"
+            evaluations={abllsEvals}
+            radar={(cur, prev) => (
+              <EvaluationRadarChart evaluation={cur} previousEvaluation={prev} size="md" showLegend />
+            )}
+          />
+          <CompareEvaluationsButton kind="vbmapp" evaluations={vbmappEvals} />
+        </div>
+      )}
       {evaluations.map((evaluation) => {
         const isABLLS = evaluation.type === 'ABLLS';
         const score = isABLLS 

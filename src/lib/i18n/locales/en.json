@@ -1086,6 +1086,20 @@
     }
   },
   "evaluations": {
+    "comparison": {
+      "title": "Compare evaluations",
+      "previous": "Previous",
+      "current": "Current",
+      "overall_change": "Overall change",
+      "improved": "Improved",
+      "unchanged": "Unchanged",
+      "declined": "Need attention",
+      "visual": "Visual comparison",
+      "category_breakdown": "Category breakdown",
+      "need_two": "At least two completed evaluations of this type are needed to compare.",
+      "choose_previous": "Earlier",
+      "choose_current": "Later"
+    },
     "clinical_evaluations": "Clinical Evaluations",
     "select_tool": "Select an assessment tool to track developmental progress.",
     "in_progress": "In Progress",

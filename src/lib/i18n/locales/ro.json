@@ -1092,6 +1092,20 @@
     }
   },
   "evaluations": {
+    "comparison": {
+      "title": "Compară evaluările",
+      "previous": "Anterioară",
+      "current": "Curentă",
+      "overall_change": "Schimbare generală",
+      "improved": "Îmbunătățite",
+      "unchanged": "Neschimbate",
+      "declined": "De urmărit",
+      "visual": "Comparație vizuală",
+      "category_breakdown": "Defalcare pe categorii",
+      "need_two": "Sunt necesare cel puțin două evaluări finalizate de acest tip pentru comparație.",
+      "choose_previous": "Mai veche",
+      "choose_current": "Mai nouă"
+    },
     "clinical_evaluations": "Evaluări Clinice",
     "select_tool": "Selectați un instrument de evaluare pentru a urmări progresul dezvoltării.",
     "in_progress": "În Desfășurare",

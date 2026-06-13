@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
 import PortageWizard from "./PortageWizard";
 import PortageSummary from "./PortageSummary";
+import CompareEvaluationsButton from "./CompareEvaluationsButton";
 
 interface PortageListProps {
   clientId: string;
@@ -92,15 +93,18 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
           <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{t('portage.title')}</h3>
           <p className="text-sm text-neutral-500">{t('portage.subtitle')}</p>
         </div>
-        {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator' || userRole === 'Therapist') && (
-          <button
-            onClick={handleCreateNew}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-600/20"
-          >
-            <Plus className="w-4 h-4" />
-            {t('portage.new_evaluation')}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <CompareEvaluationsButton kind="portage" evaluations={evaluations.filter((e) => e.status === 'completed')} childName={clientName} />
+          {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator' || userRole === 'Therapist') && (
+            <button
+              onClick={handleCreateNew}
+              className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary-600/20"
+            >
+              <Plus className="w-4 h-4" />
+              {t('portage.new_evaluation')}
+            </button>
+          )}
+        </div>
       </div>
 
       {evaluations.length === 0 ? (

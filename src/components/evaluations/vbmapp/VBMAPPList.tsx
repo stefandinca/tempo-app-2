@@ -20,6 +20,7 @@ import { useToast } from "@/context/ToastContext";
 import { useConfirm } from "@/context/ConfirmContext";
 import { useTranslation } from "react-i18next";
 import VBMAPPMilestoneGrid from "./VBMAPPMilestoneGrid";
+import CompareEvaluationsButton from "../CompareEvaluationsButton";
 
 interface VBMAPPListProps {
   clientId: string;
@@ -184,10 +185,13 @@ export default function VBMAPPList({
       {/* Completed */}
       {completedEvaluations.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" />
-            Completed ({completedEvaluations.length})
-          </h4>
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Completed ({completedEvaluations.length})
+            </h4>
+            <CompareEvaluationsButton kind="vbmapp" evaluations={completedEvaluations} childName={clientName} />
+          </div>
           {completedEvaluations.map((evaluation) => (
             <div
               key={evaluation.id}

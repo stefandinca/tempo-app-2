@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useConfirm } from "@/context/ConfirmContext";
 import CarolinaWizard from "./CarolinaWizard";
 import CarolinaSummary from "./CarolinaSummary";
+import CompareEvaluationsButton from "./CompareEvaluationsButton";
 
 interface CarolinaListProps {
   clientId: string;
@@ -80,15 +81,18 @@ export default function CarolinaList({ clientId, clientName }: CarolinaListProps
           <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{t('carolina.title')}</h3>
           <p className="text-sm text-neutral-500">{t('carolina.subtitle')}</p>
         </div>
-        {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator' || userRole === 'Therapist') && (
-          <button
-            onClick={handleCreateNew}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20"
-          >
-            <Plus className="w-4 h-4" />
-            {t('portage.new_evaluation')}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <CompareEvaluationsButton kind="carolina" evaluations={evaluations.filter((e) => e.status === 'completed')} childName={clientName} />
+          {(userRole === 'Superadmin' || userRole === 'Admin' || userRole === 'Coordinator' || userRole === 'Therapist') && (
+            <button
+              onClick={handleCreateNew}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20"
+            >
+              <Plus className="w-4 h-4" />
+              {t('portage.new_evaluation')}
+            </button>
+          )}
+        </div>
       </div>
 
       {evaluations.length === 0 ? (
