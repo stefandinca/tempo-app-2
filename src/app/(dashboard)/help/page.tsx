@@ -176,8 +176,8 @@ export default function HelpPage() {
           {filteredSections.length === 0 && (
             <div className="text-center py-20 bg-white dark:bg-neutral-900 rounded-3xl border border-dashed border-neutral-200 dark:border-neutral-800">
               <HelpCircle className="w-12 h-12 text-neutral-200 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-neutral-900 dark:text-white">No articles found</h3>
-              <p className="text-neutral-500">Try adjusting your search query to find what you&apos;re looking for.</p>
+              <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t('header.help.no_results_title', { defaultValue: 'No articles found' })}</h3>
+              <p className="text-neutral-500">{t('header.help.no_results_desc', { defaultValue: "Try adjusting your search query to find what you're looking for." })}</p>
             </div>
           )}
         </div>

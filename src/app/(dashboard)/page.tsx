@@ -92,8 +92,8 @@ export default function Dashboard() {
   };
 
   // Helper to resolve relationships
-  const getClient = (id: string) => clients.data.find(c => c.id === id) || { name: "Unknown Client" };
-  const getTherapist = (id: string) => teamMembers.data.find(t => t.id === id) || { name: "Unknown", initials: "?", color: "#ccc" };
+  const getClient = (id: string) => clients.data.find(c => c.id === id) || { name: t('common.unknown_client') };
+  const getTherapist = (id: string) => teamMembers.data.find(tm => tm.id === id) || { name: t('common.unknown'), initials: "?", color: "#ccc" };
 
   // Filter today's events
   const today = new Date();

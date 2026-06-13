@@ -109,6 +109,9 @@
     "confirm": "Confirm",
     "user": "User",
     "sending": "Sending...",
+    "load_more": "Load More",
+    "authenticating": "Authenticating...",
+    "unknown_client": "Unknown Client",
     "actions": "Actions",
     "status": "Status",
     "role": "Role",
@@ -144,6 +147,7 @@
       "security": "Security",
       "appearance": "Appearance",
       "billing": "Billing Config",
+      "translations": "Translations",
       "limits": "Account Limits",
       "system": "System"
     },
@@ -168,11 +172,21 @@
       "subtitle": "Customize the interface.",
       "theme": "Theme",
       "language": "Language",
+      "language_desc": "Select your preferred language for the app.",
       "themes": {
         "light": "Light",
         "dark": "Dark",
         "system": "System"
       }
+    },
+    "toasts": {
+      "image_required": "Please select an image file (PNG, JPG)",
+      "avatar_uploaded": "Avatar uploaded successfully",
+      "avatar_failed": "Failed to upload avatar"
+    },
+    "system": {
+      "subtitle": "Advanced system configuration.",
+      "placeholder": "System health metrics and feature flags will appear here."
     },
     "billing_config": {
       "save_success": "Billing configuration saved successfully",

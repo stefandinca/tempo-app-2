@@ -156,10 +156,10 @@ export default function ActivityPage() {
                   {loadingMore ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading...
+                      {t('common.loading')}
                     </>
                   ) : (
-                    'Load More'
+                    t('common.load_more')
                   )}
                 </button>
               </div>

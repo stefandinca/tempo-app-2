@@ -55,7 +55,7 @@ export default function SettingsPage() {
     if (!file || !user) return;
 
     if (!file.type.match('image.*')) {
-      error("Please select an image file (PNG, JPG)");
+      error(t("settings.toasts.image_required"));
       return;
     }
 
@@ -70,10 +70,10 @@ export default function SettingsPage() {
       await updateDoc(userRef, { photoURL: url });
       
       setAvatarUrl(url);
-      success("Avatar uploaded successfully");
+      success(t("settings.toasts.avatar_uploaded"));
     } catch (err) {
       console.error(err);
-      error("Failed to upload avatar");
+      error(t("settings.toasts.avatar_failed"));
     } finally {
       setIsSaving(false);
     }
@@ -152,7 +152,7 @@ export default function SettingsPage() {
   if (isAdmin) {
     menuItems.push(
       { id: "billing", label: t('settings.tabs.billing'), icon: CreditCard },
-      { id: "translations", label: "Translations", icon: Globe },
+      { id: "translations", label: t('settings.tabs.translations'), icon: Globe },
       { id: "system", label: t('settings.tabs.system'), icon: Monitor }
     );
   }
@@ -364,7 +364,7 @@ export default function SettingsPage() {
                     <Globe className="w-5 h-5 text-primary-500" />
                     {t('settings.appearance.language')}
                   </h3>
-                  <p className="text-sm text-neutral-500">Selectati limba preferata pentru aplicatie.</p>
+                  <p className="text-sm text-neutral-500">{t('settings.appearance.language_desc')}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -409,10 +409,10 @@ export default function SettingsPage() {
             <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div>
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{t('settings.tabs.system')}</h3>
-                <p className="text-sm text-neutral-500">Advanced system configuration.</p>
+                <p className="text-sm text-neutral-500">{t('settings.system.subtitle')}</p>
               </div>
               <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl text-center text-neutral-500">
-                System health metrics and feature flags will appear here.
+                {t('settings.system.placeholder')}
               </div>
             </div>
           )}

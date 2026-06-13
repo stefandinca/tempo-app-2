@@ -107,6 +107,9 @@
     "you": "Tu",
     "user": "Utilizator",
     "sending": "Se trimite...",
+    "load_more": "Încarcă mai multe",
+    "authenticating": "Se autentifică...",
+    "unknown_client": "Client necunoscut",
     "actions": "Acțiuni",
     "status": "Status",
     "role": "Rol",
@@ -149,6 +152,7 @@
       "security": "Securitate",
       "appearance": "Aspect",
       "billing": "Configurație Facturare",
+      "translations": "Traduceri",
       "limits": "Limite Cont",
       "system": "Sistem"
     },
@@ -173,11 +177,21 @@
       "subtitle": "Personalizați interfața.",
       "theme": "Temă",
       "language": "Limbă",
+      "language_desc": "Selectează limba preferată pentru aplicație.",
       "themes": {
         "light": "Luminos",
         "dark": "Întunecat",
         "system": "Sistem"
       }
+    },
+    "toasts": {
+      "image_required": "Selectează un fișier imagine (PNG, JPG)",
+      "avatar_uploaded": "Avatar încărcat cu succes",
+      "avatar_failed": "Încărcarea avatarului a eșuat"
+    },
+    "system": {
+      "subtitle": "Configurare avansată a sistemului.",
+      "placeholder": "Indicatorii de sănătate și opțiunile sistemului vor apărea aici."
     },
     "billing_config": {
       "save_success": "Configurația facturării a fost salvată cu succes",

@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
       <div className="flex-1 p-6 flex items-center justify-center">
         <div className="flex flex-col items-center gap-2 text-neutral-500">
           <Loader2 className="w-8 h-8 animate-spin" />
-          <p className="text-sm font-medium">Loading analytics...</p>
+          <p className="text-sm font-medium">{t('common.loading')}</p>
         </div>
       </div>
     );

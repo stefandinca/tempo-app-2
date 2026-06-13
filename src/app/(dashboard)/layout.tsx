@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { DataProvider } from "@/context/DataContext";
 import { EventModalProvider } from "@/context/EventModalContext";
@@ -17,6 +18,7 @@ export default function DashboardLayout({
 }) {
   const { user, userRole, loading } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Wait for auth to finish loading
@@ -49,7 +51,7 @@ export default function DashboardLayout({
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary-500 mx-auto mb-4" />
-          <p className="text-neutral-500">Authenticating staff...</p>
+          <p className="text-neutral-500">{t('common.authenticating')}</p>
         </div>
       </div>
     );
