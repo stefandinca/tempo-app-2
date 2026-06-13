@@ -31,6 +31,11 @@ const nextConfig = {
 
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'firebase', 'jspdf', 'jspdf-autotable'],
+    // Keep firebase-admin (server-only) out of the bundle so Node's resolver
+    // honors the conditional exports of its deps. Bundling mis-resolves
+    // jwks-rsa's require('jose') to the ESM build → "require() of ES Module"
+    // crash in the AI API routes on Vercel.
+    serverComponentsExternalPackages: ['firebase-admin', 'jwks-rsa', 'jose'],
   },
 
   // Transpile firebase packages to ensure they are processed by Babel/SWC
