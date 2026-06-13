@@ -55,7 +55,7 @@ export default function CarolinaScoring({
                   </p>
                   {item.age && (
                     <span className="text-[10px] text-neutral-400 font-medium mt-1 block">
-                      Age: {item.age}mo
+                      {t('ev_list.age_months', { defaultValue: 'Age: {{age}}mo', age: item.age })}
                     </span>
                   )}
                 </div>
@@ -69,7 +69,7 @@ export default function CarolinaScoring({
                         ? "bg-error-100 text-error-700 ring-2 ring-error-500 ring-offset-1" 
                         : "bg-neutral-50 dark:bg-neutral-800 text-neutral-400 hover:bg-error-50 hover:text-error-600"
                     )}
-                    title="Absent"
+                    title={t('ev_list.absent', { defaultValue: 'Absent' })}
                   >
                     A
                   </button>
@@ -81,7 +81,7 @@ export default function CarolinaScoring({
                         ? "bg-warning-100 text-warning-700 ring-2 ring-warning-500 ring-offset-1" 
                         : "bg-neutral-50 dark:bg-neutral-800 text-neutral-400 hover:bg-warning-50 hover:text-warning-600"
                     )}
-                    title="Emerging (Dezvoltare)"
+                    title={t('ev_list.emerging_dezvoltare', { defaultValue: 'Emerging (Dezvoltare)' })}
                   >
                     D
                   </button>
@@ -93,7 +93,7 @@ export default function CarolinaScoring({
                         ? "bg-success-100 text-success-700 ring-2 ring-success-500 ring-offset-1" 
                         : "bg-neutral-50 dark:bg-neutral-800 text-neutral-400 hover:bg-success-50 hover:text-success-600"
                     )}
-                    title="Mastered"
+                    title={t('ev_list.mastered', { defaultValue: 'Mastered' })}
                   >
                     <Check className="w-5 h-5" />
                   </button>
@@ -125,7 +125,7 @@ export default function CarolinaScoring({
                   <textarea
                     value={score?.note || ""}
                     onChange={(e) => onScoreChange(item.id, currentVal || 'A', e.target.value)}
-                    placeholder="Clinical observations..."
+                    placeholder={t('ev_list.clinical_observations', { defaultValue: 'Clinical observations...' })}
                     className="w-full p-2 text-xs bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                     rows={2}
                   />

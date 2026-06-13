@@ -206,7 +206,7 @@ export default function CARSReportHTML({
                       )}>
                         {t('common.status')}: {score?.value || 0}
                       </span>
-                      <p className="text-[10px] text-neutral-400 font-medium">Max: 4.0</p>
+                      <p className="text-[10px] text-neutral-400 font-medium">{t('report.max_score_value', { defaultValue: 'Max: 4.0' })}</p>
                     </div>
                   </div>
                 </div>
@@ -220,17 +220,17 @@ export default function CARSReportHTML({
           <div className="flex justify-center gap-12 text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-10">
             <div className="space-y-8">
               <div className="w-48 border-b border-neutral-300 dark:border-neutral-700 h-12" />
-              <p>Evaluator Signature</p>
+              <p>{t('report.evaluator_signature', { defaultValue: 'Evaluator Signature' })}</p>
               <p className="text-xs font-bold text-neutral-900">{evaluation.evaluatorName}</p>
             </div>
             <div className="space-y-8">
               <div className="w-48 border-b border-neutral-300 dark:border-neutral-700 h-12" />
-              <p>Clinical Director Approval</p>
-              <p className="text-xs font-bold text-neutral-900">Certified BCBA/Supervisor</p>
+              <p>{t('report.clinical_director_approval', { defaultValue: 'Clinical Director Approval' })}</p>
+              <p className="text-xs font-bold text-neutral-900">{t('report.certified_bcba_supervisor', { defaultValue: 'Certified BCBA/Supervisor' })}</p>
             </div>
           </div>
           <p className="text-[10px] text-neutral-400 leading-relaxed max-w-2xl mx-auto italic">
-            This document contains confidential clinical findings. Unauthorized disclosure is strictly prohibited and protected by professional ethics and data privacy laws.
+            {t('report.confidentiality', { defaultValue: 'This document contains confidential clinical findings. Unauthorized disclosure is strictly prohibited and protected by professional ethics and data privacy laws.' })}
           </p>
         </div>
 

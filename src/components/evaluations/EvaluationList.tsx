@@ -49,18 +49,18 @@ export default function EvaluationList({
 
   const handleDelete = async (evaluationId: string) => {
     customConfirm({
-      title: "Delete Evaluation",
-      message: "Are you sure you want to delete this evaluation? This cannot be undone.",
-      confirmLabel: "Delete",
+      title: t('ev_list.delete_evaluation_title', { defaultValue: 'Delete Evaluation' }),
+      message: t('ev_list.delete_evaluation_message', { defaultValue: 'Are you sure you want to delete this evaluation? This cannot be undone.' }),
+      confirmLabel: t('ev_list.delete', { defaultValue: 'Delete' }),
       variant: 'danger',
       onConfirm: async () => {
         setDeletingId(evaluationId);
         try {
           await deleteEvaluation(clientId, evaluationId);
-          success("Evaluation deleted");
+          success(t('ev_list.evaluation_deleted', { defaultValue: 'Evaluation deleted' }));
         } catch (err) {
           console.error("Failed to delete evaluation:", err);
-          toastError("Failed to delete evaluation");
+          toastError(t('ev_list.delete_failed', { defaultValue: 'Failed to delete evaluation' }));
         } finally {
           setDeletingId(null);
           setMenuOpen(null);
@@ -103,14 +103,14 @@ export default function EvaluationList({
         className="w-full py-4 border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-2xl text-primary-600 dark:text-primary-400 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all font-medium flex items-center justify-center gap-2"
       >
         <Plus className="w-5 h-5" />
-        Start New ABLLS Evaluation
+        {t('ev_list.start_new_ablls', { defaultValue: 'Start New ABLLS Evaluation' })}
       </button>
 
       {inProgressEvaluations.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            In Progress ({inProgressEvaluations.length})
+            {t('ev_list.in_progress', { defaultValue: 'In Progress' })} ({inProgressEvaluations.length})
           </h4>
           {inProgressEvaluations.map((evaluation) => (
             <div
@@ -124,13 +124,13 @@ export default function EvaluationList({
                   </div>
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-white">
-                      {evaluation.type} Evaluation
+                      {t('ev_list.type_evaluation', { defaultValue: '{{type}} Evaluation', type: evaluation.type })}
                     </p>
                     <p className="text-sm text-neutral-500">
-                      Started {formatDate(evaluation.createdAt)} · {evaluation.overallPercentage}% scored
+                      {t('ev_list.started_scored', { defaultValue: 'Started {{date}} · {{percentage}}% scored', date: formatDate(evaluation.createdAt), percentage: evaluation.overallPercentage })}
                     </p>
                     <p className="text-xs text-neutral-400 mt-0.5">
-                      By {evaluation.evaluatorName}
+                      {t('ev_list.by_evaluator', { defaultValue: 'By {{name}}', name: evaluation.evaluatorName })}
                     </p>
                   </div>
                 </div>
@@ -139,7 +139,7 @@ export default function EvaluationList({
                     onClick={() => onContinue(evaluation.id)}
                     className="px-4 py-2 bg-warning-600 hover:bg-warning-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center gap-2"
                   >
-                    Continue
+                    {t('ev_list.continue', { defaultValue: 'Continue' })}
                     <ChevronRight className="w-4 h-4" />
                   </button>
                   <div className="relative">
@@ -161,7 +161,7 @@ export default function EvaluationList({
                           ) : (
                             <Trash2 className="w-4 h-4" />
                           )}
-                          Delete
+                          {t('ev_list.delete', { defaultValue: 'Delete' })}
                         </button>
                       </div>
                     )}
@@ -184,7 +184,7 @@ export default function EvaluationList({
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
-              Completed ({completedEvaluations.length})
+              {t('ev_list.completed', { defaultValue: 'Completed' })} ({completedEvaluations.length})
             </h4>
             <CompareEvaluationsButton
               kind="ablls"
@@ -207,13 +207,13 @@ export default function EvaluationList({
                   </div>
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-white">
-                      {evaluation.type} Evaluation
+                      {t('ev_list.type_evaluation', { defaultValue: '{{type}} Evaluation', type: evaluation.type })}
                     </p>
                     <p className="text-sm text-neutral-500">
-                      Completed {formatDate(evaluation.completedAt || evaluation.updatedAt)}
+                      {t('ev_list.completed_date', { defaultValue: 'Completed {{date}}', date: formatDate(evaluation.completedAt || evaluation.updatedAt) })}
                     </p>
                     <p className="text-xs text-neutral-400 mt-0.5">
-                      By {evaluation.evaluatorName}
+                      {t('ev_list.by_evaluator', { defaultValue: 'By {{name}}', name: evaluation.evaluatorName })}
                     </p>
                   </div>
                 </div>
@@ -231,14 +231,14 @@ export default function EvaluationList({
                     <button
                       onClick={() => onView(evaluation.id)}
                       className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                      title="View details"
+                      title={t('ev_list.view_details', { defaultValue: 'View details' })}
                     >
                       <Eye className="w-5 h-5 text-neutral-500" />
                     </button>
                     <button
                       onClick={() => onReEvaluate(evaluation)}
                       className="p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-                      title="Start re-evaluation"
+                      title={t('ev_list.start_re_evaluation', { defaultValue: 'Start re-evaluation' })}
                     >
                       <RefreshCw className="w-5 h-5 text-primary-600" />
                     </button>
@@ -305,13 +305,13 @@ export default function EvaluationList({
           <div className="w-16 h-16 mx-auto mb-4 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center">
             <FileText className="w-8 h-8 text-neutral-400" />
           </div>
-          <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">No Evaluations Yet</h3>
-          <p className="text-neutral-500 max-w-sm mx-auto mb-6">Start an ABLLS evaluation to assess {clientName}&apos;s skills and track progress over time.</p>
+          <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">{t('ev_list.no_evaluations_yet', { defaultValue: 'No Evaluations Yet' })}</h3>
+          <p className="text-neutral-500 max-w-sm mx-auto mb-6">{t('ev_list.no_evaluations_ablls_desc', { defaultValue: "Start an ABLLS evaluation to assess {{name}}'s skills and track progress over time.", name: clientName })}</p>
           <button
             onClick={onStartNew}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-primary-500/20"
           >
-            <Plus className="w-4 h-4" /> Start First Evaluation
+            <Plus className="w-4 h-4" /> {t('ev_list.start_first', { defaultValue: 'Start First Evaluation' })}
           </button>
         </div>
       )}

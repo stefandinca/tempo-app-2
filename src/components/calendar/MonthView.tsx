@@ -31,7 +31,7 @@ export default function MonthView({
   onSlotClick
 }: MonthViewProps) {
   
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const locale = i18n.language || 'ro';
 
   // Generate localized weekday names (starting Monday)
@@ -161,7 +161,7 @@ export default function MonthView({
                 })}
                 {hiddenCount > 0 && (
                   <div className="text-[10px] text-neutral-500 px-1">
-                    +{hiddenCount} more
+                    {t('cal.more_events', { count: hiddenCount, defaultValue: '+{{count}} more' })}
                   </div>
                 )}
               </div>

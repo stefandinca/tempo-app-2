@@ -29,6 +29,7 @@ import { getVBMAPPInterpretation } from "@/lib/clinicalInterpretation";
 import { generateVBMAPPGoals, SuggestedGoal } from "@/lib/goalGenerator";
 import SuggestedGoals from "../SuggestedGoals";
 import AiInsights from "../AiInsights";
+import { useTranslation } from "react-i18next";
 
 interface VBMAPPSummaryProps {
   isOpen: boolean;
@@ -49,6 +50,7 @@ export default function VBMAPPSummary({
   previousEvaluation,
   onReEvaluate
 }: VBMAPPSummaryProps) {
+  const { t } = useTranslation();
   const { evaluation, loading } = useVBMAPPEvaluation(clientId, evaluationId);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
@@ -69,10 +71,10 @@ export default function VBMAPPSummary({
 
   const getReadinessLabel = (level: string) => {
     switch (level) {
-      case 'ready': return { label: 'Ready', color: 'text-success-600 bg-success-100 dark:bg-success-900/30' };
-      case 'developing': return { label: 'Developing', color: 'text-warning-600 bg-warning-100 dark:bg-warning-900/30' };
-      case 'emerging': return { label: 'Emerging', color: 'text-orange-600 bg-orange-100 dark:bg-orange-900/30' };
-      default: return { label: 'Not Ready', color: 'text-error-600 bg-error-100 dark:bg-error-900/30' };
+      case 'ready': return { label: t('ev_sum.readiness_ready', { defaultValue: 'Ready' }), color: 'text-success-600 bg-success-100 dark:bg-success-900/30' };
+      case 'developing': return { label: t('ev_sum.readiness_developing', { defaultValue: 'Developing' }), color: 'text-warning-600 bg-warning-100 dark:bg-warning-900/30' };
+      case 'emerging': return { label: t('ev_sum.readiness_emerging', { defaultValue: 'Emerging' }), color: 'text-orange-600 bg-orange-100 dark:bg-orange-900/30' };
+      default: return { label: t('ev_sum.readiness_not_ready', { defaultValue: 'Not Ready' }), color: 'text-error-600 bg-error-100 dark:bg-error-900/30' };
     }
   };
 
@@ -111,7 +113,7 @@ export default function VBMAPPSummary({
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
           <div>
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-              VB-MAPP Evaluation Results
+              {t('ev_sum.vbmapp_results', { defaultValue: 'VB-MAPP Evaluation Results' })}
             </h2>
             <p className="text-sm text-neutral-500">{clientData.name}</p>
           </div>
@@ -136,7 +138,7 @@ export default function VBMAPPSummary({
                 <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                   <Calendar className="w-5 h-5 text-neutral-400" />
                   <div>
-                    <p className="text-xs text-neutral-500">Completed</p>
+                    <p className="text-xs text-neutral-500">{t('ev_sum.completed', { defaultValue: 'Completed' })}</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
                       {formatDate(evaluation.completedAt || evaluation.updatedAt)}
                     </p>
@@ -145,7 +147,7 @@ export default function VBMAPPSummary({
                 <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                   <User className="w-5 h-5 text-neutral-400" />
                   <div>
-                    <p className="text-xs text-neutral-500">Evaluator</p>
+                    <p className="text-xs text-neutral-500">{t('ev_sum.evaluator', { defaultValue: 'Evaluator' })}</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
                       {evaluation.evaluatorName}
                     </p>
@@ -154,16 +156,16 @@ export default function VBMAPPSummary({
                 <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                   <Target className="w-5 h-5 text-neutral-400" />
                   <div>
-                    <p className="text-xs text-neutral-500">Dominant Level</p>
+                    <p className="text-xs text-neutral-500">{t('ev_sum.dominant_level', { defaultValue: 'Dominant Level' })}</p>
                     <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                      Level {evaluation.dominantLevel}
+                      {t('ev_sum.level_n', { defaultValue: 'Level {{level}}', level: evaluation.dominantLevel })}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                   <ArrowRight className="w-5 h-5 text-neutral-400" />
                   <div>
-                    <p className="text-xs text-neutral-500">Transition Readiness</p>
+                    <p className="text-xs text-neutral-500">{t('ev_sum.transition_readiness', { defaultValue: 'Transition Readiness' })}</p>
                     <span className={clsx(
                       "text-xs font-bold px-2 py-0.5 rounded",
                       getReadinessLabel(evaluation.transitionSummary.readinessLevel).color
@@ -178,18 +180,18 @@ export default function VBMAPPSummary({
               {age && delayStats && (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Chronological Age</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">{t('ev_sum.chronological_age', { defaultValue: 'Chronological Age' })}</p>
                     <p className="text-lg font-bold text-neutral-900 dark:text-white">{formatAge(age)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Dev. Age Equivalent</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">{t('ev_sum.dev_age_equivalent', { defaultValue: 'Dev. Age Equivalent' })}</p>
                     <p className="text-lg font-bold text-neutral-900 dark:text-white">{devAge}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Developmental Delay</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">{t('ev_sum.developmental_delay', { defaultValue: 'Developmental Delay' })}</p>
                     <div className="flex items-center gap-2">
                       <p className="text-lg font-bold text-neutral-900 dark:text-white">
-                        {delayStats.delayMonths > 0 ? `${delayStats.delayMonths} months` : "None"}
+                        {delayStats.delayMonths > 0 ? t('ev_sum.delay_months', { defaultValue: '{{count}} months', count: delayStats.delayMonths }) : t('ev_sum.none', { defaultValue: 'None' })}
                       </p>
                       {delayStats.delayMonths > 0 && (
                         <span className={clsx(
@@ -226,7 +228,7 @@ export default function VBMAPPSummary({
                     )} />
                     <div>
                       <h4 className="font-bold text-neutral-900 dark:text-white">
-                        Clinical Interpretation: {interpretation.title}
+                        {t('ev_sum.clinical_interpretation', { defaultValue: 'Clinical Interpretation' })}: {interpretation.title}
                       </h4>
                       <p className="text-sm text-neutral-700 dark:text-neutral-300 mt-1">
                         {interpretation.description}
@@ -244,7 +246,7 @@ export default function VBMAPPSummary({
                           <div className="flex items-center gap-2">
                             <Lightbulb className="w-4 h-4 text-amber-500" />
                             <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                              <span className="font-bold text-amber-600">{suggestedGoals.length}</span> emerging skills identified for IEP goal development
+                              <span className="font-bold text-amber-600">{suggestedGoals.length}</span> {t('ev_sum.emerging_skills_iep_suffix', { defaultValue: 'emerging skills identified for IEP goal development' })}
                             </p>
                           </div>
                         </div>
@@ -259,7 +261,7 @@ export default function VBMAPPSummary({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mb-1">
-                      Overall Milestones Score
+                      {t('ev_sum.overall_milestones_score', { defaultValue: 'Overall Milestones Score' })}
                     </p>
                     <div className="flex items-baseline gap-3">
                       <span
@@ -275,7 +277,7 @@ export default function VBMAPPSummary({
                         {evaluation.overallMilestonePercentage}%
                       </span>
                       <span className="text-neutral-500">
-                        ({evaluation.overallMilestoneScore} / {evaluation.overallMilestoneMaxScore} points)
+                        ({evaluation.overallMilestoneScore} / {evaluation.overallMilestoneMaxScore} {t('ev_sum.points', { defaultValue: 'points' })})
                       </span>
                     </div>
                     {overallComparison !== null && (
@@ -293,7 +295,7 @@ export default function VBMAPPSummary({
                             overallComparison > 0 ? "text-success-600" : overallComparison < 0 ? "text-error-600" : "text-neutral-500"
                           )}
                         >
-                          {overallComparison > 0 ? "+" : ""}{overallComparison}% since last evaluation
+                          {overallComparison > 0 ? "+" : ""}{t('ev_sum.since_last_evaluation', { defaultValue: '{{value}}% since last evaluation', value: overallComparison })}
                         </span>
                       </div>
                     )}
@@ -304,7 +306,7 @@ export default function VBMAPPSummary({
               {/* Milestone Grid */}
               <div className="bg-white dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
-                  Milestone Grid
+                  {t('ev_sum.milestone_grid', { defaultValue: 'Milestone Grid' })}
                 </h3>
                 <VBMAPPMilestoneGrid evaluation={evaluation} previousEvaluation={previousEvaluation} />
               </div>
@@ -313,8 +315,8 @@ export default function VBMAPPSummary({
               {suggestedGoals.length > 0 && (
                 <SuggestedGoals
                   goals={suggestedGoals}
-                  title="Suggested IEP Goals"
-                  emptyMessage="No emerging skills identified for goal development."
+                  title={t('ev_sum.suggested_iep_goals', { defaultValue: 'Suggested IEP Goals' })}
+                  emptyMessage={t('ev_sum.no_emerging_skills', { defaultValue: 'No emerging skills identified for goal development.' })}
                 />
               )}
 
@@ -326,7 +328,7 @@ export default function VBMAPPSummary({
               {/* Level Breakdown */}
               <div>
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
-                  Level Breakdown
+                  {t('ev_sum.level_breakdown', { defaultValue: 'Level Breakdown' })}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {Object.entries(evaluation.levelSummaries).map(([key, level]) => (
@@ -385,9 +387,9 @@ export default function VBMAPPSummary({
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 text-warning-500" />
                     <div className="text-left">
-                      <h3 className="font-bold text-neutral-900 dark:text-white">Barriers Assessment</h3>
+                      <h3 className="font-bold text-neutral-900 dark:text-white">{t('ev_sum.barriers_assessment', { defaultValue: 'Barriers Assessment' })}</h3>
                       <p className="text-sm text-neutral-500">
-                        {evaluation.barrierSummary.severeBarriers.length} severe barriers identified
+                        {t('ev_sum.severe_barriers_identified', { defaultValue: '{{count}} severe barriers identified', count: evaluation.barrierSummary.severeBarriers.length })}
                       </p>
                     </div>
                   </div>
@@ -398,7 +400,7 @@ export default function VBMAPPSummary({
                       evaluation.barrierSummary.averageSeverity <= 2 ? "text-warning-600" :
                       "text-error-600"
                     )}>
-                      Avg: {evaluation.barrierSummary.averageSeverity}
+                      {t('ev_sum.avg', { defaultValue: 'Avg' })}: {evaluation.barrierSummary.averageSeverity}
                     </span>
                     {expandedSection === 'barriers' ? (
                       <ChevronUp className="w-5 h-5 text-neutral-400" />
@@ -446,9 +448,9 @@ export default function VBMAPPSummary({
                   <div className="flex items-center gap-3">
                     <ArrowRight className="w-5 h-5 text-primary-500" />
                     <div>
-                      <h3 className="font-bold text-neutral-900 dark:text-white">Transition Assessment</h3>
+                      <h3 className="font-bold text-neutral-900 dark:text-white">{t('ev_sum.transition_assessment', { defaultValue: 'Transition Assessment' })}</h3>
                       <p className="text-sm text-neutral-500">
-                        {evaluation.transitionSummary.scoredItems}/{evaluation.transitionSummary.totalItems} items scored
+                        {evaluation.transitionSummary.scoredItems}/{evaluation.transitionSummary.totalItems} {t('ev_sum.items_scored', { defaultValue: 'items scored' })}
                       </p>
                     </div>
                   </div>
@@ -480,7 +482,7 @@ export default function VBMAPPSummary({
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
           >
-            Close
+            {t('ev_sum.close', { defaultValue: 'Close' })}
           </button>
 
           <div className="flex items-center gap-3">
@@ -489,7 +491,7 @@ export default function VBMAPPSummary({
               className="px-4 py-2 rounded-lg text-sm font-bold bg-primary-600 hover:bg-primary-700 text-white transition-all flex items-center gap-2 shadow-lg shadow-primary-600/20"
             >
               <BarChart2 className="w-4 h-4" />
-              View Clinical Report
+              {t('ev_sum.view_clinical_report', { defaultValue: 'View Clinical Report' })}
             </button>
             {onReEvaluate && (
               <button
@@ -497,7 +499,7 @@ export default function VBMAPPSummary({
                 className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                Start Re-evaluation
+                {t('ev_sum.start_reevaluation', { defaultValue: 'Start Re-evaluation' })}
               </button>
             )}
           </div>

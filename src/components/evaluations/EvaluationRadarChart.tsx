@@ -11,6 +11,7 @@ import {
   Tooltip
 } from "recharts";
 import { Evaluation, CategorySummary } from "@/types/evaluation";
+import { useTranslation } from "react-i18next";
 
 interface EvaluationRadarChartProps {
   evaluation: Evaluation;
@@ -32,6 +33,7 @@ export default function EvaluationRadarChart({
   size = "md",
   showLegend = true
 }: EvaluationRadarChartProps) {
+  const { t } = useTranslation();
   // Transform data for the chart
   const chartData: ChartDataPoint[] = Object.entries(evaluation.categorySummaries || {})
     .sort(([a], [b]) => a.localeCompare(b))
@@ -60,11 +62,11 @@ export default function EvaluationRadarChart({
           </p>
           <div className="mt-1 space-y-0.5">
             <p className="text-sm text-primary-600">
-              Current: <span className="font-bold">{data.current}%</span>
+              {t('ev_sum.current', { defaultValue: 'Current' })}: <span className="font-bold">{data.current}%</span>
             </p>
             {data.previous !== undefined && (
               <p className="text-sm text-neutral-500">
-                Previous: <span className="font-medium">{data.previous}%</span>
+                {t('ev_sum.previous', { defaultValue: 'Previous' })}: <span className="font-medium">{data.previous}%</span>
               </p>
             )}
             {data.previous !== undefined && (
@@ -76,7 +78,7 @@ export default function EvaluationRadarChart({
                   : "text-neutral-500"
               }`}>
                 {data.current > data.previous ? "+" : ""}
-                {data.current - data.previous}% change
+                {t('ev_sum.percent_change', { defaultValue: '{{value}}% change', value: data.current - data.previous })}
               </p>
             )}
           </div>
@@ -113,7 +115,7 @@ export default function EvaluationRadarChart({
         {/* Previous evaluation (if exists) - shown behind current */}
         {previousEvaluation && (
           <Radar
-            name="Previous"
+            name={t('ev_sum.previous', { defaultValue: 'Previous' })}
             dataKey="previous"
             stroke="#a3a3a3"
             fill="#a3a3a3"
@@ -125,7 +127,7 @@ export default function EvaluationRadarChart({
 
         {/* Current evaluation */}
         <Radar
-          name="Current"
+          name={t('ev_sum.current', { defaultValue: 'Current' })}
           dataKey="current"
           stroke="#6366f1"
           fill="#6366f1"

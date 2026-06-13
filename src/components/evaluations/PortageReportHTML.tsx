@@ -137,8 +137,8 @@ export default function PortageReportHTML({
               <div className="col-span-2">
                 <p className="text-neutral-500 font-medium">{t('evaluations.summary')}</p>
                 <p className="text-neutral-700 dark:text-neutral-300 mt-1 leading-relaxed">
-                  The Portage assessment for <strong>{client.name}</strong> shows an overall developmental age of <strong>{(evaluation.overallDevelopmentalAgeMonths / 12).toFixed(1)} {t('portage.years')}</strong>, 
-                  representing a progress level of <strong>{Math.round((evaluation.overallDevelopmentalAgeMonths / evaluation.chronologicalAgeAtEvaluation) * 100)}%</strong> relative to chronological expectations.
+                  {t('report.portage_summary_part1', { defaultValue: 'The Portage assessment for' })} <strong>{client.name}</strong> {t('report.portage_summary_part2', { defaultValue: 'shows an overall developmental age of' })} <strong>{(evaluation.overallDevelopmentalAgeMonths / 12).toFixed(1)} {t('portage.years')}</strong>,{' '}
+                  {t('report.portage_summary_part3', { defaultValue: 'representing a progress level of' })} <strong>{Math.round((evaluation.overallDevelopmentalAgeMonths / evaluation.chronologicalAgeAtEvaluation) * 100)}%</strong> {t('report.portage_summary_part4', { defaultValue: 'relative to chronological expectations.' })}
                 </p>
               </div>
             </div>

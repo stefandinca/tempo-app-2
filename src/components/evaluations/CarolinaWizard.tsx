@@ -84,7 +84,7 @@ export default function CarolinaWizard({
             userData?.name || "Unknown"
           );
           setActiveEvaluationId(newId);
-          success("Carolina evaluation started");
+          success(t('ev_wizard.carolina_started', { defaultValue: 'Carolina evaluation started' }));
           if (user && userData) {
             try {
               await logActivity({
@@ -98,7 +98,7 @@ export default function CarolinaWizard({
           }
         } catch (err) {
           console.error("Failed to create Carolina evaluation:", err);
-          toastError("Failed to start evaluation");
+          toastError(t('ev_wizard.start_failed', { defaultValue: 'Failed to start evaluation' }));
           onClose();
         } finally {
           setIsInitializing(false);
@@ -148,24 +148,24 @@ export default function CarolinaWizard({
     try {
       await saveProgress(clientId, activeEvaluationId, localScores);
       setHasUnsavedChanges(false);
-      success("Progress saved");
+      success(t('ev_wizard.progress_saved', { defaultValue: 'Progress saved' }));
     } catch (err) {
-      toastError("Failed to save progress");
+      toastError(t('ev_wizard.progress_save_failed', { defaultValue: 'Failed to save progress' }));
     }
   };
 
   const handleComplete = async () => {
     if (!activeEvaluationId) return;
-    
+
     customConfirm({
       title: t('portage.complete'),
-      message: "Are you sure you want to complete this evaluation? This will finalize the scores.",
+      message: t('ev_wizard.carolina_complete_confirm', { defaultValue: 'Are you sure you want to complete this evaluation? This will finalize the scores.' }),
       confirmLabel: t('portage.complete'),
       variant: 'primary',
       onConfirm: async () => {
         try {
           await completeEvaluation(clientId, activeEvaluationId, localScores);
-          success("Evaluation completed!");
+          success(t('ev_wizard.evaluation_completed', { defaultValue: 'Evaluation completed!' }));
           if (user && userData) {
             try {
               await logActivity({
@@ -179,7 +179,7 @@ export default function CarolinaWizard({
           }
           onClose();
         } catch (err) {
-          toastError("Failed to complete evaluation");
+          toastError(t('ev_wizard.complete_failed', { defaultValue: 'Failed to complete evaluation' }));
         }
       }
     });
@@ -188,10 +188,10 @@ export default function CarolinaWizard({
   const handleClose = () => {
     if (hasUnsavedChanges) {
       customConfirm({
-        title: "Unsaved Changes",
-        message: "You have unsaved changes. Do you want to save before closing?",
+        title: t('ev_wizard.unsaved_title', { defaultValue: 'Unsaved Changes' }),
+        message: t('ev_wizard.unsaved_message', { defaultValue: 'You have unsaved changes. Do you want to save before closing?' }),
         confirmLabel: t('common.save'),
-        cancelLabel: "Discard",
+        cancelLabel: t('ev_wizard.discard', { defaultValue: 'Discard' }),
         variant: 'warning',
         onConfirm: async () => {
           await handleSaveDraft();

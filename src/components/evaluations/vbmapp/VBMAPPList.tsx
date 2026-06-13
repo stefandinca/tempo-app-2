@@ -49,18 +49,18 @@ export default function VBMAPPList({
 
   const handleDelete = async (evaluationId: string) => {
     customConfirm({
-      title: "Delete VB-MAPP",
-      message: "Delete this VB-MAPP evaluation? This cannot be undone.",
-      confirmLabel: "Delete",
+      title: t('ev_list.delete_vbmapp_title', { defaultValue: 'Delete VB-MAPP' }),
+      message: t('ev_list.delete_vbmapp_message', { defaultValue: 'Delete this VB-MAPP evaluation? This cannot be undone.' }),
+      confirmLabel: t('ev_list.delete', { defaultValue: 'Delete' }),
       variant: 'danger',
       onConfirm: async () => {
         setDeletingId(evaluationId);
         try {
           await deleteEvaluation(clientId, evaluationId);
-          success("Evaluation deleted");
+          success(t('ev_list.evaluation_deleted', { defaultValue: 'Evaluation deleted' }));
         } catch (err) {
           console.error("Failed to delete evaluation:", err);
-          toastError("Failed to delete evaluation");
+          toastError(t('ev_list.delete_failed', { defaultValue: 'Failed to delete evaluation' }));
         } finally {
           setDeletingId(null);
           setMenuOpen(null);
@@ -104,7 +104,7 @@ export default function VBMAPPList({
         className="w-full py-4 border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-2xl text-purple-600 dark:text-purple-400 hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all font-medium flex items-center justify-center gap-2"
       >
         <Plus className="w-5 h-5" />
-        Start New VB-MAPP Evaluation
+        {t('ev_list.start_new_vbmapp', { defaultValue: 'Start New VB-MAPP Evaluation' })}
       </button>
 
       {/* In Progress */}
@@ -112,7 +112,7 @@ export default function VBMAPPList({
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            In Progress ({inProgressEvaluations.length})
+            {t('ev_list.in_progress', { defaultValue: 'In Progress' })} ({inProgressEvaluations.length})
           </h4>
           {inProgressEvaluations.map((evaluation) => (
             <div
@@ -126,13 +126,13 @@ export default function VBMAPPList({
                   </div>
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-white">
-                      VB-MAPP Evaluation
+                      {t('ev_list.vbmapp_evaluation', { defaultValue: 'VB-MAPP Evaluation' })}
                     </p>
                     <p className="text-sm text-neutral-500">
-                      Started {formatDate(evaluation.createdAt)} · {evaluation.overallMilestonePercentage}% scored
+                      {t('ev_list.started_scored', { defaultValue: 'Started {{date}} · {{percentage}}% scored', date: formatDate(evaluation.createdAt), percentage: evaluation.overallMilestonePercentage })}
                     </p>
                     <p className="text-xs text-neutral-400 mt-0.5">
-                      By {evaluation.evaluatorName}
+                      {t('ev_list.by_evaluator', { defaultValue: 'By {{name}}', name: evaluation.evaluatorName })}
                     </p>
                   </div>
                 </div>
@@ -141,7 +141,7 @@ export default function VBMAPPList({
                     onClick={() => onContinue(evaluation.id)}
                     className="px-4 py-2 bg-warning-600 hover:bg-warning-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center gap-2"
                   >
-                    Continue
+                    {t('ev_list.continue', { defaultValue: 'Continue' })}
                     <ChevronRight className="w-4 h-4" />
                   </button>
                   <div className="relative">
@@ -163,7 +163,7 @@ export default function VBMAPPList({
                           ) : (
                             <Trash2 className="w-4 h-4" />
                           )}
-                          Delete
+                          {t('ev_list.delete', { defaultValue: 'Delete' })}
                         </button>
                       </div>
                     )}
@@ -188,7 +188,7 @@ export default function VBMAPPList({
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
-              Completed ({completedEvaluations.length})
+              {t('ev_list.completed', { defaultValue: 'Completed' })} ({completedEvaluations.length})
             </h4>
             <CompareEvaluationsButton kind="vbmapp" evaluations={completedEvaluations} childName={clientName} />
           </div>
@@ -204,13 +204,13 @@ export default function VBMAPPList({
                   </div>
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-white">
-                      VB-MAPP Evaluation
+                      {t('ev_list.vbmapp_evaluation', { defaultValue: 'VB-MAPP Evaluation' })}
                     </p>
                     <p className="text-sm text-neutral-500">
-                      Completed {formatDate(evaluation.completedAt || evaluation.updatedAt)}
+                      {t('ev_list.completed_date', { defaultValue: 'Completed {{date}}', date: formatDate(evaluation.completedAt || evaluation.updatedAt) })}
                     </p>
                     <p className="text-xs text-neutral-400 mt-0.5">
-                      By {evaluation.evaluatorName} · Level {evaluation.dominantLevel}
+                      {t('ev_list.by_evaluator_level', { defaultValue: 'By {{name}} · Level {{level}}', name: evaluation.evaluatorName, level: evaluation.dominantLevel })}
                     </p>
                   </div>
                 </div>
@@ -239,14 +239,14 @@ export default function VBMAPPList({
                     <button
                       onClick={() => onView(evaluation.id)}
                       className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                      title="View details"
+                      title={t('ev_list.view_details', { defaultValue: 'View details' })}
                     >
                       <Eye className="w-5 h-5 text-neutral-500" />
                     </button>
                     <button
                       onClick={() => onReEvaluate(evaluation)}
                       className="p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-                      title="Start re-evaluation"
+                      title={t('ev_list.start_re_evaluation', { defaultValue: 'Start re-evaluation' })}
                     >
                       <RefreshCw className="w-5 h-5 text-primary-600" />
                     </button>
@@ -294,17 +294,17 @@ export default function VBMAPPList({
             <FileText className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
-            No VB-MAPP Evaluations Yet
+            {t('ev_list.no_vbmapp_evaluations_yet', { defaultValue: 'No VB-MAPP Evaluations Yet' })}
           </h3>
           <p className="text-neutral-500 max-w-sm mx-auto mb-6">
-            Start a VB-MAPP evaluation to assess {clientName}&apos;s verbal behavior milestones and track progress.
+            {t('ev_list.no_vbmapp_evaluations_desc', { defaultValue: "Start a VB-MAPP evaluation to assess {{name}}'s verbal behavior milestones and track progress.", name: clientName })}
           </p>
           <button
             onClick={onStartNew}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-purple-500/20"
           >
             <Plus className="w-4 h-4" />
-            Start First Evaluation
+            {t('ev_list.start_first', { defaultValue: 'Start First Evaluation' })}
           </button>
         </div>
       )}

@@ -43,7 +43,7 @@ function TherapistUtilizationChart({ data }: TherapistUtilizationChartProps) {
                   {member.name}
                 </span>
                 <span className="text-neutral-500 dark:text-neutral-400 font-mono text-xs">
-                  {member.billable} / {member.capacity} hrs
+                  {t('cal.billable_capacity_hours', { billable: member.billable, capacity: member.capacity, defaultValue: '{{billable}} / {{capacity}} hrs' })}
                 </span>
               </div>
 

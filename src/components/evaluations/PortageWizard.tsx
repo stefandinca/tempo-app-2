@@ -86,7 +86,7 @@ export default function PortageWizard({
             totalMonths
           );
           setActiveEvaluationId(newId);
-          success("Portage evaluation started");
+          success(t('ev_wizard.portage_started', { defaultValue: 'Portage evaluation started' }));
           if (user && userData) {
             try {
               await logActivity({
@@ -100,7 +100,7 @@ export default function PortageWizard({
           }
         } catch (err) {
           console.error("Failed to create Portage evaluation:", err);
-          toastError("Failed to start evaluation");
+          toastError(t('ev_wizard.start_failed', { defaultValue: 'Failed to start evaluation' }));
           onClose();
         } finally {
           setIsInitializing(false);
@@ -164,9 +164,9 @@ export default function PortageWizard({
     try {
       await saveProgress(clientId, activeEvaluationId, localScores, totalMonths);
       setHasUnsavedChanges(false);
-      success("Progress saved");
+      success(t('ev_wizard.progress_saved', { defaultValue: 'Progress saved' }));
     } catch (err) {
-      toastError("Failed to save progress");
+      toastError(t('ev_wizard.progress_save_failed', { defaultValue: 'Failed to save progress' }));
     }
   };
 
@@ -174,7 +174,7 @@ export default function PortageWizard({
     if (!activeEvaluationId) return;
     try {
       await completeEvaluation(clientId, activeEvaluationId, localScores, totalMonths);
-      success("Evaluation completed!");
+      success(t('ev_wizard.evaluation_completed', { defaultValue: 'Evaluation completed!' }));
       if (user && userData) {
         try {
           await logActivity({
@@ -188,17 +188,17 @@ export default function PortageWizard({
       }
       onClose();
     } catch (err) {
-      toastError("Failed to complete evaluation");
+      toastError(t('ev_wizard.complete_failed', { defaultValue: 'Failed to complete evaluation' }));
     }
   };
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
       customConfirm({
-        title: "Unsaved Changes",
-        message: "You have unsaved changes. Do you want to save before closing?",
+        title: t('ev_wizard.unsaved_title', { defaultValue: 'Unsaved Changes' }),
+        message: t('ev_wizard.unsaved_message', { defaultValue: 'You have unsaved changes. Do you want to save before closing?' }),
         confirmLabel: t('common.save'),
-        cancelLabel: "Discard",
+        cancelLabel: t('ev_wizard.discard', { defaultValue: 'Discard' }),
         variant: 'warning',
         onConfirm: async () => {
           await handleSaveDraft();

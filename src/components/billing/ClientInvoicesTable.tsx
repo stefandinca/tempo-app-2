@@ -124,7 +124,7 @@ export default function ClientInvoicesTable({
         body: JSON.stringify(payload)
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Sync failed");
+      if (!response.ok) throw new Error(result.error || t('cal.sync_failed', { defaultValue: 'Sync failed' }));
       success(`${t('billing_page.status.synced')}: #${result.result.series}${result.result.number}`);
     } catch (err: any) {
       console.error(err);
@@ -187,13 +187,13 @@ export default function ClientInvoicesTable({
         const snapshot: InvoiceData = {
           series, number: nextNumber, date: today.toISOString().split('T')[0], dueDate: dueDate.toISOString().split('T')[0],
           clinic: {
-            name: entityToUse.name || "Clinic Name", address: entityToUse.address || "", cui: entityToUse.cui || "",
+            name: entityToUse.name || t('cal.clinic_name', { defaultValue: 'Clinic Name' }), address: entityToUse.address || "", cui: entityToUse.cui || "",
             regNo: entityToUse.regNo || "", bank: entityToUse.bank || "", iban: entityToUse.iban || "",
             email: entityToUse.email || "", phone: entityToUse.phone || "",
           },
           client: {
             name: invoice.clientName, cif: clientData.billingCif || "", regNo: clientData.billingRegNo || "",
-            address: clientData.billingAddress || "Client Address Placeholder",
+            address: clientData.billingAddress || t('cal.client_address_placeholder', { defaultValue: 'Client Address Placeholder' }),
           },
           items, total: totalAmount, currency: "RON", vatRate
         };
@@ -205,13 +205,13 @@ export default function ClientInvoicesTable({
         transaction.update(settingsRef, { "invoicing.currentNumber": nextNumber });
         return { snapshot, invoiceId: newInvoiceRef.id };
       });
-      success(`${t('billing_page.generate_invoice')} #${invoiceData.snapshot.series}-${invoiceData.snapshot.number} generated.`);
+      success(t('cal.invoice_generated_success', { label: t('billing_page.generate_invoice'), series: invoiceData.snapshot.series, number: invoiceData.snapshot.number, defaultValue: '{{label}} #{{series}}-{{number}} generated.' }));
       if (authUser) {
         const adminQuery = query(collection(db, "team_members"), where("role", "in", ["Admin", "Coordinator"]));
         const adminSnaps = await getDocs(adminQuery);
         const notifications = adminSnaps.docs.filter(d => d.id !== authUser.uid).map(d => ({
           recipientId: d.id, recipientRole: d.data().role.toLowerCase() as any, type: "billing_generated" as any,
-          category: "billing" as any, title: t('billing_page.generate_invoice'), message: `New invoice issued for ${invoice.clientName} (${invoice.total.toFixed(2)} RON)`,
+          category: "billing" as any, title: t('billing_page.generate_invoice'), message: t('cal.new_invoice_issued', { clientName: invoice.clientName, amount: invoice.total.toFixed(2), defaultValue: 'New invoice issued for {{clientName}} ({{amount}} RON)' }),
           sourceType: "billing" as any, sourceId: invoiceData.invoiceId, triggeredBy: authUser.uid,
           actions: [{ label: t('billing_page.view_details'), type: "navigate" as const, route: "/billing" }]
         }));

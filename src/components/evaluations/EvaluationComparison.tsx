@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
 import EvaluationRadarChart from "./EvaluationRadarChart";
+import { useTranslation } from "react-i18next";
 
 interface EvaluationComparisonProps {
   currentEvaluation: Evaluation;
@@ -22,6 +23,7 @@ export default function EvaluationComparison({
   currentEvaluation,
   previousEvaluation
 }: EvaluationComparisonProps) {
+  const { t } = useTranslation();
   const comparison = useMemo(() => {
     const overallChange = currentEvaluation.overallPercentage - previousEvaluation.overallPercentage;
 
@@ -67,7 +69,7 @@ export default function EvaluationComparison({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
         {/* Previous */}
         <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 text-center">
-          <p className="text-xs text-neutral-500 uppercase tracking-wider mb-2">Previous</p>
+          <p className="text-xs text-neutral-500 uppercase tracking-wider mb-2">{t('ev_sum.previous', { defaultValue: 'Previous' })}</p>
           <p className="text-3xl font-bold text-neutral-600 dark:text-neutral-400">
             {previousEvaluation.overallPercentage}%
           </p>
@@ -112,13 +114,13 @@ export default function EvaluationComparison({
                 {comparison.overallChange}%
               </span>
             </div>
-            <p className="text-xs text-neutral-500 mt-1">Overall Change</p>
+            <p className="text-xs text-neutral-500 mt-1">{t('ev_sum.overall_change', { defaultValue: 'Overall Change' })}</p>
           </div>
         </div>
 
         {/* Current */}
         <div className="bg-primary-50 dark:bg-primary-900/20 rounded-xl p-4 text-center border border-primary-200 dark:border-primary-800">
-          <p className="text-xs text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-2">Current</p>
+          <p className="text-xs text-primary-600 dark:text-primary-400 uppercase tracking-wider mb-2">{t('ev_sum.current', { defaultValue: 'Current' })}</p>
           <p
             className={clsx(
               "text-3xl font-bold",
@@ -142,21 +144,21 @@ export default function EvaluationComparison({
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-success-50 dark:bg-success-900/20 rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-success-600">{comparison.improved}</p>
-          <p className="text-xs text-success-600/70">Categories Improved</p>
+          <p className="text-xs text-success-600/70">{t('ev_sum.categories_improved', { defaultValue: 'Categories Improved' })}</p>
         </div>
         <div className="bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-neutral-500">{comparison.unchanged}</p>
-          <p className="text-xs text-neutral-500">Unchanged</p>
+          <p className="text-xs text-neutral-500">{t('ev_sum.unchanged', { defaultValue: 'Unchanged' })}</p>
         </div>
         <div className="bg-error-50 dark:bg-error-900/20 rounded-xl p-4 text-center">
           <p className="text-2xl font-bold text-error-600">{comparison.declined}</p>
-          <p className="text-xs text-error-600/70">Need Attention</p>
+          <p className="text-xs text-error-600/70">{t('ev_sum.need_attention', { defaultValue: 'Need Attention' })}</p>
         </div>
       </div>
 
       {/* Radar Chart Comparison */}
       <div className="bg-white dark:bg-neutral-800/50 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700">
-        <h4 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">Visual Comparison</h4>
+        <h4 className="text-sm font-bold text-neutral-900 dark:text-white mb-4">{t('ev_sum.visual_comparison', { defaultValue: 'Visual Comparison' })}</h4>
         <EvaluationRadarChart
           evaluation={currentEvaluation}
           previousEvaluation={previousEvaluation}
@@ -167,7 +169,7 @@ export default function EvaluationComparison({
 
       {/* Category by category breakdown */}
       <div>
-        <h4 className="text-sm font-bold text-neutral-900 dark:text-white mb-3">Category Breakdown</h4>
+        <h4 className="text-sm font-bold text-neutral-900 dark:text-white mb-3">{t('ev_sum.category_breakdown', { defaultValue: 'Category Breakdown' })}</h4>
         <div className="space-y-2">
           {comparison.categoryChanges.map((cat) => (
             <div

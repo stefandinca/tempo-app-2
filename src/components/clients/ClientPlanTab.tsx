@@ -79,18 +79,18 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
 
   const handleEndPlan = async (plan: InterventionPlan) => {
     customConfirm({
-      title: "End Plan",
-      message: `End "${plan.name}"? This will mark the plan as completed.`,
-      confirmLabel: "End Plan",
+      title: t('cl_tab.end_plan', { defaultValue: 'End Plan' }),
+      message: t('cl_tab.end_plan_confirm', { defaultValue: 'End "{{name}}"? This will mark the plan as completed.', name: plan.name }),
+      confirmLabel: t('cl_tab.end_plan', { defaultValue: 'End Plan' }),
       variant: 'warning',
       onConfirm: async () => {
         try {
           const planRef = doc(db, "clients", client.id, "interventionPlans", plan.id);
           await updateDoc(planRef, { status: "completed" });
-          success("Plan marked as completed");
+          success(t('cl_tab.plan_marked_completed', { defaultValue: 'Plan marked as completed' }));
         } catch (err) {
           console.error(err);
-          error("Failed to update plan");
+          error(t('cl_tab.failed_update_plan', { defaultValue: 'Failed to update plan' }));
         }
       }
     });
@@ -107,19 +107,19 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
       try {
         const planRef = doc(db, "clients", client.id, "interventionPlans", plan.id);
         await updateDoc(planRef, { status: "active" });
-        success("Plan activated");
+        success(t('cl_tab.plan_activated', { defaultValue: 'Plan activated' }));
       } catch (err) {
         console.error(err);
-        error("Failed to activate plan");
+        error(t('cl_tab.failed_activate_plan', { defaultValue: 'Failed to activate plan' }));
       }
     };
 
     // Check if there's already an active plan
     if (activePlan && activePlan.id !== plan.id) {
       customConfirm({
-        title: "Change Active Plan",
-        message: `There's already an active plan. Activating this will end "${activePlan.name}". Continue?`,
-        confirmLabel: "Activate Plan",
+        title: t('cl_tab.change_active_plan', { defaultValue: 'Change Active Plan' }),
+        message: t('cl_tab.change_active_plan_confirm', { defaultValue: 'There\'s already an active plan. Activating this will end "{{name}}". Continue?', name: activePlan.name }),
+        confirmLabel: t('cl_tab.activate_plan', { defaultValue: 'Activate Plan' }),
         variant: 'primary',
         onConfirm: doActivate
       });
@@ -155,11 +155,11 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                     </h3>
                     <span className="px-2 py-0.5 bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 text-xs font-bold rounded-full flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-success-500 rounded-full animate-pulse" />
-                      Active
+                      {t('cl_tab.active', { defaultValue: 'Active' })}
                     </span>
                   </div>
                   <p className="text-sm text-neutral-500 mt-0.5">
-                    Intervention Plan
+                    {t('cl_tab.intervention_plan', { defaultValue: 'Intervention Plan' })}
                   </p>
                 </div>
               </div>
@@ -191,8 +191,8 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                     : "text-neutral-600 dark:text-neutral-400"
                 )}>
                   {calculateDaysRemaining(activePlan.endDate) > 0
-                    ? `${calculateDaysRemaining(activePlan.endDate)} days remaining`
-                    : "Plan ended"
+                    ? t('cl_tab.days_remaining', { defaultValue: '{{count}} days remaining', count: calculateDaysRemaining(activePlan.endDate) })
+                    : t('cl_tab.plan_ended', { defaultValue: 'Plan ended' })
                   }
                 </span>
               </div>
@@ -201,7 +201,7 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
             {/* Programs */}
             <div>
               <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">
-                Programs ({activePlan.programIds.length})
+                {t('cl_tab.programs_count', { defaultValue: 'Programs ({{count}})', count: activePlan.programIds.length })}
               </p>
               <div className="flex flex-wrap gap-2">
                 {getProgramNames(activePlan.programIds).map((name, idx) => (
@@ -277,13 +277,13 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                 onClick={() => setEditingPlan(activePlan)}
                 className="flex-1 py-2.5 border border-neutral-200 dark:border-neutral-700 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 font-medium transition-colors text-sm"
               >
-                Edit Plan
+                {t('cl_tab.edit_plan', { defaultValue: 'Edit Plan' })}
               </button>
               <button
                 onClick={() => handleEndPlan(activePlan)}
                 className="flex-1 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-xl font-medium transition-colors text-sm hover:bg-neutral-800 dark:hover:bg-neutral-100"
               >
-                End Plan
+                {t('cl_tab.end_plan', { defaultValue: 'End Plan' })}
               </button>
             </div>
           </div>
@@ -295,17 +295,17 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
             <ClipboardList className="w-8 h-8 text-neutral-400" />
           </div>
           <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
-            No Active Intervention Plan
+            {t('cl_tab.no_active_plan', { defaultValue: 'No Active Intervention Plan' })}
           </h3>
           <p className="text-neutral-500 max-w-sm mx-auto mb-6">
-            Create a plan to automatically assign programs to this client&apos;s therapy sessions.
+            {t('cl_tab.no_active_plan_desc', { defaultValue: "Create a plan to automatically assign programs to this client's therapy sessions." })}
           </p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-colors shadow-lg shadow-primary-500/20"
           >
             <Plus className="w-4 h-4" />
-            Create Intervention Plan
+            {t('cl_tab.create_intervention_plan', { defaultValue: 'Create Intervention Plan' })}
           </button>
         </div>
       )}
@@ -314,7 +314,7 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
       {draftPlans.length > 0 && (
         <div className="space-y-3">
           <h4 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider">
-            Draft Plans ({draftPlans.length})
+            {t('cl_tab.draft_plans_count', { defaultValue: 'Draft Plans ({{count}})', count: draftPlans.length })}
           </h4>
           {draftPlans.map(plan => (
             <div
@@ -329,8 +329,8 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                   <div>
                     <p className="font-medium text-neutral-900 dark:text-white">{plan.name}</p>
                     <p className="text-xs text-neutral-500">
-                      {formatDate(plan.startDate)} → {formatDate(plan.endDate)} · {plan.programIds.length} programs
-                      {plan.objectives && plan.objectives.length > 0 && ` · ${plan.objectives.length} objectives`}
+                      {formatDate(plan.startDate)} → {formatDate(plan.endDate)} · {t('cl_tab.programs_lower_count', { defaultValue: '{{count}} programs', count: plan.programIds.length })}
+                      {plan.objectives && plan.objectives.length > 0 && ` · ${t('cl_tab.objectives_lower_count', { defaultValue: '{{count}} objectives', count: plan.objectives.length })}`}
                     </p>
                   </div>
                 </div>
@@ -339,13 +339,13 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                     onClick={() => setEditingPlan(plan)}
                     className="px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
                   >
-                    Edit
+                    {t('cl_tab.edit', { defaultValue: 'Edit' })}
                   </button>
                   <button
                     onClick={() => handleActivatePlan(plan)}
                     className="px-3 py-1.5 text-xs font-medium bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                   >
-                    Activate
+                    {t('cl_tab.activate', { defaultValue: 'Activate' })}
                   </button>
                 </div>
               </div>
@@ -361,7 +361,7 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
           className="w-full py-3 border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-xl text-neutral-500 hover:border-primary-300 hover:text-primary-600 transition-colors font-medium flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          Create New Plan
+          {t('cl_tab.create_new_plan', { defaultValue: 'Create New Plan' })}
         </button>
       )}
 
@@ -372,7 +372,7 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
             onClick={() => setShowHistory(!showHistory)}
             className="flex items-center gap-2 text-sm font-semibold text-neutral-500 uppercase tracking-wider hover:text-neutral-700 transition-colors"
           >
-            <span>Plan History ({completedPlans.length})</span>
+            <span>{t('cl_tab.plan_history_count', { defaultValue: 'Plan History ({{count}})', count: completedPlans.length })}</span>
             {showHistory ? (
               <ChevronUp className="w-4 h-4" />
             ) : (
@@ -395,12 +395,12 @@ export default function ClientPlanTab({ client, pendingAction, onActionHandled }
                       <div>
                         <p className="font-medium text-neutral-700 dark:text-neutral-300">{plan.name}</p>
                         <p className="text-xs text-neutral-500">
-                          {formatDate(plan.startDate)} → {formatDate(plan.endDate)} · {plan.programIds.length} programs
-                          {plan.objectives && plan.objectives.length > 0 && ` · ${plan.objectives.length} objectives`}
+                          {formatDate(plan.startDate)} → {formatDate(plan.endDate)} · {t('cl_tab.programs_lower_count', { defaultValue: '{{count}} programs', count: plan.programIds.length })}
+                          {plan.objectives && plan.objectives.length > 0 && ` · ${t('cl_tab.objectives_lower_count', { defaultValue: '{{count}} objectives', count: plan.objectives.length })}`}
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs text-neutral-400 font-medium">Completed</span>
+                    <span className="text-xs text-neutral-400 font-medium">{t('cl_tab.completed', { defaultValue: 'Completed' })}</span>
                   </div>
                 </div>
               ))}

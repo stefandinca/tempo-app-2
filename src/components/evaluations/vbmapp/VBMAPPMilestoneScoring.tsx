@@ -112,9 +112,9 @@ export default function VBMAPPMilestoneScoring({
         <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
           <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-bold text-amber-800 dark:text-amber-400">Ceiling Reached</p>
+            <p className="text-sm font-bold text-amber-800 dark:text-amber-400">{t('ev_list.ceiling_reached', { defaultValue: 'Ceiling Reached' })}</p>
             <p className="text-xs text-amber-700 dark:text-amber-500 mt-0.5">
-              Three consecutive 0s detected. Clinical standard suggests stopping testing for this skill area.
+              {t('ev_list.ceiling_reached_desc', { defaultValue: 'Three consecutive 0s detected. Clinical standard suggests stopping testing for this skill area.' })}
             </p>
           </div>
         </div>
@@ -192,8 +192,7 @@ export default function VBMAPPMilestoneScoring({
                             : "text-neutral-500"
                         )}
                       >
-                        {comparison.diff > 0 ? "+" : ""}
-                        {comparison.diff} from previous
+                        {t('ev_list.diff_from_previous', { defaultValue: '{{diff}} from previous', diff: `${comparison.diff > 0 ? "+" : ""}${comparison.diff}` })}
                       </span>
                     </div>
                   )}
@@ -257,7 +256,7 @@ export default function VBMAPPMilestoneScoring({
                     value={noteValue}
                     onChange={(e) => handleNoteChange(item.id, e.target.value)}
                     onBlur={() => handleNoteSave(item.id)}
-                    placeholder="Add observation notes..."
+                    placeholder={t('ev_list.add_observation_notes', { defaultValue: 'Add observation notes...' })}
                     disabled={readOnly}
                     className="w-full px-3 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
                     rows={2}

@@ -103,7 +103,7 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
           await logActivity({
             type: 'client_updated',
             userId: authUser.uid,
-            userName: userData.name || authUser.email || 'Unknown',
+            userName: userData.name || authUser.email || t('cl_tab.unknown', { defaultValue: 'Unknown' }),
             userPhotoURL: userData.photoURL || authUser.photoURL || undefined,
             targetId: client.id,
             targetName: formData.name
@@ -312,7 +312,7 @@ export default function EditClientModal({ isOpen, onClose, client }: EditClientM
             {/* Selected Team Tags */}
             <div className="flex flex-wrap gap-2 mb-2">
               {formData.therapistIds.length === 0 && (
-                <span className="text-xs text-neutral-400 italic">No team members assigned yet.</span>
+                <span className="text-xs text-neutral-400 italic">{t('cl_tab.no_team_assigned_yet', { defaultValue: 'No team members assigned yet.' })}</span>
               )}
               {formData.therapistIds.map(tid => {
                 const member = teamMembers.find(tm => tm.id === tid);

@@ -79,7 +79,7 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
           className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-neutral-900 transition-colors"
         >
           <ChevronRight className="w-4 h-4 rotate-180" />
-          Back to List
+          {t('ev_list.back_to_list', { defaultValue: 'Back to List' })}
         </button>
         <PortageSummary evaluation={viewingSummary} onClose={() => setViewingSummary(null)} />
       </div>
@@ -147,7 +147,7 @@ export default function PortageList({ clientId, clientName, clientDob }: Portage
                         {new Date(evaluation.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                        {isCompleted ? t('evaluations.completed') : 'In Progress'}
+                        {isCompleted ? t('evaluations.completed') : t('ev_list.in_progress', { defaultValue: 'In Progress' })}
                       </p>
                     </div>
                   </div>

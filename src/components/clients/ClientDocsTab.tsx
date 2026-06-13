@@ -128,17 +128,17 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
         // Notify parent
         const { notifyParentReportGenerated } = await import("@/lib/notificationService");
         await notifyParentReportGenerated(client.id, {
-          reportType: report.type || "Report",
-          reportTitle: report.name || "Progress Report",
+          reportType: report.type || t('cl_tab.report', { defaultValue: 'Report' }),
+          reportTitle: report.name || t('cl_tab.progress_report', { defaultValue: 'Progress Report' }),
           reportId: report.id,
           triggeredByUserId: user?.uid || ""
         });
       }
 
-      success(newSharedState ? "Report shared" : "Report hidden");
+      success(newSharedState ? t('cl_tab.report_shared', { defaultValue: 'Report shared' }) : t('cl_tab.report_hidden', { defaultValue: 'Report hidden' }));
     } catch (err) {
       console.error("Error toggling report share:", err);
-      showError("Failed to update share status");
+      showError(t('cl_tab.failed_update_share', { defaultValue: 'Failed to update share status' }));
     }
   };
 
@@ -146,7 +146,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        showError("File size must be less than 10MB");
+        showError(t('cl_tab.file_size_limit', { defaultValue: 'File size must be less than 10MB' }));
         return;
       }
       setSelectedFile(file);
@@ -163,7 +163,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
         category: docCategory as any,
         sharedWithParent: shareWithParent,
         uploadedBy: user?.uid || "",
-        uploadedByName: userData?.name || user?.email || "Staff"
+        uploadedByName: userData?.name || user?.email || t('cl_tab.staff', { defaultValue: 'Staff' })
       };
 
       const result = await uploadDocument(selectedFile, metadata, setUploadProgress);
@@ -202,15 +202,15 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
           documentId: docItem.id,
           documentName: docItem.name,
           documentCategory: docItem.category,
-          sharedByName: userData?.name || user?.email || "Staff",
+          sharedByName: userData?.name || user?.email || t('cl_tab.staff', { defaultValue: 'Staff' }),
           triggeredByUserId: user?.uid || ""
         });
       }
 
-      success(newSharedState ? "Document shared" : "Document hidden");
+      success(newSharedState ? t('cl_tab.document_shared', { defaultValue: 'Document shared' }) : t('cl_tab.document_hidden', { defaultValue: 'Document hidden' }));
     } catch (err) {
       console.error("Error toggling document share:", err);
-      showError("Failed to update share status");
+      showError(t('cl_tab.failed_update_share', { defaultValue: 'Failed to update share status' }));
     }
   };
 
@@ -318,7 +318,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                     )}
                   </div>
                   <p className="text-xs text-neutral-500">
-                    {item.isReport ? t('reports.client.title') : (CATEGORIES.find(c => c.id === item.category)?.label || 'Doc')} • 
+                    {item.isReport ? t('reports.client.title') : (CATEGORIES.find(c => c.id === item.category)?.label || t('cl_tab.doc', { defaultValue: 'Doc' }))} •
                     {new Date((item.generatedAt || item.uploadedAt)?.seconds * 1000).toLocaleDateString('ro-RO')}
                   </p>
                 </div>
@@ -328,7 +328,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                     <button 
                       onClick={() => window.open(`/reports/client?id=${client.id}`, '_blank')}
                       className="p-2 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
-                      title="View Report"
+                      title={t('cl_tab.view_report', { defaultValue: 'View Report' })}
                     >
                       <Eye className="w-4 h-4" />
                     </button>
@@ -394,7 +394,7 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
           >
             {activeMenuItem.sharedWithParent ? <EyeOff className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-            {activeMenuItem.sharedWithParent ? "Hide from Parent" : "Share with Parent"}
+            {activeMenuItem.sharedWithParent ? t('cl_tab.hide_from_parent', { defaultValue: 'Hide from Parent' }) : t('cl_tab.share_with_parent', { defaultValue: 'Share with Parent' })}
           </button>
           <button
             onClick={() => {

@@ -88,7 +88,7 @@ export default function EvaluationWizard({
             previousEvaluation?.id
           );
           setActiveEvaluationId(newId);
-          success("Evaluation started");
+          success(t('ev_wizard.ablls_started', { defaultValue: 'Evaluation started' }));
 
           // Log activity for evaluation creation
           if (user && userData) {
@@ -112,7 +112,7 @@ export default function EvaluationWizard({
           }
         } catch (err) {
           console.error("Failed to create evaluation:", err);
-          toastError("Failed to start evaluation");
+          toastError(t('ev_wizard.start_failed', { defaultValue: 'Failed to start evaluation' }));
           onClose();
         } finally {
           setIsInitializing(false);
@@ -168,9 +168,9 @@ export default function EvaluationWizard({
     try {
       await saveEvaluationProgress(clientId, activeEvaluationId, localScores);
       setHasUnsavedChanges(false);
-      success("Progress saved");
+      success(t('ev_wizard.progress_saved', { defaultValue: 'Progress saved' }));
     } catch (err) {
-      toastError("Failed to save progress");
+      toastError(t('ev_wizard.progress_save_failed', { defaultValue: 'Failed to save progress' }));
     }
   };
 
@@ -180,7 +180,7 @@ export default function EvaluationWizard({
     const doComplete = async () => {
       try {
         await completeEvaluation(clientId, activeEvaluationId, localScores);
-        success("Evaluation completed!");
+        success(t('ev_wizard.evaluation_completed', { defaultValue: 'Evaluation completed!' }));
 
         // Log activity for evaluation completion
         if (user && userData) {
@@ -205,15 +205,15 @@ export default function EvaluationWizard({
 
         onClose();
       } catch (err) {
-        toastError("Failed to complete evaluation");
+        toastError(t('ev_wizard.complete_failed', { defaultValue: 'Failed to complete evaluation' }));
       }
     };
 
     if (scoredItemsCount < ABLLS_TOTAL_ITEMS) {
       customConfirm({
-        title: "Complete Evaluation?",
-        message: `You have scored ${scoredItemsCount} of ${ABLLS_TOTAL_ITEMS} items. Do you want to complete the evaluation anyway?`,
-        confirmLabel: "Complete",
+        title: t('ev_wizard.complete_evaluation_q', { defaultValue: 'Complete Evaluation?' }),
+        message: t('ev_wizard.complete_partial_confirm', { defaultValue: 'You have scored {{scored}} of {{total}} items. Do you want to complete the evaluation anyway?', scored: scoredItemsCount, total: ABLLS_TOTAL_ITEMS }),
+        confirmLabel: t('ev_wizard.complete', { defaultValue: 'Complete' }),
         variant: 'warning',
         onConfirm: doComplete
       });
@@ -225,10 +225,10 @@ export default function EvaluationWizard({
   const handleClose = () => {
     if (hasUnsavedChanges) {
       customConfirm({
-        title: "Unsaved Changes",
-        message: "You have unsaved changes. Do you want to save before closing?",
+        title: t('ev_wizard.unsaved_title', { defaultValue: 'Unsaved Changes' }),
+        message: t('ev_wizard.unsaved_message', { defaultValue: 'You have unsaved changes. Do you want to save before closing?' }),
         confirmLabel: t('common.save'),
-        cancelLabel: "Discard",
+        cancelLabel: t('ev_wizard.discard', { defaultValue: 'Discard' }),
         variant: 'warning',
         onConfirm: async () => {
           await handleSaveProgress();
@@ -252,7 +252,9 @@ export default function EvaluationWizard({
   if (!isOpen) return null;
   const isLoading = isInitializing || loadingEvaluation;
 
-  const evaluationTitle = previousEvaluation ? "Re-evaluation" : "ABLLS Evaluation";
+  const evaluationTitle = previousEvaluation
+    ? t('ev_wizard.reevaluation', { defaultValue: 'Re-evaluation' })
+    : t('ev_wizard.ablls_evaluation', { defaultValue: 'ABLLS Evaluation' });
 
   return (
     <MobileEvaluationContainer
@@ -270,13 +272,15 @@ export default function EvaluationWizard({
         <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
           <div>
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-              {previousEvaluation ? "Re-evaluation" : "ABLLS Evaluation"}
+              {previousEvaluation
+                ? t('ev_wizard.reevaluation', { defaultValue: 'Re-evaluation' })
+                : t('ev_wizard.ablls_evaluation', { defaultValue: 'ABLLS Evaluation' })}
             </h2>
             <p className="text-sm text-neutral-500">
               {clientName}
               {previousEvaluation && (
                 <span className="ml-2 text-primary-600">
-                  (comparing with {new Date(previousEvaluation.completedAt || previousEvaluation.createdAt).toLocaleDateString()})
+                  {t('ev_wizard.comparing_with', { defaultValue: '(comparing with {{date}})', date: new Date(previousEvaluation.completedAt || previousEvaluation.createdAt).toLocaleDateString() })}
                 </span>
               )}
             </p>
@@ -288,8 +292,8 @@ export default function EvaluationWizard({
 
         <div className="hidden md:block px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Overall Progress</span>
-            <span className="text-sm font-bold text-primary-600">{scoredItemsCount} / {ABLLS_TOTAL_ITEMS} items ({progressPercentage}%)</span>
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{t('ev_wizard.overall_progress', { defaultValue: 'Overall Progress' })}</span>
+            <span className="text-sm font-bold text-primary-600">{scoredItemsCount} / {ABLLS_TOTAL_ITEMS} {t('ev_wizard.items', { defaultValue: 'items' })} ({progressPercentage}%)</span>
           </div>
           <div className="h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
             <div className="h-full bg-primary-500 transition-all duration-300" style={{ width: `${progressPercentage}%` }} />
@@ -331,7 +335,7 @@ export default function EvaluationWizard({
               <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
                   <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{currentCategory.id}. {currentCategory.title}</h3>
-                  <p className="text-sm text-neutral-500 mt-1">{getCategoryCompletion(currentCategoryIndex).scored} of {getCategoryCompletion(currentCategoryIndex).total} items scored</p>
+                  <p className="text-sm text-neutral-500 mt-1">{t('ev_wizard.items_scored', { defaultValue: '{{scored}} of {{total}} items scored', scored: getCategoryCompletion(currentCategoryIndex).scored, total: getCategoryCompletion(currentCategoryIndex).total })}</p>
                 </div>
                 {age && (
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-xl px-4 py-2 flex items-center gap-3">
@@ -372,18 +376,18 @@ export default function EvaluationWizard({
             disabled={currentCategoryIndex === 0}
             className={clsx("hidden md:flex px-4 py-2 rounded-lg text-sm font-medium transition-colors items-center gap-2", currentCategoryIndex === 0 ? "text-neutral-400 cursor-not-allowed" : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800")}
           >
-            <ChevronLeft className="w-4 h-4" /> Previous
+            <ChevronLeft className="w-4 h-4" /> {t('ev_wizard.previous', { defaultValue: 'Previous' })}
           </button>
 
           {/* Action buttons - full width on mobile */}
           <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            {hasUnsavedChanges && <span className="text-xs text-warning-600 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Unsaved changes</span>}
+            {hasUnsavedChanges && <span className="text-xs text-warning-600 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {t('ev_wizard.unsaved_changes', { defaultValue: 'Unsaved changes' })}</span>}
             <button
               onClick={handleSaveProgress}
               disabled={saving || !hasUnsavedChanges}
               className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2 disabled:opacity-50"
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Draft
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} {t('ev_wizard.save_draft', { defaultValue: 'Save Draft' })}
             </button>
 
             {currentCategoryIndex === ABLLS_CATEGORIES.length - 1 ? (
@@ -392,14 +396,14 @@ export default function EvaluationWizard({
                 disabled={saving}
                 className="px-6 py-2 rounded-lg text-sm font-medium bg-success-600 hover:bg-success-700 text-white transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} Complete Evaluation
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} {t('ev_wizard.complete_evaluation', { defaultValue: 'Complete Evaluation' })}
               </button>
             ) : (
               <button
                 onClick={() => goToCategory(currentCategoryIndex + 1)}
                 className="px-6 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors flex items-center gap-2"
               >
-                Next <ChevronRight className="w-4 h-4" />
+                {t('ev_wizard.next', { defaultValue: 'Next' })} <ChevronRight className="w-4 h-4" />
               </button>
             )}
           </div>

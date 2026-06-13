@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 import { VBMAPPEvaluation, MilestoneScore } from "@/types/vbmapp";
 import {
   VBMAPP_LEVEL_1_AREAS,
@@ -26,6 +27,7 @@ export default function VBMAPPMilestoneGrid({
   previousEvaluation,
   compact = false
 }: VBMAPPMilestoneGridProps) {
+  const { t } = useTranslation();
   // Build grid data
   const gridData = useMemo(() => {
     const data: Record<string, { level1: (MilestoneScore | null)[]; level2: (MilestoneScore | null)[]; level3: (MilestoneScore | null)[] }> = {};
@@ -118,17 +120,17 @@ export default function VBMAPPMilestoneGrid({
           <div className="flex gap-px">
             <div className={clsx("flex gap-px border-r border-neutral-300 dark:border-neutral-600 pr-1 mr-1")}>
               <div className={clsx("flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/30 rounded px-2 py-0.5", fontSize, "font-bold text-indigo-600 dark:text-indigo-400")} style={{ width: compact ? 88 : 134 }}>
-                Level 1
+                {t('ev_list.level_1', { defaultValue: 'Level 1' })}
               </div>
             </div>
             <div className={clsx("flex gap-px border-r border-neutral-300 dark:border-neutral-600 pr-1 mr-1")}>
               <div className={clsx("flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded px-2 py-0.5", fontSize, "font-bold text-purple-600 dark:text-purple-400")} style={{ width: compact ? 88 : 134 }}>
-                Level 2
+                {t('ev_list.level_2', { defaultValue: 'Level 2' })}
               </div>
             </div>
             <div className="flex gap-px">
               <div className={clsx("flex items-center justify-center bg-pink-100 dark:bg-pink-900/30 rounded px-2 py-0.5", fontSize, "font-bold text-pink-600 dark:text-pink-400")} style={{ width: compact ? 88 : 134 }}>
-                Level 3
+                {t('ev_list.level_3', { defaultValue: 'Level 3' })}
               </div>
             </div>
           </div>
@@ -170,7 +172,7 @@ export default function VBMAPPMilestoneGrid({
                             "rounded-sm transition-colors",
                             hasItem ? getScoreColor(score) : "bg-neutral-50 dark:bg-neutral-900"
                           )}
-                          title={hasItem ? `${code} ${idx + 1}: ${score ?? 'Not scored'}` : undefined}
+                          title={hasItem ? `${code} ${idx + 1}: ${score ?? t('ev_list.not_scored', { defaultValue: 'Not scored' })}` : undefined}
                         />
                       );
                     })}
@@ -190,7 +192,7 @@ export default function VBMAPPMilestoneGrid({
                             "rounded-sm transition-colors",
                             hasItem ? getScoreColor(score) : "bg-neutral-50 dark:bg-neutral-900"
                           )}
-                          title={hasItem ? `${code} ${idx + 6}: ${score ?? 'Not scored'}` : undefined}
+                          title={hasItem ? `${code} ${idx + 6}: ${score ?? t('ev_list.not_scored', { defaultValue: 'Not scored' })}` : undefined}
                         />
                       );
                     })}
@@ -210,7 +212,7 @@ export default function VBMAPPMilestoneGrid({
                             "rounded-sm transition-colors",
                             hasItem ? getScoreColor(score) : "bg-neutral-50 dark:bg-neutral-900"
                           )}
-                          title={hasItem ? `${code} ${idx + 11}: ${score ?? 'Not scored'}` : undefined}
+                          title={hasItem ? `${code} ${idx + 11}: ${score ?? t('ev_list.not_scored', { defaultValue: 'Not scored' })}` : undefined}
                         />
                       );
                     })}
@@ -223,22 +225,22 @@ export default function VBMAPPMilestoneGrid({
 
         {/* Legend */}
         <div className="flex items-center gap-4 mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-          <span className={clsx(fontSize, "text-neutral-500 font-medium")}>Legend:</span>
+          <span className={clsx(fontSize, "text-neutral-500 font-medium")}>{t('ev_list.legend', { defaultValue: 'Legend:' })}</span>
           <div className="flex items-center gap-1">
             <div className={clsx(cellSize, "rounded-sm bg-neutral-200 dark:bg-neutral-700")} />
-            <span className={clsx(fontSize, "text-neutral-500")}>0 - Not present</span>
+            <span className={clsx(fontSize, "text-neutral-500")}>{t('ev_list.legend_not_present', { defaultValue: '0 - Not present' })}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className={clsx(cellSize, "rounded-sm bg-warning-400")} />
-            <span className={clsx(fontSize, "text-neutral-500")}>½ - Emerging</span>
+            <span className={clsx(fontSize, "text-neutral-500")}>{t('ev_list.legend_emerging', { defaultValue: '½ - Emerging' })}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className={clsx(cellSize, "rounded-sm bg-success-500")} />
-            <span className={clsx(fontSize, "text-neutral-500")}>1 - Mastered</span>
+            <span className={clsx(fontSize, "text-neutral-500")}>{t('ev_list.legend_mastered', { defaultValue: '1 - Mastered' })}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className={clsx(cellSize, "rounded-sm bg-neutral-100 dark:bg-neutral-800")} />
-            <span className={clsx(fontSize, "text-neutral-500")}>Not scored</span>
+            <span className={clsx(fontSize, "text-neutral-500")}>{t('ev_list.not_scored', { defaultValue: 'Not scored' })}</span>
           </div>
         </div>
       </div>

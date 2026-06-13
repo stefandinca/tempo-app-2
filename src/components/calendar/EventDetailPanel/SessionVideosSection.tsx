@@ -103,7 +103,7 @@ export default function SessionVideosSection({
       );
       toast.success(t("calendar.event.videos.delete_success"));
     } catch (err: any) {
-      toast.error(err.message || "Failed to delete");
+      toast.error(err.message || t('cal.failed_delete', { defaultValue: 'Failed to delete' }));
     } finally {
       setDeletingId(null);
     }
@@ -123,7 +123,7 @@ export default function SessionVideosSection({
         item.name
       );
     } catch (err: any) {
-      toast.error(err.message || "Failed to update");
+      toast.error(err.message || t('cal.failed_update', { defaultValue: 'Failed to update' }));
     }
   };
 

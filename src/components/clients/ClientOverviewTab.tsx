@@ -261,7 +261,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
                     <button 
                       onClick={() => handleRemoveMember(tm.id)}
                       className="p-1.5 text-neutral-300 hover:text-error-500 hover:bg-error-50 dark:hover:bg-error-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                      title="Remove from client"
+                      title={t('cl_tab.remove_from_client', { defaultValue: 'Remove from client' })}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -285,7 +285,7 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
               <InfoField label={t('clients.fields.diagnosis')} value={client.primaryDiagnosis} icon={ShieldAlert} />
             </div>
             <InfoField label={t('clients.fields.diagnosis_date')} value={formatDate(parseDate(client.diagnosisDate))} icon={Calendar} />
-            <InfoField label={t('clients.fields.support_level')} value={client.diagnosisLevel ? `Level ${client.diagnosisLevel}` : "—"} icon={BarChart} />
+            <InfoField label={t('clients.fields.support_level')} value={client.diagnosisLevel ? t('cl_tab.level_value', { defaultValue: 'Level {{level}}', level: client.diagnosisLevel }) : "—"} icon={BarChart} />
           </div>
           
           <div className="mt-8 pt-6 border-t border-neutral-100 dark:border-neutral-800">

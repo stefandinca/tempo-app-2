@@ -77,7 +77,7 @@ export default function CARSList({ clientId, clientName }: CARSListProps) {
           className="flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-neutral-900 transition-colors"
         >
           <ChevronRight className="w-4 h-4 rotate-180" />
-          Back to List
+          {t('ev_list.back_to_list', { defaultValue: 'Back to List' })}
         </button>
         <CARSSummary evaluation={viewingSummary} onClose={() => setViewingSummary(null)} />
       </div>
@@ -145,7 +145,7 @@ export default function CARSList({ clientId, clientName }: CARSListProps) {
                         {new Date(evaluation.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </p>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                        {isCompleted ? t('evaluations.completed') : 'In Progress'}
+                        {isCompleted ? t('evaluations.completed') : t('ev_list.in_progress', { defaultValue: 'In Progress' })}
                       </p>
                     </div>
                   </div>
@@ -173,7 +173,7 @@ export default function CARSList({ clientId, clientName }: CARSListProps) {
                       "text-[10px] font-bold",
                       evaluation.severity === 'none' ? "text-success-600" : evaluation.severity === 'severe' ? "text-error-600" : "text-warning-600"
                     )}>
-                      {isCompleted ? t(`cars.severity.${evaluation.severity.replace('-','_')}`).toUpperCase() : 'In Progress'}
+                      {isCompleted ? t(`cars.severity.${evaluation.severity.replace('-','_')}`).toUpperCase() : t('ev_list.in_progress', { defaultValue: 'In Progress' })}
                     </p>
                   </div>
                 </div>

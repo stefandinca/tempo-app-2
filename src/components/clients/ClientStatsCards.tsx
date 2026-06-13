@@ -76,7 +76,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
 
       const threadId = await createOrGetThread({
         id: parentId,
-        name: client.parentName || `Parent of ${client.name}`,
+        name: client.parentName || t('cl_tab.parent_of', { defaultValue: 'Parent of {{name}}', name: client.name }),
         initials: "P",
         color: "#4A90E2",
         role: "Parent",

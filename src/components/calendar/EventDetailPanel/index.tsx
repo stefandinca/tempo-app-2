@@ -496,7 +496,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                               href={client ? `/clients/profile?id=${client.id}` : "#"} 
                               className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                             >
-                              {client?.name || "Unknown Client"}
+                              {client?.name || t('cal.unknown_client', { defaultValue: 'Unknown Client' })}
                             </Link>
                           </div>
                         </div>
@@ -517,7 +517,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                               href="/team/" 
                               className="text-sm font-medium text-neutral-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                             >
-                              {therapist?.name || "Unknown Therapist"}
+                              {therapist?.name || t('cal.unknown_therapist', { defaultValue: 'Unknown Therapist' })}
                             </Link>
                           </div>
                         </div>          </div>
@@ -624,7 +624,7 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
                           type="button"
                           onClick={() => toggleProgram(program.id)}
                           className="absolute -top-1 -right-1 w-5 h-5 bg-error-500 text-white rounded-full flex items-center justify-center shadow-sm hover:bg-error-600 transition-colors animate-in zoom-in duration-150"
-                          title="Remove program"
+                          title={t('cal.remove_program', { defaultValue: 'Remove program' })}
                         >
                           <X className="w-3 h-3" />
                         </button>

@@ -41,8 +41,8 @@ export default function BillingConfigTab() {
       footerNotes: "",
     },
     emailTemplates: {
-      subject: "Invoice #{series}-{number} from {clinic_name}",
-      body: "Dear {client_name},\n\nPlease find attached the invoice for {month}.\n\nTotal Amount: {amount} RON\nDue Date: {due_date}\n\nThank you,\n{clinic_name}",
+      subject: t('cal.email_subject_template', { defaultValue: 'Invoice #{series}-{number} from {clinic_name}' }),
+      body: t('cal.email_body_template', { defaultValue: 'Dear {client_name},\n\nPlease find attached the invoice for {month}.\n\nTotal Amount: {amount} RON\nDue Date: {due_date}\n\nThank you,\n{clinic_name}' }),
     },
     integrations: {
       smartbill: {

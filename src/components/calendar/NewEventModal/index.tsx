@@ -177,7 +177,7 @@ export default function NewEventModal({
         const newEndTime = calculateEndTime(formData.date, formData.startTime, formData.duration);
 
         const updatePayload = {
-          title: formData.title || "Untitled Event",
+          title: formData.title || t('cal.untitled_event', { defaultValue: 'Untitled Event' }),
           type: formData.eventType,
           duration: formData.duration,
           therapistId: formData.selectedTeamMembers[0] || null,
@@ -236,7 +236,7 @@ export default function NewEventModal({
 
             notifySessionRescheduled(allRecipients, {
               eventId: editingEvent.id,
-              eventTitle: formData.title || "Untitled Event",
+              eventTitle: formData.title || t('cal.untitled_event', { defaultValue: 'Untitled Event' }),
               eventType: formData.eventType,
               startTime: newStartTime,
               oldStartTime: editingEvent.startTime,
@@ -252,7 +252,7 @@ export default function NewEventModal({
 
               notifyParentSessionRescheduled(formData.selectedClients[0], {
                 eventId: editingEvent.id,
-                eventTitle: formData.title || "Untitled Event",
+                eventTitle: formData.title || t('cal.untitled_event', { defaultValue: 'Untitled Event' }),
                 eventType: formData.eventType,
                 startTime: newStartTime,
                 oldStartTime: editingEvent.startTime,
@@ -286,7 +286,7 @@ export default function NewEventModal({
 
         // Base payload shared by all events
         const basePayload = {
-          title: formData.title || "Untitled Event",
+          title: formData.title || t('cal.untitled_event', { defaultValue: 'Untitled Event' }),
           type: formData.eventType,
           duration: formData.duration,
           therapistId: formData.selectedTeamMembers[0] || null,
@@ -355,7 +355,7 @@ export default function NewEventModal({
 
             notifySessionCreated(allRecipients, {
               eventId: "batch-created",
-              eventTitle: formData.title || "Untitled Event",
+              eventTitle: formData.title || t('cal.untitled_event', { defaultValue: 'Untitled Event' }),
               eventType: formData.eventType,
               startTime: `${datesToCreate[0]}T${formData.startTime}:00`,
               clientName,
@@ -370,7 +370,7 @@ export default function NewEventModal({
 
               notifyParentSessionCreated(formData.selectedClients[0], {
                 eventId: "batch-created",
-                eventTitle: formData.title || "Untitled Event",
+                eventTitle: formData.title || t('cal.untitled_event', { defaultValue: 'Untitled Event' }),
                 eventType: formData.eventType,
                 startTime: `${datesToCreate[0]}T${formData.startTime}:00`,
                 therapistName,
@@ -386,13 +386,13 @@ export default function NewEventModal({
         setIsSubmitting(false);
         onEventCreated();
         onClose();
-        success(`Successfully created ${datesToCreate.length} event(s)`);
+        success(t('cal.events_created_success', { count: datesToCreate.length, defaultValue: 'Successfully created {{count}} event(s)' }));
       }
 
     } catch (err) {
       console.error("Error saving event:", err);
       setIsSubmitting(false);
-      error(isEditMode ? "Failed to update event" : "Failed to create event");
+      error(isEditMode ? t('cal.failed_update_event', { defaultValue: 'Failed to update event' }) : t('cal.failed_create_event', { defaultValue: 'Failed to create event' }));
     }
   };
 

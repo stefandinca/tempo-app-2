@@ -111,7 +111,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
     const timeStr = eventDate.toLocaleTimeString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { hour: 'numeric', minute: '2-digit', hour12: i18n.language !== 'ro' });
 
     if (isToday) return `${t('calendar.today')}, ${timeStr}`;
-    if (isTomorrow) return `${i18n.language === 'ro' ? 'Mâine' : 'Tomorrow'}, ${timeStr}`;
+    if (isTomorrow) return `${t('cl_tab.tomorrow', { defaultValue: 'Tomorrow' })}, ${timeStr}`;
     return eventDate.toLocaleDateString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + `, ${timeStr}`;
   };
 
@@ -214,7 +214,7 @@ export default function ClientCard({ client, teamMembers, events, activePlan }: 
                 )}
               </div>
               <p className="text-[11px] md:text-xs text-neutral-500 mt-0.5">
-                {age !== null ? t('clients.age_years', { count: age }) : "Age: N/A"}
+                {age !== null ? t('clients.age_years', { count: age }) : t('cl_tab.age_na', { defaultValue: 'Age: N/A' })}
                 <span className="hidden sm:inline"> • {client.birthDate && `${t('clients.born')}: ${new Date(client.birthDate).toLocaleDateString(i18n.language === 'ro' ? 'ro-RO' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' })}`}</span>
               </p>
             </div>

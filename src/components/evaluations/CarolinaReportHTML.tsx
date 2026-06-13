@@ -70,7 +70,7 @@ export default function CarolinaReportHTML({
             </button>
             <div>
               <h1 className="font-bold text-neutral-900 dark:text-white">
-                Carolina Clinical Report
+                {t('report.carolina_clinical_report', { defaultValue: 'Carolina Clinical Report' })}
               </h1>
               <p className="text-xs text-neutral-500">{client.name} • {new Date().toLocaleDateString()}</p>
             </div>
@@ -80,7 +80,7 @@ export default function CarolinaReportHTML({
             className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 transition-all font-bold"
           >
             <Printer className="w-4 h-4" />
-            Print Report
+            {t('report.print_report', { defaultValue: 'Print Report' })}
           </button>
         </div>
       </div>
@@ -97,12 +97,12 @@ export default function CarolinaReportHTML({
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight leading-none">TempoApp</h1>
-                <p className="text-sm text-neutral-500 font-medium">Carolina Curriculum for Preschoolers</p>
+                <p className="text-sm text-neutral-500 font-medium">{t('report.carolina_curriculum_for_preschoolers', { defaultValue: 'Carolina Curriculum for Preschoolers' })}</p>
               </div>
             </div>
             <div className="space-y-1">
-              <h2 className="text-3xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">Developmental Assessment</h2>
-              <p className="text-neutral-500">Generated on: {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
+              <h2 className="text-3xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">{t('report.developmental_assessment', { defaultValue: 'Developmental Assessment' })}</h2>
+              <p className="text-neutral-500">{t('report.generated_on', { defaultValue: 'Generated on' })}: {new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString('ro-RO', { dateStyle: 'long' })}</p>
             </div>
           </div>
 
@@ -127,13 +127,13 @@ export default function CarolinaReportHTML({
                 <p className="text-neutral-900 dark:text-white font-bold text-lg">{client.name}</p>
               </div>
               <div>
-                <p className="text-neutral-500 font-medium">Evaluation Type</p>
-                <p className="text-neutral-900 dark:text-white font-bold text-lg">Carolina Curriculum</p>
+                <p className="text-neutral-500 font-medium">{t('report.evaluation_type', { defaultValue: 'Evaluation Type' })}</p>
+                <p className="text-neutral-900 dark:text-white font-bold text-lg">{t('report.carolina_curriculum', { defaultValue: 'Carolina Curriculum' })}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-neutral-500 font-medium">{t('evaluations.summary')}</p>
                 <p className="text-neutral-700 dark:text-neutral-300 mt-1 leading-relaxed">
-                  The Carolina Curriculum assessment evaluates the child&apos;s developmental progress across five key domains. This report details mastered skills, emerging capabilities, and areas for future intervention.
+                  {t('report.carolina_summary_narrative', { defaultValue: "The Carolina Curriculum assessment evaluates the child's developmental progress across five key domains. This report details mastered skills, emerging capabilities, and areas for future intervention." })}
                 </p>
               </div>
             </div>
@@ -142,24 +142,24 @@ export default function CarolinaReportHTML({
           <div className="space-y-6">
             <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
               <Activity className="w-5 h-5 text-indigo-600" />
-              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">Overall Progress</h3>
+              <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">{t('report.overall_progress', { defaultValue: 'Overall Progress' })}</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-6 rounded-3xl border bg-success-50 border-success-100">
                 <div className="flex items-center gap-2 mb-2 text-success-700">
                   <CheckCircle2 className="w-5 h-5" />
-                  <span className="text-xs font-bold uppercase tracking-widest">Mastered</span>
+                  <span className="text-xs font-bold uppercase tracking-widest">{t('report.mastered', { defaultValue: 'Mastered' })}</span>
                 </div>
                 <p className="text-4xl font-black text-neutral-900">{evaluation.totalMastered}</p>
-                <p className="text-xs text-neutral-500 mt-1">skills consistently demonstrated</p>
+                <p className="text-xs text-neutral-500 mt-1">{t('report.skills_consistently_demonstrated', { defaultValue: 'skills consistently demonstrated' })}</p>
               </div>
               <div className="p-6 rounded-3xl border bg-warning-50 border-warning-100">
                 <div className="flex items-center gap-2 mb-2 text-warning-700">
                   <Clock className="w-5 h-5" />
-                  <span className="text-xs font-bold uppercase tracking-widest">Emerging</span>
+                  <span className="text-xs font-bold uppercase tracking-widest">{t('report.emerging', { defaultValue: 'Emerging' })}</span>
                 </div>
                 <p className="text-4xl font-black text-neutral-900">{evaluation.totalEmerging}</p>
-                <p className="text-xs text-neutral-500 mt-1">skills in development</p>
+                <p className="text-xs text-neutral-500 mt-1">{t('report.skills_in_development', { defaultValue: 'skills in development' })}</p>
               </div>
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function CarolinaReportHTML({
         <div className="space-y-8">
           <div className="flex items-center gap-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
             <Brain className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">Domain Breakdown</h3>
+            <h3 className="font-bold text-neutral-900 dark:text-white uppercase tracking-wider text-xs">{t('report.domain_breakdown', { defaultValue: 'Domain Breakdown' })}</h3>
           </div>
 
           <div className="grid grid-cols-1 gap-6">
@@ -204,15 +204,15 @@ export default function CarolinaReportHTML({
                       <div className="flex gap-6 text-xs font-medium text-neutral-500">
                         <span className="flex items-center gap-1.5">
                           <div className="w-2 h-2 rounded-full bg-success-500" />
-                          {stats.mastered} Mastered
+                          {t('report.count_mastered', { defaultValue: '{{count}} Mastered', count: stats.mastered })}
                         </span>
                         <span className="flex items-center gap-1.5">
                           <div className="w-2 h-2 rounded-full bg-warning-400" />
-                          {stats.emerging} Emerging
+                          {t('report.count_emerging', { defaultValue: '{{count}} Emerging', count: stats.emerging })}
                         </span>
                         <span className="flex items-center gap-1.5">
                           <div className="w-2 h-2 rounded-full bg-neutral-200" />
-                          {stats.total - stats.mastered - stats.emerging} Not Yet Evident
+                          {t('report.count_not_yet_evident', { defaultValue: '{{count}} Not Yet Evident', count: stats.total - stats.mastered - stats.emerging })}
                         </span>
                       </div>
                     </div>
@@ -228,17 +228,17 @@ export default function CarolinaReportHTML({
           <div className="flex justify-center gap-12 text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-10">
             <div className="space-y-8">
               <div className="w-48 border-b border-neutral-300 dark:border-neutral-700 h-12" />
-              <p>Evaluator Signature</p>
+              <p>{t('report.evaluator_signature', { defaultValue: 'Evaluator Signature' })}</p>
               <p className="text-xs font-bold text-neutral-900">{evaluation.evaluatorName}</p>
             </div>
             <div className="space-y-8">
               <div className="w-48 border-b border-neutral-300 dark:border-neutral-700 h-12" />
-              <p>Clinical Director Approval</p>
-              <p className="text-xs font-bold text-neutral-900">Certified BCBA/Supervisor</p>
+              <p>{t('report.clinical_director_approval', { defaultValue: 'Clinical Director Approval' })}</p>
+              <p className="text-xs font-bold text-neutral-900">{t('report.certified_bcba_supervisor', { defaultValue: 'Certified BCBA/Supervisor' })}</p>
             </div>
           </div>
           <p className="text-[10px] text-neutral-400 leading-relaxed max-w-2xl mx-auto italic">
-            This document contains confidential clinical findings. Unauthorized disclosure is strictly prohibited and protected by professional ethics and data privacy laws.
+            {t('report.confidentiality', { defaultValue: 'This document contains confidential clinical findings. Unauthorized disclosure is strictly prohibited and protected by professional ethics and data privacy laws.' })}
           </p>
         </div>
 

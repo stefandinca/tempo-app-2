@@ -22,10 +22,10 @@ interface ProgramScoreCounterProps {
 }
 
 const SCORE_CONFIG = [
-  { key: "minus" as const, label: "−", color: "error", description: "Incorrect" },
-  { key: "zero" as const, label: "0", color: "neutral", description: "No Response" },
-  { key: "prompted" as const, label: "P", color: "warning", description: "Prompted" },
-  { key: "plus" as const, label: "+", color: "success", description: "Correct" },
+  { key: "minus" as const, label: "−", color: "error", descriptionKey: "cal.score_incorrect", descriptionEn: "Incorrect" },
+  { key: "zero" as const, label: "0", color: "neutral", descriptionKey: "cal.score_no_response", descriptionEn: "No Response" },
+  { key: "prompted" as const, label: "P", color: "warning", descriptionKey: "cal.score_prompted", descriptionEn: "Prompted" },
+  { key: "plus" as const, label: "+", color: "success", descriptionKey: "cal.score_correct", descriptionEn: "Correct" },
 ];
 
 export default function ProgramScoreCounter({
@@ -152,7 +152,7 @@ export default function ProgramScoreCounter({
 
       {/* Score Buttons */}
       <div className="grid grid-cols-4 gap-2 mb-3">
-        {SCORE_CONFIG.map(({ key, label, color, description }) => {
+        {SCORE_CONFIG.map(({ key, label, color, descriptionKey, descriptionEn }) => {
           const colors = getButtonColors(color, scores[key] > 0);
 
           return (
@@ -170,7 +170,7 @@ export default function ProgramScoreCounter({
                 scores[key] > 0 ? colors.activeBg + " text-white" : colors.bg + " " + colors.text,
                 !disabled && "active:scale-95"
               )}
-              title={description}
+              title={t(descriptionKey, { defaultValue: descriptionEn })}
             >
               <span className="text-lg font-bold leading-none">{label}</span>
               <span className="text-xs font-medium mt-0.5 opacity-80">{scores[key]}</span>
@@ -183,10 +183,10 @@ export default function ProgramScoreCounter({
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-3">
           <span className="text-neutral-500">
-            Total: <span className="font-bold text-neutral-700 dark:text-neutral-300">{totalTrials}</span>
+            {t('cal.total_label', { defaultValue: 'Total' })}: <span className="font-bold text-neutral-700 dark:text-neutral-300">{totalTrials}</span>
           </span>
           <span className="text-neutral-500">
-            Success: <span className={clsx(
+            {t('cal.success_label', { defaultValue: 'Success' })}: <span className={clsx(
               "font-bold",
               successRate >= 80 ? "text-success-600" :
               successRate >= 50 ? "text-warning-600" :

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, MessageSquare } from "lucide-react";
 import { VBMAPPBarrierItem, VBMAPPItemScore, BarrierScore } from "@/types/vbmapp";
 
@@ -12,12 +13,12 @@ interface VBMAPPBarrierScoringProps {
   readOnly?: boolean;
 }
 
-const BARRIER_SCORES: { value: BarrierScore; label: string; description: string; color: string }[] = [
-  { value: 0, label: "0", description: "Not a barrier", color: "bg-success-500" },
-  { value: 1, label: "1", description: "Minor barrier", color: "bg-success-400" },
-  { value: 2, label: "2", description: "Moderate barrier", color: "bg-warning-400" },
-  { value: 3, label: "3", description: "Significant barrier", color: "bg-warning-500" },
-  { value: 4, label: "4", description: "Severe barrier", color: "bg-error-500" }
+const BARRIER_SCORES: { value: BarrierScore; label: string; description: string; descKey: string; color: string }[] = [
+  { value: 0, label: "0", description: "Not a barrier", descKey: "ev_list.barrier_not_a_barrier", color: "bg-success-500" },
+  { value: 1, label: "1", description: "Minor barrier", descKey: "ev_list.barrier_minor", color: "bg-success-400" },
+  { value: 2, label: "2", description: "Moderate barrier", descKey: "ev_list.barrier_moderate", color: "bg-warning-400" },
+  { value: 3, label: "3", description: "Significant barrier", descKey: "ev_list.barrier_significant", color: "bg-warning-500" },
+  { value: 4, label: "4", description: "Severe barrier", descKey: "ev_list.barrier_severe", color: "bg-error-500" }
 ];
 
 export default function VBMAPPBarrierScoring({
@@ -26,6 +27,7 @@ export default function VBMAPPBarrierScoring({
   onScoreChange,
   readOnly = false
 }: VBMAPPBarrierScoringProps) {
+  const { t } = useTranslation();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -61,7 +63,7 @@ export default function VBMAPPBarrierScoring({
       {/* Legend */}
       <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
         <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-          Rate each barrier from 0 (not present) to 4 (severe):
+          {t('ev_list.barrier_rate_instruction', { defaultValue: 'Rate each barrier from 0 (not present) to 4 (severe):' })}
         </p>
         <div className="flex flex-wrap gap-3">
           {BARRIER_SCORES.map((score) => (
@@ -69,7 +71,7 @@ export default function VBMAPPBarrierScoring({
               <span className={clsx("w-6 h-6 rounded text-white text-xs font-bold flex items-center justify-center", score.color)}>
                 {score.value}
               </span>
-              <span className="text-xs text-neutral-500">{score.description}</span>
+              <span className="text-xs text-neutral-500">{t(score.descKey, { defaultValue: score.description })}</span>
             </div>
           ))}
         </div>
@@ -157,7 +159,7 @@ export default function VBMAPPBarrierScoring({
                       value={noteValue}
                       onChange={(e) => handleNoteChange(barrier.id, e.target.value)}
                       onBlur={() => handleNoteSave(barrier.id)}
-                      placeholder="Add observation notes about this barrier..."
+                      placeholder={t('ev_list.add_barrier_notes', { defaultValue: 'Add observation notes about this barrier...' })}
                       disabled={readOnly}
                       className="w-full px-3 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
                       rows={2}

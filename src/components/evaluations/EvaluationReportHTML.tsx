@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import { 
+import { useTranslation } from "react-i18next";
+import {
   Printer, 
   Download, 
   ArrowLeft, 
@@ -50,6 +51,7 @@ export default function EvaluationReportHTML({
   onBack,
   isParentVersion = false 
 }: EvaluationReportHTMLProps) {
+  const { t } = useTranslation();
   const isABLLS = evaluation.type === 'ABLLS';
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -101,7 +103,7 @@ export default function EvaluationReportHTML({
             )}
             <div>
               <h1 className="font-bold text-neutral-900 dark:text-white">
-                {isABLLS ? "ABLLS-R" : "VB-MAPP"} Progress Report
+                {isABLLS ? "ABLLS-R" : "VB-MAPP"} {t('report.progress_report', { defaultValue: 'Progress Report' })}
               </h1>
               <p className="text-xs text-neutral-500">{client.name} • {new Date().toLocaleDateString()}</p>
             </div>
@@ -113,7 +115,7 @@ export default function EvaluationReportHTML({
               className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-primary-600/20"
             >
               <Printer className="w-4 h-4" />
-              Print Report
+              {t('report.print_report', { defaultValue: 'Print Report' })}
             </button>
           </div>
         </div>
@@ -135,23 +137,23 @@ export default function EvaluationReportHTML({
                 <span className="text-2xl font-black tracking-tight text-neutral-900 dark:text-white">Tempo<span className="text-primary-600">App</span></span>
               </div>
               <h2 className="text-3xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">
-                {isParentVersion ? "Developmental Progress Report" : "Clinical Evaluation Report"}
+                {isParentVersion ? t('report.developmental_progress_report', { defaultValue: 'Developmental Progress Report' }) : t('report.clinical_evaluation_report', { defaultValue: 'Clinical Evaluation Report' })}
               </h2>
-              <p className="text-neutral-500 mt-2 font-medium">Comprehensive assessment of skills and learning milestones.</p>
+              <p className="text-neutral-500 mt-2 font-medium">{t('report.comprehensive_assessment_subtitle', { defaultValue: 'Comprehensive assessment of skills and learning milestones.' })}</p>
             </div>
             
             <div className="bg-white dark:bg-neutral-800 p-6 rounded-2xl shadow-sm border border-neutral-100 dark:border-neutral-700 min-w-[240px]">
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Client</span>
+                  <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">{t('report.client', { defaultValue: 'Client' })}</span>
                   <span className="text-neutral-900 dark:text-white font-bold">{client.name}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Date</span>
+                  <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">{t('report.date', { defaultValue: 'Date' })}</span>
                   <span className="text-neutral-900 dark:text-white font-bold">{new Date(evaluation.completedAt || evaluation.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Type</span>
+                  <span className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">{t('report.type', { defaultValue: 'Type' })}</span>
                   <span className="text-primary-600 font-bold">{evaluation.type}</span>
                 </div>
               </div>
@@ -165,7 +167,7 @@ export default function EvaluationReportHTML({
             {/* Main Score Card */}
             <div className="lg:col-span-1 bg-gradient-to-br from-primary-600 to-primary-800 rounded-3xl p-8 text-white shadow-xl shadow-primary-600/20 relative overflow-hidden">
               <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-              <p className="text-primary-100 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">Overall Mastery</p>
+              <p className="text-primary-100 font-bold uppercase text-[10px] tracking-[0.2em] mb-2">{t('report.overall_mastery', { defaultValue: 'Overall Mastery' })}</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-6xl font-black">
                   {isABLLS ? abllsEval?.overallPercentage : vbmappEval?.overallMilestonePercentage}%
@@ -178,9 +180,9 @@ export default function EvaluationReportHTML({
                 )}
               </div>
               <p className="mt-4 text-primary-100 text-sm leading-relaxed">
-                {isABLLS 
-                  ? `${abllsEval?.overallScore} of ${abllsEval?.overallMaxScore} possible skill points achieved across all assessed categories.`
-                  : `Currently functioning at Level ${vbmappEval?.dominantLevel} with ${vbmappEval?.overallMilestoneScore} milestone points.`
+                {isABLLS
+                  ? t('report.ablls_score_summary', { defaultValue: '{{score}} of {{maxScore}} possible skill points achieved across all assessed categories.', score: abllsEval?.overallScore, maxScore: abllsEval?.overallMaxScore })
+                  : t('report.vbmapp_score_summary', { defaultValue: 'Currently functioning at Level {{level}} with {{score}} milestone points.', level: vbmappEval?.dominantLevel, score: vbmappEval?.overallMilestoneScore })
                 }
               </p>
             </div>
@@ -201,7 +203,7 @@ export default function EvaluationReportHTML({
                   <div className="flex items-center gap-2 p-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-800/30">
                     <CheckCircle2 className="w-4 h-4 text-primary-600" />
                     <p className="text-xs font-bold text-primary-700 dark:text-primary-400 uppercase tracking-wide">
-                      Recommendation: {interpretation?.recommendation}
+                      {t('report.recommendation', { defaultValue: 'Recommendation' })}: {interpretation?.recommendation}
                     </p>
                   </div>
                 </div>
@@ -212,7 +214,7 @@ export default function EvaluationReportHTML({
           {/* Detailed Analysis Section */}
           <section className="space-y-8">
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">Skill Profile Analysis</h3>
+              <h3 className="text-xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">{t('report.skill_profile_analysis', { defaultValue: 'Skill Profile Analysis' })}</h3>
               <div className="flex-1 h-px bg-neutral-100 dark:bg-neutral-800" />
             </div>
 
@@ -227,7 +229,7 @@ export default function EvaluationReportHTML({
                   )}
                 </div>
                 <p className="text-center text-xs text-neutral-400 font-medium italic">
-                  Visual representation of {isABLLS ? "skill mastery across categories" : "milestone completion grid"}.
+                  {t('report.visual_representation_of', { defaultValue: 'Visual representation of {{subject}}.', subject: isABLLS ? t('report.skill_mastery_across_categories', { defaultValue: 'skill mastery across categories' }) : t('report.milestone_completion_grid', { defaultValue: 'milestone completion grid' }) })}
                 </p>
               </div>
 
@@ -236,7 +238,7 @@ export default function EvaluationReportHTML({
                 {isABLLS ? (
                   <>
                     <div className="grid grid-cols-1 gap-4">
-                      <h4 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Developmental Domains</h4>
+                      <h4 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">{t('report.developmental_domains', { defaultValue: 'Developmental Domains' })}</h4>
                       {domainScores && Object.entries(domainScores).map(([domain, data]) => (
                         <div key={domain} className="bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-700">
                           <div className="flex justify-between items-center mb-2">
@@ -256,7 +258,7 @@ export default function EvaluationReportHTML({
                 ) : (
                   <>
                     <div className="grid grid-cols-1 gap-4">
-                      <h4 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Milestones by Stage</h4>
+                      <h4 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">{t('report.milestones_by_stage', { defaultValue: 'Milestones by Stage' })}</h4>
                       {Object.values(vbmappEval!.levelSummaries).map((level) => (
                         <div key={level.level} className="bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-700">
                           <div className="flex justify-between items-center mb-2">
@@ -279,7 +281,7 @@ export default function EvaluationReportHTML({
                 <div className="bg-primary-50 dark:bg-primary-900/10 rounded-3xl p-6 border border-primary-100 dark:border-primary-800/30">
                   <div className="flex items-center gap-3 mb-4">
                     <StarIcon className="w-5 h-5 text-primary-600" />
-                    <h4 className="font-bold text-primary-900 dark:text-primary-100">Performance Highlights</h4>
+                    <h4 className="font-bold text-primary-900 dark:text-primary-100">{t('report.performance_highlights', { defaultValue: 'Performance Highlights' })}</h4>
                   </div>
                   <ul className="space-y-3">
                     {isABLLS ? (
@@ -296,7 +298,7 @@ export default function EvaluationReportHTML({
                       vbmappEval!.barrierSummary.severeBarriers.slice(0, 3).map(id => (
                         <li key={id} className="flex items-center gap-2 text-sm text-error-800 dark:text-error-200">
                           <div className="w-1.5 h-1.5 rounded-full bg-error-500" />
-                          <strong>Barrier:</strong> {VBMAPP_BARRIERS.find(b => b.id === id)?.text.split('(')[0]}
+                          <strong>{t('report.barrier', { defaultValue: 'Barrier' })}:</strong> {VBMAPP_BARRIERS.find(b => b.id === id)?.text.split('(')[0]}
                         </li>
                       ))
                     )}
@@ -309,7 +311,7 @@ export default function EvaluationReportHTML({
           {/* Skill Breakdown Table */}
           <section className="space-y-6">
              <div className="flex items-center gap-4">
-              <h3 className="text-xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">Detailed Category Analysis</h3>
+              <h3 className="text-xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">{t('report.detailed_category_analysis', { defaultValue: 'Detailed Category Analysis' })}</h3>
               <div className="flex-1 h-px bg-neutral-100 dark:bg-neutral-800" />
             </div>
             
@@ -317,10 +319,10 @@ export default function EvaluationReportHTML({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-neutral-50 dark:bg-neutral-800">
-                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400">ID</th>
-                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400">Skill Category</th>
-                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400 text-center">Mastery</th>
-                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400 text-right">Status</th>
+                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400">{t('report.id', { defaultValue: 'ID' })}</th>
+                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400">{t('report.skill_category', { defaultValue: 'Skill Category' })}</th>
+                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400 text-center">{t('report.mastery', { defaultValue: 'Mastery' })}</th>
+                    <th className="p-4 text-[10px] font-black uppercase tracking-widest text-neutral-400 text-right">{t('report.status', { defaultValue: 'Status' })}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -330,7 +332,7 @@ export default function EvaluationReportHTML({
                         <td className="p-4 font-bold text-primary-600">{cat.categoryKey}</td>
                         <td className="p-4">
                           <p className="font-bold text-neutral-900 dark:text-white text-sm">{isParentVersion ? getParentFriendlyName(cat.categoryKey, cat.categoryName) : cat.categoryName}</p>
-                          <p className="text-xs text-neutral-500">{cat.scoredItems} / {cat.totalItems} items scored</p>
+                          <p className="text-xs text-neutral-500">{t('report.items_scored', { defaultValue: '{{scored}} / {{total}} items scored', scored: cat.scoredItems, total: cat.totalItems })}</p>
                         </td>
                         <td className="p-4">
                            <div className="w-32 h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full mx-auto overflow-hidden">
@@ -346,7 +348,7 @@ export default function EvaluationReportHTML({
                         <td className="p-4 font-bold text-indigo-600">L{level.level}</td>
                         <td className="p-4">
                           <p className="font-bold text-neutral-900 dark:text-white text-sm">{level.levelName}</p>
-                          <p className="text-xs text-neutral-500">{level.scoredItems} / {level.totalItems} milestones achieved</p>
+                          <p className="text-xs text-neutral-500">{t('report.milestones_achieved', { defaultValue: '{{scored}} / {{total}} milestones achieved', scored: level.scoredItems, total: level.totalItems })}</p>
                         </td>
                          <td className="p-4">
                            <div className="w-32 h-2 bg-neutral-100 dark:bg-neutral-800 rounded-full mx-auto overflow-hidden">
@@ -365,7 +367,7 @@ export default function EvaluationReportHTML({
           {/* Goals for Next Period */}
           <section className="space-y-6 break-inside-avoid">
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">Future Learning Targets</h3>
+              <h3 className="text-xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">{t('report.future_learning_targets', { defaultValue: 'Future Learning Targets' })}</h3>
               <div className="flex-1 h-px bg-neutral-100 dark:bg-neutral-800" />
             </div>
 
@@ -388,18 +390,18 @@ export default function EvaluationReportHTML({
           <footer className="mt-20 pt-12 border-t border-neutral-100 dark:border-neutral-800 flex flex-col md:flex-row justify-between gap-12">
             <div className="flex-1">
               <div className="h-px w-full bg-neutral-300 dark:bg-neutral-700 mb-4" />
-              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Evaluator Signature</p>
+              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">{t('report.evaluator_signature', { defaultValue: 'Evaluator Signature' })}</p>
               <p className="text-sm font-bold text-neutral-900 dark:text-white mt-2">{evaluation.evaluatorName}</p>
             </div>
             <div className="flex-1">
               <div className="h-px w-full bg-neutral-300 dark:bg-neutral-700 mb-4" />
-              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Date of Validation</p>
+              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">{t('report.date_of_validation', { defaultValue: 'Date of Validation' })}</p>
               <p className="text-sm font-bold text-neutral-900 dark:text-white mt-2">{new Date().toLocaleDateString()}</p>
             </div>
             <div className="flex-1">
               <div className="h-px w-full bg-neutral-300 dark:bg-neutral-700 mb-4" />
-              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Clinical Director</p>
-              <p className="text-sm font-bold text-neutral-900 dark:text-white mt-2">Certified Supervisor</p>
+              <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">{t('report.clinical_director', { defaultValue: 'Clinical Director' })}</p>
+              <p className="text-sm font-bold text-neutral-900 dark:text-white mt-2">{t('report.certified_supervisor', { defaultValue: 'Certified Supervisor' })}</p>
             </div>
           </footer>
         </div>

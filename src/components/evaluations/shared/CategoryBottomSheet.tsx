@@ -56,7 +56,7 @@ export function CategoryBottomSheet({
             </div>
             {currentCat && (
               <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
-                {currentCat.progress.scored} / {currentCat.progress.total} items
+                {t('ev_list.items_count', { defaultValue: '{{scored}} / {{total}} items', scored: currentCat.progress.scored, total: currentCat.progress.total })}
               </div>
             )}
           </div>

@@ -129,7 +129,7 @@ export default function CreatePlanModal({
     if (formData.programIds.length === 0 && formData.objectives.length === 0) return t('clients.plan_modal.validation.select_program');
     // Validate that all objectives have titles
     const emptyObjective = formData.objectives.find(obj => !obj.title.trim());
-    if (emptyObjective) return t('clients.plan_modal.objective_title') + ' is required';
+    if (emptyObjective) return t('cl_tab.field_required', { defaultValue: '{{field}} is required', field: t('clients.plan_modal.objective_title') });
     return null;
   };
 

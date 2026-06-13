@@ -76,7 +76,7 @@ export default function CARSWizard({
             userData?.name || "Unknown"
           );
           setActiveEvaluationId(newId);
-          success("CARS evaluation started");
+          success(t('ev_wizard.cars_started', { defaultValue: 'CARS evaluation started' }));
           if (user && userData) {
             try {
               await logActivity({
@@ -90,7 +90,7 @@ export default function CARSWizard({
           }
         } catch (err) {
           console.error("Failed to create CARS evaluation:", err);
-          toastError("Failed to start evaluation");
+          toastError(t('ev_wizard.start_failed', { defaultValue: 'Failed to start evaluation' }));
           onClose();
         } finally {
           setIsInitializing(false);
@@ -135,9 +135,9 @@ export default function CARSWizard({
     try {
       await saveProgress(clientId, activeEvaluationId, localScores);
       setHasUnsavedChanges(false);
-      success("Progress saved");
+      success(t('ev_wizard.progress_saved', { defaultValue: 'Progress saved' }));
     } catch (err) {
-      toastError("Failed to save progress");
+      toastError(t('ev_wizard.progress_save_failed', { defaultValue: 'Failed to save progress' }));
     }
   };
 
@@ -149,7 +149,7 @@ export default function CARSWizard({
     const doComplete = async () => {
       try {
         await completeEvaluation(clientId, activeEvaluationId, localScores);
-        success("CARS evaluation completed!");
+        success(t('ev_wizard.cars_completed', { defaultValue: 'CARS evaluation completed!' }));
         if (user && userData) {
           try {
             await logActivity({
@@ -163,14 +163,14 @@ export default function CARSWizard({
         }
         onClose();
       } catch (err) {
-        toastError("Failed to complete evaluation");
+        toastError(t('ev_wizard.complete_failed', { defaultValue: 'Failed to complete evaluation' }));
       }
     };
 
     if (scoredCount < CARS_ITEMS.length) {
       customConfirm({
         title: t('portage.complete'),
-        message: `You have only scored ${scoredCount} of ${CARS_ITEMS.length} items. Complete anyway?`,
+        message: t('ev_wizard.complete_partial_only', { defaultValue: 'You have only scored {{scored}} of {{total}} items. Complete anyway?', scored: scoredCount, total: CARS_ITEMS.length }),
         confirmLabel: t('portage.complete'),
         variant: 'warning',
         onConfirm: doComplete
@@ -183,10 +183,10 @@ export default function CARSWizard({
   const handleClose = () => {
     if (hasUnsavedChanges) {
       customConfirm({
-        title: "Unsaved Changes",
-        message: "You have unsaved changes. Do you want to save before closing?",
+        title: t('ev_wizard.unsaved_title', { defaultValue: 'Unsaved Changes' }),
+        message: t('ev_wizard.unsaved_message', { defaultValue: 'You have unsaved changes. Do you want to save before closing?' }),
         confirmLabel: t('common.save'),
-        cancelLabel: "Discard",
+        cancelLabel: t('ev_wizard.discard', { defaultValue: 'Discard' }),
         variant: 'warning',
         onConfirm: async () => {
           await handleSaveDraft();

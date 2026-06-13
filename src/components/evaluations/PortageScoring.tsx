@@ -64,7 +64,7 @@ export default function PortageScoring({
             onChange={(e) => scrollToBracket(e.target.value)}
             className="w-full px-3 py-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium border border-neutral-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
-            <option value="">Select age bracket...</option>
+            <option value="">{t('ev_list.select_age_bracket', { defaultValue: 'Select age bracket...' })}</option>
             {ageBrackets.map((label) => (
               <option key={label} value={label}>
                 {label}

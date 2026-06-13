@@ -119,7 +119,7 @@ export default function VBMAPPWizard({
             previousEvaluation?.id
           );
           setActiveEvaluationId(newId);
-          success("VB-MAPP evaluation started");
+          success(t('ev_wizard.vbmapp_started', { defaultValue: 'VB-MAPP evaluation started' }));
 
           // Log activity
           if (user && userData) {
@@ -137,7 +137,7 @@ export default function VBMAPPWizard({
           }
         } catch (err) {
           console.error("Failed to create VB-MAPP evaluation:", err);
-          toastError("Failed to start evaluation");
+          toastError(t('ev_wizard.start_failed', { defaultValue: 'Failed to start evaluation' }));
           onClose();
         } finally {
           setIsInitializing(false);
@@ -257,10 +257,10 @@ export default function VBMAPPWizard({
     try {
       await saveProgress(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores, supportingSkillScores);
       setHasUnsavedChanges(false);
-      success("Progress saved");
+      success(t('ev_wizard.progress_saved', { defaultValue: 'Progress saved' }));
     } catch (err) {
       console.error("Failed to save progress:", err);
-      toastError("Failed to save progress");
+      toastError(t('ev_wizard.progress_save_failed', { defaultValue: 'Failed to save progress' }));
     }
   };
 
@@ -274,7 +274,7 @@ export default function VBMAPPWizard({
     const doComplete = async () => {
       try {
         await completeEvaluation(clientId, activeEvaluationId, milestoneScores, barrierScores, transitionScores, supportingSkillScores);
-        success("VB-MAPP evaluation completed!");
+        success(t('ev_wizard.vbmapp_completed', { defaultValue: 'VB-MAPP evaluation completed!' }));
 
         // Log activity
         if (user && userData) {
@@ -294,15 +294,15 @@ export default function VBMAPPWizard({
         onClose();
       } catch (err) {
         console.error("Failed to complete evaluation:", err);
-        toastError("Failed to complete evaluation");
+        toastError(t('ev_wizard.complete_failed', { defaultValue: 'Failed to complete evaluation' }));
       }
     };
 
     if (totalScored < totalItems) {
       customConfirm({
-        title: "Complete Evaluation?",
-        message: `You have scored ${totalScored} of ${totalItems} items. Complete anyway?`,
-        confirmLabel: "Complete",
+        title: t('ev_wizard.complete_evaluation_q', { defaultValue: 'Complete Evaluation?' }),
+        message: t('ev_wizard.complete_partial_short', { defaultValue: 'You have scored {{scored}} of {{total}} items. Complete anyway?', scored: totalScored, total: totalItems }),
+        confirmLabel: t('ev_wizard.complete', { defaultValue: 'Complete' }),
         variant: 'warning',
         onConfirm: doComplete
       });
@@ -315,10 +315,10 @@ export default function VBMAPPWizard({
   const handleClose = () => {
     if (hasUnsavedChanges) {
       customConfirm({
-        title: "Unsaved Changes",
-        message: "Save changes before closing?",
+        title: t('ev_wizard.unsaved_title', { defaultValue: 'Unsaved Changes' }),
+        message: t('ev_wizard.unsaved_message_short', { defaultValue: 'Save changes before closing?' }),
         confirmLabel: t('common.save'),
-        cancelLabel: "Discard",
+        cancelLabel: t('ev_wizard.discard', { defaultValue: 'Discard' }),
         variant: 'warning',
         onConfirm: async () => {
           await handleSaveProgress();
@@ -394,7 +394,7 @@ export default function VBMAPPWizard({
 
   return (
     <MobileEvaluationContainer
-      title="VB-MAPP Evaluation"
+      title={t('ev_wizard.vbmapp_evaluation', { defaultValue: 'VB-MAPP Evaluation' })}
       onClose={handleClose}
     >
       {/* Inner container for desktop modal styling */}
@@ -403,12 +403,12 @@ export default function VBMAPPWizard({
         <div className="hidden md:flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
           <div>
             <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-              VB-MAPP Evaluation
+              {t('ev_wizard.vbmapp_evaluation', { defaultValue: 'VB-MAPP Evaluation' })}
             </h2>
             <p className="text-sm text-neutral-500">
               {clientName}
               {previousEvaluation && (
-                <span className="ml-2 text-primary-600">(Re-evaluation)</span>
+                <span className="ml-2 text-primary-600">{t('ev_wizard.reevaluation_paren', { defaultValue: '(Re-evaluation)' })}</span>
               )}
             </p>
           </div>
@@ -424,7 +424,7 @@ export default function VBMAPPWizard({
         <div className="hidden md:block px-6 py-3 border-b border-neutral-200 dark:border-neutral-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Overall Progress
+              {t('ev_wizard.overall_progress', { defaultValue: 'Overall Progress' })}
             </span>
             <span className="text-sm font-bold text-primary-600">
               {totalProgress}%
@@ -457,9 +457,9 @@ export default function VBMAPPWizard({
                       : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
                   )}
                 >
-                  <span>{section.label}</span>
+                  <span>{t(`ev_wizard.section_label_${section.id}`, { defaultValue: section.label })}</span>
                   <span className={clsx("text-[10px]", isActive ? "text-white/70" : "text-neutral-400")}>
-                    {section.description}
+                    {t(`ev_wizard.section_desc_${section.id}`, { defaultValue: section.description })}
                   </span>
                 </button>
               );
@@ -513,7 +513,7 @@ export default function VBMAPPWizard({
                       {currentArea.code}: {currentArea.name}
                     </h3>
                     <p className="text-sm text-neutral-500 mt-1">
-                      {currentArea.items.filter((i) => milestoneScores[i.id]).length} of {currentArea.items.length} items scored
+                      {t('ev_wizard.items_scored', { defaultValue: '{{scored}} of {{total}} items scored', scored: currentArea.items.filter((i) => milestoneScores[i.id]).length, total: currentArea.items.length })}
                     </p>
                   </div>
 
@@ -521,15 +521,15 @@ export default function VBMAPPWizard({
                   <div className="mb-6 p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl flex flex-wrap gap-4 text-xs">
                     <div className="flex items-center gap-2">
                       <span className="w-6 h-6 rounded bg-error-500 text-white flex items-center justify-center font-bold">0</span>
-                      <span className="text-neutral-600 dark:text-neutral-400">Not present</span>
+                      <span className="text-neutral-600 dark:text-neutral-400">{t('ev_wizard.score_not_present', { defaultValue: 'Not present' })}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-6 h-6 rounded bg-warning-500 text-white flex items-center justify-center font-bold">½</span>
-                      <span className="text-neutral-600 dark:text-neutral-400">Emerging</span>
+                      <span className="text-neutral-600 dark:text-neutral-400">{t('ev_wizard.score_emerging', { defaultValue: 'Emerging' })}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-6 h-6 rounded bg-success-500 text-white flex items-center justify-center font-bold">1</span>
-                      <span className="text-neutral-600 dark:text-neutral-400">Mastered</span>
+                      <span className="text-neutral-600 dark:text-neutral-400">{t('ev_wizard.score_mastered', { defaultValue: 'Mastered' })}</span>
                     </div>
                   </div>
 
@@ -550,10 +550,10 @@ export default function VBMAPPWizard({
                   <div className="mb-6">
                     <h3 className="text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
                       <AlertTriangle className="w-6 h-6 text-warning-500" />
-                      Barriers Assessment
+                      {t('ev_wizard.barriers_assessment', { defaultValue: 'Barriers Assessment' })}
                     </h3>
                     <p className="text-sm text-neutral-500 mt-1">
-                      {barriersScoredCount} of {VBMAPP_BARRIERS.length} barriers assessed
+                      {t('ev_wizard.barriers_assessed', { defaultValue: '{{scored}} of {{total}} barriers assessed', scored: barriersScoredCount, total: VBMAPP_BARRIERS.length })}
                     </p>
                   </div>
 
@@ -571,10 +571,10 @@ export default function VBMAPPWizard({
                   <div className="mb-6">
                     <h3 className="text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
                       <ArrowRight className="w-6 h-6 text-primary-500" />
-                      Transition Assessment
+                      {t('ev_wizard.transition_assessment', { defaultValue: 'Transition Assessment' })}
                     </h3>
                     <p className="text-sm text-neutral-500 mt-1">
-                      {transitionScoredCount} of {VBMAPP_TRANSITION.length} items assessed
+                      {t('ev_wizard.transition_items_assessed', { defaultValue: '{{scored}} of {{total}} items assessed', scored: transitionScoredCount, total: VBMAPP_TRANSITION.length })}
                     </p>
                   </div>
 
@@ -582,7 +582,7 @@ export default function VBMAPPWizard({
                   <div className="space-y-6">
                     <div className="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
                       <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-                        Rate readiness from 1 (not ready) to 5 (fully ready):
+                        {t('ev_wizard.rate_readiness', { defaultValue: 'Rate readiness from 1 (not ready) to 5 (fully ready):' })}
                       </p>
                       <div className="flex flex-wrap gap-3">
                         {[1, 2, 3, 4, 5].map((score) => (
@@ -594,7 +594,7 @@ export default function VBMAPPWizard({
                               {score}
                             </span>
                             <span className="text-xs text-neutral-500">
-                              {score === 1 ? "Not ready" : score === 5 ? "Fully ready" : ""}
+                              {score === 1 ? t('ev_wizard.not_ready', { defaultValue: 'Not ready' }) : score === 5 ? t('ev_wizard.fully_ready', { defaultValue: 'Fully ready' }) : ""}
                             </span>
                           </div>
                         ))}
@@ -664,14 +664,14 @@ export default function VBMAPPWizard({
             )}
           >
             <ChevronLeft className="w-4 h-4" />
-            Previous
+            {t('ev_wizard.previous', { defaultValue: 'Previous' })}
           </button>
 
           <div className="flex items-center gap-3">
             {hasUnsavedChanges && (
               <span className="text-xs text-warning-600 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
-                Unsaved changes
+                {t('ev_wizard.unsaved_changes', { defaultValue: 'Unsaved changes' })}
               </span>
             )}
 
@@ -681,7 +681,7 @@ export default function VBMAPPWizard({
               className="px-4 py-2 rounded-lg text-sm font-medium border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Draft
+              {t('ev_wizard.save_draft', { defaultValue: 'Save Draft' })}
             </button>
 
             {isLastStep ? (
@@ -691,14 +691,14 @@ export default function VBMAPPWizard({
                 className="px-6 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                Complete Evaluation
+                {t('ev_wizard.complete_evaluation', { defaultValue: 'Complete Evaluation' })}
               </button>
             ) : (
               <button
                 onClick={goToNextArea}
                 className="px-6 py-2 rounded-lg text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white transition-colors flex items-center gap-2"
               >
-                Next
+                {t('ev_wizard.next', { defaultValue: 'Next' })}
                 <ChevronRight className="w-4 h-4" />
               </button>
             )}
@@ -711,7 +711,7 @@ export default function VBMAPPWizard({
             // Level 1 areas
             ...VBMAPP_LEVEL_1_AREAS.map((area, idx) => ({
               id: `level1-${idx}`,
-              name: `Level 1: ${area.code} - ${area.name}`,
+              name: t('ev_wizard.level_area_name', { defaultValue: 'Level {{level}}: {{code}} - {{name}}', level: 1, code: area.code, name: area.name }),
               progress: {
                 scored: area.items.filter(i => milestoneScores[i.id]).length,
                 total: area.items.length
@@ -720,7 +720,7 @@ export default function VBMAPPWizard({
             // Level 2 areas
             ...VBMAPP_LEVEL_2_AREAS.map((area, idx) => ({
               id: `level2-${idx}`,
-              name: `Level 2: ${area.code} - ${area.name}`,
+              name: t('ev_wizard.level_area_name', { defaultValue: 'Level {{level}}: {{code}} - {{name}}', level: 2, code: area.code, name: area.name }),
               progress: {
                 scored: area.items.filter(i => milestoneScores[i.id]).length,
                 total: area.items.length
@@ -729,7 +729,7 @@ export default function VBMAPPWizard({
             // Level 3 areas
             ...VBMAPP_LEVEL_3_AREAS.map((area, idx) => ({
               id: `level3-${idx}`,
-              name: `Level 3: ${area.code} - ${area.name}`,
+              name: t('ev_wizard.level_area_name', { defaultValue: 'Level {{level}}: {{code}} - {{name}}', level: 3, code: area.code, name: area.name }),
               progress: {
                 scored: area.items.filter(i => milestoneScores[i.id]).length,
                 total: area.items.length
@@ -738,7 +738,7 @@ export default function VBMAPPWizard({
             // Barriers
             {
               id: 'barriers',
-              name: 'Barriers Assessment',
+              name: t('ev_wizard.barriers_assessment', { defaultValue: 'Barriers Assessment' }),
               progress: {
                 scored: Object.keys(barrierScores).length,
                 total: VBMAPP_BARRIERS.length
@@ -747,7 +747,7 @@ export default function VBMAPPWizard({
             // Transition
             {
               id: 'transition',
-              name: 'Transition Assessment',
+              name: t('ev_wizard.transition_assessment', { defaultValue: 'Transition Assessment' }),
               progress: {
                 scored: Object.keys(transitionScores).length,
                 total: VBMAPP_TRANSITION.length

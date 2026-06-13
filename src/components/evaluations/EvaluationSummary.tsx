@@ -354,7 +354,7 @@ export default function EvaluationSummary({
                       </div>
                       {suggestedGoals.length > 0 && (
                         <p className="text-xs text-neutral-500 mt-3">
-                          {suggestedGoals.length} emerging skills identified for IEP goal development
+                          {t('ev_sum.emerging_skills_iep', { defaultValue: '{{count}} emerging skills identified for IEP goal development', count: suggestedGoals.length })}
                         </p>
                       )}
                     </div>
@@ -429,7 +429,7 @@ export default function EvaluationSummary({
                         />
                       </div>
                       <p className="text-xs text-neutral-500 mt-2">
-                        Categories: {data.categories.join(", ")}
+                        {t('ev_sum.categories_label', { defaultValue: 'Categories' })}: {data.categories.join(", ")}
                       </p>
                     </div>
                   ))}

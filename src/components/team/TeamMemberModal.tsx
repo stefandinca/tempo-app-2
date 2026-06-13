@@ -171,7 +171,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
           confirm({
             title: t('limits.team_limit_reached_title'),
             message: t('limits.team_limit_reached_message', { max: maxTeam }),
-            confirmLabel: 'OK',
+            confirmLabel: t('cal.ok', { defaultValue: 'OK' }),
             variant: 'warning',
             onConfirm: () => {},
           });
@@ -307,7 +307,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               sourceType: "team" as any,
               sourceId: memberId,
               triggeredBy: authUser.uid,
-              actions: [{ label: "View Team", type: "navigate" as const, route: "/team" }]
+              actions: [{ label: t('cal.view_team', { defaultValue: 'View Team' }), type: "navigate" as const, route: "/team" }]
             }));
           await createNotificationsBatch(notifications);
         }
@@ -365,7 +365,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
                 style={{ backgroundColor: avatarPreview ? 'transparent' : formData.color }}
               >
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={avatarPreview} alt={t('cal.preview', { defaultValue: 'Preview' })} className="w-full h-full object-cover" />
                 ) : (
                   formData.name.split(' ').map(n => n[0]).join('').toUpperCase() || "?"
                 )}

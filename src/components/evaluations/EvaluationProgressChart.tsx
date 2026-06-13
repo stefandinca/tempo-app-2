@@ -17,6 +17,7 @@ import { clsx } from "clsx";
 import { TrendingUp, TrendingDown, Minus, Calendar, ChevronDown } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
 import { ABLLS_CATEGORIES } from "@/hooks/useEvaluations";
+import { useTranslation } from "react-i18next";
 
 interface EvaluationProgressChartProps {
   evaluations: Evaluation[];
@@ -65,6 +66,7 @@ export default function EvaluationProgressChart({
   evaluations,
   clientName
 }: EvaluationProgressChartProps) {
+  const { t } = useTranslation();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showCategorySelector, setShowCategorySelector] = useState(false);
   const [chartType, setChartType] = useState<"line" | "area">("area");
@@ -153,7 +155,7 @@ export default function EvaluationProgressChart({
                     style={{ backgroundColor: entry.color }}
                   />
                   <span className="text-neutral-600 dark:text-neutral-400">
-                    {entry.name === "overall" ? "Overall" : entry.name}
+                    {entry.name === "overall" ? t('ev_sum.overall', { defaultValue: 'Overall' }) : entry.name}
                   </span>
                 </div>
                 <span className="font-bold" style={{ color: entry.color }}>
@@ -175,10 +177,10 @@ export default function EvaluationProgressChart({
           <TrendingUp className="w-8 h-8 text-neutral-400" />
         </div>
         <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
-          No Progress Data Yet
+          {t('ev_sum.no_progress_data', { defaultValue: 'No Progress Data Yet' })}
         </h3>
         <p className="text-neutral-500 max-w-sm mx-auto">
-          Complete at least one evaluation to start tracking progress over time.
+          {t('ev_sum.no_progress_data_subtitle', { defaultValue: 'Complete at least one evaluation to start tracking progress over time.' })}
         </p>
       </div>
     );
@@ -191,16 +193,16 @@ export default function EvaluationProgressChart({
           <Calendar className="w-8 h-8 text-primary-500" />
         </div>
         <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
-          One Evaluation Completed
+          {t('ev_sum.one_evaluation_completed', { defaultValue: 'One Evaluation Completed' })}
         </h3>
         <p className="text-neutral-500 max-w-sm mx-auto mb-4">
-          Complete a re-evaluation to see progress trends and comparisons.
+          {t('ev_sum.one_evaluation_subtitle', { defaultValue: 'Complete a re-evaluation to see progress trends and comparisons.' })}
         </p>
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
           <span className="text-3xl font-bold text-primary-600">
             {completedEvaluations[0].overallPercentage}%
           </span>
-          <span className="text-neutral-500 text-sm">baseline score</span>
+          <span className="text-neutral-500 text-sm">{t('ev_sum.baseline_score', { defaultValue: 'baseline score' })}</span>
         </div>
       </div>
     );
@@ -213,7 +215,7 @@ export default function EvaluationProgressChart({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Overall Progress */}
           <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5">
-            <p className="text-sm font-medium text-neutral-500 mb-2">Overall Progress</p>
+            <p className="text-sm font-medium text-neutral-500 mb-2">{t('ev_sum.overall_progress', { defaultValue: 'Overall Progress' })}</p>
             <div className="flex items-center gap-3">
               <span
                 className={clsx(
@@ -237,13 +239,13 @@ export default function EvaluationProgressChart({
               )}
             </div>
             <p className="text-xs text-neutral-400 mt-2">
-              Over {progressStats.totalEvaluations} evaluations
+              {t('ev_sum.over_n_evaluations', { defaultValue: 'Over {{count}} evaluations', count: progressStats.totalEvaluations })}
             </p>
           </div>
 
           {/* Most Improved */}
           <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5">
-            <p className="text-sm font-medium text-neutral-500 mb-3">Most Improved</p>
+            <p className="text-sm font-medium text-neutral-500 mb-3">{t('ev_sum.most_improved', { defaultValue: 'Most Improved' })}</p>
             <div className="space-y-2">
               {progressStats.mostImproved.slice(0, 3).map((cat) => (
                 <div key={cat.key} className="flex items-center justify-between">
@@ -274,7 +276,7 @@ export default function EvaluationProgressChart({
 
           {/* Needs Attention */}
           <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-5">
-            <p className="text-sm font-medium text-neutral-500 mb-3">Needs Attention</p>
+            <p className="text-sm font-medium text-neutral-500 mb-3">{t('ev_sum.needs_attention', { defaultValue: 'Needs Attention' })}</p>
             {progressStats.needsAttention.length > 0 ? (
               <div className="space-y-2">
                 {progressStats.needsAttention.map((cat) => (
@@ -299,7 +301,7 @@ export default function EvaluationProgressChart({
             ) : (
               <p className="text-sm text-success-600 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
-                All categories improving!
+                {t('ev_sum.all_categories_improving', { defaultValue: 'All categories improving!' })}
               </p>
             )}
           </div>
@@ -311,7 +313,7 @@ export default function EvaluationProgressChart({
         {/* Chart Controls */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-            Progress Over Time
+            {t('ev_sum.progress_over_time', { defaultValue: 'Progress Over Time' })}
           </h3>
 
           <div className="flex items-center gap-3">
@@ -326,7 +328,7 @@ export default function EvaluationProgressChart({
                     : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
                 )}
               >
-                Area
+                {t('ev_sum.area', { defaultValue: 'Area' })}
               </button>
               <button
                 onClick={() => setChartType("line")}
@@ -337,7 +339,7 @@ export default function EvaluationProgressChart({
                     : "text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
                 )}
               >
-                Line
+                {t('ev_sum.line', { defaultValue: 'Line' })}
               </button>
             </div>
 
@@ -347,7 +349,7 @@ export default function EvaluationProgressChart({
                 onClick={() => setShowCategorySelector(!showCategorySelector)}
                 className="flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
               >
-                Categories ({selectedCategories.length || "All"})
+                {t('ev_sum.categories', { defaultValue: 'Categories' })} ({selectedCategories.length || t('ev_sum.all', { defaultValue: 'All' })})
                 <ChevronDown className={clsx("w-4 h-4 transition-transform", showCategorySelector && "rotate-180")} />
               </button>
 
@@ -355,13 +357,13 @@ export default function EvaluationProgressChart({
                 <div className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-neutral-800 rounded-xl shadow-xl border border-neutral-200 dark:border-neutral-700 p-3 z-20 max-h-80 overflow-y-auto">
                   <div className="flex items-center justify-between mb-3 pb-2 border-b border-neutral-200 dark:border-neutral-700">
                     <span className="text-sm font-medium text-neutral-900 dark:text-white">
-                      Select Categories
+                      {t('ev_sum.select_categories', { defaultValue: 'Select Categories' })}
                     </span>
                     <button
                       onClick={() => setSelectedCategories([])}
                       className="text-xs text-primary-600 hover:underline"
                     >
-                      Clear all
+                      {t('ev_sum.clear_all', { defaultValue: 'Clear all' })}
                     </button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -431,7 +433,7 @@ export default function EvaluationProgressChart({
               <Area
                 type="monotone"
                 dataKey="overall"
-                name="Overall"
+                name={t('ev_sum.overall', { defaultValue: 'Overall' })}
                 stroke="#6366f1"
                 fill="url(#overallGradient)"
                 strokeWidth={3}
@@ -477,7 +479,7 @@ export default function EvaluationProgressChart({
               <Line
                 type="monotone"
                 dataKey="overall"
-                name="Overall"
+                name={t('ev_sum.overall', { defaultValue: 'Overall' })}
                 stroke="#6366f1"
                 strokeWidth={3}
                 dot={{ fill: "#6366f1", strokeWidth: 2, r: 4 }}
@@ -504,7 +506,7 @@ export default function EvaluationProgressChart({
         {/* Time Range */}
         {progressStats && (
           <p className="text-xs text-center text-neutral-500 mt-4">
-            Showing progress from {progressStats.timespan.start.toLocaleDateString()} to {progressStats.timespan.end.toLocaleDateString()}
+            {t('ev_sum.showing_progress_range', { defaultValue: 'Showing progress from {{start}} to {{end}}', start: progressStats.timespan.start.toLocaleDateString(), end: progressStats.timespan.end.toLocaleDateString() })}
           </p>
         )}
       </div>
