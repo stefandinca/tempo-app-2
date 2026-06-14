@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 
 // Keep in sync with CONSENT_VERSION in src/lib/assistant/gate.ts.
@@ -14,23 +14,21 @@ export function useAiConsent() {
   const uid = auth.currentUser?.uid;
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      if (!uid) {
-        if (active) setConsented(false);
-        return;
-      }
-      try {
-        const snap = await getDoc(doc(db, "user_consents", uid));
+    if (!uid) {
+      setConsented(false);
+      return;
+    }
+    // Live so a grant in one component is observed by others on the next tick
+    // (otherwise the first post-consent action re-opens the consent modal).
+    const unsub = onSnapshot(
+      doc(db, "user_consents", uid),
+      (snap) => {
         const d = snap.data();
-        if (active) setConsented(!!d?.allowExternalAI && d?.version === CONSENT_VERSION);
-      } catch {
-        if (active) setConsented(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
+        setConsented(!!d?.allowExternalAI && d?.version === CONSENT_VERSION);
+      },
+      () => setConsented(false),
+    );
+    return unsub;
   }, [uid]);
 
   const grant = useCallback(async () => {

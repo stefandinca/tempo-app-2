@@ -103,6 +103,9 @@ export async function POST(req: NextRequest) {
     async start(controller) {
       try {
         for (let turn = 0; turn < MAX_TURNS; turn++) {
+          // Persist only the final turn's text — discard any "let me look that
+          // up" preamble emitted before a tool call (still streamed live to UX).
+          assistantText = "";
           const stream = client.messages.stream({
             model: MODEL,
             max_tokens: 2048,
@@ -139,6 +142,16 @@ export async function POST(req: NextRequest) {
             continue;
           }
           break;
+        }
+
+        // The tool loop exhausted MAX_TURNS without a final answer — don't save a
+        // blank bubble; give the user a clear message.
+        if (!assistantText.trim()) {
+          assistantText =
+            language === "ro"
+              ? "Nu am putut finaliza solicitarea. Te rog reformulează întrebarea."
+              : "I couldn't complete that request — please try rephrasing.";
+          controller.enqueue(encoder.encode(assistantText));
         }
 
         // Persist the assistant reply with its token usage + cost, then roll up totals.

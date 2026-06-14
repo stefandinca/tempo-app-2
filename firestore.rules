@@ -160,7 +160,10 @@ service cloud.firestore {
     match /clients/{clientId}/homework/{homeworkId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
       allow create, delete: if isAdmin() || isCoordinator() || isTherapist();
-      allow update: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
+      // Parents may only toggle completion, not rewrite homework content.
+      allow update: if isAdmin() || isCoordinator() || isTherapist() ||
+                      (isParent(clientId) &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed', 'completedAt']));
     }
 
     match /clients/{clientId}/documents/{documentId} {
@@ -277,7 +280,10 @@ service cloud.firestore {
     }
 
     match /potential_clients/{leadId} {
-      allow create: if true;
+      // Public lead form (unauthenticated) — constrain shape to limit spam/abuse.
+      allow create: if request.resource.data.source == "demo_platform_entry"
+                    && request.resource.data.consent == true
+                    && request.resource.data.keys().size() <= 15;
       allow read, update, delete: if isAdmin();
     }
 

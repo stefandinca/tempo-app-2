@@ -75,7 +75,7 @@ export default function NewEventModal({
         details: editingEvent.details || "",
         eventType: editingEvent.type || "",
         selectedTeamMembers: editingEvent.teamMemberIds || (editingEvent.therapistId ? [editingEvent.therapistId] : []),
-        date: startDate.toISOString().split('T')[0],
+        date: `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`,
         startTime: startDate.toTimeString().slice(0, 5),
         duration: durationMinutes || 60,
         isRecurring: false,
@@ -90,7 +90,7 @@ export default function NewEventModal({
       setFormData({
         ...INITIAL_DATA,
         selectedClients: initialClientId ? [initialClientId] : [],
-        date: initialDate ? initialDate.toISOString().split('T')[0] : INITIAL_DATA.date,
+        date: initialDate ? `${initialDate.getFullYear()}-${String(initialDate.getMonth() + 1).padStart(2, '0')}-${String(initialDate.getDate()).padStart(2, '0')}` : INITIAL_DATA.date,
         startTime: initialTime || INITIAL_DATA.startTime,
         eventType: initialEventType || INITIAL_DATA.eventType,
         title: initialTitle || INITIAL_DATA.title

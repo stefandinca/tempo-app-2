@@ -101,9 +101,10 @@ export default function EventDetailPanel({ event, isOpen, onClose }: EventDetail
       setOriginalAttendance(event.attendance || null);
       setNotes(event.details || "");
 
-      // Parse ISO string for inputs
+      // Parse ISO string for inputs (use LOCAL date parts — toISOString would
+      // shift early-morning events to the previous day in UTC+2/+3).
       const d = new Date(event.startTime);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const timeStr = d.toTimeString().slice(0, 5);
       setDate(dateStr);
       setTime(timeStr);
