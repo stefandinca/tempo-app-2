@@ -13,7 +13,8 @@ import {
   Search,
   Briefcase,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
@@ -38,6 +39,7 @@ export default function Sidebar() {
     { name: t('nav.billing'), href: "/billing/", icon: CreditCard, roles: ['Superadmin', 'Admin'] },
     { name: t('nav.analytics'), href: "/analytics/", icon: BarChart2, roles: ['Superadmin', 'Admin', 'Coordinator'] },
     { name: t('nav.services'), href: "/services/", icon: Briefcase, roles: ['Superadmin', 'Admin', 'Coordinator'] },
+    { name: t('nav.superadmin'), href: "/superadmin/", icon: ShieldCheck, roles: ['Superadmin'] },
     { name: t('nav.ai_usage'), href: "/ai-usage/", icon: Sparkles, roles: ['Superadmin'] },
   ];
   const { userRole } = useAuth();
