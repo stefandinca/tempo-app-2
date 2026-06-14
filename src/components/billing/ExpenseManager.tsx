@@ -105,9 +105,14 @@ export default function ExpenseManager({ expenses, loading, year, month }: Expen
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const amt = parseFloat(formData.amount);
+    if (!isFinite(amt) || amt < 0) {
+      error(t('expense_manager.messages.invalid_amount', { defaultValue: 'Please enter a valid amount.' }));
+      return;
+    }
     const payload = {
       ...formData,
-      amount: parseFloat(formData.amount),
+      amount: amt,
       year,
       month,
       updatedAt: new Date().toISOString()

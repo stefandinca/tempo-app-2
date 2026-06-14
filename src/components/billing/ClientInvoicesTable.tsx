@@ -201,6 +201,8 @@ export default function ClientInvoicesTable({
         transaction.set(newInvoiceRef, {
           ...snapshot, clientId: invoice.clientId, status: "issued", createdAt: serverTimestamp(),
           formattedDate: today.toLocaleDateString("ro-RO"), formattedDueDate: today.toLocaleDateString("ro-RO"),
+          // year/month (0-indexed, matching the billing page) so "Mark as paid" can find it.
+          year: today.getFullYear(), month: today.getMonth(),
         });
         transaction.update(settingsRef, { "invoicing.currentNumber": nextNumber });
         return { snapshot, invoiceId: newInvoiceRef.id };

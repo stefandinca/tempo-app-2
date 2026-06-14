@@ -63,6 +63,7 @@ export default function BillingOverview({ summary, loading }: BillingOverviewPro
       subtitle: t('billing_summary.expenses_subtitle')
     },
     {
+      key: 'profit',
       label: t('billing_summary.profit'),
       value: summary.profit,
       icon: TrendingUp,
@@ -119,8 +120,8 @@ export default function BillingOverview({ summary, loading }: BillingOverviewPro
                   <>
                     <h3 className={clsx(
                       "text-lg lg:text-2xl font-bold font-display leading-none",
-                      card.label === "Profit" && (card.value >= 0 ? "text-success-600" : "text-error-600"),
-                      card.label !== "Profit" && "text-neutral-900 dark:text-white"
+                      (card as any).key === 'profit' && (card.value >= 0 ? "text-success-600" : "text-error-600"),
+                      (card as any).key !== 'profit' && "text-neutral-900 dark:text-white"
                     )}>
                       {formatCurrency(card.value)}
                     </h3>
