@@ -92,12 +92,11 @@ export const PARENT_FRIENDLY_NAMES: Record<string, string> = {
   'L': 'Social Interaction',
   'M': 'Group Instruction',
   'N': 'Follow Classroom Routines',
-  'O': 'Generalized Responding',
-  'P': 'Reading Skills',
-  'Q': 'Math Skills',
-  'R': 'Writing Skills',
-  'S': 'Spelling',
-  'T': 'Language Arts',
+  'P': 'Generalized Responding',
+  'Q': 'Reading Skills',
+  'R': 'Math Skills',
+  'S': 'Writing Skills',
+  'T': 'Spelling',
   'U': 'Dressing',
   'V': 'Eating',
   'W': 'Grooming',
@@ -145,8 +144,8 @@ export function getBarrierRecommendation(barrierId: string): string {
  * ABLLS Domain Groupings for clinical reporting
  */
 export const ABLLS_DOMAINS = {
-  'Language & Communication': ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'T'],
-  'Academic Readiness': ['M', 'N', 'O', 'P', 'Q', 'R', 'S'],
+  'Language & Communication': ['D', 'E', 'F', 'G', 'H', 'I', 'J'],
+  'Academic Readiness': ['M', 'N', 'P', 'Q', 'R', 'S', 'T'],
   'Foundational Skills': ['A', 'B', 'C'],
   'Social & Play': ['K', 'L'],
   'Self-Help & Independence': ['U', 'V', 'W', 'X'],

@@ -127,6 +127,11 @@ function sanitizeScores(scores: Record<string, ItemScore>): Record<string, ItemS
     if (value.note !== undefined) {
       item.note = value.note;
     }
+    // Preserve the N/A flag — dropping it makes age-aware "Mark N/A" items
+    // recompute as scored-0 in the denominator after a save round-trip.
+    if (value.isNA !== undefined) {
+      item.isNA = value.isNA;
+    }
     sanitized[key] = item;
   });
   return sanitized;

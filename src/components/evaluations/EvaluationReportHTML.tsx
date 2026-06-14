@@ -15,7 +15,8 @@ import {
   Lightbulb,
   CheckCircle2,
   BarChart3,
-  TrendingUp
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
@@ -172,12 +173,17 @@ export default function EvaluationReportHTML({
                 <span className="text-6xl font-black">
                   {isABLLS ? abllsEval?.overallPercentage : vbmappEval?.overallMilestonePercentage}%
                 </span>
-                {previousEvaluation && (
-                  <div className="flex items-center text-primary-200 font-bold text-sm">
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                    +12%
-                  </div>
-                )}
+                {previousEvaluation && (() => {
+                  const cur = isABLLS ? (abllsEval?.overallPercentage ?? 0) : (vbmappEval?.overallMilestonePercentage ?? 0);
+                  const prev = isABLLS ? ((previousEvaluation as any)?.overallPercentage ?? 0) : ((previousEvaluation as any)?.overallMilestonePercentage ?? 0);
+                  const delta = Math.round(cur - prev);
+                  return (
+                    <div className="flex items-center text-primary-200 font-bold text-sm">
+                      {delta >= 0 ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
+                      {delta > 0 ? '+' : ''}{delta}%
+                    </div>
+                  );
+                })()}
               </div>
               <p className="mt-4 text-primary-100 text-sm leading-relaxed">
                 {isABLLS

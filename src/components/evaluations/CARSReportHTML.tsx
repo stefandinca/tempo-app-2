@@ -136,7 +136,7 @@ export default function CARSReportHTML({
               <div className="col-span-2">
                 <p className="text-neutral-500 font-medium">{t('evaluations.summary')}</p>
                 <p className="text-neutral-700 dark:text-neutral-300 mt-1 leading-relaxed">
-                  {t('cars.descriptions.mild_moderate')}
+                  {getSeverityDescription(evaluation.severity)}
                 </p>
               </div>
             </div>

@@ -124,9 +124,10 @@ export default function CarolinaScoring({
                 )}>
                   <textarea
                     value={score?.note || ""}
-                    onChange={(e) => onScoreChange(item.id, currentVal || 'A', e.target.value)}
+                    onChange={(e) => { if (currentVal) onScoreChange(item.id, currentVal, e.target.value); }}
+                    disabled={!currentVal}
                     placeholder={t('ev_list.clinical_observations', { defaultValue: 'Clinical observations...' })}
-                    className="w-full p-2 text-xs bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                    className="w-full p-2 text-xs bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none disabled:opacity-50"
                     rows={2}
                   />
                 </div>
