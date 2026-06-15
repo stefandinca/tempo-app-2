@@ -10,7 +10,7 @@ export const ASSISTANT_TOOLS = [
   {
     name: "find_clients",
     description:
-      "Search the center's clients by full or partial name to resolve a name to a clientId and basic info. Call this FIRST whenever the user mentions a child by name. Pass an empty query to list all clients (e.g. to answer 'how many clients do we have').",
+      "Search the center's clients by full or partial name to resolve a name to a clientId and basic info. Names are returned as initials only (privacy); match on the clientId, not the initials. Call this FIRST whenever the user mentions a child by name. Pass an empty query to list all clients (e.g. to answer 'how many clients do we have').",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -22,7 +22,7 @@ export const ASSISTANT_TOOLS = [
   {
     name: "get_client_details",
     description:
-      "Fetch one client's record by clientId (obtained from find_clients). Request only the sections you need: 'evaluations' (assessment scores + any saved AI insights), 'sessions' (recent appointments), 'goals' (intervention plans & objectives), 'billing' (subscription, invoices, parent contact). A basic overview is always returned.",
+      "Fetch one client's record by clientId (obtained from find_clients). Request only the sections you need: 'evaluations' (assessment scores + any saved AI insights), 'sessions' (recent appointments), 'goals' (intervention plans & objectives), 'billing' (subscription & invoice status; no contact details). A basic overview is always returned (name as initials only).",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -45,6 +45,19 @@ const EVAL_SUBS: { sub: string; kind: EvalKind }[] = [
   { sub: "cars_evaluations", kind: "cars" },
   { sub: "carolina_evaluations", kind: "carolina" },
 ];
+
+// Privacy / GDPR data-minimisation: full names never leave the server. What we
+// hand to Claude carries INITIALS only (pseudonymisation) — staff already see
+// the real name in the app, and the name they typed is what the model echoes.
+function initials(name?: string): string {
+  if (!name) return "—";
+  return String(name)
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0]?.toUpperCase() || "")
+    .join("")
+    .slice(0, 3);
+}
 
 function calcAge(birthDate?: string): number | null {
   if (!birthDate) return null;
@@ -76,7 +89,7 @@ export async function executeAssistantTool(name: string, input: any): Promise<an
     rows.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
     const clients = rows.slice(0, 15).map((c) => ({
       clientId: c.id,
-      name: c.name || null,
+      initials: initials(c.name),
       age: calcAge(c.birthDate),
       diagnosis: c.primaryDiagnosis || null,
       diagnosisLevel: c.diagnosisLevel ?? null,
@@ -97,13 +110,16 @@ export async function executeAssistantTool(name: string, input: any): Promise<an
       const tdocs = await Promise.all(
         c.therapistIds.slice(0, 6).map((id: string) => db.collection("team_members").doc(id).get()),
       );
-      therapists = tdocs.filter((d) => d.exists).map((d) => (d.data() as any)?.name).filter(Boolean);
+      therapists = tdocs
+        .filter((d) => d.exists)
+        .map((d) => initials((d.data() as any)?.name))
+        .filter((s) => s && s !== "—");
     }
 
     const result: any = {
       overview: {
         clientId,
-        name: c.name || null,
+        initials: initials(c.name),
         age: calcAge(c.birthDate),
         diagnosis: c.primaryDiagnosis || null,
         diagnosisLevel: c.diagnosisLevel ?? null,
@@ -197,16 +213,13 @@ export async function executeAssistantTool(name: string, input: any): Promise<an
         })
         .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
         .slice(0, 20);
+      // No contact block: parent name / phone / e-mail are never needed for
+      // clinical or operational analysis, so they are not sent to the model.
       result.billing = {
         subscription: {
           active: !!c.hasActiveSubscription,
           price: c.subscriptionPrice ?? null,
           fixedSessionPrice: c.fixedSessionPrice ?? null,
-        },
-        contact: {
-          parentName: c.parentName || c.guardianName || null,
-          phone: c.phone || c.parentPhone || c.contactPhone || null,
-          email: c.email || c.parentEmail || c.contactEmail || null,
         },
         invoices,
       };
