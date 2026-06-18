@@ -3,17 +3,18 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
-import { getEventsForDay, type CalendarEvent } from "@/lib/calendarUtils";
+import { getEventClientLabel, getEventsForDay, type CalendarEvent, type ClientLike } from "@/lib/calendarUtils";
 import { Users, Clock } from "lucide-react";
 
 interface Event {
   id: string;
   title: string;
-  startTime: string; 
+  startTime: string;
   endTime: string;
   type: string;
   therapistId: string;
   clientId: string;
+  clientIds?: string[];
   status?: string;
 }
 
@@ -21,15 +22,17 @@ interface MonthAgendaViewProps {
   currentDate: Date;
   events: Event[];
   teamMembers: any[];
+  clients: ClientLike[];
   onEventClick: (event: Event) => void;
   onSlotClick: (date: Date) => void;
   onDateChange: (date: Date) => void;
 }
 
-export default function MonthAgendaView({ 
-  currentDate, 
+export default function MonthAgendaView({
+  currentDate,
   events,
   teamMembers,
+  clients,
   onEventClick,
   onSlotClick,
   onDateChange
@@ -140,7 +143,7 @@ export default function MonthAgendaView({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <h4 className="font-bold text-neutral-900 dark:text-white truncate">
-                        {event.title}
+                        {getEventClientLabel(event, clients)}
                       </h4>
                       <span className="text-[10px] px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-full font-bold uppercase">
                         {event.type}

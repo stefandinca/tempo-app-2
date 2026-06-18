@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
+import { getEventClientLabel, type ClientLike } from "@/lib/calendarUtils";
 
 interface Event {
   id: string;
@@ -12,6 +13,7 @@ interface Event {
   type: string;
   therapistId: string;
   clientId: string;
+  clientIds?: string[];
   status?: string;
 }
 
@@ -19,14 +21,16 @@ interface MonthViewProps {
   currentDate: Date;
   events: Event[];
   teamMembers: any[];
+  clients: ClientLike[];
   onEventClick: (event: Event) => void;
   onSlotClick: (date: Date) => void;
 }
 
-export default function MonthView({ 
-  currentDate, 
+export default function MonthView({
+  currentDate,
   events,
   teamMembers,
+  clients,
   onEventClick,
   onSlotClick
 }: MonthViewProps) {
@@ -155,7 +159,7 @@ export default function MonthView({
                         borderLeftColor: color
                       }}
                     >
-                      {new Date(evt.startTime).toLocaleTimeString(locale, {hour: 'numeric', minute:'2-digit'})} {evt.title}
+                      {new Date(evt.startTime).toLocaleTimeString(locale, {hour: 'numeric', minute:'2-digit'})} {getEventClientLabel(evt, clients)}
                     </div>
                   );
                 })}

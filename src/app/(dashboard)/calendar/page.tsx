@@ -99,8 +99,8 @@ export default function CalendarPage() {
   // Fetch events for the visible date range directly from Firestore
   const { data: rangeEvents, loading: eventsLoading } = useEventsByDateRange(rangeStart, rangeEnd);
 
-  // Team members still come from shared context
-  const { teamMembers } = useData();
+  // Team members and clients still come from shared context
+  const { teamMembers, clients } = useData();
   const loading = eventsLoading || teamMembers.loading;
 
   // Set default filter to show only current user's events (if they have any)
@@ -199,10 +199,11 @@ export default function CalendarPage() {
         )}
 
         {currentView === 'week' && (
-          <WeekView 
+          <WeekView
             currentDate={currentDate}
             events={filteredEvents}
             teamMembers={teamMembers.data}
+            clients={clients.data}
             onEventClick={handleEventClick}
             onSlotClick={handleSlotClick}
           />
@@ -211,19 +212,21 @@ export default function CalendarPage() {
         {currentView === 'month' && (
           <>
             <div className="hidden lg:block h-full">
-              <MonthView 
+              <MonthView
                 currentDate={currentDate}
                 events={filteredEvents}
                 teamMembers={teamMembers.data}
+                clients={clients.data}
                 onEventClick={handleEventClick}
                 onSlotClick={handleMonthSlotClick}
               />
             </div>
             <div className="block lg:hidden h-full">
-              <MonthAgendaView 
+              <MonthAgendaView
                 currentDate={currentDate}
                 events={filteredEvents}
                 teamMembers={teamMembers.data}
+                clients={clients.data}
                 onEventClick={handleEventClick}
                 onSlotClick={handleSlotClick}
                 onDateChange={setCurrentDate}
@@ -233,10 +236,11 @@ export default function CalendarPage() {
         )}
 
         {currentView === 'day' && (
-          <DayView 
+          <DayView
             currentDate={currentDate}
             events={filteredEvents}
             teamMembers={teamMembers.data}
+            clients={clients.data}
             onEventClick={handleEventClick}
             onSlotClick={handleSlotClick}
           />

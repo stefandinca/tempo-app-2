@@ -3,7 +3,7 @@
 import { useMemo, useEffect, useState } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
-import { calculateEventColumns, getEventsForDay, type CalendarEvent, type EventWithPosition } from "@/lib/calendarUtils";
+import { calculateEventColumns, getEventClientLabel, getEventsForDay, type CalendarEvent, type ClientLike, type EventWithPosition } from "@/lib/calendarUtils";
 
 interface Event {
   id: string;
@@ -13,6 +13,7 @@ interface Event {
   type: string;
   therapistId: string;
   clientId: string;
+  clientIds?: string[];
   status?: string;
 }
 
@@ -20,6 +21,7 @@ interface DayViewProps {
   currentDate: Date;
   events: Event[];
   teamMembers: any[];
+  clients: ClientLike[];
   onEventClick: (event: Event) => void;
   onSlotClick: (date: Date) => void;
 }
@@ -28,6 +30,7 @@ export default function DayView({
   currentDate,
   events,
   teamMembers,
+  clients,
   onEventClick,
   onSlotClick
 }: DayViewProps) {
@@ -192,7 +195,7 @@ export default function DayView({
                     color: "#1e293b" // Slate-800
                   }}
                 >
-                  <div className="font-semibold text-sm truncate">{event.title}</div>
+                  <div className="font-semibold text-sm truncate">{getEventClientLabel(event, clients)}</div>
                   <div className="text-xs opacity-80 truncate">
                     {new Date(event.startTime).toLocaleTimeString(locale, {hour: '2-digit', minute:'2-digit'})} - {new Date(event.endTime).toLocaleTimeString(locale, {hour: '2-digit', minute:'2-digit'})}
                   </div>

@@ -3,7 +3,7 @@
 import { useMemo, useEffect, useState } from "react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
-import { calculateEventColumns, getEventsForDay, type CalendarEvent, type EventWithPosition } from "@/lib/calendarUtils";
+import { calculateEventColumns, getEventClientLabel, getEventsForDay, type CalendarEvent, type ClientLike, type EventWithPosition } from "@/lib/calendarUtils";
 
 interface Event {
   id: string;
@@ -13,6 +13,7 @@ interface Event {
   type: string;
   therapistId: string;
   clientId: string;
+  clientIds?: string[];
   status?: string;
 }
 
@@ -20,14 +21,16 @@ interface WeekViewProps {
   currentDate: Date;
   events: Event[];
   teamMembers: any[];
+  clients: ClientLike[];
   onEventClick: (event: Event) => void;
   onSlotClick: (date: Date) => void;
 }
 
-export default function WeekView({ 
-  currentDate, 
+export default function WeekView({
+  currentDate,
   events,
   teamMembers,
+  clients,
   onEventClick,
   onSlotClick
 }: WeekViewProps) {
@@ -260,7 +263,7 @@ export default function WeekView({
                           color: "#1e293b" // Slate-800
                         }}
                       >
-                        <div className="font-semibold truncate">{event.title}</div>
+                        <div className="font-semibold truncate">{getEventClientLabel(event, clients)}</div>
                         <div className="truncate opacity-80">
                           {new Date(event.startTime).toLocaleTimeString(locale, {hour: '2-digit', minute:'2-digit'})}
                         </div>

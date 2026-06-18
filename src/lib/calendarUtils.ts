@@ -10,7 +10,43 @@ export interface CalendarEvent {
   type: string;
   therapistId: string;
   clientId: string;
+  clientIds?: string[];
   status?: string;
+}
+
+/** Minimal client shape needed to resolve a display name on an event card. */
+export interface ClientLike {
+  id: string;
+  name?: string;
+}
+
+/**
+ * Resolve the client name(s) to show on a calendar event card.
+ *
+ * Event titles are stored as "<service> - <client>", so on narrow (mobile)
+ * cards the client name — which sits at the end — gets truncated away. Leading
+ * the card with the client name keeps "who is coming up" visible at a glance.
+ *
+ * Group sessions render as "First Client +N". Falls back to the stored title
+ * for non-client events (e.g. meetings) or before the clients list has loaded.
+ */
+export function getEventClientLabel(
+  event: { clientId?: string | null; clientIds?: string[]; title?: string },
+  clients: ClientLike[]
+): string {
+  const ids = event.clientIds && event.clientIds.length > 0
+    ? event.clientIds
+    : event.clientId
+    ? [event.clientId]
+    : [];
+
+  const names = ids
+    .map(id => clients.find(c => c.id === id)?.name)
+    .filter((n): n is string => !!n);
+
+  if (names.length === 0) return event.title || "";
+  if (names.length === 1) return names[0];
+  return `${names[0]} +${names.length - 1}`;
 }
 
 export interface EventWithPosition extends CalendarEvent {
