@@ -32,6 +32,7 @@
     color: var(--white);
     overflow: hidden;
     height: 100vh;
+    height: 100dvh; /* account for mobile browser chrome */
     width: 100vw;
   }
 
@@ -39,6 +40,7 @@
     position: relative;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
   }
 
   .slide {
@@ -49,12 +51,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 60px 80px;
+    padding: 60px 80px 88px; /* extra bottom padding clears the fixed nav bar */
     opacity: 0;
     transform: translateX(60px);
     transition: opacity 0.5s ease, transform 0.5s ease;
     pointer-events: none;
-    overflow-y: auto;
+    /* Clip the slide itself so decorative circles never create scrollbars;
+       scrolling happens inside .slide-content instead. */
+    overflow: hidden;
   }
 
   .slide.active {
@@ -109,6 +113,14 @@
     z-index: 1;
     max-width: 1100px;
     width: 100%;
+    /* The single scroll container: centered when content fits, scrollable
+       (top always reachable) when it overflows, which fixes the flex-centering
+       clip that hid content on small screens. */
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   .hero-title {
@@ -692,7 +704,7 @@
   }
 
   @media (max-width: 900px) {
-    .slide { padding: 40px 30px; }
+    .slide { padding: 40px 30px 80px; }
     .hero-title { font-size: 2.6rem; }
     .slide-title { font-size: 2rem; }
     .cards-grid, .cards-grid-4, .sectors-grid { grid-template-columns: repeat(2, 1fr); }
@@ -704,396 +716,318 @@
     .stat-row { flex-wrap: wrap; gap: 20px; }
   }
   @media (max-width: 600px) {
-    .slide { padding: 30px 20px; }
+    .slide { padding: 30px 20px 80px; }
     .hero-title { font-size: 2rem; }
     .slide-title { font-size: 1.6rem; }
     .cards-grid, .cards-grid-2, .cards-grid-4, .sectors-grid { grid-template-columns: 1fr; }
     .impact-grid { grid-template-columns: 1fr; }
+    /* Keep the bottom nav on one row and prevent horizontal overflow */
+    .nav-bar { padding: 0 12px; }
+    .nav-hint { display: none; }
+    .progress-bar { margin: 0 10px; }
+    .stat-row { gap: 16px; }
   }
 </style>
 </head>
 <body>
 <div class="deck" id="deck">
 
-  <!-- SLIDE 1: Titlu -->
+  <!-- SLIDE 1: Hook -->
   <div class="slide bg-gradient-hero active" data-index="0">
     <div class="slide-content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
       <div class="logo" style="margin-bottom:40px;">
         <div class="logo-icon">T</div>
         <div class="logo-text">TempoApp</div>
       </div>
-      <h1 class="hero-title">Platforma digitala pentru <br> <span class="highlight-blue">Centre de terapie, clinici si terapeuti individuali.</span></h1>
+      <h1 class="hero-title">Conduceți-vă centrul,<br><span class="highlight-blue">nu hârtiile</span></h1>
       <p class="hero-subtitle" style="text-align:center;">
-        Un ecosistem digital integrat (SaaS) care &#238;nlocuie&#537;te registrele pe h&#226;rtie, fi&#537;ierele Excel &#537;i instrumentele deconectate cu o singur&#259; platform&#259; &#238;n timp real pentru centre de terapie, clinici &#537;i furnizori de servicii.
+        TempoApp aduce programul, progresul fiecărui copil, facturarea și comunicarea cu părinții într-un singur loc, calm: ca echipa voastră să-și petreacă ziua cu terapia, nu cu administrația.
       </p>
       <div class="stat-row" style="margin-top:50px;">
         <div class="stat">
-          <div class="stat-value">TRL 7</div>
-          <div class="stat-label">Nivel Tehnologic</div>
+          <div class="stat-value">1</div>
+          <div class="stat-label">Clinică ce îl folosește zilnic</div>
         </div>
         <div class="stat">
-          <div class="stat-value orange">1</div>
-          <div class="stat-label">Clinic&#259; Pilot Activ&#259;</div>
+          <div class="stat-value orange">BCBA</div>
+          <div class="stat-label">Creat alături de un clinician</div>
         </div>
         <div class="stat">
-          <div class="stat-value green">3</div>
-          <div class="stat-label">Scrisori de Inten&#539;ie</div>
+          <div class="stat-value green">RO&middot;EN</div>
+          <div class="stat-label">Complet bilingv</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 2: Problema -->
+  <!-- SLIDE 2: The pain -->
   <div class="slide bg-gradient-dark" data-index="1">
     <div class="slide-content">
-      <span class="section-label" style="color:#f87171; background:rgba(239,68,68,0.1);">Problema</span>
-      <h2 class="slide-title">Haosul Administrativ Afecteaz&#259;<br>Rezultatele Pacien&#539;ilor</h2>
-      <p class="slide-subtitle">Centrele de terapie &#537;i furnizorii de servicii pierd 20-30% din productivitate din cauza proceselor fragmentate &#537;i manuale. Speciali&#537;tii &#238;&#537;i petrec timpul cu birocratie &#238;n loc s&#259; se ocupe de pacien&#539;i.</p>
+      <span class="section-label" style="color:#f87171; background:rgba(239,68,68,0.1);">Vă sună cunoscut?</span>
+      <h2 class="slide-title">Munca de după muncă</h2>
+      <p class="slide-subtitle">Majoritatea centrelor funcționează cu un amestec de caiete, fișiere Excel și grupuri de WhatsApp. Terapia e excelentă: tot ce e în jurul ei pierde timp.</p>
       <div class="cards-grid">
         <div class="card">
           <div class="card-icon red">&#128196;</div>
-          <h3>Insule de Date</h3>
-          <p>Dosarele pacien&#539;ilor sunt r&#259;sp&#226;ndite &#238;n caiete fizice, fi&#537;iere Excel, grupuri WhatsApp &#537;i calendare pe h&#226;rtie. Nicio surs&#259; unic&#259; de adev&#259;r.</p>
+          <h3>Date împrăștiate</h3>
+          <p>Istoricul unui copil stă într-un dosar, trei fișiere Excel și în memoria cuiva. Să aduni imaginea completă durează o după-amiază.</p>
         </div>
         <div class="card">
-          <div class="card-icon red">&#128200;</div>
-          <h3>F&#259;r&#259; Decizii Bazate pe Date</h3>
-          <p>F&#259;r&#259; instrumente digitale, progresul pacien&#539;ilor este aproape imposibil de cuantificat obiectiv, ducând la interven&#539;ii sub-optimale.</p>
+          <div class="card-icon red">&#127769;</div>
+          <h3>Serile pierdute cu administrația</h3>
+          <p>Notele de ședință, rapoartele și facturile se adună pentru după program. Ziua se termină mult după ce pleacă ultimul copil.</p>
         </div>
         <div class="card">
-          <div class="card-icon red">&#9888;&#65039;</div>
-          <h3>Erori &#537;i Opacitate</h3>
-          <p>Facturare manual&#259;, conflicte de programare &#537;i zero transparen&#539;&#259; pentru p&#259;rin&#539;i. Erorile umane se acumuleaz&#259; &#238;n fiecare flux de lucru.</p>
+          <div class="card-icon red">&#129300;</div>
+          <h3>„Cum se descurcă copilul meu?”</h3>
+          <p>Părinții întreabă, iar răspunsul sincer e îngropat în hârtii. Încrederea scade când progresul e greu de arătat.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 3: Solu&#539;ia -->
+  <!-- SLIDE 3: One place for everything -->
   <div class="slide bg-gradient-blue" data-index="2">
     <div class="slide-content">
-      <span class="section-label">Solu&#539;ia</span>
-      <h2 class="slide-title">O Singur&#259; Platform&#259;. <span class="highlight-orange">Control Total.</span></h2>
-      <p class="slide-subtitle">TempoApp ac&#539;ioneaz&#259; ca o &bdquo;Surs&#259; Unic&#259; de Adev&#259;r&rdquo; sincroniz&#226;nd trei piloni critici &#238;n timp real.</p>
+      <span class="section-label">Un singur loc, calm</span>
+      <h2 class="slide-title">Tot ce ține de fiecare copil: <span class="highlight-orange">într-un singur loc</span></h2>
+      <p class="slide-subtitle">Program, progres clinic, note de ședință, facturare și actualizări pentru părinți: mereu sincronizate, pe dispozitivele pe care echipa le are deja.</p>
       <div class="cards-grid">
         <div class="card">
-          <div class="card-icon blue">&#128188;</div>
-          <h3>Managementul Resurselor (ERP)</h3>
-          <p>Programarea personalului, configurarea serviciilor, acces bazat pe roluri &#537;i facturare automat&#259; &#238;ntr-un singur sistem integrat.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon green">&#128202;</div>
-          <h3>Monitorizarea Progresului (Analytics &amp; EHR)</h3>
-          <p>Urm&#259;re&#537;te evolu&#539;ia pacientului cu programe structurate, planuri de interven&#539;ie, metrici de atingere a obiectivelor &#537;i analize vizuale.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon orange">&#128106;</div>
-          <h3>Implicarea Familiei (CRM)</h3>
-          <p>Portal dedicat p&#259;rin&#539;ilor cu programul &#537;edin&#539;elor, urm&#259;rirea progresului, documente partajate, facturi &#537;i mesagerie &#238;n timp real.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 4: Dou&#259; Portaluri -->
-  <div class="slide bg-gradient-dark" data-index="3">
-    <div class="slide-content">
-      <span class="section-label">Prezentare Produs</span>
-      <h2 class="slide-title">Dou&#259; Portaluri, Un Singur Ecosistem</h2>
-      <p class="slide-subtitle">Experien&#539;e construite special pentru personal &#537;i familii, conectate printr-o baz&#259; de date partajat&#259; &#238;n timp real.</p>
-      <div class="portal-preview">
-        <div class="portal-box staff">
-          <h3>Portalul Personalului</h3>
-          <div class="role-tag">Admin &middot; Coordonator &middot; Terapeut</div>
-          <ul class="portal-features">
-            <li>Dashboard KPI cu &#537;edin&#539;ele zilei &#537;i sarcinile &#238;n a&#537;teptare</li>
-            <li>Calendar multi-vizualizare (lun&#259;, s&#259;pt&#259;m&#226;n&#259;, zi) cu filtre</li>
-            <li>Profiluri clien&#539;i cu programe &#537;i planuri de interven&#539;ie</li>
-            <li>Managementul echipei cu analize de &#238;nc&#259;rcare</li>
-            <li>Generare facturi &#537;i urm&#259;rire pl&#259;&#539;i</li>
-            <li>Mesagerie intern&#259; &#238;n timp real</li>
-            <li>Analize: venituri, prezen&#539;&#259;, utilizare</li>
-            <li>Notific&#259;ri push pentru modific&#259;ri de program</li>
-          </ul>
-        </div>
-        <div class="portal-box parent">
-          <h3>Portalul P&#259;rin&#539;ilor</h3>
-          <div class="role-tag">Acces securizat anonim &middot; F&#259;r&#259; cont necesar</div>
-          <ul class="portal-features">
-            <li>Autentificare cu cod (conform GDPR, f&#259;r&#259; date personale)</li>
-            <li>Programul &#537;edin&#539;elor viitoare &#537;i trecute</li>
-            <li>Progresul copilului cu metrici de succes</li>
-            <li>Documente partajate (rapoarte, evalu&#259;ri)</li>
-            <li>Istoric facturi cu desc&#259;rcare PDF</li>
-            <li>Mesagerie direct&#259; cu echipa de terapie</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 5: Func&#539;ionalit&#259;&#539;i Cheie -->
-  <div class="slide bg-gradient-orange" data-index="4">
-    <div class="slide-content">
-      <span class="section-label orange">Func&#539;ionalit&#259;&#539;i Cheie</span>
-      <h2 class="slide-title">Construit pentru Fluxuri Clinice Reale</h2>
-      <p class="slide-subtitle">Fiecare func&#539;ionalitate a fost proiectat&#259; al&#259;turi de terapeut&#539;i practicieni care gestioneaz&#259; un centru de terapie Autism.</p>
-      <div class="cards-grid-4">
-        <div class="card">
           <div class="card-icon blue">&#128197;</div>
-          <h3>Calendar Inteligent</h3>
-          <p>Programare multi-vizualizare cu filtre terapeut/client &#537;i &#238;nregistrarea prezen&#539;ei.</p>
+          <h3>Programul</h3>
+          <p>Vedeți ziua fiecărui terapeut dintr-o privire. Filtrați după copil sau terapeut. Reprogramați în câteva secunde: toți văd imediat.</p>
         </div>
         <div class="card">
-          <div class="card-icon green">&#127919;</div>
-          <h3>Planuri de Interven&#539;ie</h3>
-          <p>Obiective structurate legate de cadre clinice (ABLLS-R, VB-MAPP).</p>
+          <div class="card-icon green">&#128193;</div>
+          <h3>Fișa copilului</h3>
+          <p>Obiective, programe, progres, documente și istoric: la o atingere distanță, la fel pentru fiecare membru al echipei.</p>
         </div>
         <div class="card">
-          <div class="card-icon orange">&#128176;</div>
-          <h3>Facturare Automat&#259;</h3>
-          <p>Finalizarea &#537;edin&#539;ei declan&#537;eaz&#259; generarea facturii cu integrare SmartBill/e-Factura.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon blue">&#128172;</div>
-          <h3>Chat &#238;n Timp Real</h3>
-          <p>Mesagerie intern&#259; securizat&#259; &#238;ntre membrii echipei cu indicatori de necitit.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon green">&#128202;</div>
-          <h3>Analize</h3>
-          <p>Mix venituri, utilizare terapeut, tendinte prezen&#539;&#259;, risc de anulare.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon orange">&#128276;</div>
-          <h3>Notific&#259;ri Push</h3>
-          <p>Alerte instant pentru modific&#259;ri de program, mesaje noi &#537;i evenimente de facturare.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon blue">&#128196;</div>
-          <h3>Partajare Documente</h3>
-          <p>&#206;nc&#259;rcare evalu&#259;ri, rapoarte &#537;i fi&#537;iere cu control de acces pentru p&#259;rin&#539;i.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon green">&#127760;</div>
-          <h3>Multi-limb&#259;</h3>
-          <p>Interna&#539;ionalizat din prima zi (Rom&#226;n&#259; + Englez&#259;), preg&#259;tit pentru pie&#539;ele UE.</p>
+          <div class="card-icon orange">&#128172;</div>
+          <h3>Toți conectați</h3>
+          <p>Terapeuți, coordonatori și părinți rămân la curent prin mesagerie și memento-uri integrate: gata cu grupurile pierdute.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 6: Diferen&#539;iatori -->
+  <!-- SLIDE 4: Feedback tools -->
+  <div class="slide bg-gradient-orange" data-index="3">
+    <div class="slide-content">
+      <span class="section-label orange">În sala de terapie</span>
+      <h2 class="slide-title">Surprindeți ședința în câteva secunde: prin voce sau video</h2>
+      <p class="slide-subtitle">În loc să scrie un raport după program, terapeutul lasă o notă vocală rapidă sau un scurt clip video direct de pe telefon: atașat automat ședinței.</p>
+      <div class="two-col">
+        <div class="two-col-text">
+          <h3>&#127908; Note vocale</h3>
+          <p>Apăsați înregistrare și vorbiți un moment: o observație, o reușită de sărbătorit, o recomandare pentru acasă. Mai rapid decât scrisul, iar părintele aude căldura din vocea terapeutului.</p>
+          <h3>&#127916; Clipuri video</h3>
+          <p>Înregistrați un scurt moment din ședință: o abilitate nouă, un mic progres. Coordonatorii pot verifica calitatea; părinții văd progresul real cu ochii lor.</p>
+        </div>
+        <div>
+          <ul class="feature-list">
+            <li><span class="check">&#10003;</span> Înregistrate pe orice telefon sau tabletă: nimic de instalat</li>
+            <li><span class="check">&#10003;</span> Atașate automat copilului și ședinței potrivite</li>
+            <li><span class="check">&#10003;</span> Terapeutul alege exact ce pot vedea părinții</li>
+            <li><span class="check">&#10003;</span> Private și sigure în mod implicit</li>
+            <li><span class="check">&#10003;</span> O notă de 30 de secunde înlocuiește o pagină de scris</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Clinical progress -->
+  <div class="slide bg-gradient-dark" data-index="4">
+    <div class="slide-content">
+      <span class="section-label">Progres și obiective</span>
+      <h2 class="slide-title">Vedeți unde se află fiecare copil: și unde să continuați</h2>
+      <p class="slide-subtitle">Obiectivele și progresul fiecărui copil într-o singură imagine vie: așa știți mereu ce funcționează și pe ce să vă concentrați în continuare.</p>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon blue">&#128221;</div>
+          <h3>Obiective care ghidează munca</h3>
+          <p>Țintele și programele fiecărui copil stau într-un singur loc, actualizate pe măsură ce se desfășoară terapia: gata cu răsfoitul prin dosare ca să-ți amintești planul.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon green">&#128200;</div>
+          <h3>Progres pe care îl vedeți</h3>
+          <p>Achiziții și tendințe în timp, în grafice clare. Observați din timp o stagnare; arătați familiilor progresul real din spatele muncii.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon orange">&#127919;</div>
+          <h3>Concentrare, nu presupuneri</h3>
+          <p>Planuri de intervenție construite în jurul obiectivelor fiecărui copil: inima platformei, nu un adaos la un calendar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Mira AI -->
   <div class="slide bg-gradient-blue" data-index="5">
     <div class="slide-content">
-      <span class="section-label">Avantaj Competitiv</span>
-      <h2 class="slide-title">Ce Face TempoApp <span class="highlight-orange">Diferit</span></h2>
-      <p class="slide-subtitle">Majoritatea competitorilor sunt software contabil adaptat for&#539;at. Noi am construit &#238;n jurul Planului de Interven&#539;ie.</p>
-      <div class="two-col">
-        <div>
-          <ul class="diff-list">
-            <li>
-              <div class="diff-num">01</div>
-              <div class="diff-text">
-                <h3>Arhitectur&#259; Clinical-First</h3>
-                <p>Logica este construit&#259; &#238;n jurul programelor de terapie &#537;i obiectivelor pacien&#539;ilor, nu doar al calendarelor. Urm&#259;rirea progresului este nativ&#259;, nu ad&#259;ugat&#259; ulterior.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num">02</div>
-              <div class="diff-text">
-                <h3>Privacy by Design</h3>
-                <p>P&#259;rin&#539;ii acceseaz&#259; prin token-uri anonime &mdash; f&#259;r&#259; creare de cont, colectare minim&#259; de date. Conformitate GDPR maxim&#259; implicit.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num">03</div>
-              <div class="diff-text">
-                <h3>PWA / Offline-First</h3>
-                <p>Func&#539;ioneaz&#259; pe orice dispozitiv, inclusiv tablete vechi. Terapeut&#539;ii pot introduce date la vizite la domiciliu f&#259;r&#259; internet &mdash; se sincronizeaz&#259; automat la reconectare.</p>
-              </div>
-            </li>
-          </ul>
+      <span class="section-label">Faceți cunoștință cu Mira</span>
+      <h2 class="slide-title">Mira: <span class="highlight-orange">asistentul clinic AI</span> al echipei voastre</h2>
+      <p class="slide-subtitle">Integrată în TempoApp, pentru personal. Puneți o întrebare în limbaj firesc; Mira citește datele reale și ajută: gândirea rămâne clinică, iar munca de rutină dispare.</p>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon blue">&#128269;</div>
+          <h3>Întrebați despre orice copil</h3>
+          <p>„Cum progresează Andrei la cerere?” Mira aduce istoricul real și răspunde cu cifre și date concrete: fără să cauți.</p>
         </div>
-        <div>
-          <ul class="diff-list">
-            <li>
-              <div class="diff-num" style="color:var(--orange)">04</div>
-              <div class="diff-text">
-                <h3>Analize Preg&#259;tite pentru AI</h3>
-                <p>Arhitectur&#259; proiectat&#259; pentru integrare ML: analize predictive asupra progresului pacien&#539;ilor &#537;i optimizare inteligent&#259; a program&#259;rilor.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num" style="color:var(--orange)">05</div>
-              <div class="diff-text">
-                <h3>Integrare Facturare Nativ&#259;</h3>
-                <p>Integrare nativ&#259; SmartBill &#537;i e-Factura (Rom&#226;nia). O &#537;edin&#539;&#259; finalizat&#259; genereaz&#259; automat factura f&#259;r&#259; nicio introducere manual&#259;.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num" style="color:var(--orange)">06</div>
-              <div class="diff-text">
-                <h3>Modular &#537;i Multi-Sector</h3>
-                <p>Aceea&#537;i platform&#259; de baz&#259; se adapteaz&#259; la terapie, educa&#539;ie, asisten&#539;&#259; social&#259; &#537;i wellness corporativ prin module configurabile.</p>
-              </div>
-            </li>
-          </ul>
+        <div class="card">
+          <div class="card-icon green">&#9997;&#65039;</div>
+          <h3>Redactează scrisul</h3>
+          <p>Rezumate de ședință, note de progres și actualizări pentru părinți: redactate în câteva secunde, ca terapeutul doar să le revizuiască și să le trimită.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon orange">&#129517;</div>
+          <h3>Sugerează unde să vă concentrați</h3>
+          <p>Mira citește progresul și propune arii de focus de luat în calcul: sprijină judecata clinică a BCBA-ului, fără să o înlocuiască.</p>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 7: Stack Tehnologic -->
-  <div class="slide bg-gradient-dark" data-index="6">
-    <div class="slide-content">
-      <span class="section-label">Tehnologie</span>
-      <h2 class="slide-title">Modern, Scalabil, Cloud-Native</h2>
-      <p class="slide-subtitle">Construit pe tehnologii de produc&#539;ie alese pentru performan&#539;&#259;, vitez&#259; de dezvoltare &#537;i scalabilitate automat&#259;.</p>
-      <div class="two-col">
-        <div>
-          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--blue-light); margin-bottom:16px;">Frontend</h3>
-          <div class="tech-badges">
-            <span class="tech-badge"><span class="dot dot-blue"></span> Next.js 14 (App Router)</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> React 18</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> TypeScript</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> Tailwind CSS</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> Recharts</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> jsPDF</span>
-          </div>
-          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--orange-light); margin-bottom:16px; margin-top:28px;">Backend (Firebase / Google Cloud)</h3>
-          <div class="tech-badges">
-            <span class="tech-badge"><span class="dot dot-orange"></span> Firebase Auth</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Firestore</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Storage</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Functions</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Messaging (FCM)</span>
-          </div>
-        </div>
-        <div>
-          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--success); margin-bottom:16px;">Puncte Forte Arhitecturale</h3>
-          <ul class="feature-list">
-            <li><span class="check">&#10003;</span> Serverless &mdash; Scale-to-Zero, pl&#259;te&#537;ti doar ce consumi</li>
-            <li><span class="check">&#10003;</span> Sincronizare &#238;n timp real via Firestore onSnapshot</li>
-            <li><span class="check">&#10003;</span> PWA cu service worker pentru func&#539;ionare offline</li>
-            <li><span class="check">&#10003;</span> Control acces bazat pe roluri (Admin, Coordonator, Terapeut, P&#259;rinte)</li>
-            <li><span class="check">&#10003;</span> Deploy static &mdash; livrare rapid&#259; prin CDN global</li>
-            <li><span class="check">&#10003;</span> Import-uri SDK modulare pentru dimensiune optimizat&#259;</li>
-            <li><span class="check">&#10003;</span> i18n din prima zi &mdash; preg&#259;tit multi-limb&#259;</li>
-            <li><span class="check">&#10003;</span> Suport dark mode pe toate interfe&#539;ele</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 8: Pia&#539;a -->
-  <div class="slide bg-gradient-orange" data-index="7">
-    <div class="slide-content">
-      <span class="section-label orange">Oportunitate de Pia&#539;&#259;</span>
-      <h2 class="slide-title">Patru Sectoare, O Platform&#259;</h2>
-      <p class="slide-subtitle">Arhitectura modular&#259; permite expansiunea &#238;n multiple verticale de servicii recurente de interven&#539;ie uman&#259;.</p>
-      <div class="sectors-grid">
-        <div class="sector-card">
-          <div class="sector-icon">&#127973;</div>
-          <h3>HealthTech</h3>
-          <p>Clinici terapie Autism/ADHD, logopedie, kinetoterapie. <strong>Pia&#539;a primar&#259;.</strong></p>
-        </div>
-        <div class="sector-card">
-          <div class="sector-icon">&#127891;</div>
-          <h3>EdTech</h3>
-          <p>&#536;coli private, centre after-school &#537;i medita&#539;ii &mdash; performan&#539;a elevilor &#537;i comunicare cu p&#259;rin&#539;ii.</p>
-        </div>
-        <div class="sector-card">
-          <div class="sector-icon">&#129309;</div>
-          <h3>Asisten&#539;&#259; Social&#259;</h3>
-          <p>ONG-uri &#537;i servicii sociale pentru managementul cazurilor, vizite la domiciliu &#537;i raportare c&#259;tre finan&#539;atori.</p>
-        </div>
-        <div class="sector-card">
-          <div class="sector-icon">&#127970;</div>
-          <h3>Wellness Corporativ</h3>
-          <p>Companii care ofer&#259; coaching/terapie angaja&#539;ilor cu confiden&#539;ialitate &#537;i rapoarte de impact.</p>
-        </div>
-      </div>
-      <div style="margin-top:30px; text-align:center;">
-        <p style="font-size:0.9rem; color:var(--gray-light); max-width:700px; margin:0 auto; line-height:1.6;">
-          Pia&#539;a de management al serviciilor recurente este &#238;nc&#259; predominant analogic&#259;. Majoritatea solu&#539;iilor existente sunt software contabil adaptat for&#539;at. <strong style="color:var(--white);">TempoApp este construit special.</strong>
+      <div style="margin-top:24px; padding:16px 20px; background:rgba(74,144,226,0.08); border:1px solid rgba(74,144,226,0.15); border-radius:12px;">
+        <p style="font-size:0.85rem; color:var(--gray-light); line-height:1.55; margin:0;">
+          <strong style="color:var(--white);">Confidențială prin design.</strong> Mira e doar pentru personal: niciodată pentru părinți. Vede doar ce are nevoie: copiii apar cu inițiale, fără numere de telefon sau adrese de e-mail.
         </p>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 9: Impact -->
-  <div class="slide bg-gradient-blue" data-index="8">
+  <!-- SLIDE 7: What parents see -->
+  <div class="slide bg-gradient-orange" data-index="6">
     <div class="slide-content">
-      <span class="section-label">Propunere de Valoare</span>
-      <h2 class="slide-title">Impact M&#259;surabil</h2>
-      <p class="slide-subtitle">Prin digitalizarea complet&#259; a fluxului opera&#539;ional, TempoApp livreaz&#259; valoare concret&#259; fiec&#259;rui stakeholder.</p>
-      <div class="impact-grid">
-        <div class="impact-card">
-          <div class="impact-value" style="color:var(--blue)">30-50%</div>
-          <div class="impact-desc">Reducerea timpului administrativ, permi&#539;&#226;nd speciali&#537;tilor s&#259; preia mai mul&#539;i pacien&#539;i</div>
+      <span class="section-label orange">Pentru familii</span>
+      <h2 class="slide-title">Părinții se simt, în sfârșit, parte din parcurs</h2>
+      <p class="slide-subtitle">Un portal simplu și privat: fără aplicație de descărcat, fără cont de creat. Părinții introduc un cod și au acces.</p>
+      <div class="two-col">
+        <div class="two-col-text">
+          <h3>Văd zilele bune</h3>
+          <p>Părinții deschid portalul și găsesc ședințele copilului, progresul și, cel mai important, notele vocale și clipurile video lăsate de terapeut.</p>
+          <p style="color:var(--white); font-weight:600;">Părinții care pot vedea progresul rămân: și le spun și altor părinți.</p>
         </div>
-        <div class="impact-card">
-          <div class="impact-value" style="color:var(--orange)">Zero</div>
-          <div class="impact-desc">Costuri de infrastructur&#259; IT pentru clinici &mdash; modelul SaaS elimin&#259; serverele &#537;i mentenan&#539;a</div>
-        </div>
-        <div class="impact-card">
-          <div class="impact-value" style="color:var(--success)">100%</div>
-          <div class="impact-desc">Transparen&#539;&#259; pentru familii prin Portalul dedicat P&#259;rin&#539;ilor cu acces &#238;n timp real</div>
-        </div>
-      </div>
-      <div class="cards-grid" style="margin-top:24px;">
-        <div class="card">
-          <h3 style="color:var(--blue-light)">&#127807; Green IT</h3>
-          <p>Arhitectura Serverless Scale-to-Zero reduce amprenta de carbon cu ~90% fa&#539;&#259; de serverele tradi&#539;ionale always-on.</p>
-        </div>
-        <div class="card">
-          <h3 style="color:var(--orange-light)">&#9851;&#65039; Economie Circular&#259;</h3>
-          <p>PWA optimizat ruleaz&#259; pe hardware existent de 5-7 ani, prevenind de&#537;eurile electronice din &#238;nlocuirea prematur&#259; a dispozitivelor.</p>
-        </div>
-        <div class="card">
-          <h3 style="color:var(--success)">&#128220; F&#259;r&#259; H&#226;rtie</h3>
-          <p>Digitalizarea complet&#259; economise&#537;te zeci de mii de pagini anual per clinic&#259; &mdash; fi&#537;e, rapoarte, facturi, toate digitale.</p>
+        <div>
+          <ul class="feature-list">
+            <li><span class="check">&#10003;</span> Autentificare cu cod: prietenoasă GDPR, fără cont personal</li>
+            <li><span class="check">&#10003;</span> Ședințele viitoare și trecute dintr-o privire</li>
+            <li><span class="check">&#10003;</span> Progresul copilului, în limbaj simplu</li>
+            <li><span class="check">&#10003;</span> Feedback vocal și video de la terapeut</li>
+            <li><span class="check">&#10003;</span> Facturi și chitanțe, gata de descărcat</li>
+            <li><span class="check">&#10003;</span> Mesagerie directă cu echipa de terapie</li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 10: Trac&#539;iune -->
-  <div class="slide bg-gradient-dark" data-index="9">
+  <!-- SLIDE 8: The payoff -->
+  <div class="slide bg-gradient-blue" data-index="7">
     <div class="slide-content">
-      <span class="section-label orange">Trac&#539;iune &#537;i Validare</span>
-      <h2 class="slide-title">Dovedit &#238;ntr-un Mediu Clinic Real</h2>
-      <p class="slide-subtitle">TempoApp nu este un concept. Este un produs func&#539;ional validat cu pacien&#539;i, terapeut&#539;i &#537;i p&#259;rin&#539;i reali.</p>
+      <span class="section-label">Rezultatul</span>
+      <h2 class="slide-title">Mai puțină administrație. Mai multă terapie. <span class="highlight-orange">O afacere mai sănătoasă.</span></h2>
+      <p class="slide-subtitle">Când munca de rutină se face singură, timpul și încrederea se întorc acolo unde le e locul.</p>
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="impact-value" style="color:var(--blue)">30&ndash;50%</div>
+          <div class="impact-desc">Mai puțin timp pe administrație: ore returnate echipei în fiecare săptămână</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" style="color:var(--orange)">Automat</div>
+          <div class="impact-desc">Facturare cu SmartBill și e-Factura: facturarea nu vă mai mănâncă serile</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" style="color:var(--success)">Mai puține</div>
+          <div class="impact-desc">Absențe, datorită memento-urilor automate: mai multe ședințe chiar au loc</div>
+        </div>
+      </div>
+      <div class="cards-grid" style="margin-top:24px;">
+        <div class="card">
+          <h3 style="color:var(--blue-light)">&#128176; Mai multe ore facturabile</h3>
+          <p>Timpul economisit cu hârtiile devine timp cu copiii: sau, pur și simplu, o seară mai devreme pentru echipă.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--orange-light)">&#128106; Părinți care rămân</h3>
+          <p>Transparența creează încredere; încrederea reduce abandonul și transformă familiile mulțumite în recomandări.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--success)">&#128202; O imagine clară</h3>
+          <p>Proprietarii și coordonatorii văd întregul centru dintr-o privire: prezență, încărcare și venituri.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Built with clinicians -->
+  <div class="slide bg-gradient-dark" data-index="8">
+    <div class="slide-content">
+      <span class="section-label">De ce se potrivește</span>
+      <h2 class="slide-title">Creat cu o clinică, <span class="highlight-orange">pentru clinici</span></h2>
+      <p class="slide-subtitle">Nu un software de contabilitate cu o etichetă de terapie lipită deasupra. TempoApp a fost modelat într-un centru real de terapie pentru autism: în jurul copilului și al planului.</p>
+      <ul class="diff-list">
+        <li>
+          <div class="diff-num">01</div>
+          <div class="diff-text">
+            <h3>Construit în jurul copilului</h3>
+            <p>Obiectivele și progresul stau în centrul a tot: nu ca un adaos la un instrument de programare.</p>
+          </div>
+        </li>
+        <li>
+          <div class="diff-num" style="color:var(--orange)">02</div>
+          <div class="diff-text">
+            <h3>Confidențial prin design</h3>
+            <p>Părinții accesează anonim și colectăm doar minimul necesar. Gândit GDPR din primul ecran.</p>
+          </div>
+        </li>
+        <li>
+          <div class="diff-num">03</div>
+          <div class="diff-text">
+            <h3>Funcționează pe ce aveți deja</h3>
+            <p>Rulează în orice browser, pe tablete și telefoane mai vechi: chiar și cu internet instabil. Se sincronizează imediat ce reveniți online.</p>
+          </div>
+        </li>
+        <li>
+          <div class="diff-num" style="color:var(--orange)">04</div>
+          <div class="diff-text">
+            <h3>În limba voastră</h3>
+            <p>Română și engleză peste tot: construit în jurul modului real de lucru al echipei, zi de zi.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: Proven in a real clinic -->
+  <div class="slide bg-gradient-orange" data-index="9">
+    <div class="slide-content">
+      <span class="section-label orange">Real, astăzi</span>
+      <h2 class="slide-title">Deja în uz într-o clinică reală</h2>
+      <p class="slide-subtitle">TempoApp nu e o prezentare de concept. E folosit zilnic: modelat de terapeuți, coordonatori și părinți.</p>
       <div class="cards-grid-2">
         <div class="card" style="border-color: rgba(16,185,129,0.2);">
-          <h3 style="color:var(--success); margin-bottom:16px;">&#10003; Ce Am Construit</h3>
+          <h3 style="color:var(--success); margin-bottom:16px;">&#10003; Funcționează astăzi</h3>
           <ul class="feature-list">
-            <li><span class="check">&#10003;</span> Management complet clien&#539;i cu profiluri &#537;i date demografice</li>
-            <li><span class="check">&#10003;</span> Calendar multi-vizualizare cu &#238;nregistrare prezen&#539;&#259;</li>
-            <li><span class="check">&#10003;</span> Implementare cadru de evaluare ABLLS-R</li>
-            <li><span class="check">&#10003;</span> Planuri de interven&#539;ie cu obiective structurate</li>
-            <li><span class="check">&#10003;</span> Facturare automat&#259; cu SmartBill / e-Factura</li>
-            <li><span class="check">&#10003;</span> Portal P&#259;rin&#539;i cu autentificare anonim&#259;</li>
-            <li><span class="check">&#10003;</span> Sistem de mesagerie &#238;n timp real</li>
-            <li><span class="check">&#10003;</span> Notific&#259;ri push prin FCM</li>
-            <li><span class="check">&#10003;</span> Dashboard analize cu 6+ vizualiz&#259;ri metrici</li>
-            <li><span class="check">&#10003;</span> Dark mode, i18n (RO/EN), Command Palette</li>
+            <li><span class="check">&#10003;</span> Fișe complete ale copiilor, program și prezență</li>
+            <li><span class="check">&#10003;</span> Progres clinic cu grafice și tendințe clare</li>
+            <li><span class="check">&#10003;</span> Planuri de intervenție și urmărirea obiectivelor</li>
+            <li><span class="check">&#10003;</span> Feedback de ședință vocal și video</li>
+            <li><span class="check">&#10003;</span> Mira, asistentul clinic AI</li>
+            <li><span class="check">&#10003;</span> Portal pentru părinți cu acces privat, pe bază de cod</li>
+            <li><span class="check">&#10003;</span> Facturare automată (SmartBill / e-Factura)</li>
+            <li><span class="check">&#10003;</span> Mesagerie, memento-uri și grafice de progres</li>
           </ul>
         </div>
         <div class="card" style="border-color: rgba(74,144,226,0.2);">
-          <h3 style="color:var(--blue-light); margin-bottom:16px;">&#128200; Validare</h3>
+          <h3 style="color:var(--blue-light); margin-bottom:16px;">&#128205; Unde ne aflăm</h3>
           <ul class="feature-list">
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>1 clinic&#259; pilot activ&#259;</strong> utilizeaz&#259; versiunea Alpha &#238;n opera&#539;iuni zilnice</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>3 Scrisori de Inten&#539;ie semnate</strong> de la centre angajate s&#259; achizi&#539;ioneze la lansarea comercial&#259;</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Co-design cu expert clinic</strong> &mdash; Director Clinic BCBA ca advisor de produs</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Validare workflow real</strong> &mdash; func&#539;ionalit&#259;&#539;i construite din problemele reale ale terapeut&#539;ilor</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>TRL 7 atins</strong> &mdash; prototip demonstrat &#238;n mediu opera&#539;ional</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>1 clinică</strong> folosește TempoApp în activitatea zilnică</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>3 centre</strong> au confirmat că ni se alătură la lansare</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Creat alături de un BCBA practician</strong> ca consilier clinic</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Fiecare funcție</strong> născută dintr-o frustrare reală a unui terapeut</li>
           </ul>
           <div style="margin-top:24px; padding:16px; background:rgba(74,144,226,0.08); border-radius:12px;">
             <p style="font-size:0.82rem; color:var(--gray-light); line-height:1.5; margin:0;">
-              <strong style="color:var(--white);">Obiectiv:</strong> TRL 9 (produs lansat comercial) p&#226;n&#259; &#238;n Q4 2026, cu expansiune na&#539;ional&#259; &#238;n verticalele S&#259;n&#259;tate &#537;i Educa&#539;ie pe parcursul anului 2027.
+              <strong style="color:var(--white);">Următorul pas:</strong> lansarea comercială în 2026, apoi primirea mai multor centre din România.
             </p>
           </div>
         </div>
@@ -1101,123 +1035,53 @@
     </div>
   </div>
 
-  <!-- SLIDE 11: Foaie de Parcurs -->
-  <div class="slide bg-gradient-orange" data-index="10">
+  <!-- SLIDE 11: Simple to start -->
+  <div class="slide bg-gradient-blue" data-index="10">
     <div class="slide-content">
-      <span class="section-label orange">Foaia de Parcurs</span>
-      <h2 class="slide-title">De la Pilot la Lider de Pia&#539;&#259;</h2>
-      <p class="slide-subtitle">O cale clar&#259; de la prototip validat la produs SaaS interna&#539;ional.</p>
-      <div class="timeline">
-        <div class="timeline-item">
-          <div class="timeline-phase">Faza 0</div>
-          <div class="timeline-dot" style="background:var(--success); box-shadow: 0 0 0 4px rgba(16,185,129,0.2);"></div>
-          <div class="timeline-date">Acum (2026)</div>
-          <div class="timeline-desc">TRL 7 atins. Alpha activ &#238;n clinica pilot. Func&#539;ionalit&#259;&#539;i core opera&#539;ionale. Validare clinic&#259; &#238;n curs.</div>
+      <span class="section-label">Primii pași</span>
+      <h2 class="slide-title">Simplu de început. <span class="highlight-orange">Al vostru, pentru totdeauna.</span></h2>
+      <p class="slide-subtitle">Fără servere, fără departament IT, fără costuri mari în avans. Îl configurăm împreună cu voi, pe dispozitivele pe care le aveți deja.</p>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon blue">&#128640;</div>
+          <h3>Îl configurăm împreună</h3>
+          <p>Copiii, echipa și serviciile voastre încărcate împreună: integrare ghidată, nu un manual de parcurs.</p>
         </div>
-        <div class="timeline-item">
-          <div class="timeline-phase">Faza 1</div>
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">Q4 2026</div>
-          <div class="timeline-desc">Lansare comercial&#259; TRL 9. Modul AI Analytics. Mesagerie criptat&#259; E2E. Audit securitate &#537;i certificare GDPR.</div>
+        <div class="card">
+          <div class="card-icon green">&#128187;</div>
+          <h3>Fără hardware nou</h3>
+          <p>Funcționează în browserul pe care echipa îl folosește deja, pe telefoanele și tabletele din clădire. Dispozitivele mai vechi sunt binevenite.</p>
         </div>
-        <div class="timeline-item">
-          <div class="timeline-phase">Faza 2</div>
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">2027</div>
-          <div class="timeline-desc">Expansiune na&#539;ional&#259;. Verticale S&#259;n&#259;tate &#537;i Educa&#539;ie. Conversia partenerilor LOI &#238;n clien&#539;i pl&#259;titori. Scalare la 50+ clinici.</div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-phase">Faza 3</div>
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">2027+</div>
-          <div class="timeline-desc">Interna&#539;ionalizare UE. Vertical&#259; Wellness Corporativ. Integr&#259;ri IoT/wearable. Conformitate fiscal&#259; multi-&#539;ar&#259;.</div>
+        <div class="card">
+          <div class="card-icon orange">&#128274;</div>
+          <h3>Datele rămân ale voastre</h3>
+          <p>Sigure, private și exportabile oricând doriți. Nu sunteți niciodată blocați.</p>
         </div>
       </div>
-      <div class="cards-grid" style="margin-top:40px;">
-        <div class="card" style="text-align:center;">
-          <h3 style="color:var(--blue-light); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;">Dezvoltare R&#259;mas&#259;</h3>
-          <p style="margin-top:8px;">Analize predictive AI, criptare end-to-end, program de testare beta</p>
-        </div>
-        <div class="card" style="text-align:center;">
-          <h3 style="color:var(--orange-light); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;">Securitate &#537;i Conformitate</h3>
-          <p style="margin-top:8px;">Testare de penetrare, audit GDPR, certific&#259;ri de securitate</p>
-        </div>
-        <div class="card" style="text-align:center;">
-          <h3 style="color:var(--success); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;">Lansare pe Pia&#539;&#259;</h3>
-          <p style="margin-top:8px;">Conversia partenerilor, echip&#259; na&#539;ional&#259; de v&#226;nz&#259;ri, marketing &#537;i diseminare</p>
-        </div>
+      <div style="margin-top:30px; text-align:center;">
+        <p style="font-size:0.95rem; color:var(--gray-light); max-width:720px; margin:0 auto; line-height:1.6;">
+          Un abonament lunar simplu, per centru: crește odată cu voi, <strong style="color:var(--white);">nu înaintea voastră.</strong>
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 12: Model de Afaceri -->
-  <div class="slide bg-gradient-blue" data-index="11">
-    <div class="slide-content">
-      <span class="section-label">Model de Afaceri</span>
-      <h2 class="slide-title">SaaS cu <span class="highlight-orange">Venituri Predictibile</span></h2>
-      <p class="slide-subtitle">Pre&#539;uri pe baz&#259; de abonament, aliniate cu natura recurent&#259; a serviciilor pe care le ofer&#259; clien&#539;ii no&#537;tri.</p>
-      <div class="two-col">
-        <div>
-          <div class="card" style="margin-bottom:20px;">
-            <h3>Model SaaS B2B</h3>
-            <p style="margin-top:8px;">Abonament lunar per clinic&#259;/centru. Pre&#539;ul scaleaz&#259; cu num&#259;rul de clien&#539;i activi &#537;i membri ai echipei. F&#259;r&#259; investi&#539;ii hardware necesare de la clien&#539;i.</p>
-          </div>
-          <div class="card" style="margin-bottom:20px;">
-            <h3>Clien&#539;i &#538;int&#259;</h3>
-            <p style="margin-top:8px;"><strong style="color:var(--white);">Administratorii</strong> ob&#539;in control opera&#539;ional total. <strong style="color:var(--white);">Speciali&#537;tii</strong> ob&#539;in fluxuri de lucru simplificate. <strong style="color:var(--white);">Familiile</strong> ob&#539;in transparen&#539;&#259; &#537;i implicare.</p>
-          </div>
-          <div class="card">
-            <h3>Generatoare de Venituri</h3>
-            <p style="margin-top:8px;">Abonament de baz&#259; + module premium (AI Analytics, raportare avansat&#259;, management multi-loca&#539;ie). Churn sc&#259;zut datorit&#259; integr&#259;rii profunde &#238;n fluxul de lucru.</p>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="background:rgba(74,144,226,0.06); border-color:rgba(74,144,226,0.15);">
-            <h3 style="margin-bottom:20px;">De Ce Aleg Clinicile TempoApp</h3>
-            <ul class="feature-list">
-              <li><span class="check">&#10003;</span> <strong>ROI imediat:</strong> 30-50% mai pu&#539;in timp administrativ &#238;nseamn&#259; mai multe &#537;edin&#539;e facturabile</li>
-              <li><span class="check">&#10003;</span> <strong>Zero sarcin&#259; IT:</strong> Cloud-native, f&#259;r&#259; servere de &#238;ntre&#539;inut</li>
-              <li><span class="check">&#10003;</span> <strong>Satisfac&#539;ia p&#259;rin&#539;ilor:</strong> Portalul cre&#537;te reten&#539;ia &#537;i recomand&#259;rile</li>
-              <li><span class="check">&#10003;</span> <strong>Preg&#259;tit pentru conformitate:</strong> &#206;nregistr&#259;ri digitale, conform GDPR, trasabilitate</li>
-              <li><span class="check">&#10003;</span> <strong>Func&#539;ioneaz&#259; pe dispozitive existente:</strong> PWA ruleaz&#259; pe orice browser, orice hardware</li>
-              <li><span class="check">&#10003;</span> <strong>Facturare automat&#259;:</strong> Integrarea SmartBill/e-Factura elimin&#259; facturarea manual&#259;</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 13: CTA -->
-  <div class="slide bg-gradient-hero" data-index="12">
+  <!-- SLIDE 12: Close -->
+  <div class="slide bg-gradient-hero" data-index="11">
     <div class="slide-content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
       <div class="logo" style="margin-bottom:40px;">
         <div class="logo-icon">T</div>
         <div class="logo-text">TempoApp</div>
       </div>
-      <h2 class="hero-title" style="font-size:3.2rem;">Preg&#259;ti&#539;i s&#259; Digitaliza&#539;i<br><span class="highlight-blue">&#206;ngrijirea Uman&#259;</span>?</h2>
+      <h2 class="hero-title" style="font-size:3.2rem;">Redați echipei voastre<br><span class="highlight-blue">serile libere</span></h2>
       <p class="hero-subtitle" style="text-align:center; margin-bottom:40px;">
-        Construim infrastructura care permite furnizorilor de servicii s&#259; se concentreze pe ceea ce conteaz&#259;: pacien&#539;ii lor. Al&#259;tura&#539;i-v&#259; nou&#259; &#238;n transformarea unei industrii care &#238;nc&#259; func&#539;ioneaz&#259; pe h&#226;rtie.
+        Lăsați-vă terapeuții să facă ceea ce au învățat. Lăsați părinții să vadă progresul. Lăsați hârtiile să se rezolve singure.
       </p>
-      <div style="display:flex; gap:30px; flex-wrap:wrap; justify-content:center; margin-bottom:50px;">
-        <div class="stat">
-          <div class="stat-value">SaaS</div>
-          <div class="stat-label">Model de Afaceri</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value orange">Q4 '26</div>
-          <div class="stat-label">Lansare Comercial&#259;</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value green">4</div>
-          <div class="stat-label">Sectoare &#538;int&#259;</div>
-        </div>
-      </div>
-      <p style="font-size:1.1rem; color:var(--gray-light); margin-bottom:10px;">
-        <strong style="color:var(--white);">Daniel Stefan Dinca</strong> &mdash; Fondator
+      <p style="font-size:1.1rem; color:var(--gray-light); margin-bottom:6px;">
+        <strong style="color:var(--white);">Daniel Stefan Dinca</strong>: Fondator
       </p>
-      <p style="font-size:0.9rem; color:var(--gray); margin-bottom:30px;">
-        TempoApp &middot; Ecosistem Digital Integrat pentru Servicii de Interven&#539;ie Uman&#259;
+      <p style="font-size:0.9rem; color:var(--gray); margin-bottom:0;">
+        TempoApp &middot; Un singur loc, calm, pentru centrele de terapie
       </p>
     </div>
   </div>
@@ -1227,11 +1091,11 @@
 <div class="nav-bar">
   <div class="nav-controls">
     <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled>&#8592;</button>
-    <span class="slide-counter" id="slideCounter">1 / 13</span>
+    <span class="slide-counter" id="slideCounter">1 / 12</span>
     <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
   </div>
   <div class="progress-bar">
-    <div class="progress-fill" id="progressFill" style="width: 7.7%"></div>
+    <div class="progress-fill" id="progressFill" style="width: 8.3%"></div>
   </div>
   <div class="nav-controls">
     <span class="nav-hint" style="margin-right:10px;">Taste s&#259;geat&#259; sau click pentru navigare</span>
@@ -1275,10 +1139,10 @@
     window.location.href = file + '#' + current;
   }
 
-  // Restore slide from hash on load
+  // Initialize counter/progress, restoring slide from hash if present
   (function() {
     const hash = window.location.hash.replace('#', '');
-    if (hash && !isNaN(hash)) goTo(parseInt(hash, 10));
+    goTo(hash && !isNaN(hash) ? parseInt(hash, 10) : 0);
   })();
 
   document.addEventListener('keydown', (e) => {

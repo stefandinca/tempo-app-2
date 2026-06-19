@@ -32,6 +32,7 @@
     color: var(--white);
     overflow: hidden;
     height: 100vh;
+    height: 100dvh; /* account for mobile browser chrome */
     width: 100vw;
   }
 
@@ -39,6 +40,7 @@
     position: relative;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
   }
 
   .slide {
@@ -49,12 +51,14 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 60px 80px;
+    padding: 60px 80px 88px; /* extra bottom padding clears the fixed nav bar */
     opacity: 0;
     transform: translateX(60px);
     transition: opacity 0.5s ease, transform 0.5s ease;
     pointer-events: none;
-    overflow-y: auto;
+    /* Clip the slide itself so decorative circles never create scrollbars;
+       scrolling happens inside .slide-content instead. */
+    overflow: hidden;
   }
 
   .slide.active {
@@ -111,6 +115,14 @@
     z-index: 1;
     max-width: 1100px;
     width: 100%;
+    /* The single scroll container: centered when content fits, scrollable
+       (top always reachable) when it overflows, which fixes the flex-centering
+       clip that hid content on small screens. */
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Typography */
@@ -710,7 +722,7 @@
 
   /* Responsive */
   @media (max-width: 900px) {
-    .slide { padding: 40px 30px; }
+    .slide { padding: 40px 30px 80px; }
     .hero-title { font-size: 2.6rem; }
     .slide-title { font-size: 2rem; }
     .cards-grid, .cards-grid-4, .sectors-grid { grid-template-columns: repeat(2, 1fr); }
@@ -722,396 +734,318 @@
     .stat-row { flex-wrap: wrap; gap: 20px; }
   }
   @media (max-width: 600px) {
-    .slide { padding: 30px 20px; }
+    .slide { padding: 30px 20px 80px; }
     .hero-title { font-size: 2rem; }
     .slide-title { font-size: 1.6rem; }
     .cards-grid, .cards-grid-2, .cards-grid-4, .sectors-grid { grid-template-columns: 1fr; }
     .impact-grid { grid-template-columns: 1fr; }
+    /* Keep the bottom nav on one row and prevent horizontal overflow */
+    .nav-bar { padding: 0 12px; }
+    .nav-hint { display: none; }
+    .progress-bar { margin: 0 10px; }
+    .stat-row { gap: 16px; }
   }
 </style>
 </head>
 <body>
 <div class="deck" id="deck">
 
-  <!-- SLIDE 1: Title -->
+  <!-- SLIDE 1: Hook -->
   <div class="slide bg-gradient-hero active" data-index="0">
     <div class="slide-content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
       <div class="logo" style="margin-bottom:40px;">
         <div class="logo-icon">T</div>
         <div class="logo-text">TempoApp</div>
       </div>
-      <h1 class="hero-title">The Digital Platform for<br><span class="highlight-blue">Therapy centers and individual practitioners</span></h1>
+      <h1 class="hero-title">Run your center,<br><span class="highlight-blue">not your paperwork</span></h1>
       <p class="hero-subtitle" style="text-align:center;">
-        An integrated digital ecosystem (SaaS) that replaces fragmented spreadsheets, paper records, and disconnected tools with a single real-time platform for therapy centers, clinics, individual practitioners, and care providers.
+        TempoApp brings your schedule, each child&rsquo;s progress, billing, and parent communication into one calm place: so your team can spend the day on therapy, not admin.
       </p>
       <div class="stat-row" style="margin-top:50px;">
         <div class="stat">
-          <div class="stat-value">TRL 7</div>
-          <div class="stat-label">Technology Readiness</div>
+          <div class="stat-value">1</div>
+          <div class="stat-label">Clinic using it every day</div>
         </div>
         <div class="stat">
-          <div class="stat-value orange">1</div>
-          <div class="stat-label">Active Pilot Clinic</div>
+          <div class="stat-value orange">BCBA</div>
+          <div class="stat-label">Co-designed with a clinician</div>
         </div>
         <div class="stat">
-          <div class="stat-value green">3</div>
-          <div class="stat-label">Letters of Intent</div>
+          <div class="stat-value green">RO&middot;EN</div>
+          <div class="stat-label">Fully bilingual</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 2: Problem -->
+  <!-- SLIDE 2: The pain -->
   <div class="slide bg-gradient-dark" data-index="1">
     <div class="slide-content">
-      <span class="section-label" style="color:#f87171; background:rgba(239,68,68,0.1);">The Problem</span>
-      <h2 class="slide-title">Administrative Chaos is<br>Hurting Patient Outcomes</h2>
-      <p class="slide-subtitle">Therapy centers and care providers lose 20-30% of productivity to fragmented, manual processes. Specialists spend time on bureaucracy instead of their patients.</p>
+      <span class="section-label" style="color:#f87171; background:rgba(239,68,68,0.1);">Sound familiar?</span>
+      <h2 class="slide-title">The work after the work</h2>
+      <p class="slide-subtitle">Most centers run on a patchwork of notebooks, spreadsheets, and WhatsApp groups. The therapy is excellent: it&rsquo;s everything around it that leaks time.</p>
       <div class="cards-grid">
         <div class="card">
           <div class="card-icon red">&#128196;</div>
-          <h3>Data Silos</h3>
-          <p>Patient records scattered across physical notebooks, Excel files, WhatsApp groups, and paper calendars. No single source of truth.</p>
+          <h3>Scattered records</h3>
+          <p>A child&rsquo;s history lives in a binder, three Excel files, and someone&rsquo;s memory. Pulling the full picture together takes an afternoon.</p>
         </div>
         <div class="card">
-          <div class="card-icon red">&#128200;</div>
-          <h3>No Data-Driven Decisions</h3>
-          <p>Without digital instruments, patient progress is nearly impossible to quantify objectively, leading to sub-optimal interventions.</p>
+          <div class="card-icon red">&#127769;</div>
+          <h3>Evenings lost to admin</h3>
+          <p>Session notes, reports, and invoices pile up for after hours. The workday ends long after the last child goes home.</p>
         </div>
         <div class="card">
-          <div class="card-icon red">&#9888;&#65039;</div>
-          <h3>Errors & Opacity</h3>
-          <p>Manual billing, scheduling conflicts, and zero transparency for parents. Human errors compound across every workflow.</p>
+          <div class="card-icon red">&#129300;</div>
+          <h3>&ldquo;How is my child doing?&rdquo;</h3>
+          <p>Parents ask, and the honest answer is buried in paper. Trust slips when progress is hard to show.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 3: Solution -->
+  <!-- SLIDE 3: One place for everything -->
   <div class="slide bg-gradient-blue" data-index="2">
     <div class="slide-content">
-      <span class="section-label">The Solution</span>
-      <h2 class="slide-title">One Platform. <span class="highlight-orange">Complete Control.</span></h2>
-      <p class="slide-subtitle">TempoApp acts as a "Single Source of Truth" synchronizing three critical pillars in real-time.</p>
+      <span class="section-label">One calm place</span>
+      <h2 class="slide-title">Everything about every child: <span class="highlight-orange">in one place</span></h2>
+      <p class="slide-subtitle">Schedule, clinical progress, session notes, billing, and parent updates: always in sync, on the devices your team already owns.</p>
       <div class="cards-grid">
         <div class="card">
-          <div class="card-icon blue">&#128188;</div>
-          <h3>Resource Management (ERP)</h3>
-          <p>Staff scheduling, service configuration, role-based access, and automated billing in one integrated system.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon green">&#128202;</div>
-          <h3>Progress Monitoring (Analytics & EHR)</h3>
-          <p>Track patient evolution with structured programs, intervention plans, goal achievement metrics, and visual analytics.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon orange">&#128106;</div>
-          <h3>Family Engagement (CRM)</h3>
-          <p>Dedicated Parent Portal with session schedules, progress tracking, shared documents, invoices, and real-time messaging.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 4: Two Portals -->
-  <div class="slide bg-gradient-dark" data-index="3">
-    <div class="slide-content">
-      <span class="section-label">Product Overview</span>
-      <h2 class="slide-title">Two Portals, One Ecosystem</h2>
-      <p class="slide-subtitle">Purpose-built experiences for staff and families, connected through a shared real-time database.</p>
-      <div class="portal-preview">
-        <div class="portal-box staff">
-          <h3>Staff Portal</h3>
-          <div class="role-tag">Admin &middot; Coordinator &middot; Therapist</div>
-          <ul class="portal-features">
-            <li>KPI dashboard with today's sessions & pending tasks</li>
-            <li>Multi-view calendar (month, week, day) with filters</li>
-            <li>Client profiles with programs & intervention plans</li>
-            <li>Team management with workload analytics</li>
-            <li>Invoice generation & payment tracking</li>
-            <li>Real-time internal messaging</li>
-            <li>Analytics: revenue, attendance, utilization</li>
-            <li>Push notifications for schedule changes</li>
-          </ul>
-        </div>
-        <div class="portal-box parent">
-          <h3>Parent Portal</h3>
-          <div class="role-tag">Anonymous secure access &middot; No account needed</div>
-          <ul class="portal-features">
-            <li>Code-based login (GDPR-friendly, no personal data)</li>
-            <li>Upcoming & past session schedule</li>
-            <li>Child's progress with success rate metrics</li>
-            <li>Shared documents (reports, evaluations)</li>
-            <li>Invoice history with PDF download</li>
-            <li>Direct messaging with the therapy team</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 5: Key Features -->
-  <div class="slide bg-gradient-orange" data-index="4">
-    <div class="slide-content">
-      <span class="section-label orange">Key Features</span>
-      <h2 class="slide-title">Built for Real Clinical Workflows</h2>
-      <p class="slide-subtitle">Every feature was designed alongside practicing therapists managing an Autism therapy center.</p>
-      <div class="cards-grid-4">
-        <div class="card">
           <div class="card-icon blue">&#128197;</div>
-          <h3>Smart Calendar</h3>
-          <p>Multi-view scheduling with therapist/client filters and attendance logging.</p>
+          <h3>The schedule</h3>
+          <p>See every therapist&rsquo;s day at a glance. Filter by child or therapist. Reschedule in seconds: everyone sees it instantly.</p>
         </div>
         <div class="card">
-          <div class="card-icon green">&#127919;</div>
-          <h3>Intervention Plans</h3>
-          <p>Structured goals tied to clinical frameworks (ABLLS-R, VB-MAPP).</p>
+          <div class="card-icon green">&#128193;</div>
+          <h3>The child&rsquo;s file</h3>
+          <p>Goals, programs, progress, documents, and history: one tap away, and the same for every member of the team.</p>
         </div>
         <div class="card">
-          <div class="card-icon orange">&#128176;</div>
-          <h3>Auto Billing</h3>
-          <p>Session completion triggers invoice generation with SmartBill/e-Factura integration.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon blue">&#128172;</div>
-          <h3>Real-time Chat</h3>
-          <p>Secure internal messaging between team members with unread indicators.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon green">&#128202;</div>
-          <h3>Analytics</h3>
-          <p>Revenue mix, therapist utilization, attendance trends, cancellation risk.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon orange">&#128276;</div>
-          <h3>Push Notifications</h3>
-          <p>Instant alerts for schedule changes, new messages, and billing events.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon blue">&#128196;</div>
-          <h3>Document Sharing</h3>
-          <p>Upload evaluations, reports, and files with parent access control.</p>
-        </div>
-        <div class="card">
-          <div class="card-icon green">&#127760;</div>
-          <h3>Multi-language</h3>
-          <p>Internationalized from day one (Romanian + English), ready for EU markets.</p>
+          <div class="card-icon orange">&#128172;</div>
+          <h3>Everyone connected</h3>
+          <p>Therapists, coordinators, and parents stay in the loop through built-in messaging and reminders: no more lost group chats.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 6: Differentiators -->
+  <!-- SLIDE 4: Feedback tools (the therapy room) -->
+  <div class="slide bg-gradient-orange" data-index="3">
+    <div class="slide-content">
+      <span class="section-label orange">In the therapy room</span>
+      <h2 class="slide-title">Capture the session in seconds: by voice or video</h2>
+      <p class="slide-subtitle">Instead of typing a report after hours, your therapist leaves a quick voice note or a short video clip right from their phone: attached to the session automatically.</p>
+      <div class="two-col">
+        <div class="two-col-text">
+          <h3>&#127908; Voice notes</h3>
+          <p>Tap record and speak for a moment: an observation, a win to celebrate, a tip for home. Faster than typing, and the parent hears the warmth in your therapist&rsquo;s voice.</p>
+          <h3>&#127916; Video clips</h3>
+          <p>Record a short moment of a session: a new skill, a small breakthrough. Coordinators can review for quality; parents see real progress with their own eyes.</p>
+        </div>
+        <div>
+          <ul class="feature-list">
+            <li><span class="check">&#10003;</span> Recorded on any phone or tablet: nothing to install</li>
+            <li><span class="check">&#10003;</span> Filed with the right child and session automatically</li>
+            <li><span class="check">&#10003;</span> The therapist chooses exactly what parents can see</li>
+            <li><span class="check">&#10003;</span> Private and secure by default</li>
+            <li><span class="check">&#10003;</span> A 30-second note replaces a page of typing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Clinical progress (reframed) -->
+  <div class="slide bg-gradient-dark" data-index="4">
+    <div class="slide-content">
+      <span class="section-label">Progress &amp; goals</span>
+      <h2 class="slide-title">See where every child stands: and where to focus next</h2>
+      <p class="slide-subtitle">Every child&rsquo;s goals and progress in one living picture: so you always know what&rsquo;s working and what to focus on next.</p>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon blue">&#128221;</div>
+          <h3>Goals that guide the work</h3>
+          <p>Each child&rsquo;s targets and programs live in one place, updated as therapy happens: no more flipping through binders to remember the plan.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon green">&#128200;</div>
+          <h3>Progress you can see</h3>
+          <p>Mastery and trends over time in clear charts. Spot a plateau early; show families the real movement behind the work.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon orange">&#127919;</div>
+          <h3>Focus, not guesswork</h3>
+          <p>Intervention plans built around each child&rsquo;s goals: the heart of the platform, not an afterthought bolted onto a calendar.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Mira AI -->
   <div class="slide bg-gradient-blue" data-index="5">
     <div class="slide-content">
-      <span class="section-label">Competitive Edge</span>
-      <h2 class="slide-title">What Makes TempoApp <span class="highlight-orange">Different</span></h2>
-      <p class="slide-subtitle">Most competitors are adapted accounting software. We built around the Intervention Plan.</p>
-      <div class="two-col">
-        <div>
-          <ul class="diff-list">
-            <li>
-              <div class="diff-num">01</div>
-              <div class="diff-text">
-                <h3>Clinical-First Architecture</h3>
-                <p>Logic is built around therapy programs and patient goals, not just calendars. Progress tracking is native, not bolted on.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num">02</div>
-              <div class="diff-text">
-                <h3>Privacy by Design</h3>
-                <p>Parents access via anonymous tokens &mdash; no account creation, minimal data collection. Maximum GDPR compliance by default.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num">03</div>
-              <div class="diff-text">
-                <h3>PWA / Offline-First</h3>
-                <p>Works on any device including old tablets. Therapists can log data during home visits without internet &mdash; syncs automatically on reconnection.</p>
-              </div>
-            </li>
-          </ul>
+      <span class="section-label">Meet Mira</span>
+      <h2 class="slide-title">Mira: your team&rsquo;s <span class="highlight-orange">AI clinical assistant</span></h2>
+      <p class="slide-subtitle">Built into TempoApp for your staff. Ask a question in plain language; Mira reads the real data and helps: so the thinking stays clinical and the busywork disappears.</p>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon blue">&#128269;</div>
+          <h3>Ask about any child</h3>
+          <p>&ldquo;How is Andrei progressing on requesting?&rdquo; Mira pulls the real history and answers with concrete numbers and dates: no digging.</p>
         </div>
-        <div>
-          <ul class="diff-list">
-            <li>
-              <div class="diff-num" style="color:var(--orange)">04</div>
-              <div class="diff-text">
-                <h3>AI-Ready Analytics</h3>
-                <p>Architecture designed for ML integration: predictive analytics on patient progress and smart scheduling optimization.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num" style="color:var(--orange)">05</div>
-              <div class="diff-text">
-                <h3>Seamless Billing Integration</h3>
-                <p>Native SmartBill and e-Factura (Romania) integration. A completed session auto-generates invoices with zero manual entry.</p>
-              </div>
-            </li>
-            <li>
-              <div class="diff-num" style="color:var(--orange)">06</div>
-              <div class="diff-text">
-                <h3>Modular & Multi-Sector</h3>
-                <p>Same core platform adapts to therapy, education, social care, and corporate wellness through configurable modules.</p>
-              </div>
-            </li>
-          </ul>
+        <div class="card">
+          <div class="card-icon green">&#9997;&#65039;</div>
+          <h3>Drafts the writing</h3>
+          <p>Session summaries, progress notes, and parent updates: drafted in seconds for your therapist to review, adjust, and send.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon orange">&#129517;</div>
+          <h3>Suggests where to focus</h3>
+          <p>Mira reads the progress and offers focus areas to consider: supporting your BCBA&rsquo;s clinical judgment, never replacing it.</p>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 7: Tech Stack -->
-  <div class="slide bg-gradient-dark" data-index="6">
-    <div class="slide-content">
-      <span class="section-label">Technology</span>
-      <h2 class="slide-title">Modern, Scalable, Cloud-Native</h2>
-      <p class="slide-subtitle">Built on production-grade technologies chosen for performance, developer velocity, and automatic scalability.</p>
-      <div class="two-col">
-        <div>
-          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--blue-light); margin-bottom:16px;">Frontend</h3>
-          <div class="tech-badges">
-            <span class="tech-badge"><span class="dot dot-blue"></span> Next.js 14 (App Router)</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> React 18</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> TypeScript</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> Tailwind CSS</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> Recharts</span>
-            <span class="tech-badge"><span class="dot dot-blue"></span> jsPDF</span>
-          </div>
-          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--orange-light); margin-bottom:16px; margin-top:28px;">Backend (Firebase / Google Cloud)</h3>
-          <div class="tech-badges">
-            <span class="tech-badge"><span class="dot dot-orange"></span> Firebase Auth</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Firestore</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Storage</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Functions</span>
-            <span class="tech-badge"><span class="dot dot-orange"></span> Cloud Messaging (FCM)</span>
-          </div>
-        </div>
-        <div>
-          <h3 style="font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--success); margin-bottom:16px;">Architecture Highlights</h3>
-          <ul class="feature-list">
-            <li><span class="check">&#10003;</span> Serverless &mdash; Scale-to-Zero, pay only for what you use</li>
-            <li><span class="check">&#10003;</span> Real-time sync via Firestore onSnapshot listeners</li>
-            <li><span class="check">&#10003;</span> PWA with service worker for offline capability</li>
-            <li><span class="check">&#10003;</span> Role-based access control (Admin, Coordinator, Therapist, Parent)</li>
-            <li><span class="check">&#10003;</span> Static export deployment &mdash; fast global CDN delivery</li>
-            <li><span class="check">&#10003;</span> Modular SDK imports for optimized bundle size</li>
-            <li><span class="check">&#10003;</span> i18n from day one &mdash; multi-language ready</li>
-            <li><span class="check">&#10003;</span> Dark mode support across all interfaces</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 8: Market -->
-  <div class="slide bg-gradient-orange" data-index="7">
-    <div class="slide-content">
-      <span class="section-label orange">Market Opportunity</span>
-      <h2 class="slide-title">Four Sectors, One Platform</h2>
-      <p class="slide-subtitle">The modular architecture enables expansion across multiple verticals of recurring human intervention services.</p>
-      <div class="sectors-grid">
-        <div class="sector-card">
-          <div class="sector-icon">&#127973;</div>
-          <h3>HealthTech</h3>
-          <p>Autism/ADHD therapy clinics, speech therapy, physiotherapy. <strong>Primary market.</strong></p>
-        </div>
-        <div class="sector-card">
-          <div class="sector-icon">&#127891;</div>
-          <h3>EdTech</h3>
-          <p>Private schools, after-school centers, and tutoring &mdash; student performance & parent communication.</p>
-        </div>
-        <div class="sector-card">
-          <div class="sector-icon">&#129309;</div>
-          <h3>Social Care</h3>
-          <p>NGOs and social services for case management, home visits, and funder reporting.</p>
-        </div>
-        <div class="sector-card">
-          <div class="sector-icon">&#127970;</div>
-          <h3>Corporate Wellness</h3>
-          <p>Companies offering coaching/therapy to employees with confidentiality and impact reports.</p>
-        </div>
-      </div>
-      <div style="margin-top:30px; text-align:center;">
-        <p style="font-size:0.9rem; color:var(--gray-light); max-width:700px; margin:0 auto; line-height:1.6;">
-          The recurring services management market is still largely analog. Most existing solutions are accounting software awkwardly adapted for care settings. <strong style="color:var(--white);">TempoApp is purpose-built.</strong>
+      <div style="margin-top:24px; padding:16px 20px; background:rgba(74,144,226,0.08); border:1px solid rgba(74,144,226,0.15); border-radius:12px;">
+        <p style="font-size:0.85rem; color:var(--gray-light); line-height:1.55; margin:0;">
+          <strong style="color:var(--white);">Private by design.</strong> Mira is for staff only: never parents. It only ever sees what it needs: children appear by initials, with no phone numbers or e-mail addresses.
         </p>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 9: Impact -->
-  <div class="slide bg-gradient-blue" data-index="8">
+  <!-- SLIDE 7: What parents see -->
+  <div class="slide bg-gradient-orange" data-index="6">
     <div class="slide-content">
-      <span class="section-label">Value Proposition</span>
-      <h2 class="slide-title">Measurable Impact</h2>
-      <p class="slide-subtitle">By digitizing the full operational workflow, TempoApp delivers concrete value to every stakeholder.</p>
-      <div class="impact-grid">
-        <div class="impact-card">
-          <div class="impact-value" style="color:var(--blue)">30-50%</div>
-          <div class="impact-desc">Reduction in administrative time, letting specialists take on more patients</div>
+      <span class="section-label orange">For the families</span>
+      <h2 class="slide-title">Parents finally feel part of the journey</h2>
+      <p class="slide-subtitle">A simple, private portal: no app to download, no account to create. Parents enter a code and they&rsquo;re in.</p>
+      <div class="two-col">
+        <div class="two-col-text">
+          <h3>They see the good days</h3>
+          <p>Parents open the portal and find their child&rsquo;s sessions, progress, and, most powerfully, the voice notes and video clips left by their therapist.</p>
+          <p style="color:var(--white); font-weight:600;">Parents who can see progress stay: and tell other parents.</p>
         </div>
-        <div class="impact-card">
-          <div class="impact-value" style="color:var(--orange)">Zero</div>
-          <div class="impact-desc">IT infrastructure cost for clinics &mdash; SaaS model eliminates servers and maintenance</div>
-        </div>
-        <div class="impact-card">
-          <div class="impact-value" style="color:var(--success)">100%</div>
-          <div class="impact-desc">Transparency for families through dedicated Parent Portal with real-time access</div>
-        </div>
-      </div>
-      <div class="cards-grid" style="margin-top:24px;">
-        <div class="card">
-          <h3 style="color:var(--blue-light)">&#127807; Green IT</h3>
-          <p>Serverless Scale-to-Zero architecture reduces carbon footprint by ~90% vs traditional always-on servers.</p>
-        </div>
-        <div class="card">
-          <h3 style="color:var(--orange-light)">&#9851;&#65039; Circular Economy</h3>
-          <p>Optimized PWA runs on existing 5-7 year old hardware, preventing e-waste from premature device replacement.</p>
-        </div>
-        <div class="card">
-          <h3 style="color:var(--success)">&#128220; Paperless</h3>
-          <p>Full digitization saves tens of thousands of pages annually per clinic &mdash; records, reports, invoices all digital.</p>
+        <div>
+          <ul class="feature-list">
+            <li><span class="check">&#10003;</span> Secure code login: GDPR-friendly, no personal account</li>
+            <li><span class="check">&#10003;</span> Upcoming and past sessions at a glance</li>
+            <li><span class="check">&#10003;</span> Their child&rsquo;s progress, in plain language</li>
+            <li><span class="check">&#10003;</span> Voice &amp; video feedback from the therapist</li>
+            <li><span class="check">&#10003;</span> Invoices and receipts, ready to download</li>
+            <li><span class="check">&#10003;</span> Direct messaging with the therapy team</li>
+          </ul>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 10: Traction -->
-  <div class="slide bg-gradient-dark" data-index="9">
+  <!-- SLIDE 8: The payoff -->
+  <div class="slide bg-gradient-blue" data-index="7">
     <div class="slide-content">
-      <span class="section-label orange">Traction & Validation</span>
-      <h2 class="slide-title">Proven in a Real Clinical Environment</h2>
-      <p class="slide-subtitle">TempoApp is not a concept. It's a working product validated with real patients, therapists, and parents.</p>
+      <span class="section-label">The payoff</span>
+      <h2 class="slide-title">Less admin. More therapy. <span class="highlight-orange">A healthier business.</span></h2>
+      <p class="slide-subtitle">When the busywork runs itself, the time and trust come back to where they belong.</p>
+      <div class="impact-grid">
+        <div class="impact-card">
+          <div class="impact-value" style="color:var(--blue)">30&ndash;50%</div>
+          <div class="impact-desc">Less time on admin: hours handed back to your team every week</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" style="color:var(--orange)">Automatic</div>
+          <div class="impact-desc">Invoicing with SmartBill &amp; e-Factura: billing stops eating your evenings</div>
+        </div>
+        <div class="impact-card">
+          <div class="impact-value" style="color:var(--success)">Fewer</div>
+          <div class="impact-desc">No-shows, thanks to automatic reminders: more sessions actually happen</div>
+        </div>
+      </div>
+      <div class="cards-grid" style="margin-top:24px;">
+        <div class="card">
+          <h3 style="color:var(--blue-light)">&#128176; More billable hours</h3>
+          <p>Time saved on paperwork becomes time with children: or simply an earlier evening for your team.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--orange-light)">&#128106; Parents who stay</h3>
+          <p>Transparency builds trust; trust lowers dropout and turns happy families into referrals.</p>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--success)">&#128202; One clear picture</h3>
+          <p>Owners and coordinators see the whole center at a glance: attendance, workload, and revenue.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Built with clinicians -->
+  <div class="slide bg-gradient-dark" data-index="8">
+    <div class="slide-content">
+      <span class="section-label">Why it fits</span>
+      <h2 class="slide-title">Built with a clinic, <span class="highlight-orange">for clinics</span></h2>
+      <p class="slide-subtitle">Not accounting software with a therapy label bolted on. TempoApp was shaped inside a real Autism therapy center: around the child and the plan.</p>
+      <ul class="diff-list">
+        <li>
+          <div class="diff-num">01</div>
+          <div class="diff-text">
+            <h3>Designed around the child</h3>
+            <p>Goals and progress sit at the center of everything: not as an add-on to a scheduling tool.</p>
+          </div>
+        </li>
+        <li>
+          <div class="diff-num" style="color:var(--orange)">02</div>
+          <div class="diff-text">
+            <h3>Private by design</h3>
+            <p>Parents access anonymously and we collect the minimum we need. GDPR-minded from the very first screen.</p>
+          </div>
+        </li>
+        <li>
+          <div class="diff-num">03</div>
+          <div class="diff-text">
+            <h3>Works on what you already have</h3>
+            <p>Runs in any browser, on older tablets and phones: even with patchy internet. It syncs the moment you&rsquo;re back online.</p>
+          </div>
+        </li>
+        <li>
+          <div class="diff-num" style="color:var(--orange)">04</div>
+          <div class="diff-text">
+            <h3>In your language</h3>
+            <p>Romanian and English throughout: built around how your team actually works, day to day.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: Proven in a real clinic -->
+  <div class="slide bg-gradient-orange" data-index="9">
+    <div class="slide-content">
+      <span class="section-label orange">Real, today</span>
+      <h2 class="slide-title">Already running in a real clinic</h2>
+      <p class="slide-subtitle">TempoApp isn&rsquo;t a concept deck. It&rsquo;s in daily use: shaped by therapists, coordinators, and parents.</p>
       <div class="cards-grid-2">
         <div class="card" style="border-color: rgba(16,185,129,0.2);">
-          <h3 style="color:var(--success); margin-bottom:16px;">&#10003; What We've Built</h3>
+          <h3 style="color:var(--success); margin-bottom:16px;">&#10003; Working today</h3>
           <ul class="feature-list">
-            <li><span class="check">&#10003;</span> Full client management with profiles and demographics</li>
-            <li><span class="check">&#10003;</span> Multi-view calendar with attendance logging</li>
-            <li><span class="check">&#10003;</span> ABLLS-R evaluation framework implementation</li>
-            <li><span class="check">&#10003;</span> Intervention plans with structured goals</li>
-            <li><span class="check">&#10003;</span> Automated invoicing with SmartBill / e-Factura</li>
-            <li><span class="check">&#10003;</span> Parent Portal with anonymous authentication</li>
-            <li><span class="check">&#10003;</span> Real-time messaging system</li>
-            <li><span class="check">&#10003;</span> Push notifications via FCM</li>
-            <li><span class="check">&#10003;</span> Analytics dashboard with 6+ metric views</li>
-            <li><span class="check">&#10003;</span> Dark mode, i18n (EN/RO), Command Palette</li>
+            <li><span class="check">&#10003;</span> Full child files, schedule, and attendance</li>
+            <li><span class="check">&#10003;</span> Clinical progress in clear charts and trends</li>
+            <li><span class="check">&#10003;</span> Intervention plans and goal tracking</li>
+            <li><span class="check">&#10003;</span> Voice &amp; video session feedback</li>
+            <li><span class="check">&#10003;</span> Mira, the AI clinical assistant</li>
+            <li><span class="check">&#10003;</span> Parent portal with private, code-based access</li>
+            <li><span class="check">&#10003;</span> Automatic invoicing (SmartBill / e-Factura)</li>
+            <li><span class="check">&#10003;</span> Messaging, reminders, and progress charts</li>
           </ul>
         </div>
         <div class="card" style="border-color: rgba(74,144,226,0.2);">
-          <h3 style="color:var(--blue-light); margin-bottom:16px;">&#128200; Validation</h3>
+          <h3 style="color:var(--blue-light); margin-bottom:16px;">&#128205; Where we are</h3>
           <ul class="feature-list">
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>1 active pilot clinic</strong> using the Alpha version in daily operations</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>3 signed Letters of Intent</strong> from centers committed to purchasing at commercial launch</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Clinical expert co-design</strong> &mdash; BCBA Clinical Director as product advisor</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Real workflow validation</strong> &mdash; features built from actual therapist pain points</li>
-            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>TRL 7 achieved</strong> &mdash; prototype demonstrated in operational environment</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>1 clinic</strong> using TempoApp in daily operations</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>3 centers</strong> signed on to join at launch</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Co-designed with a practicing BCBA</strong> as clinical advisor</li>
+            <li><span class="check" style="color:var(--blue);">&#8226;</span> <strong>Every feature</strong> born from a real therapist&rsquo;s frustration</li>
           </ul>
           <div style="margin-top:24px; padding:16px; background:rgba(74,144,226,0.08); border-radius:12px;">
             <p style="font-size:0.82rem; color:var(--gray-light); line-height:1.5; margin:0;">
-              <strong style="color:var(--white);">Target:</strong> TRL 9 (commercially launched product) by Q4 2026, with national expansion into Health and Education verticals through 2027.
+              <strong style="color:var(--white);">Next:</strong> commercial launch in 2026, then welcoming more centers across Romania.
             </p>
           </div>
         </div>
@@ -1119,137 +1053,66 @@
     </div>
   </div>
 
-  <!-- SLIDE 11: Roadmap -->
-  <div class="slide bg-gradient-orange" data-index="10">
+  <!-- SLIDE 11: Simple to start -->
+  <div class="slide bg-gradient-blue" data-index="10">
     <div class="slide-content">
-      <span class="section-label orange">Roadmap</span>
-      <h2 class="slide-title">From Pilot to Market Leader</h2>
-      <p class="slide-subtitle">A clear path from validated prototype to international SaaS product.</p>
-      <div class="timeline">
-        <div class="timeline-item">
-          <div class="timeline-phase">Phase 0</div>
-          <div class="timeline-dot" style="background:var(--success); box-shadow: 0 0 0 4px rgba(16,185,129,0.2);"></div>
-          <div class="timeline-date">Now (2026)</div>
-          <div class="timeline-desc">TRL 7 achieved. Alpha live in pilot clinic. Core features operational. Clinical validation ongoing.</div>
+      <span class="section-label">Getting started</span>
+      <h2 class="slide-title">Simple to start. <span class="highlight-orange">Yours to keep.</span></h2>
+      <p class="slide-subtitle">No servers, no IT department, no big upfront cost. We set it up with you, on the devices you already have.</p>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon blue">&#128640;</div>
+          <h3>We set it up with you</h3>
+          <p>Your children, team, and services loaded in together: guided onboarding, not a manual to wade through.</p>
         </div>
-        <div class="timeline-item">
-          <div class="timeline-phase">Phase 1</div>
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">Q4 2026</div>
-          <div class="timeline-desc">TRL 9 commercial launch. AI Analytics module. E2E encrypted messaging. Security audit & GDPR certification.</div>
+        <div class="card">
+          <div class="card-icon green">&#128187;</div>
+          <h3>No new hardware</h3>
+          <p>Works in the browser your team already uses, on the phones and tablets already in the building. Older devices welcome.</p>
         </div>
-        <div class="timeline-item">
-          <div class="timeline-phase">Phase 2</div>
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">2027</div>
-          <div class="timeline-desc">National expansion. Health & Education verticals. Convert LOI partners to paying customers. Scale to 50+ clinics.</div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-phase">Phase 3</div>
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">2027+</div>
-          <div class="timeline-desc">EU internationalization. Corporate Wellness vertical. IoT/wearable integrations. Multi-country fiscal compliance.</div>
+        <div class="card">
+          <div class="card-icon orange">&#128274;</div>
+          <h3>Your data stays yours</h3>
+          <p>Secure, private, and exportable whenever you want it. You&rsquo;re never locked in.</p>
         </div>
       </div>
-      <div class="cards-grid" style="margin-top:40px;">
-        <div class="card" style="text-align:center;">
-          <h3 style="color:var(--blue-light); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;">Remaining Development</h3>
-          <p style="margin-top:8px;">AI predictive analytics, end-to-end encryption, beta testing program</p>
-        </div>
-        <div class="card" style="text-align:center;">
-          <h3 style="color:var(--orange-light); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;">Security & Compliance</h3>
-          <p style="margin-top:8px;">Penetration testing, GDPR audit, security certifications</p>
-        </div>
-        <div class="card" style="text-align:center;">
-          <h3 style="color:var(--success); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em;">Go-to-Market</h3>
-          <p style="margin-top:8px;">Partner conversion, national sales team, marketing & dissemination</p>
-        </div>
+      <div style="margin-top:30px; text-align:center;">
+        <p style="font-size:0.95rem; color:var(--gray-light); max-width:720px; margin:0 auto; line-height:1.6;">
+          A simple monthly subscription per center: it grows with you, <strong style="color:var(--white);">not ahead of you.</strong>
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 12: Business Model -->
-  <div class="slide bg-gradient-blue" data-index="11">
-    <div class="slide-content">
-      <span class="section-label">Business Model</span>
-      <h2 class="slide-title">SaaS with <span class="highlight-orange">Predictable Revenue</span></h2>
-      <p class="slide-subtitle">Subscription-based pricing aligned with the recurring nature of the services our clients provide.</p>
-      <div class="two-col">
-        <div>
-          <div class="card" style="margin-bottom:20px;">
-            <h3>B2B SaaS Model</h3>
-            <p style="margin-top:8px;">Monthly subscription per clinic/center. Pricing scales with number of active clients and team members. No hardware investment required from customers.</p>
-          </div>
-          <div class="card" style="margin-bottom:20px;">
-            <h3>Target Customers</h3>
-            <p style="margin-top:8px;"><strong style="color:var(--white);">Administrators</strong> get full operational control. <strong style="color:var(--white);">Specialists</strong> get streamlined workflows. <strong style="color:var(--white);">Families</strong> get transparency and engagement.</p>
-          </div>
-          <div class="card">
-            <h3>Revenue Drivers</h3>
-            <p style="margin-top:8px;">Core subscription + premium modules (AI Analytics, advanced reporting, multi-location management). Low churn due to workflow integration depth.</p>
-          </div>
-        </div>
-        <div>
-          <div class="card" style="background:rgba(74,144,226,0.06); border-color:rgba(74,144,226,0.15);">
-            <h3 style="margin-bottom:20px;">Why Clinics Switch</h3>
-            <ul class="feature-list">
-              <li><span class="check">&#10003;</span> <strong>Immediate ROI:</strong> 30-50% less admin time means more billable sessions</li>
-              <li><span class="check">&#10003;</span> <strong>Zero IT burden:</strong> Cloud-native, no servers to maintain</li>
-              <li><span class="check">&#10003;</span> <strong>Parent satisfaction:</strong> Portal increases retention and referrals</li>
-              <li><span class="check">&#10003;</span> <strong>Compliance ready:</strong> Digital records, GDPR-compliant, audit trails</li>
-              <li><span class="check">&#10003;</span> <strong>Works on existing devices:</strong> PWA runs on any browser, any hardware</li>
-              <li><span class="check">&#10003;</span> <strong>Automatic invoicing:</strong> SmartBill/e-Factura integration eliminates manual billing</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 13: CTA -->
-  <div class="slide bg-gradient-hero" data-index="12">
+  <!-- SLIDE 12: Close -->
+  <div class="slide bg-gradient-hero" data-index="11">
     <div class="slide-content" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
       <div class="logo" style="margin-bottom:40px;">
         <div class="logo-icon">T</div>
         <div class="logo-text">TempoApp</div>
       </div>
-      <h2 class="hero-title" style="font-size:3.2rem;">Ready to Digitize<br><span class="highlight-blue">Human Care</span>?</h2>
+      <h2 class="hero-title" style="font-size:3.2rem;">Give your team their<br><span class="highlight-blue">evenings back</span></h2>
       <p class="hero-subtitle" style="text-align:center; margin-bottom:40px;">
-        We're building the infrastructure that lets care providers focus on what matters: their patients. Join us in transforming an industry that's still running on paper.
+        Let your therapists do what they trained for. Let parents see the progress. Let the paperwork run itself.
       </p>
-      <div style="display:flex; gap:30px; flex-wrap:wrap; justify-content:center; margin-bottom:50px;">
-        <div class="stat">
-          <div class="stat-value">SaaS</div>
-          <div class="stat-label">Business Model</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value orange">Q4 '26</div>
-          <div class="stat-label">Commercial Launch</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value green">4</div>
-          <div class="stat-label">Target Sectors</div>
-        </div>
-      </div>
-      <p style="font-size:1.1rem; color:var(--gray-light); margin-bottom:10px;">
-        <strong style="color:var(--white);">Daniel Stefan Dinca</strong> &mdash; Founder
+      <p style="font-size:1.1rem; color:var(--gray-light); margin-bottom:6px;">
+        <strong style="color:var(--white);">Daniel Stefan Dinca</strong>: Founder
       </p>
-      <p style="font-size:0.9rem; color:var(--gray); margin-bottom:30px;">
-        TempoApp &middot; Integrated Digital Ecosystem for Human Intervention Services
+      <p style="font-size:0.9rem; color:var(--gray); margin-bottom:0;">
+        TempoApp &middot; One calm place for therapy centers
       </p>
     </div>
   </div>
 </div>
-
 <!-- Navigation Bar -->
 <div class="nav-bar">
   <div class="nav-controls">
     <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled>&#8592;</button>
-    <span class="slide-counter" id="slideCounter">1 / 13</span>
+    <span class="slide-counter" id="slideCounter">1 / 12</span>
     <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
   </div>
   <div class="progress-bar">
-    <div class="progress-fill" id="progressFill" style="width: 7.7%"></div>
+    <div class="progress-fill" id="progressFill" style="width: 8.3%"></div>
   </div>
   <div class="nav-controls">
     <span class="nav-hint" style="margin-right:10px;">Arrow keys or click to navigate</span>
@@ -1309,10 +1172,10 @@
     window.location.href = file + '#' + current;
   }
 
-  // Restore slide from hash on load
+  // Initialize counter/progress, restoring slide from hash if present
   (function() {
     const hash = window.location.hash.replace('#', '');
-    if (hash && !isNaN(hash)) goTo(parseInt(hash, 10));
+    goTo(hash && !isNaN(hash) ? parseInt(hash, 10) : 0);
   })();
 
   // Touch/swipe support
