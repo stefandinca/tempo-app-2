@@ -33,14 +33,19 @@
     overflow: hidden;
     height: 100vh;
     height: 100dvh; /* account for mobile browser chrome */
-    width: 100vw;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   .deck {
     position: relative;
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
+    width: 100%;
+    /* Fill the height above the nav bar; slides scroll inside it, never under it */
+    flex: 1 1 auto;
+    min-height: 0;
+    /* Clip the off-screen (translated) slides so they never cause page overflow */
+    overflow: hidden;
   }
 
   .slide {
@@ -51,7 +56,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 60px 80px 88px; /* extra bottom padding clears the fixed nav bar */
+    padding: 56px 80px; /* bottom padding keeps content clear of the nav bar */
     opacity: 0;
     transform: translateX(60px);
     transition: opacity 0.5s ease, transform 0.5s ease;
@@ -546,10 +551,9 @@
 
   /* Navigation */
   .nav-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: relative;
+    flex-shrink: 0;
+    width: 100%;
     height: 56px;
     background: rgba(15,23,42,0.85);
     backdrop-filter: blur(20px);
@@ -722,7 +726,7 @@
 
   /* Responsive */
   @media (max-width: 900px) {
-    .slide { padding: 40px 30px 80px; }
+    .slide { padding: 36px 30px; }
     .hero-title { font-size: 2.6rem; }
     .slide-title { font-size: 2rem; }
     .cards-grid, .cards-grid-4, .sectors-grid { grid-template-columns: repeat(2, 1fr); }
@@ -734,7 +738,7 @@
     .stat-row { flex-wrap: wrap; gap: 20px; }
   }
   @media (max-width: 600px) {
-    .slide { padding: 30px 20px 80px; }
+    .slide { padding: 28px 20px; }
     .hero-title { font-size: 2rem; }
     .slide-title { font-size: 1.6rem; }
     .cards-grid, .cards-grid-2, .cards-grid-4, .sectors-grid { grid-template-columns: 1fr; }
