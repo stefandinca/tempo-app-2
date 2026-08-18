@@ -355,3 +355,6 @@ nul
 firestore_threads_rules_fix.txt
 bugs/bug 1.png
 .claude/settings.local.json
+
+# Demo seeder backups (local snapshots of demo Firestore docs)
+demo-backup/

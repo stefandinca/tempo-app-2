@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "dev:demo": "dotenv -e .env.demoonly next dev",
     "build": "next build",
     "build:demo": "dotenv -e .env.demo next build",
     "build:prod": "dotenv -e .env.live next build",
