@@ -10,9 +10,42 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-19-multi-database-tenancy-design.md`
 
+**Runbook:** `docs/cutover-runbook.md` — the commands for the window itself.
+
+---
+
+## Status — 19 Aug 2026
+
+**Everything except the cutover is done.** All three tenants are staged and
+verified in `tempo-app-2`; nothing has been switched, and no source data has been
+modified or deleted anywhere.
+
+| | database | documents | bucket | objects | mirrors |
+|---|---|---|---|---|---|
+| Live Better Life | `clinic-livebetterlife` | 37,724 ✓ | `tempo-app-2-livebetterlife` | 32 ✓ | 6 staff, 267 parents |
+| Diaconu Maria | `clinic-diaconumaria` | 70 ✓ | `tempo-app-2-diaconumaria` | 0 | 3 staff |
+| Demo | `clinic-demo` | seeded | `tempo-app-2-demo` | 0 | 8 staff |
+
+Done: databases created, rules deployed to 4/4, data copied and verified both
+sides, media copied with download tokens intact and 5,834 stored URLs repointed,
+Auth merged (Diaconu Maria's 2 staff + the demo login, UIDs and password hashes
+preserved), her old-project UID rewritten across 15 documents, all three tenants
+registered, per-clinic buckets created in the EU with per-origin CORS.
+
+Two design changes came out of implementation, both recorded in the spec:
+
+1. **Storage is one bucket per clinic**, not path prefixes — Storage rules cannot
+   read a named Firestore database, proven at runtime.
+2. **Mirrors are keyed `{bucket}__{uid}`**, not `{uid}` — one person can work at
+   several clinics, and a uid-keyed document could name only one bucket, so
+   registering the second clinic silently revoked access to the first.
+
+Remaining: the cutover, which is `git merge` into `main` and moves all three
+tenants at once. See the runbook.
+
 ## Global Constraints
 
-- 🚨 **Do not push the phase-3 commits until every tenant database exists and is populated.** `resolveDatabaseId` is deterministic: the moment that code deploys, `livebetterlife.tempoapp.ro` starts reading `clinic-livebetterlife`. If that database is empty, the clinic sees an empty app. Phase 3 is 9 local commits and `src/lib/tenant.ts` is **not** on `origin` — keep it that way until Task 8.
+- 🚨 **Do not merge to `main` until every tenant database exists and is populated.** `resolveDatabaseId` is deterministic: the moment that code is live, `livebetterlife.tempoapp.ro` starts reading `clinic-livebetterlife`. If that database is empty, the clinic sees an empty app. ✅ All three databases now exist and are populated, so the blocker is cleared — but the branch still must not reach `main` outside a chosen window, because the switch is simultaneous for all tenants.
 - Platform project: **`tempo-app-2`**. Database ids: `clinic-livebetterlife`, `clinic-diaconumaria`, `clinic-demo`.
 - **UIDs must be preserved.** `team_members` document ids, `clients.therapistIds`, `clients.parentUids`, `events.teamMemberIds`, `threads.participants`, `homework.assignedBy`, evaluations' `evaluatorId`, `notifications.recipientId`, `fcm_tokens` ids and `ai_conversations.uid` are all Auth UIDs. `auth:import` preserves them; creating users any other way does not.
 - **Anonymous users are not migrated.** Parents re-authenticate with their access code and `ParentAuthContext` re-registers the new UID — existing behaviour. This only applies to demo and Diaconu Maria; Live Better Life's anonymous users stay in place because its project is the platform.
@@ -313,11 +346,11 @@ Demo has zero objects, so upload two test files, run the mover, and confirm a pa
 
 Same sequence as Task 3, for a clinic with 3 staff, 1 anonymous user and no parents yet — the lowest-risk live tenant.
 
-- [ ] **Step 1:** create `clinic-diaconumaria`, deploy rules
-- [ ] **Step 2:** copy, verify counts
-- [ ] **Step 3:** `auth:export`/`auth:import` her 3 staff accounts, preserving UIDs
-- [ ] **Step 4:** register the tenant
-- [ ] **Step 5:** repoint her Vercel project's `NEXT_PUBLIC_FIREBASE_*` at `tempo-app-2` and redeploy
+- [x] **Step 1:** create `clinic-diaconumaria`, deploy rules
+- [x] **Step 2:** copy, verify counts — 70 documents
+- [x] **Step 3:** `auth:export`/`auth:import` her staff, preserving UIDs — 2 imported; the third is the Superadmin, who already exists in `tempo-app-2`, so her data was remapped onto that UID instead (`scripts/remap-uid.mjs`, 15 documents)
+- [x] **Step 4:** register the tenant
+- [ ] **Step 5:** cutover — see `docs/cutover-runbook.md`. She is live and in daily use, so this waits for a chosen window
 - [ ] **Step 6:** verify sign-in, client list, calendar, and that Settings → Limits shows `clinic-diaconumaria`
 
 ---
@@ -327,11 +360,11 @@ Same sequence as Task 3, for a clinic with 3 staff, 1 anonymous user and no pare
 The riskiest step. Data moves **within** `tempo-app-2`, so Auth and Storage buckets do not change.
 
 - [ ] **Step 1: Announce a freeze window** outside therapy hours. ~37,580 documents copy in a few minutes; budget 30.
-- [ ] **Step 2:** create `clinic-livebetterlife`, deploy rules to it
-- [ ] **Step 3:** full copy `(default)` → `clinic-livebetterlife`, verify counts
+- [x] **Step 2:** create `clinic-livebetterlife`, deploy rules to it
+- [x] **Step 3:** full copy `(default)` → `clinic-livebetterlife`, verify counts — 37,724 documents, verified both sides
 - [ ] **Step 4:** during the freeze, **re-run the copy** to pick up anything written since — it is idempotent and only minutes
-- [ ] **Step 5:** move Storage objects (Task 4's mover) and verify media loads
-- [ ] **Step 6:** register the tenant
+- [x] **Step 5:** move Storage objects — 32 objects copied with download tokens intact, 5,834 stored URLs repointed, verified
+- [x] **Step 6:** register the tenant — 6 staff and 267 parent mirrors
 - [ ] **Step 7: cut over** — push the phase-3 commits, let Vercel build, confirm `livebetterlife.tempoapp.ro` now reads `clinic-livebetterlife`
 - [ ] **Step 8:** verify sign-in, clients, calendar, billing, a parent login, and Mira
 
