@@ -77,6 +77,59 @@ SmartBill on her old project would need a fresh service-account key generated
 from its Firebase console. The `NEXT_PUBLIC_*` values all restore from
 `.env.diaconumaria` and `.env.demo`.
 
+## Vercel consolidation — 20 Aug 2026
+
+`tempo-app-2` is now the single platform project. `demo.tempoapp.ro` and
+`livebetterlife.tempoapp.ro` serve from it, verified end to end (9 parent
+sign-in assertions each). `tempo-demo` and `tempo-livebetterlife` keep their
+configuration but have builds disabled (ignored build step `exit 0`), so a push
+no longer builds four times. Neither was deleted: they are the rollback targets.
+
+`tempo-web` is a **different repository** serving the apex and `www`. It was not
+touched, and an explicit domain always beats a wildcard, so it stays put.
+
+Three values used to be baked into the build, which is what forced one project
+per clinic. Each is now resolved from the request's host — see
+`refactor(tenancy): move per-clinic config from build time to the host`:
+
+| was | now |
+|---|---|
+| `NEXT_PUBLIC_APP_ENV=demo` | `isDemoHost(hostname)` |
+| `ANTHROPIC_API_KEY` | `ANTHROPIC_API_KEY_<TENANT>`, chosen per request |
+| one build per clinic | one build, host-resolved database, bucket and key |
+
+### Two things need you
+
+1. **The wildcard needs a DNS record.** `*.tempoapp.ro` is added to the project
+   and ownership-verified, but `tempoapp.ro` DNS is managed at the registrar,
+   not Vercel (`serviceType=external`), so Vercel reports it
+   `misconfigured=true` and an arbitrary subdomain does not resolve. Add at the
+   registrar:
+
+   ```
+   *.tempoapp.ro    CNAME    cname.vercel-dns.com
+   ```
+
+   Until then everything still works — each clinic's own subdomain has its own
+   record. The wildcard only removes the need for a DNS record per future
+   clinic. `www` and the apex keep their explicit records and are unaffected.
+
+2. **Diaconu Maria's Mira key.** Her domain is deliberately still on
+   `tempo-app-diaconumaria`. Her key is stored `sensitive` on that project and
+   cannot be read back by anyone, including through the API — so it could not be
+   copied across, and moving her domain would have left Mira dead on a live
+   clinic. Set it on the platform project and the last domain can move:
+
+   ```bash
+   npx vercel env add ANTHROPIC_API_KEY_DIACONUMARIA production --scope stefandinca07-6037s-projects
+   # then, to move the domain:
+   node scripts/vercel-move-domain.mjs --domain=diaconumaria.tempoapp.ro \
+     --from=tempo-app-diaconumaria --to=tempo-app-2 --yes
+   ```
+
+   ⚠️ **Do not delete `tempo-app-diaconumaria` before that key is copied** — that
+   project is the only place it exists.
+
 ## Still to do
 
 - [ ] **Lock the platform bucket.** `tempo-app-2.firebasestorage.app` is
@@ -90,9 +143,8 @@ from its Firebase console. The `NEXT_PUBLIC_*` values all restore from
       database and is the rollback target, so leave it until confident.
 - [ ] **Decommission** `tempo-app-demo` and `tempo-diaconumaria` once the old
       objects are no longer wanted.
-- [ ] **Collapse to one Vercel project** on a wildcard domain — the remaining
-      half of the bridge model. Three projects still deploy the same `main`, so
-      every push builds three times.
+- [x] **Collapse to one Vercel project** — done 20 Aug 2026, see below. Two of
+      three domains moved; Diaconu Maria's is held pending her Mira key.
 - [ ] **Update `documentation/new-tenant-runbook.md`.** A new clinic is now a
       database, a bucket, `register-tenant.mjs`, a Vercel domain and a DNS
       record — no new Firebase project.
