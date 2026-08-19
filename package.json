@@ -14,7 +14,9 @@
     "start": "next start",
     "lint": "next lint",
     "dev:live": "node scripts/tenant-env.mjs live -- next dev",
-    "check:env": "node scripts/tenant-env.mjs --check"
+    "check:env": "node scripts/tenant-env.mjs --check",
+    "dev:diaconumaria": "node scripts/tenant-env.mjs diaconumaria -- next dev",
+    "build:diaconumaria": "node scripts/tenant-env.mjs diaconumaria -- next build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

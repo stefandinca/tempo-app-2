@@ -29,8 +29,12 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 /** Firebase project each tenant name is expected to resolve to. */
 const TENANTS = {
   demo: { project: "tempo-app-demo", label: "Demo" },
-  live: { project: "tempo-app-2", label: "LIVE — real clinic data" },
+  live: { project: "tempo-app-2", label: "LIVE — Live Better Life (real clinic data)" },
+  diaconumaria: { project: "tempo-diaconumaria", label: "LIVE — Diaconu Maria (real clinic data)" },
 };
+
+/** Tenants holding real client records — flagged red and warned about. */
+const PRODUCTION_TENANTS = new Set(["live", "diaconumaria"]);
 
 const REQUIRED = [
   "NEXT_PUBLIC_FIREBASE_API_KEY",
@@ -59,10 +63,12 @@ const C = {
 function usage(message) {
   console.error(`\n${C.red("✗ " + message)}\n`);
   console.error("Pick a tenant explicitly — there is no default, on purpose:\n");
-  console.error(`  ${C.bold("npm run dev:demo")}     ${C.dim("# tempo-app-demo — safe to write to")}`);
-  console.error(`  ${C.bold("npm run dev:live")}     ${C.dim("# tempo-app-2 — REAL clinic data")}`);
-  console.error(`  ${C.bold("npm run build:demo")}`);
-  console.error(`  ${C.bold("npm run build:prod")}\n`);
+  // Generated from TENANTS so adding a clinic cannot leave this list stale.
+  for (const [name, cfg] of Object.entries(TENANTS)) {
+    const warn = PRODUCTION_TENANTS.has(name) ? "REAL clinic data" : "safe to write to";
+    console.error(`  ${C.bold(`npm run dev:${name}`.padEnd(28))} ${C.dim(`# ${cfg.project} — ${warn}`)}`);
+  }
+  console.error("");
   console.error(C.dim("Each reads .env.<tenant>. On Vercel the dashboard environment is used instead.\n"));
   process.exit(1);
 }
@@ -113,7 +119,7 @@ if (expected && project !== expected) {
   process.exit(1);
 }
 
-const isLive = project === TENANTS.live.project;
+const isLive = tenant ? PRODUCTION_TENANTS.has(tenant) : project !== TENANTS.demo.project;
 const label = tenant ? TENANTS[tenant].label : project;
 
 console.log("");

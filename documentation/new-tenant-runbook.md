@@ -22,7 +22,12 @@ Decide two names and keep them consistent everywhere:
 | Firebase project id | `tempo-clinicx` | Cannot be renamed later. Lowercase, no underscores |
 
 Existing tenants for reference: `tempo-app-2` (live — Live Better Life),
-`tempo-app-demo` (demo).
+`tempo-diaconumaria` (live — Diaconu Maria), `tempo-app-demo` (demo).
+
+Register the new tenant in `scripts/tenant-env.mjs` (`TENANTS` and, for a real
+clinic, `PRODUCTION_TENANTS`), add `.env.<tenant>`, and add `dev:<tenant>` /
+`build:<tenant>` npm scripts. The FCM service worker is generated from that env,
+so a tenant missing here cannot be built locally.
 
 > ⚠️ **Google caps Firebase projects per organisation** (~dozens by default).
 > Per-project isolation is right up to a few dozen clinics; past that the model
@@ -75,6 +80,16 @@ This ships `firestore.rules`, `firestore.indexes.json`, `storage.rules` and the
 three Cloud Functions (`createTeamMember`, `migrateTeamMember`,
 `sendPushNotification`, all `us-central1`).
 
+> **The functions deploy usually fails the first time on a brand-new project**
+> with `PERMISSION_DENIED ... gcf-artifacts ... artifactregistry.repositories.get`.
+> The Cloud Functions service agent is provisioned while that same command runs,
+> so it isn't ready yet. **Just run it again** — the second attempt succeeds.
+>
+> Afterwards set an image cleanup policy, or container images accumulate and bill:
+> ```bash
+> firebase functions:artifacts:setpolicy --project tempo-clinicx --force
+> ```
+
 **Rules and indexes are per project and do not sync.** Every future change to
 `firestore.rules` or `firestore.indexes.json` must be deployed to *every* tenant.
 This is the single easiest thing to forget, and the failure mode is a tenant
@@ -84,6 +99,14 @@ silently missing a security fix.
 
 ```bash
 gsutil cors set cors.json gs://tempo-clinicx.firebasestorage.app
+```
+
+If `gsutil` is unavailable (it ships with the Google Cloud SDK and breaks when its
+bundled Python is missing), use the JSON API instead:
+
+```bash
+TOKEN=$(gcloud auth application-default print-access-token)
+curl -X PATCH "https://storage.googleapis.com/storage/v1/b/tempo-clinicx.firebasestorage.app"   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json"   -d "{\"cors\": $(cat cors.json)}"
 ```
 
 > `cors.json` currently allows `"origin": ["*"]`. Consider narrowing it to the
