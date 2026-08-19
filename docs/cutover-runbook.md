@@ -1,196 +1,102 @@
-# Cutover Runbook — multi-database tenancy
+# Cutover — multi-database tenancy
 
-Everything except the switch itself is done. This is the switch.
+**Done: 20 August 2026.** All three clinics now run from one Firebase project,
+`tempo-app-2`, separated by a Firestore database and a Storage bucket each, both
+derived from the hostname. This file is kept as the record of what was done, the
+rollback that is still available, and what remains.
 
-**Read this first:** the cutover is `git merge` of `feat/multi-database-tenancy`
-into `main`. `resolveDatabaseId()` is deterministic, so the moment that code is
-live, **all three tenants move at once** — there is no per-clinic rollout. Both
-production clinics are in active daily use, so pick a window outside therapy
-hours.
+| | database | documents | bucket | mirrors |
+|---|---|---|---|---|
+| Live Better Life | `clinic-livebetterlife` | 11,096 | `tempo-app-2-livebetterlife` | 6 staff, 267 parents |
+| Diaconu Maria | `clinic-diaconumaria` | 125 | `tempo-app-2-diaconumaria` | 3 staff |
+| Demo | `clinic-demo` | seeded | `tempo-app-2-demo` | 8 staff |
 
-Status as of 19 Aug 2026, all verified against the real project:
+Verified after the switch: all three hosts serve HTTP 200 on `tempo-app-2`, the
+tenant-resolution code is in every deployed bundle, and parent sign-in passes 9
+end-to-end assertions against the live Live Better Life deployment (using its
+`Alex Test Child` test record, never a real child) and against demo.
 
-| | database | documents | bucket | objects | staff mirrors | parent mirrors |
-|---|---|---|---|---|---|---|
-| Live Better Life | `clinic-livebetterlife` | 37,724 ✓ | `tempo-app-2-livebetterlife` | 32 ✓ | 6 | 267 |
-| Diaconu Maria | `clinic-diaconumaria` | 70 ✓ | `tempo-app-2-diaconumaria` | 0 | 3 | 0 |
-| Demo | `clinic-demo` | seeded | `tempo-app-2-demo` | 0 | 8 | 0 |
+## What the cutover actually consisted of
 
-Auth is already merged into `tempo-app-2`: Diaconu Maria's two staff and the
-demo login were imported with their UIDs and password hashes intact, and her
-old-project UID was rewritten to the platform one across 15 documents.
+1. **Notifications pruned to 30 days.** 28,268 → 1,640 for Live Better Life, in
+   both the source and the copy. Backups under `notification-backups/`. This cut
+   the dataset from 37,724 documents to 11,096 and made every sync minutes rather
+   than tens of minutes.
+2. **Re-sync**, because both clinics had kept working since the first copy —
+   Diaconu Maria had grown from 1 client to 6. Then her UID remap again, because
+   a fresh copy reintroduces her old-project UID, and the media move again,
+   because a fresh copy reintroduces the old bucket URLs.
+3. **Merge to `main`**, which rebuilt all three Vercel projects.
+4. **Repointed the Vercel env** for `tempo-app-diaconumaria` and `tempo-demo` at
+   the platform project, then redeployed them with the build cache disabled.
+5. **Deployed `firestore.rules`** to all four databases — after the code, never
+   before.
 
-This branch also closes a security hole found along the way: `firestore.rules`
-let any signed-in user add themselves to `clients/{id}.parentUids`, and 52 of
-Live Better Life's 88 client documents have ids of the form `firstname` plus a
-four-digit birthday. Parent linking now happens server-side against the access
-code. **Its rules change deploys after the merge, not before** — see the step
-below.
+### The ordering that mattered
 
----
+Each clinic has its own Vercel project, and two of them still pointed at their
+old Firebase projects. Those had to be repointed, and the order was not
+arbitrary:
 
-## Before the window
+> The old code reads `(default)` on **every** host. Old code plus platform
+> config would have served Diaconu Maria's domain Live Better Life's records.
 
-- [ ] **Re-run the sync.** Both clinics have been in use since the first copy, so
-      the destination is stale. This is idempotent and takes minutes.
+So the merge went first and the env second, accepting a few minutes where those
+two domains looked for a database that does not exist in their old project —
+errors, not a leak. **Broken beats leaked.** Anything that re-treads this path
+should preserve that order.
 
-      ```bash
-      node scripts/migrate-tenant.mjs --from-project=tempo-app-2 --from-database='(default)' \
-        --to-project=tempo-app-2 --to-database=clinic-livebetterlife --yes
+Two things behaved exactly as designed and are worth remembering:
 
-      node scripts/migrate-tenant.mjs --from-project=tempo-diaconumaria \
-        --to-project=tempo-app-2 --to-database=clinic-diaconumaria --yes
-      ```
+- `tempo-demo`'s first build **failed**, because `FIREBASE_SERVICE_ACCOUNT` is now
+  a required variable and demo had never had one. That is the gate working: a
+  demo that built fine would have had a parent portal nobody could sign in to.
+- The redeploys ran with `VERCEL_FORCE_NO_BUILD_CACHE=1` (since removed). Vercel
+  restores the build cache between deployments and `NEXT_PUBLIC_*` are inlined
+  into it, so a cached chunk would have carried the **old** Firebase project id.
+  That is not hypothetical — it happened locally first, and cost an hour.
 
-- [ ] **Re-run her UID remap** — the fresh copy reintroduces her old-project UID.
+## Rollback, still available
 
-      ```bash
-      node scripts/remap-uid.mjs --project=tempo-app-2 --database=clinic-diaconumaria \
-        --from=c7j7LfAEUjMjZ74hU3Hea5s5Ctf2 --to=bE6C6yysQNXUroLGnOMlYhKvhoW2 --yes
-      ```
-
-- [ ] **Re-run the media move** (picks up anything uploaded since; already-copied
-      objects are skipped by hash).
-
-      ```bash
-      node scripts/migrate-storage.mjs --from-bucket=tempo-app-2.firebasestorage.app \
-        --to-bucket=tempo-app-2-livebetterlife --project=tempo-app-2 \
-        --database=clinic-livebetterlife --yes
-      ```
-
-- [ ] **Refresh the mirrors.** New staff or newly-linked parents since the last
-      run would otherwise have no Storage access. Order matters — mirrors before
-      rules, always.
-
-      ```bash
-      node scripts/register-tenant.mjs --project=tempo-app-2 --tenant=livebetterlife --name="Live Better Life" --yes
-      node scripts/register-tenant.mjs --project=tempo-app-2 --tenant=diaconumaria  --name="Diaconu Maria"    --yes
-      node scripts/register-tenant.mjs --project=tempo-app-2 --tenant=demo          --name="Tempo Demo Clinic" --yes
-      ```
-
-- [ ] **Verify all three.** `--verify` writes nothing and exits non-zero if the
-      destination is short.
-
-      ```bash
-      node scripts/migrate-tenant.mjs --from-project=tempo-app-2 --from-database='(default)' \
-        --to-project=tempo-app-2 --to-database=clinic-livebetterlife --verify
-
-      node scripts/migrate-storage.mjs --from-bucket=tempo-app-2.firebasestorage.app \
-        --to-bucket=tempo-app-2-livebetterlife --project=tempo-app-2 \
-        --database=clinic-livebetterlife --verify
-      ```
-
-- [ ] **Run the isolation tests.** `npm run test:isolation` — 33 hostname
-      assertions, the Firestore rules suite, and 23 live Storage assertions
-      against the real buckets.
-
-- [ ] **Run the parent sign-in test**, which needs a running build:
-
-      ```bash
-      npm run build:demo
-      node scripts/tenant-env.mjs demo -- npx next start -p 3100   # leave running
-      npm run test:parent-link                                     # another terminal
-      ```
-
-      Ten assertions over the flow that matters most: an access code is the only
-      credential a parent has, and what it unlocks is a child's clinical record.
-
----
-
-## The window
-
-- [ ] **Announce a freeze.** Nothing written to the old databases during the
-      window is carried across.
-
-- [ ] **Final sync.** Re-run every command in "Before the window" — that is the
-      point of them being idempotent.
-
-- [ ] **Cut over.**
-
-      ```bash
-      git checkout main
-      git merge feat/multi-database-tenancy
-      git push
-      ```
-
-      Vercel builds. When it goes live, every tenant is reading its own database
-      and its own bucket.
-
-- [ ] **Verify each tenant in the browser**, on its real hostname:
-      sign in · client list · a calendar week · one evaluation · a client
-      document or video · a parent login with an access code · Mira.
-
-- [ ] **Then, and only then, deploy the Firestore rules.**
-
-      ```bash
-      npm run test:rules
-      node scripts/deploy-rules.mjs --project=tempo-app-2
-      ```
-
-      This is a separate step on purpose. The rules in this branch remove the
-      clause that let any signed-in user add themselves to a client's
-      `parentUids` — production still relies on that clause until the merge is
-      live, so deploying it first stops every parent signing in. Verify a parent
-      login with a real access code immediately after, and be ready to redeploy
-      the previous ruleset from `main` if it fails.
-
----
-
-## Immediately after
-
-- [ ] **Lock the platform bucket.** It is deliberately absent from
-      `firebase.json`, so it still carries the OLD rules and still serves Live
-      Better Life's original objects. Once the new bucket is confirmed working,
-      add it to the `storage` array and redeploy — the new rules deny everything
-      there, which is correct for a bucket that should hold no clinic data.
-
-- [ ] **Do not delete the old projects yet.** Original objects keep the URLs in
-      any un-migrated copy alive. Give it a few days of real use first.
-
----
-
-## Rollback
-
-Revert the merge and redeploy:
+Nothing was deleted at any source. The old Firebase projects
+(`tempo-diaconumaria`, `tempo-app-demo`) and the platform bucket still hold
+everything they held before, including the original objects and their download
+URLs.
 
 ```bash
-git revert -m 1 <merge-commit>
-git push
+git revert -m 1 <merge-commit> && git push
+node scripts/vercel-tenant-env.mjs --project=tempo-app-diaconumaria --from=.env.diaconumaria --yes
+node scripts/vercel-tenant-env.mjs --project=tempo-demo --from=.env.demo --yes
+git checkout <pre-merge> -- firestore.rules && node scripts/deploy-rules.mjs --project=tempo-app-2
 ```
 
-If the Firestore rules were already deployed, roll those back too — check out
-`main` and run `node scripts/deploy-rules.mjs --project=tempo-app-2` from there,
-otherwise parent sign-in stays broken against the reverted code.
+One gap: the Vercel env vars were stored as `sensitive` and could not be read
+back, so `FIREBASE_SERVICE_ACCOUNT` for `tempo-diaconumaria` was overwritten and
+is not recoverable from any local file. A rollback that also needs Mira or
+SmartBill on her old project would need a fresh service-account key generated
+from its Firebase console. The `NEXT_PUBLIC_*` values all restore from
+`.env.diaconumaria` and `.env.demo`.
 
-The old databases and buckets were never written to or deleted, so this is a
-genuine rollback rather than a restore. The per-clinic Firebase projects are
-untouched and still hold everything they held before.
+## Still to do
 
----
-
-## Later, once it has settled
-
-- [ ] Purge `(default)` of clinic data, leaving `tenants`, `tenant_members`,
-      `tenant_parents`. Back it up first.
-- [ ] Decommission `tempo-app-demo` and `tempo-diaconumaria`, and their Vercel
-      projects.
-- [ ] Collapse to one Vercel project on a wildcard domain — the remaining half of
-      the bridge model.
-- [ ] Update `documentation/new-tenant-runbook.md` for the multi-database process:
-      a new clinic is now a database, a bucket, `register-tenant.mjs`, and a DNS
+- [ ] **Lock the platform bucket.** `tempo-app-2.firebasestorage.app` is
+      deliberately absent from `firebase.json`, so it still carries the OLD rules
+      and still serves Live Better Life's original objects — deliberate
+      redundancy while this settles. Once the new bucket has proven itself, add
+      it to the `storage` array and redeploy; the new rules deny everything
+      there, which is correct for a bucket that should hold no clinic data.
+- [ ] **Purge `(default)` of clinic data**, leaving `tenants`, `tenant_members`,
+      `tenant_parents`. Back up first. It is still Live Better Life's original
+      database and is the rollback target, so leave it until confident.
+- [ ] **Decommission** `tempo-app-demo` and `tempo-diaconumaria` once the old
+      objects are no longer wanted.
+- [ ] **Collapse to one Vercel project** on a wildcard domain — the remaining
+      half of the bridge model. Three projects still deploy the same `main`, so
+      every push builds three times.
+- [ ] **Update `documentation/new-tenant-runbook.md`.** A new clinic is now a
+      database, a bucket, `register-tenant.mjs`, a Vercel domain and a DNS
       record — no new Firebase project.
-
-## Worth deciding separately
-
-- **28,268 of Live Better Life's 37,724 documents are notifications** — 75% of
-  the dataset, and the bulk of every sync. Pruning notifications older than a few
-  months would make this and every future migration substantially faster. Not
-  done here: deleting a clinic's history is your call, not a migration step.
-- **The old platform bucket allows CORS from `*`.** The three new buckets are
-  restricted to their own clinic's origin plus localhost. That finding closes
-  itself when the old bucket stops serving media.
-- **267 parent mirrors, and one client with 91 linked uids.** Anonymous uids are
-  per-device and per-session, and cleanup used to be best-effort from a browser
-  that had usually already gone. Sign-out now unlinks properly, so this stops
-  growing — but the existing backlog is untouched. Pruning uids that have not
-  been seen for months would be reasonable housekeeping, separately.
+- [ ] Rotate the SmartBill credentials (long-standing, unrelated to this).
+- [ ] 267 parent mirrors and one client with 91 linked uids, from years of
+      anonymous sessions. Sign-out now unlinks properly so it stops growing;
+      pruning the backlog is optional housekeeping.

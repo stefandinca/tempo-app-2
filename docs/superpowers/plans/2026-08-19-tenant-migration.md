@@ -14,11 +14,12 @@
 
 ---
 
-## Status — 19 Aug 2026
+## Status — COMPLETE, 20 Aug 2026
 
-**Everything except the cutover is done.** All three tenants are staged and
-verified in `tempo-app-2`; nothing has been switched, and no source data has been
-modified or deleted anywhere.
+**The cutover is done.** All three clinics run from `tempo-app-2` on their own
+database and bucket, verified live. No source data was deleted anywhere, so the
+rollback is real. See `docs/cutover-runbook.md` for what was done, the rollback,
+and what remains.
 
 | | database | documents | bucket | objects | mirrors |
 |---|---|---|---|---|---|
@@ -40,8 +41,8 @@ Two design changes came out of implementation, both recorded in the spec:
    several clinics, and a uid-keyed document could name only one bucket, so
    registering the second clinic silently revoked access to the first.
 
-Remaining: the cutover, which is `git merge` into `main` and moves all three
-tenants at once. See the runbook.
+Notifications were pruned to 30 days first, taking Live Better Life from 37,724
+documents to 11,096.
 
 ## Global Constraints
 
