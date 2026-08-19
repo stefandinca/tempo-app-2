@@ -13,6 +13,9 @@
  */
 import type { User } from "firebase/auth";
 
+// Trailing slash is required: next.config.js sets trailingSlash: true, so the
+// bare path answers 308 and every call pays an extra round trip.
+
 export interface LinkResult {
   clientId: string;
   clientName: string;
@@ -33,7 +36,7 @@ export async function linkParent(
   code: string,
   previousUid?: string | null,
 ): Promise<LinkResult> {
-  const res = await fetch("/api/parent/link", {
+  const res = await fetch("/api/parent/link/", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${await user.getIdToken()}`,
@@ -54,7 +57,7 @@ export async function linkParent(
  */
 export async function unlinkParent(user: User): Promise<void> {
   try {
-    await fetch("/api/parent/link", {
+    await fetch("/api/parent/link/", {
       method: "DELETE",
       headers: { Authorization: `Bearer ${await user.getIdToken()}` },
     });

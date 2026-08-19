@@ -20,7 +20,8 @@
     "test:storage-rules": "node scripts/test-storage-rules.mjs",
     "test:isolation": "npm run test:tenant && npm run test:rules && npm run test:storage-rules",
     "dev:livebetterlife": "node scripts/tenant-env.mjs livebetterlife -- next dev",
-    "build:livebetterlife": "node scripts/tenant-env.mjs livebetterlife -- next build"
+    "build:livebetterlife": "node scripts/tenant-env.mjs livebetterlife -- next build",
+    "test:parent-link": "node scripts/test-parent-link.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

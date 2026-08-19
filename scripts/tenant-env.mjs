@@ -23,7 +23,7 @@
  * real request hostname already selects the tenant, so a run with the Firebase
  * config already in process.env is allowed through with no tenant argument.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, rmSync, mkdirSync } from "node:fs";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -193,6 +193,27 @@ try {
   console.error(`  ${C.red("✗ " + err.message)}`);
   console.error(`  ${C.dim("Push notifications would silently target the wrong project — refusing to continue.")}\n`);
   process.exit(1);
+}
+
+// Next inlines NEXT_PUBLIC_* into the build output, and it caches aggressively.
+// Switching tenants without clearing that cache silently reuses chunks holding
+// the PREVIOUS tenant's inlined values — which is not a theoretical worry: it is
+// how a parent's Storage mirror ended up written under another project's bucket
+// name, from a build that reported the right tenant the whole way through.
+//
+// So the resolved host is recorded next to the build, and the cache is dropped
+// whenever it changes. Rebuilding is cheap; debugging this is not.
+if (tenant) {
+  const stamp = path.join(ROOT, ".next", ".tenant-host");
+  const previous = existsSync(stamp) ? readFileSync(stamp, "utf8").trim() : "";
+  const current = TENANTS[tenant].host;
+  if (previous && previous !== current) {
+    console.log(`  ${C.yellow("!")} ${C.dim(`build cache was built for ${previous} — clearing .next`)}
+`);
+    rmSync(path.join(ROOT, ".next"), { recursive: true, force: true });
+  }
+  mkdirSync(path.join(ROOT, ".next"), { recursive: true });
+  writeFileSync(stamp, current, "utf8");
 }
 
 if (checkOnly || command.length === 0) process.exit(0);
