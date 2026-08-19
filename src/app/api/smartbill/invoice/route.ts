@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebaseAdmin';
 import { requireStaffRole } from '@/lib/serverAuth';
+import { tenantDatabaseFromRequest } from '@/lib/tenant';
 
 const SMARTBILL_API_URL = 'https://api.smartbill.ro/biz/eu/v1';
 
@@ -11,7 +12,10 @@ export async function POST(req: NextRequest) {
   // 0. Authorization — the role is read from a VERIFIED ID token, never from the
   // request body. This route previously trusted a `userRole` field in the JSON
   // payload, which any caller could set to "Admin".
-  const auth = await requireStaffRole(req, ['Admin', 'Coordinator']);
+  // The clinic's data lives in its own database; the Host header says which.
+  // Until the migration this resolves to (default) for every tenant.
+  const database = tenantDatabaseFromRequest(req);
+  const auth = await requireStaffRole(req, ['Admin', 'Coordinator'], database);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
@@ -44,7 +48,7 @@ export async function POST(req: NextRequest) {
     // 2.5 Fetch Invoicing Settings for VAT Rate and Credentials.
     // Admin SDK: this runs server-side with no signed-in user, so the client SDK
     // was being denied by security rules and the route always failed with a 500.
-    const db = adminDb();
+    const db = adminDb(database);
     const settingsSnap = await db.collection("system_settings").doc("config").get();
     const settings: any = settingsSnap.exists ? settingsSnap.data() : {};
     

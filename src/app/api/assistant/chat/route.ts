@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireStaffWithConsent } from "@/lib/assistant/gate";
+import { tenantDatabaseFromRequest } from "@/lib/tenant";
 import { getAnthropic, MODEL } from "@/lib/assistant/anthropic";
 import { chatSystemPrompt, type Lang } from "@/lib/assistant/prompts";
 import { ASSISTANT_TOOLS, executeAssistantTool } from "@/lib/assistant/tools";
@@ -21,7 +22,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
   }
 
-  const gate = await requireStaffWithConsent(req);
+  const database = tenantDatabaseFromRequest(req);
+  const gate = await requireStaffWithConsent(req, database);
   if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
 
   let body: any;
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
   const userText = typeof body?.message === "string" ? body.message.trim().slice(0, 8000) : "";
   if (!userText) return NextResponse.json({ error: "invalid_messages" }, { status: 400 });
 
-  const db = adminDb();
+  const db = adminDb(database);
   const { uid, name } = gate.ctx;
 
   // Resolve the conversation: load an existing one (verifying ownership) or create.
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
               toolsUsed.push(tu.name);
               let res: any;
               try {
-                res = await executeAssistantTool(tu.name, tu.input);
+                res = await executeAssistantTool(tu.name, tu.input, database);
               } catch (e: any) {
                 res = { error: "tool_failed", detail: String(e?.message || e).slice(0, 120) };
               }

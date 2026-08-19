@@ -66,4 +66,12 @@ function getAdminApp(): App {
 }
 
 export const adminAuth = () => getAuth(getAdminApp());
-export const adminDb = () => getFirestore(getAdminApp());
+/**
+ * Admin Firestore handle. Pass the tenant's database id; omitting it targets
+ * (default) — correct for control-plane lookups, and for every tenant until the
+ * migration moves them.
+ */
+export const adminDb = (databaseId?: string) =>
+  databaseId && databaseId !== "(default)"
+    ? getFirestore(getAdminApp(), databaseId)
+    : getFirestore(getAdminApp());

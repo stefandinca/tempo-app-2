@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireStaffWithConsent } from "@/lib/assistant/gate";
+import { tenantDatabaseFromRequest } from "@/lib/tenant";
 import { getAnthropic, MODEL } from "@/lib/assistant/anthropic";
 import { emptyUsage, addUsage, computeCostUsd } from "@/lib/assistant/pricing";
 import {
@@ -22,7 +23,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
   }
 
-  const gate = await requireStaffWithConsent(req);
+  const database = tenantDatabaseFromRequest(req);
+  const gate = await requireStaffWithConsent(req, database);
   if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
 
   let body: any;
@@ -61,7 +63,7 @@ export async function POST(req: NextRequest) {
     try {
       const usage = emptyUsage();
       addUsage(usage, resp.usage);
-      await adminDb()
+      await adminDb(database)
         .collection("ai_usage_events")
         .add({
           uid: gate.ctx.uid,

@@ -34,6 +34,7 @@ export type StaffAuthResult =
 export async function requireStaffRole(
   req: NextRequest,
   allowedRoles: string[],
+  databaseId?: string,
 ): Promise<StaffAuthResult> {
   const authz = req.headers.get("authorization") || "";
   const token = authz.startsWith("Bearer ") ? authz.slice(7).trim() : "";
@@ -53,7 +54,7 @@ export async function requireStaffRole(
   }
 
   try {
-    const snap = await adminDb().collection("team_members").doc(uid).get();
+    const snap = await adminDb(databaseId).collection("team_members").doc(uid).get();
     if (!snap.exists) return { ok: false, status: 403, error: "not_staff" };
     const member = snap.data() as { role?: string; name?: string };
     const role = String(member.role || "").toLowerCase();

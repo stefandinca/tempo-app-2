@@ -78,8 +78,8 @@ function iso(v: any): string | null {
   return null;
 }
 
-export async function executeAssistantTool(name: string, input: any): Promise<any> {
-  const db = adminDb();
+export async function executeAssistantTool(name: string, input: any, databaseId?: string): Promise<any> {
+  const db = adminDb(databaseId);
 
   if (name === "find_clients") {
     const q = String(input?.query || "").trim().toLowerCase();

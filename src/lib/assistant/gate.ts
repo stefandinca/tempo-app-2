@@ -22,7 +22,7 @@ export type GateResult =
   | { ok: true; ctx: GateContext }
   | { ok: false; status: number; error: string };
 
-export async function requireStaffWithConsent(req: NextRequest): Promise<GateResult> {
+export async function requireStaffWithConsent(req: NextRequest, databaseId?: string): Promise<GateResult> {
   const authz = req.headers.get("authorization") || "";
   const token = authz.startsWith("Bearer ") ? authz.slice(7).trim() : "";
   if (!token) return { ok: false, status: 401, error: "missing_token" };
@@ -47,7 +47,7 @@ export async function requireStaffWithConsent(req: NextRequest): Promise<GateRes
   // A malformed key passes verifyIdToken (public-cert check) but fails here — so
   // wrap it and report a config error instead of crashing with a generic 500.
   try {
-    const db = adminDb();
+    const db = adminDb(databaseId);
 
     // Staff role (the role comes from the verified user, NOT the request body).
     const memberSnap = await db.collection("team_members").doc(uid).get();
