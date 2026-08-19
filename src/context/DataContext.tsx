@@ -4,6 +4,7 @@ import { createContext, useContext, useMemo } from "react";
 import {
   useClients,
   useTeamMembers,
+  useAllTeamMembers,
   useEvents,
   useServices,
   usePrograms,
@@ -11,6 +12,7 @@ import {
 } from "@/hooks/useCollections";
 import { collection, query, onSnapshot, collectionGroup, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { isPlatformStaff } from "@/lib/roles";
 import { useEffect, useState } from "react";
 
 interface CollectionState<T = any> {
@@ -32,6 +34,12 @@ interface DataContextType {
   systemSettings: any;
   activePlans: ActivePlansMap;
   activePlansLoading: boolean;
+  /**
+   * Staff the clinic must never see — the platform Superadmin. Exposed so views
+   * that show people without going through `teamMembers` (the activity feed)
+   * can hide them too.
+   */
+  hiddenStaffIds: Set<string>;
   // Helper functions
   getTeamMember: (id: string) => any | undefined;
   getClient: (id: string) => any | undefined;
@@ -46,6 +54,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Core collections - single subscription each
   const clients = useClients();
   const teamMembers = useTeamMembers();
+  // Unfiltered, for id lookups only. An event that already names the Superadmin
+  // should still resolve to a name rather than render a blank.
+  const allTeamMembers = useAllTeamMembers();
   const events = useEvents();
   const services = useServices();
   const programs = usePrograms();
@@ -92,12 +103,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   // Memoized helper functions
   const helpers = useMemo(() => ({
-    getTeamMember: (id: string) => teamMembers.data.find(t => t.id === id),
+    getTeamMember: (id: string) => allTeamMembers.data.find(t => t.id === id),
     getClient: (id: string) => clients.data.find(c => c.id === id),
     getService: (id: string) => services.data.find(s => s.id === id),
     getClientEvents: (clientId: string) => events.data.filter(e => e.clientId === clientId),
     getClientActivePlan: (clientId: string) => activePlans[clientId] || null,
-  }), [teamMembers.data, clients.data, services.data, events.data, activePlans]);
+  }), [allTeamMembers.data, clients.data, services.data, events.data, activePlans]);
+
+  const hiddenStaffIds = useMemo(
+    () => new Set(allTeamMembers.data.filter((m: any) => isPlatformStaff(m)).map((m: any) => m.id)),
+    [allTeamMembers.data],
+  );
 
   const value = useMemo(() => ({
     clients,
@@ -108,8 +124,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     systemSettings,
     activePlans,
     activePlansLoading,
+    hiddenStaffIds,
     ...helpers
   }), [
+    hiddenStaffIds,
     clients, 
     teamMembers, 
     events, 

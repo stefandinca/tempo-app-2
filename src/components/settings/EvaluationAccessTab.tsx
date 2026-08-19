@@ -1,26 +1,33 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useData } from "@/context/DataContext";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { logActivity } from "@/lib/activityService";
-import { Loader2, Search, ClipboardList, Check, X } from "lucide-react";
+import { Loader2, ClipboardList, Check, X } from "lucide-react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 
 /**
- * Superadmin-only: per-client control over which evaluation protocols are
- * available. Disabling one hides it from every other role — the matching
- * Firestore rules deny reads of that subcollection, so this is real access
+ * Superadmin-only: which evaluation protocols this CLINIC has access to.
+ *
+ * The gate is per clinic, not per child. A clinic buys TempoApp with a certain
+ * set of protocols; deciding that ABLLS-R is included and CARS is not is a
+ * commercial decision about the customer, and it would make no sense for one
+ * child at a clinic to have CARS while their sibling does not.
+ *
+ * Disabling a protocol hides it from every other role, and the matching
+ * Firestore rules deny reads of those subcollections, so this is real access
  * control rather than a UI preference.
  *
- * Stored as an OPT-OUT list on the client document (`disabledEvaluations`), so a
- * client with no field has everything enabled. An allowlist would have hidden
- * every protocol for every existing client the moment the rules deployed.
+ * Stored as an OPT-OUT list in `system_settings/evaluation_access`, so a clinic
+ * with no document has everything enabled. An allowlist would have switched
+ * every protocol off for every clinic the moment the rules deployed.
  */
+
+export const EVALUATION_ACCESS_DOC = "evaluation_access";
 
 export const EVALUATION_KINDS = [
   { id: "ablls", name: "ABLLS-R" },
@@ -32,55 +39,88 @@ export const EVALUATION_KINDS = [
 
 export type EvaluationKind = (typeof EVALUATION_KINDS)[number]["id"];
 
-/** True when `kind` is available for this client. Absent field = all enabled. */
-export function isEvaluationEnabled(client: any, kind: string): boolean {
-  const disabled = client?.disabledEvaluations;
+/** True when `kind` is available at this clinic. Absent list = all enabled. */
+export function isEvaluationEnabled(disabled: string[] | undefined | null, kind: string): boolean {
   return !Array.isArray(disabled) || !disabled.includes(kind);
+}
+
+export interface EvaluationAccess {
+  disabled: string[];
+  loading: boolean;
+  /** True when the clinic has no protocol at all — the tab shows "coming soon". */
+  allDisabled: boolean;
+}
+
+/**
+ * Live view of the clinic's protocol access. Every consumer subscribes rather
+ * than reading once, so a Superadmin toggling a protocol takes effect in an
+ * open session instead of at the next reload.
+ */
+export function useEvaluationAccess(): EvaluationAccess {
+  const [disabled, setDisabled] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, "system_settings", EVALUATION_ACCESS_DOC),
+      (snap) => {
+        const list = snap.exists() ? snap.data()?.disabled : undefined;
+        setDisabled(Array.isArray(list) ? list : []);
+        setLoading(false);
+      },
+      (err) => {
+        // Fail OPEN on a read error: a clinic seeing a protocol it should not
+        // have is a billing question, but hiding every protocol because a read
+        // blipped would look like the product broke.
+        console.error("[EvaluationAccess] read failed:", err);
+        setDisabled([]);
+        setLoading(false);
+      },
+    );
+    return () => unsubscribe();
+  }, []);
+
+  return {
+    disabled,
+    loading,
+    allDisabled: EVALUATION_KINDS.every((k) => disabled.includes(k.id)),
+  };
 }
 
 export default function EvaluationAccessTab() {
   const { t } = useTranslation();
-  const { clients } = useData();
   const { user, userData } = useAuth();
   const { success, error } = useToast();
-  const [search, setSearch] = useState("");
-  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const { disabled, loading } = useEvaluationAccess();
+  const [savingKind, setSavingKind] = useState<string | null>(null);
 
-  const rows = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return clients.data
-      .filter((c: any) => !c.isArchived)
-      .filter((c: any) => !q || String(c.name || "").toLowerCase().includes(q))
-      .sort((a: any, b: any) => String(a.name || "").localeCompare(String(b.name || "")));
-  }, [clients.data, search]);
-
-  const toggle = async (client: any, kind: EvaluationKind) => {
-    const key = `${client.id}:${kind}`;
-    setSavingKey(key);
-    const currentlyEnabled = isEvaluationEnabled(client, kind);
-    const existing: string[] = Array.isArray(client.disabledEvaluations) ? client.disabledEvaluations : [];
+  const toggle = async (kind: EvaluationKind) => {
+    setSavingKind(kind);
+    const currentlyEnabled = isEvaluationEnabled(disabled, kind);
     const next = currentlyEnabled
-      ? Array.from(new Set([...existing, kind]))
-      : existing.filter((k) => k !== kind);
+      ? Array.from(new Set([...disabled, kind]))
+      : disabled.filter((k) => k !== kind);
 
     try {
-      await updateDoc(doc(db, "clients", client.id), { disabledEvaluations: next });
+      // setDoc with merge: the document does not exist until the first change,
+      // which is what keeps "no document" meaning "everything enabled".
+      await setDoc(
+        doc(db, "system_settings", EVALUATION_ACCESS_DOC),
+        { disabled: next, updatedAt: serverTimestamp(), updatedBy: user?.uid || "" },
+        { merge: true },
+      );
 
       if (user && userData) {
         // Non-blocking, per the project convention that every mutation is logged.
         logActivity({
-          type: "client_updated",
+          // Categorised under evaluations, which is what this changes.
+          type: "evaluation_updated",
           userId: user.uid,
           userName: userData.name || user.email || "Unknown",
           userPhotoURL: userData.photoURL || undefined,
-          targetId: client.id,
-          targetName: client.name || "",
-          metadata: {
-            clientId: client.id,
-            clientName: client.name,
-            evaluationKind: kind,
-            enabled: !currentlyEnabled,
-          },
+          targetId: EVALUATION_ACCESS_DOC,
+          targetName: kind,
+          metadata: { evaluationKind: kind, enabled: !currentlyEnabled },
         }).catch((err) => console.error("Failed to log evaluation access change:", err));
       }
 
@@ -89,11 +129,11 @@ export default function EvaluationAccessTab() {
       console.error(err);
       error(t("settings.evaluation_access.save_error"));
     } finally {
-      setSavingKey(null);
+      setSavingKind(null);
     }
   };
 
-  if (clients.loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
@@ -121,82 +161,52 @@ export default function EvaluationAccessTab() {
         </p>
       </div>
 
-      <div className="relative">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t("settings.evaluation_access.search_placeholder")}
-          className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm"
-        />
-      </div>
-
-      <div className="overflow-x-auto -mx-2 px-2">
-        <table className="w-full min-w-[640px] text-sm">
-          <thead>
-            <tr className="text-left border-b border-neutral-200 dark:border-neutral-800">
-              <th className="py-2.5 pr-4 font-semibold text-neutral-500">
-                {t("settings.evaluation_access.client")}
-              </th>
-              {EVALUATION_KINDS.map((k) => (
-                <th key={k.id} className="py-2.5 px-2 font-semibold text-neutral-500 text-center whitespace-nowrap">
-                  {k.name}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((client: any) => (
-              <tr
-                key={client.id}
-                className="border-b border-neutral-100 dark:border-neutral-800/60 hover:bg-neutral-50 dark:hover:bg-neutral-800/40"
+      <div className="space-y-2">
+        {EVALUATION_KINDS.map((k) => {
+          const enabled = isEvaluationEnabled(disabled, k.id);
+          const busy = savingKind === k.id;
+          return (
+            <div
+              key={k.id}
+              className="flex items-center justify-between gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900"
+            >
+              <div className="min-w-0">
+                <p className="font-semibold text-neutral-900 dark:text-white">{k.name}</p>
+                <p className="text-sm text-neutral-500">
+                  {enabled
+                    ? t("settings.evaluation_access.enabled_hint")
+                    : t("settings.evaluation_access.disabled_hint")}
+                </p>
+              </div>
+              <button
+                onClick={() => !busy && toggle(k.id)}
+                disabled={busy}
+                aria-pressed={enabled}
+                aria-label={k.name}
+                title={
+                  enabled
+                    ? t("settings.evaluation_access.click_to_disable")
+                    : t("settings.evaluation_access.click_to_enable")
+                }
+                className={clsx(
+                  "w-11 h-11 rounded-xl inline-flex items-center justify-center transition-colors shrink-0",
+                  busy && "opacity-50 cursor-wait",
+                  enabled
+                    ? "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400 hover:bg-success-200"
+                    : "bg-neutral-100 text-neutral-400 dark:bg-neutral-800 hover:bg-neutral-200",
+                )}
               >
-                <td className="py-2.5 pr-4 font-medium text-neutral-900 dark:text-white">{client.name}</td>
-                {EVALUATION_KINDS.map((k) => {
-                  const enabled = isEvaluationEnabled(client, k.id);
-                  const key = `${client.id}:${k.id}`;
-                  const busy = savingKey === key;
-                  return (
-                    <td key={k.id} className="py-2.5 px-2 text-center">
-                      <button
-                        onClick={() => !busy && toggle(client, k.id)}
-                        disabled={busy}
-                        aria-pressed={enabled}
-                        aria-label={`${client.name} — ${k.name}`}
-                        title={enabled
-                          ? t("settings.evaluation_access.click_to_disable")
-                          : t("settings.evaluation_access.click_to_enable")}
-                        className={clsx(
-                          "w-11 h-11 rounded-xl inline-flex items-center justify-center transition-colors",
-                          busy && "opacity-50 cursor-wait",
-                          enabled
-                            ? "bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400 hover:bg-success-200"
-                            : "bg-neutral-100 text-neutral-400 dark:bg-neutral-800 hover:bg-neutral-200",
-                        )}
-                      >
-                        {busy ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : enabled ? (
-                          <Check className="w-5 h-5" />
-                        ) : (
-                          <X className="w-5 h-5" />
-                        )}
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={EVALUATION_KINDS.length + 1} className="py-10 text-center text-neutral-400">
-                  {t("settings.evaluation_access.no_clients")}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                {busy ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : enabled ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <X className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

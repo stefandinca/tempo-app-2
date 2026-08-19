@@ -48,11 +48,16 @@ service cloud.firestore {
     // "everything enabled" — an allowlist would hide every protocol for every
     // existing client the moment these rules deployed.
     // Costs one extra get() per evaluation read; budget is 10 per request.
-    function evalDisabled(clientId, kind) {
-      let c = get(/databases/$(database)/documents/clients/$(clientId)).data;
-      return 'disabledEvaluations' in c
-             && c.disabledEvaluations is list
-             && c.disabledEvaluations.hasAny([kind]);
+    // Which evaluation protocols this CLINIC has. Per clinic, not per child:
+    // it is a commercial decision about the customer, and one child having CARS
+    // while their sibling does not would make no sense.
+    //
+    // Opt-out, so a clinic with no document has everything enabled. An allowlist
+    // would have switched every protocol off for every clinic on deploy.
+    function evalDisabled(kind) {
+      return exists(/databases/$(database)/documents/system_settings/evaluation_access)
+             && get(/databases/$(database)/documents/system_settings/evaluation_access)
+                  .data.get('disabled', []).hasAny([kind]);
     }
 
     // ---- CONTROL PLANE — the (default) database only ----
@@ -96,9 +101,7 @@ service cloud.firestore {
       // Only a Superadmin may change which evaluations are enabled — Admin and
       // Coordinator have blanket write access to client docs, so without this
       // they could simply re-enable a protocol the Superadmin disabled.
-      allow update: if isSuperadmin()
-                    || ((isAdmin() || isCoordinator())
-                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['disabledEvaluations']));
+      allow update: if isSuperadmin() || isAdmin() || isCoordinator();
       // NOTE: there used to be a third clause here letting ANY signed-in user add
       // their own uid to parentUids. Anonymous sign-in is open on the parent
       // portal, and most client documents have human-chosen ids of the form
@@ -160,8 +163,12 @@ service cloud.firestore {
     //   config          staff only.
     match /system_settings/{settingId} {
       allow read: if isSignedIn() && settingId.matches('translations_.*');
+      // Readable by anyone signed in, including parents: it is a list of
+      // protocol names, and every view filters itself with it.
+      allow read: if isSignedIn() && settingId == 'evaluation_access';
       allow read: if isAdmin() || isCoordinator() || isTherapist();
-      allow write: if isAdmin();
+      // An Admin runs the clinic, but does not decide what the clinic bought.
+      allow write: if settingId == 'evaluation_access' ? isSuperadmin() : isAdmin();
     }
 
     match /invoices/{invoiceId} {
@@ -196,46 +203,46 @@ service cloud.firestore {
     match /clients/{clientId}/evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
-                        && !evalDisabled(clientId, 'ablls'));
+                        && !evalDisabled('ablls'));
       allow write: if isSuperadmin()
                      || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled(clientId, 'ablls'));
+                         && !evalDisabled('ablls'));
     }
 
     match /clients/{clientId}/vbmapp_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
-                        && !evalDisabled(clientId, 'vbmapp'));
+                        && !evalDisabled('vbmapp'));
       allow write: if isSuperadmin()
                      || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled(clientId, 'vbmapp'));
+                         && !evalDisabled('vbmapp'));
     }
 
     match /clients/{clientId}/portage_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
-                        && !evalDisabled(clientId, 'portage'));
+                        && !evalDisabled('portage'));
       allow write: if isSuperadmin()
                      || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled(clientId, 'portage'));
+                         && !evalDisabled('portage'));
     }
 
     match /clients/{clientId}/cars_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
-                        && !evalDisabled(clientId, 'cars'));
+                        && !evalDisabled('cars'));
       allow write: if isSuperadmin()
                      || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled(clientId, 'cars'));
+                         && !evalDisabled('cars'));
     }
 
     match /clients/{clientId}/carolina_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
-                        && !evalDisabled(clientId, 'carolina'));
+                        && !evalDisabled('carolina'));
       allow write: if isSuperadmin()
                      || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled(clientId, 'carolina'));
+                         && !evalDisabled('carolina'));
     }
 
     match /clients/{clientId}/interventionPlans/{planId} {

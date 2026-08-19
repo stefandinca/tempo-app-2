@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { isPlatformStaff } from "@/lib/roles";
 import { 
   collection, 
   query, 
@@ -86,8 +87,26 @@ export interface TeamMember {
   inviteStatus?: "pending" | "active" | "migrated";
 }
 
-export function useTeamMembers() {
+/**
+ * Every staff record, including the platform Superadmin.
+ *
+ * Only for resolving a reference by id — an event or an activity that already
+ * names the Superadmin should still render a name rather than a blank. For
+ * anything a clinic user chooses from or browses, use useTeamMembers.
+ */
+export function useAllTeamMembers() {
   return useCollection<TeamMember>("team_members", [orderBy("name", "asc")], 100);
+}
+
+/**
+ * The clinic's own staff. The platform Superadmin is filtered out here rather
+ * than at each call site, because there are twenty-odd of them and one missed
+ * filter is a leak of an account the clinic should not know exists.
+ */
+export function useTeamMembers() {
+  const all = useAllTeamMembers();
+  const data = useMemo(() => all.data.filter((m) => !isPlatformStaff(m as any)), [all.data]);
+  return { ...all, data };
 }
 
 export interface TeamPublicMember {

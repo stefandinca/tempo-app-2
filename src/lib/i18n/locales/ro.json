@@ -615,15 +615,14 @@
     },
     "evaluation_access": {
       "title": "Acces la evaluări",
-      "subtitle": "Alege ce protocoale de evaluare poate folosi echipa fiecărui client.",
+      "subtitle": "Alege ce protocoale de evaluare poate folosi acest centru.",
       "warning": "Dezactivarea unui protocol îl ascunde — împreună cu toate evaluările deja înregistrate cu el — pentru Administratori, Coordonatori, Terapeuți și părinți. Doar Superadminii pot vedea sau modifica această setare.",
-      "search_placeholder": "Caută clienți…",
-      "client": "Client",
       "click_to_disable": "Activat — apasă pentru a dezactiva",
       "click_to_enable": "Dezactivat — apasă pentru a activa",
       "saved": "Accesul la evaluări a fost actualizat",
       "save_error": "Nu s-a putut actualiza accesul la evaluări",
-      "no_clients": "Niciun client nu corespunde căutării"
+      "enabled_hint": "Disponibil pentru acest centru",
+      "disabled_hint": "Ascuns pentru acest centru"
     }
   },
   "limits": {
@@ -1627,7 +1626,9 @@
       "closeEvaluation": "Închide Evaluarea",
       "categoryProgress": "Progres Categorie",
       "tapToChangeCategory": "Apasă pentru a schimba categoria"
-    }
+    },
+    "coming_soon_title": "Evaluările vor fi disponibile în curând",
+    "coming_soon_body": "Evaluările standardizate nu fac încă parte din pachetul tău. Contactează-ne și le activăm pentru centrul tău."
   },
   "portage": {
     "title": "Evaluare Portage",

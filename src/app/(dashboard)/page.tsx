@@ -32,11 +32,16 @@ import { logActivity } from "@/lib/activityService";
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const { events, clients, teamMembers } = useData();
+  const { events, clients, teamMembers, hiddenStaffIds } = useData();
   const { user, userData, userRole } = useAuth();
   const { success, error: showError } = useToast();
   const eventsLoading = events.loading || clients.loading || teamMembers.loading;
-  const { activities, loading: activitiesLoading } = useRecentActivities(10);
+  const { activities: rawActivities, loading: activitiesLoading } = useRecentActivities(10);
+  // Superadmin actions are platform administration, not clinic history.
+  const activities = useMemo(
+    () => rawActivities.filter((x: any) => !hiddenStaffIds.has(x.userId)),
+    [rawActivities, hiddenStaffIds],
+  );
   // Scoped to the current month so the attendance KPI has a real sample.
   const today = new Date();
   const { data: monthEvents } = useEventsByMonth(today.getFullYear(), today.getMonth());

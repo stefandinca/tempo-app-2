@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useData } from "@/context/DataContext";
 import { useTranslation } from "react-i18next";
 import { Loader2, Activity as ActivityIcon, Calendar, Users, FileText, UserCheck, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -24,7 +25,16 @@ const getCategoryIcon = (id: ActivityCategory) => {
 export default function ActivityPage() {
   const { t, i18n } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<ActivityCategory>('sessions');
-  const { activities, loading, loadingMore, hasMore, loadMore } = useActivitiesByCategory(selectedCategory);
+  const { activities: rawActivities, loading, loadingMore, hasMore, loadMore } = useActivitiesByCategory(selectedCategory);
+  const { hiddenStaffIds } = useData();
+
+  // The platform Superadmin acts on a clinic's data during setup and support.
+  // Those entries stay in the audit trail but are not the clinic's own history,
+  // and showing them would reveal an account the clinic should not know exists.
+  const activities = useMemo(
+    () => rawActivities.filter((x: any) => !hiddenStaffIds.has(x.userId)),
+    [rawActivities, hiddenStaffIds],
+  );
 
   const locale = i18n.language === 'ro' ? ro : enUS;
 

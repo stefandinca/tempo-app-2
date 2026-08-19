@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { clsx } from "clsx";
-import { FileText, TrendingUp } from "lucide-react";
+import { FileText, TrendingUp, Sparkles } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
 import { VBMAPPEvaluation } from "@/types/vbmapp";
 import EvaluationList from "@/components/evaluations/EvaluationList";
@@ -17,7 +17,7 @@ import CARSList from "@/components/evaluations/CARSList";
 import CarolinaList from "@/components/evaluations/CarolinaList";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useClientVBMAPPEvaluations } from "@/hooks/useVBMAPP";
-import { isEvaluationEnabled } from "@/components/settings/EvaluationAccessTab";
+import { isEvaluationEnabled, useEvaluationAccess } from "@/components/settings/EvaluationAccessTab";
 import { usePortageEvaluations } from "@/hooks/usePortage";
 import { useCARSEvaluations } from "@/hooks/useCARS";
 import { useCarolinaEvaluations } from "@/hooks/useCarolina";
@@ -70,6 +70,8 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
     };
   };
 
+  const evalAccess = useEvaluationAccess();
+
   const ALL_EVAL_TOOLS = [
     { id: 'ablls', name: 'ABLLS-R', desc: t('evaluations.desc_ablls'), icon: Target, color: 'text-primary-600 bg-primary-50', stats: getStatusInfo(ablllsEvaluations) },
     { id: 'vbmapp', name: 'VB-MAPP', desc: t('evaluations.desc_vbmapp'), icon: Brain, color: 'text-purple-600 bg-purple-50', stats: getStatusInfo(vbmappEvaluations) },
@@ -78,18 +80,19 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
     { id: 'carolina', name: 'Carolina', desc: t('evaluations.desc_carolina'), icon: ClipboardCheck, color: 'text-teal-600 bg-teal-50', stats: getStatusInfo(carolinaEvaluations) },
   ];
 
-  // A Superadmin can disable protocols per client; disabled ones vanish entirely
-  // for everyone else. Firestore rules deny the reads too, so this is not merely
-  // cosmetic — without the filter the lists would just render permission errors.
-  const EVAL_TOOLS = ALL_EVAL_TOOLS.filter((tool) => isEvaluationEnabled(client, tool.id));
+  // A Superadmin controls which protocols this CLINIC has; disabled ones vanish
+  // entirely for everyone else. Firestore rules deny the reads too, so this is
+  // not merely cosmetic — without the filter the lists would render permission
+  // errors instead of content.
+  const EVAL_TOOLS = ALL_EVAL_TOOLS.filter((tool) => isEvaluationEnabled(evalAccess.disabled, tool.id));
 
   // If the protocol currently open gets disabled (or a stale link points at one),
   // fall back to the picker rather than rendering a panel whose reads are denied.
   useEffect(() => {
-    if (evalType !== "none" && !isEvaluationEnabled(client, evalType)) {
+    if (evalType !== "none" && !isEvaluationEnabled(evalAccess.disabled, evalType)) {
       setEvalType("none");
     }
-  }, [client, evalType]);
+  }, [evalAccess.disabled, evalType]);
 
   // ABLLS handlers
   const getMostRecentCompletedABLLS = (): Evaluation | undefined => {
@@ -190,6 +193,24 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
   };
 
   if (evalType === "none") {
+    // No protocol at all is a deliberate state, not an empty list: the clinic
+    // has not bought any yet. Saying so beats an unexplained blank grid.
+    if (evalAccess.allDisabled) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-500">
+          <div className="w-14 h-14 rounded-2xl bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center mb-4">
+            <Sparkles className="w-7 h-7" />
+          </div>
+          <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+            {t('evaluations.coming_soon_title')}
+          </h3>
+          <p className="text-sm text-neutral-500 mt-1 max-w-sm">
+            {t('evaluations.coming_soon_body')}
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-8 animate-in fade-in duration-500">
         <div>

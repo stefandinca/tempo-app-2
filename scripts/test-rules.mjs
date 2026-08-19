@@ -32,35 +32,59 @@ const client = (id, data) => [
   { function: "get", args: [{ exact_value: `${D}/clients/${id}` }], result: { value: { data } } },
 ];
 
-const cases = [
-  // --- evaluation gating ---
-  ["therapist reads a DISABLED protocol", "DENY", "get", `${D}/clients/c1/cars_evaluations/e1`,
-    { uid: "t1" }, [...member("t1", "Therapist"), ...client("c1", { disabledEvaluations: ["cars"] })]],
-  ["therapist reads an ENABLED protocol", "ALLOW", "get", `${D}/clients/c1/cars_evaluations/e1`,
-    { uid: "t1" }, [...member("t1", "Therapist"), ...client("c1", { disabledEvaluations: ["carolina"] })]],
-  ["therapist reads when NO field set (default on)", "ALLOW", "get", `${D}/clients/c1/cars_evaluations/e1`,
-    { uid: "t1" }, [...member("t1", "Therapist"), ...client("c1", {})]],
-  ["admin reads a DISABLED protocol", "DENY", "get", `${D}/clients/c1/evaluations/e1`,
-    { uid: "a1" }, [...member("a1", "Admin"), ...client("c1", { disabledEvaluations: ["ablls"] })]],
-  ["SUPERADMIN reads a DISABLED protocol", "ALLOW", "get", `${D}/clients/c1/evaluations/e1`,
-    { uid: "s1" }, [...member("s1", "Superadmin"), ...client("c1", { disabledEvaluations: ["ablls"] })]],
-  ["parent reads a DISABLED protocol", "DENY", "get", `${D}/clients/c1/vbmapp_evaluations/e1`,
-    { uid: "p1" }, [...client("c1", { parentUids: ["p1"], disabledEvaluations: ["vbmapp"] })]],
-  ["therapist WRITES a disabled protocol", "DENY", "create", `${D}/clients/c1/portage_evaluations/e2`,
-    { uid: "t1" }, [...member("t1", "Therapist"), ...client("c1", { disabledEvaluations: ["portage"] })], { scores: {} }],
+/** The clinic-wide protocol list. `null` means the document does not exist. */
+const evalAccess = (disabled) => [
+  {
+    function: "exists",
+    args: [{ exact_value: `${D}/system_settings/evaluation_access` }],
+    result: { value: disabled !== null },
+  },
+  {
+    function: "get",
+    args: [{ exact_value: `${D}/system_settings/evaluation_access` }],
+    result: { value: { data: { disabled: disabled || [] } } },
+  },
+];
 
-  // --- who may change the flag ---
-  ["admin changes disabledEvaluations", "DENY", "update", `${D}/clients/c1`,
-    { uid: "a1" }, [...member("a1", "Admin")], { name: "X", disabledEvaluations: ["cars"] }, { name: "X" }],
-  ["superadmin changes disabledEvaluations", "ALLOW", "update", `${D}/clients/c1`,
-    { uid: "s1" }, [...member("s1", "Superadmin")], { name: "X", disabledEvaluations: ["cars"] }, { name: "X" }],
-  ["admin edits an unrelated field", "ALLOW", "update", `${D}/clients/c1`,
-    { uid: "a1" }, [...member("a1", "Admin")], { name: "Y" }, { name: "X" }],
+const cases = [
+  // --- evaluation gating (per CLINIC, not per child) ---
+  ["therapist reads a DISABLED protocol", "DENY", "get", `${D}/clients/c1/cars_evaluations/e1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...evalAccess(["cars"])]],
+  ["therapist reads an ENABLED protocol", "ALLOW", "get", `${D}/clients/c1/cars_evaluations/e1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...evalAccess(["carolina"])]],
+  ["therapist reads when NO document exists (default on)", "ALLOW", "get", `${D}/clients/c1/cars_evaluations/e1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...evalAccess(null)]],
+  ["therapist reads when the list is EMPTY", "ALLOW", "get", `${D}/clients/c1/cars_evaluations/e1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...evalAccess([])]],
+  ["admin reads a DISABLED protocol", "DENY", "get", `${D}/clients/c1/evaluations/e1`,
+    { uid: "a1" }, [...member("a1", "Admin"), ...evalAccess(["ablls"])]],
+  ["SUPERADMIN reads a DISABLED protocol", "ALLOW", "get", `${D}/clients/c1/evaluations/e1`,
+    { uid: "s1" }, [...member("s1", "Superadmin"), ...evalAccess(["ablls"])]],
+  ["parent reads a DISABLED protocol", "DENY", "get", `${D}/clients/c1/vbmapp_evaluations/e1`,
+    { uid: "p1" }, [...client("c1", { parentUids: ["p1"] }), ...evalAccess(["vbmapp"])]],
+  ["parent reads an ENABLED protocol", "ALLOW", "get", `${D}/clients/c1/vbmapp_evaluations/e1`,
+    { uid: "p1" }, [...client("c1", { parentUids: ["p1"] }), ...evalAccess(["cars"])]],
+  ["therapist WRITES a disabled protocol", "DENY", "create", `${D}/clients/c1/portage_evaluations/e2`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...evalAccess(["portage"])], { scores: {} }],
+
+  // --- who may change the clinic's protocol list ---
+  ["superadmin sets evaluation_access", "ALLOW", "update", `${D}/system_settings/evaluation_access`,
+    { uid: "s1" }, member("s1", "Superadmin"), { disabled: ["cars"] }, { disabled: [] }],
+  ["admin sets evaluation_access", "DENY", "update", `${D}/system_settings/evaluation_access`,
+    { uid: "a1" }, member("a1", "Admin"), { disabled: ["cars"] }, { disabled: [] }],
+  ["coordinator sets evaluation_access", "DENY", "update", `${D}/system_settings/evaluation_access`,
+    { uid: "c3" }, member("c3", "Coordinator"), { disabled: ["cars"] }, { disabled: [] }],
+  ["admin still writes other settings", "ALLOW", "update", `${D}/system_settings/config`,
+    { uid: "a1" }, member("a1", "Admin"), { x: 1 }, { x: 2 }],
+  ["therapist reads evaluation_access", "ALLOW", "get", `${D}/system_settings/evaluation_access`,
+    { uid: "t1" }, member("t1", "Therapist")],
+  ["a parent reads evaluation_access", "ALLOW", "get", `${D}/system_settings/evaluation_access`,
+    { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],
 
   // --- parent self-linking ---
   // A signed-in stranger used to be able to write their own uid into any
-  // client's parentUids, and most client ids are firstname + a birthday. Linking
-  // is now server-side, against the access code, so every one of these denies.
+  // client's parentUids, and most client ids are firstname + a birthday.
+  // Linking is now server-side, against the access code, so these all deny.
   ["anonymous adds itself to parentUids", "DENY", "update", `${D}/clients/c1`,
     { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }],
     { name: "X", parentUids: ["anon"] }, { name: "X", parentUids: [] }],
@@ -71,7 +95,6 @@ const cases = [
     { uid: "c2" }, member("c2", "Coordinator"), { name: "Y", parentUids: [] }, { name: "X", parentUids: [] }],
   ["therapist edits a client (never was allowed)", "DENY", "update", `${D}/clients/c1`,
     { uid: "t1" }, member("t1", "Therapist"), { name: "Y", parentUids: [] }, { name: "X", parentUids: [] }],
-
   // --- control plane ---
   ["anonymous reads tenant_members", "DENY", "get", `${D}/tenant_members/u1`,
     { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],

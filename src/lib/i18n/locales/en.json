@@ -611,15 +611,14 @@
     },
     "evaluation_access": {
       "title": "Evaluation access",
-      "subtitle": "Choose which evaluation protocols each client's team can use.",
+      "subtitle": "Choose which evaluation protocols this clinic can use.",
       "warning": "Disabling a protocol hides it — and every evaluation already recorded with it — from Admins, Coordinators, Therapists and parents. Only Superadmins can see or change this.",
-      "search_placeholder": "Search clients…",
-      "client": "Client",
       "click_to_disable": "Enabled — click to disable",
       "click_to_enable": "Disabled — click to enable",
       "saved": "Evaluation access updated",
       "save_error": "Could not update evaluation access",
-      "no_clients": "No clients match your search"
+      "enabled_hint": "Available to this clinic",
+      "disabled_hint": "Hidden from this clinic"
     }
   },
   "limits": {
@@ -1623,7 +1622,9 @@
       "closeEvaluation": "Close Evaluation",
       "categoryProgress": "Category Progress",
       "tapToChangeCategory": "Tap to change category"
-    }
+    },
+    "coming_soon_title": "Evaluations coming soon",
+    "coming_soon_body": "Standardised assessments are not part of your plan yet. Get in touch and we will switch them on for your clinic."
   },
   "portage": {
     "title": "Portage Evaluation",
