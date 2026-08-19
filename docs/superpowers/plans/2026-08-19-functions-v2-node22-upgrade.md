@@ -239,10 +239,28 @@ option."
 - Consumes: Tasks 1–3
 - Produces: confidence that all three functions work on Node 22 before any live tenant is touched.
 
-- [ ] **Step 1: Deploy to demo**
+- [ ] **Step 1: Delete the v1 trigger, then deploy**
+
+**A function cannot be upgraded in place from 1st to 2nd Gen.** Deploying over it
+fails with `Upgrading from 1st Gen to 2nd Gen is not yet supported`. It must be
+deleted first:
 
 ```bash
+firebase functions:delete sendPushNotification --project tempo-app-demo --force
 firebase deploy --only functions --project tempo-app-demo
+```
+
+Between the delete and a successful create, **push delivery is down for that
+tenant**. In-app notifications are unaffected (they are Firestore listeners), and
+notifications created during the gap simply never trigger a push — they are not
+retried. Keep the window short and run it outside therapy hours on a live tenant.
+
+The create commonly fails on a project's **first ever v2 deploy** with
+`Permission denied while using the Eventarc Service Agent`. That is service-agent
+propagation; retry:
+
+```bash
+firebase deploy --only functions:sendPushNotification --project tempo-app-demo
 ```
 
 Expected: three functions deploy. Note: `tempo-app-demo` has **never** had functions deployed (a create, not an update), and a first deploy on a project commonly fails once with `PERMISSION_DENIED ... gcf-artifacts ... artifactregistry`. If so, run the same command again — the service agent is provisioned during the first attempt.
