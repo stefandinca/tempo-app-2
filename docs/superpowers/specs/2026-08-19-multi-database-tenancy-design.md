@@ -117,40 +117,59 @@ membership index, never a data store — it must never hold clinical data.
 
 ---
 
-## 4. Storage — the one genuine gap **[OPEN]**
+## 4. Storage — **RESOLVED 19 Aug 2026**
 
-`storage.rules` currently makes five Firestore lookups, all hardcoded to
-`/databases/(default)/documents/…`. Once clinic data lives in named databases,
-those lookups see nothing.
+`storage.rules` makes five Firestore lookups, all hardcoded to
+`/databases/(default)/documents/…`. The question was whether they could point at
+a per-clinic database instead.
 
-Both of these **compile**, tested 19 Aug:
+**They cannot.** Runtime spike on `tempo-app-demo`, two users and a positive
+control:
 
-```js
-firestore.exists(/databases/clinic-a/documents/team_members/$(request.auth.uid))
-firestore.exists(/databases/$(tenantId)/documents/team_members/$(request.auth.uid))
-```
+| Rule reads | User whose marker is there | Result |
+|---|---|---|
+| `/databases/(default)/…` | userA | **ALLOW** — mechanism works |
+| `/databases/(default)/…` | userB (no marker) | DENY — control discriminates |
+| `/databases/spike-storage/…` (static) | userB | **DENY** |
+| `/databases/$(tenantId)/…` (interpolated) | userB | **DENY** |
 
-but the rules compiler is permissive about path syntax and compilation is **not**
-evidence of runtime support. This must be settled by a runtime spike before the
-Storage design is fixed — it is the first task of the storage phase, and it
-gates the choice:
+Both named forms **compile and deploy** and then deny everything at runtime.
+That is the dangerous part: nothing errors, so a rollout would look successful
+and silently block every parent from every video and voice note.
 
-**Option A — dynamic database in Storage rules** (if the spike passes)
-Paths become `tenants/{tenantId}/clients/{clientId}/…`; rules interpolate
-`$(tenantId)` into the database segment. No mirror, no sync. Cleanest.
+> **Storage rules can only read the `(default)` database.** Do not design around
+> anything else, and do not trust `firebase deploy` succeeding as evidence.
 
-**Option B — membership mirror in `(default)`** (if the spike fails)
-Storage rules consult `tenant_members/{uid}` in `(default)` for staff, and a
-`tenant_parents/{uid}` mirror for parents. Works with the syntax known to be
-supported today. Cost: parent UIDs churn on every anonymous re-login, so the
-mirror needs maintaining in `ParentAuthContext` alongside `parentUids`.
+### Second finding, from the same spike
 
-**Option C — signed URLs** (fallback, strongest)
-Deny all client access in Storage rules; serve media through an API route that
-verifies the caller and returns a short-lived signed URL. Strongest guarantee,
-but changes how every video and voice note loads and adds a round-trip.
+The control ALLOWED userA a read gated on `spike_probe/{uid}` — a collection with
+**no Firestore rule at all**, therefore default-denied to that user. So
+`firestore.get`/`exists` inside Storage rules is a **privileged read that bypasses
+Firestore security rules**.
 
-Decide after the spike. Do not build Storage isolation before then.
+That is what makes the chosen option safe: the mirror can be locked to
+`allow read, write: if false` in Firestore — invisible to every client — and
+Storage rules can still consult it.
+
+### Decision: membership mirror in `(default)`
+
+Storage paths become `tenants/{tenantId}/clients/{clientId}/…`. Storage rules
+resolve authorisation against two mirrors in `(default)`, both client-invisible:
+
+| Collection | Contents | Written by |
+|---|---|---|
+| `tenant_members/{uid}` | `{ tenantId, role }` | staff create/edit (already in §3) |
+| `tenant_parents/{uid}` | `{ tenantId, clientIds: [...] }` | `ParentAuthContext` on access-code login |
+
+Neither holds clinical data. `tenant_parents` needs maintaining wherever
+`parentUids` is written today — parent UIDs are anonymous and churn on every
+re-login, and `ParentAuthContext` already handles exactly that churn.
+
+**Rejected — signed URLs.** Deny all client Storage access and serve media
+through an API route returning short-lived signed URLs. Strictly stronger, and
+worth revisiting if the mirrors prove fragile, but it changes how every video and
+voice note loads and puts a server round-trip in front of each one. Not worth it
+while a rules-based answer exists.
 
 ---
 
@@ -223,7 +242,6 @@ Steps 1 and 2 are independent of each other and of 3.
 
 ## 9. Open questions
 
-- Storage isolation option (§4) — blocked on the runtime spike.
 - A v2 Firestore trigger targets **one** database. `sendPushNotification` under
   multi-database therefore needs either a wildcard `database` option (unverified)
   or one registration per clinic — 20 trigger deployments at the cap. Verify
