@@ -41,8 +41,16 @@ export function assertDemoProject(project) {
 }
 
 export class Db {
-  constructor(project) {
-    assertDemoProject(project);
+  /**
+   * @param project Firebase project id.
+   * @param opts.allowAnyProject Opt out of the demo allowlist. ONLY for tools
+   *   that legitimately target arbitrary projects (tenant bootstrap). Callers
+   *   that pass this take on the duty of guarding writes themselves — the demo
+   *   seeder must never pass it.
+   */
+  constructor(project, { allowAnyProject = false } = {}) {
+    if (!allowAnyProject) assertDemoProject(project);
+    this.allowAnyProject = allowAnyProject;
     this.project = project;
     this.base = `https://firestore.googleapis.com/v1/projects/${project}/databases/(default)/documents`;
     this.writes = 0;
@@ -74,7 +82,7 @@ export class Db {
    * anything leaves the process.
    */
   async commit(writes) {
-    assertDemoProject(this.project);
+    if (!this.allowAnyProject) assertDemoProject(this.project);
     if (this.dryRun) { this.writes += writes.length; return; }
     for (let i = 0; i < writes.length; i += 400) {
       const chunk = writes.slice(i, i + 400);

@@ -6,16 +6,18 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "next dev",
-    "dev:demo": "dotenv -e .env.demoonly next dev",
-    "build": "next build",
-    "build:demo": "dotenv -e .env.demo next build",
-    "build:prod": "dotenv -e .env.live next build",
+    "dev": "node scripts/tenant-env.mjs --check",
+    "dev:demo": "node scripts/tenant-env.mjs demo -- next dev",
+    "build": "node scripts/tenant-env.mjs -- next build",
+    "build:demo": "node scripts/tenant-env.mjs demo -- next build",
+    "build:prod": "node scripts/tenant-env.mjs live -- next build",
     "package": "node scripts/build-prod.js",
     "package:demo": "node scripts/build-prod.js --env=demo",
     "package:gzip": "node scripts/build-prod.js --gzip",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:live": "node scripts/tenant-env.mjs live -- next dev",
+    "check:env": "node scripts/tenant-env.mjs --check"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
