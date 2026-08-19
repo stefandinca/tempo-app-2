@@ -46,6 +46,12 @@ Existing tenants for reference: `tempo-app-2` (live — Live Better Life),
    > VAPID keys are **per project**. A key from another tenant will not work.
    > (`.env.demoonly` had no key of its own for a long time and silently
    > inherited the live project's, which is why demo push never worked.)
+   >
+   > The FCM service worker is generated per tenant at build time from
+   > `public/firebase-messaging-sw.template.js` — it used to hardcode the live
+   > project, so every tenant's worker initialised against `tempo-app-2` and
+   > rejected its own push messages. Nothing to do here; just never hardcode
+   > config into the generated file.
 
 6. **Project settings → General → Your apps → Web app** → register one. Copy the
    config block; those six values are the `NEXT_PUBLIC_FIREBASE_*` variables.

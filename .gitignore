@@ -362,3 +362,7 @@ demo-backup/
 # Retired/backup env files (contain project config; never commit)
 .env.disabled-*
 .env.*.bak
+
+# Generated per-tenant at build time by scripts/generate-messaging-sw.mjs
+# (edit public/firebase-messaging-sw.template.js instead)
+public/firebase-messaging-sw.js

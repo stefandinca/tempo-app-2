@@ -1,15 +1,15 @@
+// TEMPLATE — do not edit public/firebase-messaging-sw.js directly; it is generated.
+// Edit this file instead, then rebuild.
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
-// Initialize the Firebase app
-firebase.initializeApp({
-  apiKey: "AIzaSyBLyN1jo8PpJ5OMtkEuC4auhuuviapB3Bs",
-  authDomain: "tempo-app-2.firebaseapp.com",
-  projectId: "tempo-app-2",
-  storageBucket: "tempo-app-2.appspot.com",
-  messagingSenderId: "47813899076",
-  appId: "1:47813899076:web:cd597912a0755195241d11"
-});
+// Initialize the Firebase app.
+// The placeholder below is substituted at build time by
+// scripts/generate-messaging-sw.mjs with the config of the tenant being built.
+// It must NOT be hardcoded: this file is served per-deployment, and a wrong
+// messagingSenderId makes the worker reject the push messages that tenant's own
+// Cloud Function sends.
+firebase.initializeApp(__FIREBASE_CONFIG__);
 
 const messaging = firebase.messaging();
 

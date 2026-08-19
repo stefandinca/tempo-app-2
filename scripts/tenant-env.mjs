@@ -128,6 +128,19 @@ for (const [key, consequence] of Object.entries(OPTIONAL)) {
 }
 console.log("");
 
+// The FCM service worker is served per-deployment and must carry THIS tenant's
+// Firebase config. Generated here, once the env is resolved, so neither the local
+// nor the Vercel build path can skip it.
+try {
+  const { generateMessagingSw } = await import("./generate-messaging-sw.mjs");
+  const target = generateMessagingSw(env);
+  console.log(`  ${C.dim(`generated public/firebase-messaging-sw.js for ${target}`)}\n`);
+} catch (err) {
+  console.error(`  ${C.red("✗ " + err.message)}`);
+  console.error(`  ${C.dim("Push notifications would silently target the wrong project — refusing to continue.")}\n`);
+  process.exit(1);
+}
+
 if (checkOnly || command.length === 0) process.exit(0);
 
 // Passed as one string rather than an argv array: `next` is a .cmd shim on
