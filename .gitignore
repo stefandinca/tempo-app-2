@@ -358,3 +358,7 @@ bugs/bug 1.png
 
 # Demo seeder backups (local snapshots of demo Firestore docs)
 demo-backup/
+
+# Retired/backup env files (contain project config; never commit)
+.env.disabled-*
+.env.*.bak
