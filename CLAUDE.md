@@ -46,4 +46,6 @@ firestore.rules · storage.rules · firestore.indexes.json · next.config.js
 Team modeled as specialist agents in `.claude/agents/`. The **orchestrator** routes every prompt automatically — the user does NOT name agents. Roster: `robert` (PM), `marcus` (lead dev), `sofia` (UX research), `kai` (UI design), `corina` (clinical/BCBA), `alex` (QA). See `.claude/agents/orchestrator.md` for routing rules and the test → fix → verify → commit loop.
 
 ## Reference Documents
-`documentation/UX-REVIEW.md` · `AI_CORE_CONTEXT.md` · `Tempo technical documentation.md` · `parent-portal.md` · `video-recording.md` (shipped) · `voice-feedback.md` (shipped) · archived material incl. `bugreport.md` + `activity-integration-guide.md` in `documentation/old documentation/`
+**Current** — `documentation/`: `Tempo technical documentation.md` (§27 Mira, §28 tenancy) · `ProjectOverview.md` · `Project roadmap.md` · `new-tenant-runbook.md` · `multi-tenant-implementation-plan.md` · `AI_CORE_CONTEXT.md`
+
+**Archived** — `documentation/old documentation/` (see `ARCHIVE-INDEX.md`): `UX-REVIEW.md`, `parent-portal.md`, `video-recording.md`, `voice-feedback.md`, `WORK.md`, `INSTALL PLATFORM.md`, `bugreport.md`, `activity-integration-guide.md`. Treat as historical — verify against the code before relying on it.

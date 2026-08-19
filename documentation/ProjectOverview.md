@@ -96,8 +96,9 @@ TempoApp supports **5 standardized evaluation tools** used worldwide in ABA ther
 
 ### ABLLS-R (Assessment of Basic Language and Learning Skills — Revised)
 
-- Comprehensive assessment across **20 developmental categories** including cooperation, language skills, social interaction, academic skills, and self-care
-- Each item is scored on a **0–4 scale**
+- Comprehensive assessment across **25 developmental categories** and 536 items, including cooperation, language skills, social interaction, academic skills, and self-care
+- Items are scored against per-item criteria (most on a 0–4 scale), and can be marked N/A
+- **Age-aware** — skills a child is not yet developmentally expected to have are reported as not-yet-expected rather than counted as gaps, so a young child's report isn't full of false deficits
 - Visual progress charts and radar graphs show strengths and areas for growth
 - Compare current evaluation with previous ones to track improvement over time
 - Generate printable PDF reports
@@ -353,6 +354,28 @@ Reports are formatted in HTML and can be printed or saved as PDFs directly from 
 
 ---
 
+## 19. Mira — AI Clinical Assistant
+
+A built-in assistant that helps staff make sense of the data the platform collects. **Staff only — parents never have access to it.**
+
+- **Ask about a child in plain language** — "how has Andrei progressed since spring?" — and get an answer built from that child's real evaluations, sessions, goals and billing status, not a guess
+- **App guidance** — "how do I generate an invoice?" — answered from a built-in knowledge base
+- **Evaluation insights** — on a completed evaluation, the assistant produces a short summary, the child's relative strengths, and suggested focus areas, which the therapist reviews and edits rather than writing from scratch
+- **Bilingual** — answers in English or Romanian, matching the user's language
+
+### How it protects client data
+
+- **Consent required.** Each staff member explicitly consents before any data is sent. Changing the consent terms forces everyone to re-consent
+- **Children are pseudonymised.** The assistant receives initials and an age in months — never full names, birth dates, phone numbers or email addresses. This is enforced in the code that builds the request, so it cannot be bypassed by prompting
+- **Staff only, verified server-side.** The user's identity and role are checked against the database before any client data is read; the role is never taken from the browser's word for it
+- **Rate limited and costed.** Each user has a daily cap, and every question's cost is recorded so administrators can see exactly what the feature costs
+
+### What it deliberately does not do
+
+It supports clinical judgment rather than replacing it — it frames suggestions as options, makes no diagnoses, and a BCBA remains the decision-maker. There is no parent-facing AI.
+
+---
+
 # Parent Portal
 
 The Parent Portal is a separate, simplified interface designed specifically for parents. Parents access it using an **access code** provided by the therapy center — no email or password needed.
@@ -495,12 +518,15 @@ Full dark mode support for comfortable use in any lighting condition.
 | Metric | Count |
 | --- | --- |
 | Staff portal pages | 15 |
+| Clinics using the platform | 1 live, 1 demo, 1 onboarding |
 | Parent portal pages | 9 |
 | Evaluation types supported | 5 |
 | User roles | 5 |
 | Supported languages | 2 (English, Romanian) |
-| React components | 130+ |
-| Translation keys | 2,000+ |
+| React components | 180+ |
+| Custom hooks | 18 |
+| Translation keys | 2,100+ |
+| ABLLS-R items scored | 536 across 25 categories |
 
 ---
 
@@ -522,9 +548,11 @@ Full dark mode support for comfortable use in any lighting condition.
 | **FCM** | Firebase Cloud Messaging — the technology that delivers push notifications |
 | **i18n** | Internationalization — the technical term for multi-language support |
 | **KPI** | Key Performance Indicator — important metrics shown on the dashboard |
+| **Mira** | The platform's staff-facing AI clinical assistant |
+| **Pseudonymisation** | Replacing identifying details (a full name) with a non-identifying stand-in (initials) before data leaves the platform |
 
 ---
 
 *TempoApp — Built for therapy centers. Designed for better outcomes.*
 
-*Last Updated: June 2026*
+*Last Updated: August 2026*

@@ -64,3 +64,23 @@ Once the platform is installed, you don't need to re-upload everything for simpl
 *   **Page not loading?** Check the `logs/passenger.log` file.
 *   **Permissions Error?** If `npm install` fails, delete the physical `node_modules` folder on the server first; the server prefers to manage this itself.
 *   **Still seeing the old version?** Delete `index.html` from the root folder if it exists; it blocks the Node.js app.
+
+
+## 4. updating
+
+New commands                                                                                                 
+  - npm run package — build with .env.live + clean + bundle → dist/tempo-app-live-YYYYMMDD-HHmm.tar              - npm run package:demo — same, with .env.demo
+  - npm run package:gzip — live build, outputs .tar.gz (~16% smaller; saves upload time)                       
+  
+  Additional flags (node scripts/build-prod.js --flag)
+  - --env=demo / --env=live — pick the env file
+  - --gzip — produce .tar.gz
+  - --with-modules — bundle node_modules/ too (skip cPanel's "Run NPM Install")
+  - --skip-build — re-package an existing .next without rebuilding
+  - --out=my.tar — custom output filename
+
+  What goes into the bundle (533 entries, forward-slash Linux paths, POSIX ustar format)
+  - .next/ (runtime output, with cache/ and trace/ pruned)
+  - public/ (including your 149 MB of tutorial videos)
+  - package.json, package-lock.json
+  - next.config.js, server.js
