@@ -1339,9 +1339,9 @@ explicitly and refuses to guess (§28.2).
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
 
-> `npm run package` / `package:demo` / `package:gzip` (`scripts/build-prod.js`)
-> build a tar for cPanel upload. **Legacy** — hosting is Vercel; kept only until
-> the cPanel artefacts are removed.
+> The cPanel packaging scripts and artefacts (`server.js`, `app.js`, `.htaccess`,
+> `maintenance.html`, `scripts/build-prod.js`, `npm run package*`) were removed in
+> Aug 2026. Deployment is Vercel only.
 
 ## 23.2 Next.js Configuration
 
@@ -1364,8 +1364,7 @@ explicitly and refuses to guess (§28.2).
 
 Onboarding a new tenant: `documentation/new-tenant-runbook.md`.
 
-> The cPanel/Passenger path (`server.js`, `.htaccess`, `app.js`,
-> `scripts/build-prod.js`) is retired and unused.
+> The cPanel/Passenger artefacts were deleted in Aug 2026.
 
 ## 23.4 Firebase Deployment
 

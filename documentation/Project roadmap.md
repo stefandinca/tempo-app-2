@@ -199,7 +199,7 @@ Final polish, Cloud Functions, and quality-of-life improvements.
 - [x]  **Parent auth rework** — Login via `/client_codes/{CODE}` lookup collection (get-only, enumeration forbidden); fixed permission errors, double-login, stale-UID duplicate notifications; 30-min idle auto sign-out
 - [x]  **Parent portal redesign** — Restructured navigation, redesigned dashboard/profile, intervention plan removed from profile, dashboard shows every session from the latest session day
 - [x]  **Notifications** — Read status persists with optimistic updates
-- [x]  **Packaging** — `npm run package` / `package:demo` / `package:gzip` bundle the prod build into a tar for cPanel deployment (Windows-compatible)
+- [x]  **Packaging** — tar bundling for cPanel deployment *(removed Aug 2026 when hosting consolidated on Vercel)*
 
 ---
 
