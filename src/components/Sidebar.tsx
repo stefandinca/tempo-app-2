@@ -19,17 +19,23 @@ import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
 import { useNotifications } from "@/context/NotificationContext";
+import { useData } from "@/context/DataContext";
 import { useTranslation } from "react-i18next";
 
 export default function Sidebar() {
   const { t } = useTranslation();
   const pathname = usePathname();
-// ... inside component ...
+  const { clients } = useData();
+
+  // Real count of active clients. This used to be a hardcoded 48, which was
+  // wrong on every deployment and quietly reassuring — it looked like data.
+  const activeClientCount = clients.data.filter((c: any) => !c.isArchived).length;
+
   const navItems = [
     { name: t('nav.dashboard'), href: "/", icon: LayoutDashboard },
     { name: t('nav.calendar'), href: "/calendar/", icon: Calendar },
     { name: t('nav.messages'), href: "/messages/", icon: MessageSquare },
-    { name: t('nav.clients'), href: "/clients/", icon: Users, badge: 48 },
+    { name: t('nav.clients'), href: "/clients/", icon: Users, badge: activeClientCount },
     { name: t('nav.team'), href: "/team/", icon: UserCircle },
     { name: t('nav.settings'), href: "/settings/", icon: Settings },
   ];
@@ -70,7 +76,7 @@ export default function Sidebar() {
           if (item.href === "/messages/" && unreadMessageCount > 0) {
             badgeContent = unreadMessageCount;
           } else if (item.badge) {
-            badgeContent = item.badge; // Static badge from config (e.g. Clients)
+            badgeContent = item.badge; // Live count (e.g. active clients)
           }
 
           return (
