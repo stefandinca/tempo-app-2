@@ -186,10 +186,21 @@ mirrors carry the bucket:
 | `tenant_members/{uid}` | `{ tenantId, role, bucket }` |
 | `tenant_parents/{uid}` | `{ tenantId, bucket, clientIds: [...] }` |
 
-Compiles cleanly. Unlike the named-database probe, both mechanisms it relies on —
-`{bucket}` binding and `firestore.get` against `(default)` — are already proven at
-runtime by the control in the storage spike. **Still worth one runtime check with
-a real second bucket before relying on it.**
+**Verified at runtime**, 19 Aug, with a real second Firebase Storage bucket on
+`tempo-app-demo` and two users whose mirrors named different buckets:
+
+| | own bucket | other tenant's bucket |
+|---|---|---|
+| userA (mirror -> bucket A) | **ALLOW** | **DENY (403)** |
+| userB (mirror -> bucket B) | **ALLOW** | **DENY (403)** |
+
+One `storage.rules` file was deployed to both buckets in a single command, using
+the multi-bucket `storage` array in `firebase.json`. The `{bucket}` wildcard binds
+the real bucket name, so no per-tenant rules file is needed.
+
+> **Sequencing:** these rules deny everything until `tenant_members` entries carry
+> a `bucket` field. Deploy the mirrors first, then the rules — the reverse order
+> locks staff out of every document, video and voice note.
 
 ### Why this beats the path-prefix approach
 
