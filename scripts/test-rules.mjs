@@ -11,6 +11,10 @@
  *
  * Authenticates with gcloud Application Default Credentials. The project named
  * below only hosts the evaluation — the local rules text is what is under test.
+ *
+ * NOTE: always give a DOCUMENT-shaped path, even for "list" — the evaluator has
+ * to bind the wildcard (e.g. /clients/c1, not /clients). A collection path makes
+ * every rule miss and every case look like a denial.
  */
 import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
