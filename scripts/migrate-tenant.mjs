@@ -6,7 +6,7 @@
  *   node scripts/migrate-tenant.mjs --from-project=A --to-project=B \
  *        --to-database=clinic-x --dry-run
  *   node scripts/migrate-tenant.mjs ... --yes
- *   node scripts/migrate-tenant.mjs ... --verify    # counts both sides, writes nothing
+ *   node scripts/migrate-tenant.mjs ... --verify    # compares both sides, writes nothing
  *
  * Idempotent: documents keep their ids, so re-running overwrites rather than
  * duplicating. It NEVER deletes anything, at either end — the source stays
@@ -76,10 +76,28 @@ const strip = (d) => {
   return rest;
 };
 
-/** Copy one collection; returns the source docs so subcollections can be walked. */
+/** Collections where the destination held documents the source does not. */
+const extras = [];
+/** Collections where the destination is short of the source. */
+const shortfalls = [];
+
+/**
+ * Copy one collection; returns the source docs so subcollections can be walked.
+ *
+ * Under --verify nothing is written and BOTH sides are listed, then compared by
+ * document id. Counting only the source would report a clean run against an
+ * empty destination, which is precisely the failure this flag exists to catch.
+ */
 async function copyCollection(path) {
   const docs = await src.listAll(path).catch(() => []);
-  if (docs.length && !VERIFY) {
+  if (VERIFY) {
+    const there = new Set((await dst.listAll(path).catch(() => [])).map((d) => d.__id));
+    const missing = docs.filter((d) => !there.has(d.__id));
+    if (missing.length) shortfalls.push([path, missing.length, docs.length]);
+    if (there.size > docs.length) extras.push([path, there.size - docs.length]);
+    return docs;
+  }
+  if (docs.length) {
     await dst.commit(docs.map((d) => dst.setWrite(`${path}/${d.__id}`, strip(d))));
   }
   return docs;
@@ -117,7 +135,26 @@ for (const v of parents.ai_conversations || []) {
 if (subTotal) console.log(`  ${String(subTotal).padStart(7)}  ${C.dim("(subcollections)")}`);
 
 const verb = VERIFY ? "found at source" : DRY ? "would be copied" : "copied";
-console.log(`\n  ${C.green(String(total + subTotal))} document(s) ${verb}\n`);
+console.log(`\n  ${C.green(String(total + subTotal))} document(s) ${verb}`);
+
+if (VERIFY) {
+  if (shortfalls.length) {
+    console.log(`  ${C.red(`✗ ${shortfalls.length} collection(s) incomplete at the destination`)}`);
+    shortfalls
+      .slice(0, 20)
+      .forEach(([path, n, of]) => console.log(`      ${String(n).padStart(6)} of ${of} missing  ${path}`));
+  } else {
+    console.log(`  ${C.green("✓ every source document is present at the destination")}`);
+  }
+  if (extras.length) {
+    // Not an error: the destination is live during a staged migration, so newer
+    // documents there are expected. Worth seeing before a cutover all the same.
+    console.log(`  ${C.yellow(`${extras.length} collection(s) hold documents the source does not:`)}`);
+    extras.slice(0, 20).forEach(([path, n]) => console.log(`      ${String(n).padStart(6)} extra  ${path}`));
+  }
+  if (shortfalls.length) process.exitCode = 1;
+}
+console.log();
 
 // A machine-readable line, so two runs can be diffed for verification.
 console.log(C.dim(`  COUNTS ${JSON.stringify(Object.fromEntries([...report, ["__subcollections", subTotal]]))}\n`));
