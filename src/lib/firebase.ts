@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getMessaging } from "firebase/messaging";
-import { resolveDatabaseId, resolveStorageBucket, DEFAULT_DATABASE_ID } from "@/lib/tenant";
+import { resolveDatabaseId, resolveStorageBucket, isDemoHost, DEFAULT_DATABASE_ID } from "@/lib/tenant";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,8 +14,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Global flag to check if we are in demo mode
-export const IS_DEMO = process.env.NEXT_PUBLIC_APP_ENV === 'demo';
 
 // Initialize Firebase (Singleton pattern)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -38,6 +36,23 @@ const ACTIVE_HOSTNAME =
   (typeof window !== "undefined" ? window.location.hostname : "");
 
 export const ACTIVE_DATABASE_ID = resolveDatabaseId(ACTIVE_HOSTNAME);
+
+/**
+ * Demo mode: hides billing, and answers Mira from a script rather than the API.
+ *
+ * Derived from the host rather than from NEXT_PUBLIC_APP_ENV because one
+ * deployment now serves every clinic — a build-time flag would make every
+ * clinic a demo, or none. The env var is still honoured so a preview deploy or
+ * a local run can force it.
+ *
+ * There is no hostname during prerender, so this is false in the server-rendered
+ * HTML. That is safe only because every consumer renders behind a client-side
+ * gate — the login page returns a spinner while auth resolves, and the dashboard
+ * components mount after it. Rendering IS_DEMO in markup that ships from the
+ * server would hydrate into different content on the demo host.
+ */
+export const IS_DEMO =
+  process.env.NEXT_PUBLIC_APP_ENV === "demo" || isDemoHost(ACTIVE_HOSTNAME);
 
 export const db =
   ACTIVE_DATABASE_ID === DEFAULT_DATABASE_ID

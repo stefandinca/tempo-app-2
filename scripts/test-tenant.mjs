@@ -15,7 +15,15 @@
  * holds no clinical records and whose Firestore rules deny clients outright.
  * Failing closed to an empty database beats guessing a tenant.
  */
-import { resolveDatabaseId, resolveStorageBucket, tenantBucket, DEFAULT_DATABASE_ID } from "../src/lib/tenant.ts";
+import {
+  resolveDatabaseId,
+  resolveStorageBucket,
+  tenantBucket,
+  tenantIdFromHostname,
+  tenantEnvSuffix,
+  isDemoHost,
+  DEFAULT_DATABASE_ID,
+} from "../src/lib/tenant.ts";
 
 const PLATFORM_BUCKET = "tempo-app-2.firebasestorage.app";
 
@@ -95,6 +103,34 @@ const BUCKET_CASES = [
 for (const [host, expected] of BUCKET_CASES) {
   check(`"${host}"`.padEnd(44), resolveStorageBucket(host, PLATFORM_BUCKET), expected);
 }
+
+console.log(`\n${C.bold("hostname -> tenant label")}\n`);
+
+// One deployment serves every clinic, so anything configured per clinic is
+// keyed off this label — including which Anthropic key pays for that clinic's
+// Mira usage.
+const LABEL_CASES = [
+  ["diaconumaria.tempoapp.ro", "diaconumaria"],
+  ["livebetterlife.tempoapp.ro", "livebetterlife"],
+  ["demo.tempoapp.ro", "demo"],
+  ["tempoapp.ro", ""],
+  ["www.tempoapp.ro", ""],
+  ["localhost", ""],
+  ["tempo-app-2-git-abc.vercel.app", ""],
+];
+for (const [host, expected] of LABEL_CASES) {
+  check(`"${host}"`.padEnd(44), tenantIdFromHostname(host), expected);
+}
+
+check("env suffix for a hyphenated label".padEnd(44), tenantEnvSuffix("clinic-two"), "CLINIC_TWO");
+check("env suffix is upper case".padEnd(44), tenantEnvSuffix("diaconumaria"), "DIACONUMARIA");
+
+// Demo mode used to be a build-time env var. With one deployment serving every
+// clinic that would make all of them demos, or none — so it comes from the host.
+check("demo host is demo mode".padEnd(44), isDemoHost("demo.tempoapp.ro"), true);
+check("a real clinic is NOT demo mode".padEnd(44), isDemoHost("livebetterlife.tempoapp.ro"), false);
+check("the other real clinic is NOT demo".padEnd(44), isDemoHost("diaconumaria.tempoapp.ro"), false);
+check("the platform host is NOT demo mode".padEnd(44), isDemoHost("tempoapp.ro"), false);
 
 console.log(`\n${C.bold("invariants")}\n`);
 

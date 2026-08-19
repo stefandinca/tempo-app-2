@@ -3,7 +3,8 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireStaffWithConsent } from "@/lib/assistant/gate";
 import { tenantDatabaseFromRequest } from "@/lib/tenant";
-import { getAnthropic, MODEL } from "@/lib/assistant/anthropic";
+import { getAnthropic, hasAnthropicKey, MODEL } from "@/lib/assistant/anthropic";
+import { tenantIdFromRequest } from "@/lib/tenant";
 import { emptyUsage, addUsage, computeCostUsd } from "@/lib/assistant/pricing";
 import {
   insightsSystemPrompt,
@@ -19,7 +20,9 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   // Demo / unconfigured deployments have no API key — surface a friendly
   // "feature only in the full release" signal instead of erroring.
-  if (!process.env.ANTHROPIC_API_KEY) {
+  // Per-clinic key, selected by host.
+  const tenantId = tenantIdFromRequest(req);
+  if (!hasAnthropicKey(tenantId)) {
     return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
   }
 
@@ -41,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const client = getAnthropic();
+    const client = getAnthropic(tenantId);
     // Forced single-tool call → guaranteed structured output, no beta headers.
     const resp = await client.messages.create({
       model: MODEL,

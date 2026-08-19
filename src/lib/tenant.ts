@@ -81,3 +81,38 @@ export function resolveStorageBucket(hostname: string, platformBucket: string): 
 export function tenantBucket(label: string, platformBucket: string): string {
   return `${platformBucket.split(".")[0]}-${label}`;
 }
+
+/**
+ * `diaconumaria.tempoapp.ro` -> `diaconumaria`. The platform itself -> `""`.
+ *
+ * The tenant label, as opposed to its database or bucket. Used where something
+ * is configured per clinic but shares one deployment — a Mira API key, say.
+ */
+export function tenantIdFromHostname(hostname: string): string {
+  const databaseId = resolveDatabaseId(hostname);
+  return databaseId === DEFAULT_DATABASE_ID ? "" : databaseId.slice("clinic-".length);
+}
+
+/** Resolve a tenant label from an incoming request's Host header. */
+export function tenantIdFromRequest(req: {
+  headers: { get(name: string): string | null };
+}): string {
+  return tenantIdFromHostname(req.headers.get("host") || "");
+}
+
+/**
+ * The suffix identifying a tenant's own environment variable, e.g.
+ * `ANTHROPIC_API_KEY_DIACONUMARIA`.
+ *
+ * One Vercel project now serves every clinic, so anything that must differ per
+ * clinic cannot simply be `ANTHROPIC_API_KEY`. Suffixing the name keeps each
+ * clinic's secret separate and still inside the secret store.
+ */
+export function tenantEnvSuffix(tenantId: string): string {
+  return tenantId.toUpperCase().replace(/-/g, "_");
+}
+
+/** The demo clinic, which hides billing and answers Mira from a canned script. */
+export function isDemoHost(hostname: string): boolean {
+  return tenantIdFromHostname(hostname) === "demo";
+}

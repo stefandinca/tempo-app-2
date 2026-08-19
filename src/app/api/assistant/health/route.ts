@@ -1,22 +1,27 @@
 // Diagnostic endpoint for the AI integration. Reports configuration status
 // WITHOUT exposing any secret values (no keys, no private key, no tokens).
 // Safe to expose; intended for setup/debugging and can be removed afterwards.
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { tenantIdFromRequest } from "@/lib/tenant";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const out: Record<string, unknown> = {};
 
   // --- Anthropic ---
-  const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
+  // Reports on THIS host's clinic: one deployment serves them all, and each
+  // has its own key, so a platform-wide answer would be meaningless.
+  const tenantId = tenantIdFromRequest(req);
+  const { anthropicKeyFor, getAnthropic } = await import("@/lib/assistant/anthropic");
+  const anthropicKey = anthropicKeyFor(tenantId);
+  out.tenant = tenantId || "(platform)";
   out.anthropicKeyPresent = !!anthropicKey;
   out.anthropicKeyLooksValid = anthropicKey.startsWith("sk-ant-");
   if (anthropicKey) {
     try {
-      const { getAnthropic } = await import("@/lib/assistant/anthropic");
-      await getAnthropic().models.list({ limit: 1 });
+      await getAnthropic(tenantId).models.list({ limit: 1 });
       out.anthropic = "ok";
     } catch (e: any) {
       out.anthropic = "error: " + String(e?.status || e?.message || e).slice(0, 160);

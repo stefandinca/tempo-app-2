@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireStaffWithConsent } from "@/lib/assistant/gate";
-import { tenantDatabaseFromRequest } from "@/lib/tenant";
-import { getAnthropic, MODEL } from "@/lib/assistant/anthropic";
+import { tenantDatabaseFromRequest, tenantIdFromRequest } from "@/lib/tenant";
+import { getAnthropic, hasAnthropicKey, MODEL } from "@/lib/assistant/anthropic";
 import { chatSystemPrompt, type Lang } from "@/lib/assistant/prompts";
 import { ASSISTANT_TOOLS, executeAssistantTool } from "@/lib/assistant/tools";
 import { emptyUsage, addUsage, computeCostUsd } from "@/lib/assistant/pricing";
@@ -16,9 +16,11 @@ const MAX_TURNS = 6;
 const HISTORY_LIMIT = 16;
 
 export async function POST(req: NextRequest) {
-  // Demo / unconfigured deployments have no API key — surface a friendly
-  // "feature only in the full release" signal instead of erroring.
-  if (!process.env.ANTHROPIC_API_KEY) {
+  // Each clinic has its own Anthropic key, selected by host. Demo and any
+  // unconfigured deployment have none — surface a friendly "feature only in
+  // the full release" signal instead of erroring.
+  const tenantId = tenantIdFromRequest(req);
+  if (!hasAnthropicKey(tenantId)) {
     return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
   }
 
@@ -95,7 +97,7 @@ export async function POST(req: NextRequest) {
   tail.content = [{ type: "text", text: tail.content, cache_control: { type: "ephemeral" } }];
 
   const system = chatSystemPrompt(language);
-  const client = getAnthropic();
+  const client = getAnthropic(tenantId);
   const encoder = new TextEncoder();
   const usage = emptyUsage();
   const toolsUsed: string[] = [];
