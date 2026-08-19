@@ -155,25 +155,85 @@ That is what makes the chosen option safe: the mirror can be locked to
 `allow read, write: if false` in Firestore — invisible to every client — and
 Storage rules can still consult it.
 
-### Decision: membership mirror in `(default)`
+### Decision: one bucket per clinic
 
-Storage paths become `tenants/{tenantId}/clients/{clientId}/…`. Storage rules
-resolve authorisation against two mirrors in `(default)`, both client-invisible:
+Revised 19 Aug after inspecting how media is actually stored and served.
 
-| Collection | Contents | Written by |
-|---|---|---|
-| `tenant_members/{uid}` | `{ tenantId, role }` | staff create/edit (already in §3) |
-| `tenant_parents/{uid}` | `{ tenantId, clientIds: [...] }` | `ParentAuthContext` on access-code login |
+**Each clinic gets its own Storage bucket**, alongside its own database. The
+bucket *is* the tenant, so authorisation is one equality check and object paths
+never change:
 
-Neither holds clinical data. `tenant_parents` needs maintaining wherever
-`parentUids` is written today — parent UIDs are anonymous and churn on every
-re-login, and `ParentAuthContext` already handles exactly that churn.
+```
+match /b/{bucket}/o {
+  function memberBucket() {
+    return firestore.get(/databases/(default)/documents/tenant_members/$(request.auth.uid)).data.bucket;
+  }
+  function isTenantStaff() {
+    return request.auth != null &&
+      firestore.exists(/databases/(default)/documents/tenant_members/$(request.auth.uid)) &&
+      memberBucket() == bucket;
+  }
+  ...
+}
+```
 
-**Rejected — signed URLs.** Deny all client Storage access and serve media
-through an API route returning short-lived signed URLs. Strictly stronger, and
-worth revisiting if the mirrors prove fragile, but it changes how every video and
-voice note loads and puts a server round-trip in front of each one. Not worth it
-while a rules-based answer exists.
+`{bucket}` binds the real bucket name, so **one rules file serves every tenant** —
+no per-tenant rules files, no path prefixes, no string parsing. The control-plane
+mirrors carry the bucket:
+
+| Collection | Contents |
+|---|---|
+| `tenant_members/{uid}` | `{ tenantId, role, bucket }` |
+| `tenant_parents/{uid}` | `{ tenantId, bucket, clientIds: [...] }` |
+
+Compiles cleanly. Unlike the named-database probe, both mechanisms it relies on —
+`{bucket}` binding and `firestore.get` against `(default)` — are already proven at
+runtime by the control in the storage spike. **Still worth one runtime check with
+a real second bucket before relying on it.**
+
+### Why this beats the path-prefix approach
+
+**Live Better Life needs no storage migration at all.** It keeps the project's
+default bucket, so its 32 objects never move and their URLs never change. Demo and
+Diaconu Maria have zero objects, so their new buckets start empty. The entire
+storage migration is: create two buckets.
+
+That matters more than it first appears, because of what media URLs contain.
+
+### What `downloadUrl` actually is
+
+Media documents store both a `storagePath` and a `downloadUrl` of the form:
+
+```
+https://firebasestorage.googleapis.com/v0/b/<bucket>/o/<urlencoded-path>?alt=media&token=<uuid>
+```
+
+That token grants access **without authentication**, and the app renders the
+stored URL directly — `<a href>` in the documents tab and parent portal,
+`<video src>`, `<audio src>`. `getDownloadURL()` is only called at upload time.
+
+Two consequences:
+
+1. **Storage rules do not govern reads of existing media.** What actually protects
+   a file is that a parent cannot read the Firestore document that holds its URL —
+   the `sharedWithParent` flag, enforced by Firestore rules. Rules on the bucket
+   govern uploads, deletes, and fresh `getDownloadURL()` calls. Treat a leaked
+   media URL as public until the token is revoked.
+2. **Moving an object invalidates its stored URL** — the path changes and the copy
+   gets a new token unless `firebaseStorageDownloadTokens` metadata is carried
+   across deliberately. Avoiding the move avoids the whole class of problem.
+
+### Rejected
+
+**Path prefixes in a shared bucket** (`tenants/{tenantId}/clients/…`) — would have
+required moving all 32 live objects and rewriting each `downloadUrl` and
+`storagePath` in Firestore, for weaker isolation than a bucket boundary.
+
+**Signed URLs** — deny all client access and serve media through an API route.
+Strictly stronger, and the only design that would close the tokenised-URL gap
+above. Rejected for now because it changes how every video and voice note loads
+and adds a round-trip per item; revisit if media access control ever needs to be
+real rather than obscure.
 
 ---
 
