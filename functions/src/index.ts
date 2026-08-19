@@ -127,6 +127,17 @@ export const createTeamMember = functions.https.onRequest(async (req, res) => {
 
   await firestore.collection("team_members").doc(authUser.uid).set(memberData);
 
+  // Mirror of the display-only fields, readable by the parent portal.
+  // /team_members is staff-only because it carries e-mail, phone and salary;
+  // parents still need a therapist's name/initials/colour. Keep this minimal —
+  // anything added here is visible to every anonymous session.
+  await firestore.collection("team_public").doc(authUser.uid).set({
+    name: memberData.name,
+    initials: memberData.initials,
+    color: memberData.color,
+    role: memberData.role,
+  });
+
   console.log(`Team member created: ${authUser.uid} (${normalizedEmail}) by ${caller.uid}`);
 
   res.status(200).json({ result: { uid: authUser.uid } });

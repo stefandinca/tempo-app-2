@@ -5,7 +5,7 @@ import { ClipboardList, CheckCircle2, Circle, Clock, StickyNote, ChevronDown, Ch
 import { useRouter } from "next/navigation";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useHomework } from "@/hooks/useCollections";
-import { useTeamMembers } from "@/hooks/useCollections";
+import { useTeamPublic } from "@/hooks/useCollections";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -19,7 +19,7 @@ export default function ParentHomeworkPage() {
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, loading: portalLoading, error: portalError } = usePortalData();
   const { data: homework, loading: homeworkLoading } = useHomework(client?.id || "");
-  const { data: team } = useTeamMembers();
+  const { data: team } = useTeamPublic();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});

@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 import { db, storage, auth as firebaseAuth } from "@/lib/firebase";
 import { doc, updateDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { callFunction } from "@/lib/callFunction";
+import { syncTeamPublic } from "@/lib/teamPublicSync";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useToast } from "@/context/ToastContext";
@@ -210,6 +211,9 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         };
 
         await updateDoc(doc(db, "team_members", memberToEdit.id), payload);
+        // Mirror the display-only fields so the parent portal can show this
+        // therapist without reading the (staff-only) team_members document.
+        await syncTeamPublic(memberToEdit.id, payload);
         success(t('team.member_updated'));
 
         // Log activity for team member update
@@ -264,6 +268,14 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
         });
 
         const memberId = result.uid;
+
+        // Mirror display-only fields for the parent portal (see teamPublicSync).
+        await syncTeamPublic(memberId, {
+          name: formData.name,
+          initials,
+          color: formData.color,
+          role: baseRole,
+        });
 
         // Send password reset email (acts as invitation email)
         try {

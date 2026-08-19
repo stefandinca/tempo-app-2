@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
-import { useTeamMembers, useClientInvoices, useHomework } from "@/hooks/useCollections";
+import { useTeamPublic, useClientInvoices, useHomework } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
 import LatestSessionSummary from "@/components/parent/LatestSessionSummary";
 import { useNotifications } from "@/context/NotificationContext";
@@ -26,7 +26,7 @@ export default function ParentDashboard() {
   const { clientId } = useParentAuth();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, sessions, loading: portalLoading, error: portalError } = usePortalData();
-  const { data: team } = useTeamMembers();
+  const { data: team } = useTeamPublic();
   const { data: invoices, loading: invoicesLoading } = useClientInvoices(client?.id || "");
   const { data: homework } = useHomework(clientId || "");
 

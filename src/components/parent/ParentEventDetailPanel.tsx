@@ -12,7 +12,7 @@ import {
   Flag
 } from "lucide-react";
 import { clsx } from "clsx";
-import { useTeamMembers, usePrograms, useInterventionPlans } from "@/hooks/useCollections";
+import { useTeamPublic, usePrograms, useInterventionPlans } from "@/hooks/useCollections";
 import { useTranslation } from "react-i18next";
 import ProgramScoreCounter, { ProgramScores } from "../calendar/EventDetailPanel/ProgramScoreCounter";
 import ParentVoiceFeedback from "./ParentVoiceFeedback";
@@ -27,7 +27,7 @@ interface ParentEventDetailPanelProps {
 export default function ParentEventDetailPanel({ event, isOpen, onClose }: ParentEventDetailPanelProps) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
-  const { data: team } = useTeamMembers();
+  const { data: team } = useTeamPublic();
   const { data: programs } = usePrograms();
 
   // Get objectives from active plan for labels (must be before early return)

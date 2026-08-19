@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Calendar, Heart, CreditCard, FileText, BookOpen, ChevronRight, Bell, Globe, LogOut, Check } from "lucide-react";
 import Link from "next/link";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
-import { useTeamMembers, useClientInvoices, useHomework } from "@/hooks/useCollections";
+import { useTeamPublic, useClientInvoices, useHomework } from "@/hooks/useCollections";
 import { useNotifications } from "@/context/NotificationContext";
 import { useParentAuth } from "@/context/ParentAuthContext";
 import { clsx } from "clsx";
@@ -18,7 +18,7 @@ export default function ParentProfilePage() {
   const router = useRouter();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, loading, error } = usePortalData();
-  const { data: team } = useTeamMembers();
+  const { data: team } = useTeamPublic();
   const { clientId } = useParentAuth();
   const { requestPushPermission, pushPermissionStatus } = useNotifications();
   const { data: invoices } = useClientInvoices(client?.id || "");

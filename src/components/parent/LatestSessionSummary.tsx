@@ -3,7 +3,7 @@
 import { CheckCircle2, Circle, Clock, FileText, BarChart3, ChevronRight, BookOpen } from "lucide-react";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
-import { useTeamMembers, usePrograms } from "@/hooks/useCollections";
+import { useTeamPublic, usePrograms } from "@/hooks/useCollections";
 import { ProgramScores } from "../calendar/EventDetailPanel/ProgramScoreCounter";
 
 interface LatestSessionSummaryProps {
@@ -20,7 +20,7 @@ function parseDate(val: any): Date {
 export default function LatestSessionSummary({ sessions, onSelect }: LatestSessionSummaryProps) {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
-  const { data: team } = useTeamMembers();
+  const { data: team } = useTeamPublic();
   const { data: programs } = usePrograms();
 
   if (!sessions || sessions.length === 0) return null;

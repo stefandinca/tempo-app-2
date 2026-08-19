@@ -57,6 +57,18 @@ const cases = [
   ["admin edits an unrelated field", "ALLOW", "update", `${D}/clients/c1`,
     { uid: "a1" }, [...member("a1", "Admin")], { name: "Y" }, { name: "X" }],
 
+  // --- staff roster exposure ---
+  ["anonymous reads team_members", "DENY", "get", `${D}/team_members/t1`,
+    { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],
+  ["anonymous reads team_public", "ALLOW", "get", `${D}/team_public/t1`,
+    { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],
+  ["therapist reads team_members", "ALLOW", "get", `${D}/team_members/t2`,
+    { uid: "t1" }, member("t1", "Therapist")],
+  ["therapist writes team_public", "DENY", "update", `${D}/team_public/t2`,
+    { uid: "t1" }, member("t1", "Therapist"), { name: "X" }, { name: "Y" }],
+  ["coordinator writes team_public", "ALLOW", "update", `${D}/team_public/t2`,
+    { uid: "c1" }, member("c1", "Coordinator"), { name: "X" }, { name: "Y" }],
+
   // --- system_settings split ---
   ["anonymous reads system_settings/config", "DENY", "get", `${D}/system_settings/config`,
     { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],

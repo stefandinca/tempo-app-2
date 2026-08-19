@@ -90,6 +90,23 @@ export function useTeamMembers() {
   return useCollection<TeamMember>("team_members", [orderBy("name", "asc")], 100);
 }
 
+export interface TeamPublicMember {
+  id: string;
+  name: string;
+  initials: string;
+  color: string;
+  role: string;
+}
+
+/**
+ * Display-only staff details, readable by parents. Use this anywhere in the
+ * parent portal instead of useTeamMembers — /team_members is staff-only and
+ * carries e-mail, phone and salary.
+ */
+export function useTeamPublic() {
+  return useCollection<TeamPublicMember>("team_public", [orderBy("name", "asc")], 100);
+}
+
 export function useServices() {
   return useCollection<any>("services", [orderBy("label", "asc")]);
 }

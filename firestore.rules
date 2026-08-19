@@ -57,8 +57,11 @@ service cloud.firestore {
 
     // --- Collections ---
 
+    // Staff records carry e-mail, phone and salary. This was readable by ANY
+    // signed-in user — and the parent portal runs on anonymous auth, so any
+    // visitor could list the whole roster. Parents read /team_public instead.
     match /team_members/{memberId} {
-      allow read: if isSignedIn();
+      allow read: if isAdmin() || isCoordinator() || isTherapist();
       // Creates are handled by Cloud Function (Admin SDK) only
       allow create: if false;
       // Admins can update any member; members can update their own doc (e.g., inviteStatus)
@@ -83,6 +86,15 @@ service cloud.firestore {
         request.resource.data.parentUids.hasAny([request.auth.uid])
       );
       allow delete: if isAdmin();
+    }
+
+    // Display-only mirror of team_members: name, initials, colour, role.
+    // Readable by parents (anonymous auth) so the portal can show "your
+    // therapist is X". Kept in sync by src/lib/teamPublicSync.ts and the
+    // createTeamMember Cloud Function. NEVER put contact details or pay here.
+    match /team_public/{memberId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || isCoordinator();
     }
 
     // Parent access code -> { clientId, clientName } lookup.

@@ -2,7 +2,7 @@
 
 import { Calendar, CheckCircle2, Clock, List, CalendarDays } from "lucide-react";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
-import { useTeamMembers } from "@/hooks/useCollections";
+import { useTeamPublic } from "@/hooks/useCollections";
 import ParentEventDetailPanel from "@/components/parent/ParentEventDetailPanel";
 import WeekSelector from "@/components/parent/WeekSelector";
 import { clsx } from "clsx";
@@ -29,7 +29,7 @@ export default function ParentSchedulePage() {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language.startsWith("ro") ? "ro-RO" : "en-US";
   const { data: client, sessions, loading, error } = usePortalData();
-  const { data: team } = useTeamMembers();
+  const { data: team } = useTeamPublic();
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
