@@ -606,7 +606,8 @@
       "team_usage": "{{current}} / {{max}} active team members",
       "team_usage_unlimited": "{{current}} active team members (unlimited)",
       "save_success": "Account limits saved successfully",
-      "save_error": "Failed to save account limits"
+      "save_error": "Failed to save account limits",
+      "active_database": "Active database"
     },
     "evaluation_access": {
       "title": "Evaluation access",

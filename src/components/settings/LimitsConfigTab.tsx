@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useData } from "@/context/DataContext";
-import { db } from "@/lib/firebase";
+import { db, ACTIVE_DATABASE_ID } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useToast } from "@/context/ToastContext";
 import { Loader2, Save, ShieldAlert, Users, UserCheck } from "lucide-react";
@@ -55,6 +55,15 @@ export default function LimitsConfigTab() {
 
   return (
     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* During the migration the most useful question is "which clinic's data am
+          I actually looking at" — guessing from the URL is how someone edits the
+          wrong one. */}
+      <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 p-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          {t('settings.limits.active_database')}
+        </p>
+        <p className="font-mono text-sm text-neutral-900 dark:text-white">{ACTIVE_DATABASE_ID}</p>
+      </div>
       {/* Header */}
       <div className="flex items-start gap-3">
         <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-xl">

@@ -610,7 +610,8 @@
       "team_usage": "{{current}} / {{max}} membri echipă activi",
       "team_usage_unlimited": "{{current}} membri echipă activi (nelimitat)",
       "save_success": "Limitele contului au fost salvate cu succes",
-      "save_error": "Eroare la salvarea limitelor contului"
+      "save_error": "Eroare la salvarea limitelor contului",
+      "active_database": "Baza de date activă"
     },
     "evaluation_access": {
       "title": "Acces la evaluări",
