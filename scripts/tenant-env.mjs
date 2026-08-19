@@ -22,7 +22,25 @@ import path from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const dotenv = require("dotenv");
+
+/**
+ * Loaded only when a tenant file actually has to be parsed. `dotenv` reaches us
+ * transitively through `dotenv-cli` (a devDependency), so requiring it at module
+ * load would make every build — including Vercel's, which needs no file at all —
+ * depend on a transitive dev dependency being installed.
+ */
+function parseEnvFile(file) {
+  let dotenv;
+  try {
+    dotenv = require("dotenv");
+  } catch {
+    usage(
+      `Reading .env files needs the "dotenv" package, which is not installed. ` +
+      `Run npm install, or set the Firebase variables in the environment instead.`,
+    );
+  }
+  return dotenv.parse(readFileSync(file));
+}
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 
@@ -93,7 +111,7 @@ if (tenant) {
   }
   // File values win over the ambient shell, so a stale exported var cannot
   // quietly redirect the run to another project.
-  env = { ...env, ...dotenv.parse(readFileSync(file)) };
+  env = { ...env, ...parseEnvFile(file) };
   source = path.basename(file);
 } else if (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
   source = "inherited environment (CI / Vercel)";
