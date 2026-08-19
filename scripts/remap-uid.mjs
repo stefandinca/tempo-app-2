@@ -15,11 +15,13 @@
  * UIDs appear as document ids (team_members, team_public, fcm_tokens,
  * user_consents, user_ai_usage), as plain string fields (therapistId, uploadedBy,
  * recipientId, evaluatorId, assignedBy, createdBy, userId, senderId, uid), inside
- * arrays (therapistIds, teamMemberIds, participants, parentUids) and as MAP KEYS
- * (threads.participantDetails). This walks every value rather than enumerating
- * field names, so a field nobody remembered is still caught.
+ * arrays (therapistIds, teamMemberIds, participants, parentUids) and as map keys
+ * (threads.participantDetails). The walk in ./lib/deep-rewrite.mjs visits every
+ * value rather than enumerating field names, so a field nobody remembered is
+ * still caught.
  */
 import { Db } from "./demo-seed/firestore.mjs";
+import { deepMapStrings, changed, walkClinic } from "./lib/deep-rewrite.mjs";
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
@@ -54,34 +56,6 @@ if (!DRY && !args.yes) {
   process.exit(1);
 }
 
-const TOP_LEVEL = [
-  "clients", "team_members", "team_public", "events", "services", "programs",
-  "invoices", "payouts", "expenses", "recurring_expenses", "activities",
-  "threads", "notifications", "fcm_tokens", "system_settings", "client_codes",
-  "user_consents", "user_ai_usage", "ai_conversations", "ai_usage_events",
-];
-const CLIENT_SUBS = [
-  "evaluations", "vbmapp_evaluations", "portage_evaluations", "cars_evaluations",
-  "carolina_evaluations", "interventionPlans", "homework", "documents", "videos",
-  "voiceFeedback", "reports",
-];
-
-/** Deep-replace the uid anywhere in a value — strings, array items, map keys. */
-function rewrite(value) {
-  if (typeof value === "string") return value === FROM ? TO : value;
-  if (Array.isArray(value)) return value.map(rewrite);
-  if (value && typeof value === "object") {
-    const out = {};
-    for (const [k, v] of Object.entries(value)) {
-      out[k === FROM ? TO : k] = rewrite(v);
-    }
-    return out;
-  }
-  return value;
-}
-
-const changed = (a, b) => JSON.stringify(a) !== JSON.stringify(b);
-
 const db = new Db(PROJECT, { allowAnyProject: true, database: DATABASE });
 db.dryRun = DRY;
 
@@ -90,42 +64,38 @@ console.log(`  project  : ${PROJECT} / ${DATABASE}${DRY ? C.dim("  (DRY RUN)") :
 console.log(`  from     : ${FROM}`);
 console.log(`  to       : ${TO}\n`);
 
+const swap = (s) => (s === FROM ? TO : s);
+
 let fieldEdits = 0;
 let idMoves = 0;
+const pending = new Map();
 
-async function process_(path) {
-  const docs = await db.listAll(path).catch(() => []);
-  const writes = [];
-  for (const d of docs) {
-    const { __id, __name, ...data } = d;
-    const next = rewrite(data);
-    const idNeedsMove = __id === FROM;
-
-    if (idNeedsMove) {
-      // A document keyed by the UID has to be recreated under the new id; there
-      // is no rename in Firestore.
-      writes.push(db.setWrite(`${path}/${TO}`, next));
-      writes.push(db.deleteWrite(`${path}/${__id}`));
-      idMoves += 1;
-      console.log(`  ${C.green("id")}    ${path}/${__id.slice(0, 12)}… -> ${TO.slice(0, 12)}…`);
-    } else if (changed(data, next)) {
-      writes.push(db.setWrite(`${path}/${__id}`, next));
-      fieldEdits += 1;
-      console.log(`  ${C.green("ref")}   ${path}/${__id.slice(0, 16)}`);
-    }
-  }
-  if (writes.length) await db.commit(writes);
-  return docs;
+function queue(path, write) {
+  if (!pending.has(path)) pending.set(path, []);
+  pending.get(path).push(write);
 }
 
-for (const coll of TOP_LEVEL) {
-  const docs = await process_(coll);
-  if (coll === "clients") {
-    for (const c of docs) for (const s of CLIENT_SUBS) await process_(`clients/${c.__id}/${s}`);
-  }
-  if (coll === "threads") for (const t of docs) await process_(`threads/${t.__id}/messages`);
-  if (coll === "ai_conversations") for (const v of docs) await process_(`ai_conversations/${v.__id}/messages`);
-}
+await walkClinic(db, (path, doc) => {
+  const { __id, __name, ...data } = doc;
+  const next = deepMapStrings(data, swap);
 
-console.log(`\n  ${C.green(String(idMoves))} document id(s) moved, ${C.green(String(fieldEdits))} document(s) with rewritten references`);
+  if (__id === FROM) {
+    // A document keyed by the UID has to be recreated under the new id; there is
+    // no rename in Firestore.
+    queue(path, db.setWrite(`${path}/${TO}`, next));
+    queue(path, db.deleteWrite(`${path}/${__id}`));
+    idMoves += 1;
+    console.log(`  ${C.green("id")}    ${path}/${__id.slice(0, 12)}… -> ${TO.slice(0, 12)}…`);
+  } else if (changed(data, next)) {
+    queue(path, db.setWrite(`${path}/${__id}`, next));
+    fieldEdits += 1;
+    console.log(`  ${C.green("ref")}   ${path}/${__id.slice(0, 16)}`);
+  }
+});
+
+for (const writes of pending.values()) await db.commit(writes);
+
+console.log(
+  `\n  ${C.green(String(idMoves))} document id(s) moved, ${C.green(String(fieldEdits))} document(s) with rewritten references`,
+);
 console.log(`  ${DRY ? "would write" : "wrote"} ${db.writes} operation(s)\n`);
