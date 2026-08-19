@@ -6,13 +6,23 @@
  *   node scripts/register-tenant.mjs --project=P --tenant=diaconumaria --name="Diaconu Maria" --dry-run
  *   node scripts/register-tenant.mjs --project=P --tenant=diaconumaria --name="Diaconu Maria" --yes
  *
- * Writes two things:
- *   tenants/{tenantId}        the registry entry (subdomain -> database)
- *   tenant_members/{uid}      one per staff member of that tenant
+ * Writes three things:
+ *   tenants/{tenantId}        the registry entry (subdomain -> database -> bucket)
+ *   tenant_members/{bucket}__{uid}   one per staff member of that tenant
+ *   tenant_parents/{bucket}__{uid}   one per parent uid already linked to a client
  *
- * The membership mirror exists only because Storage rules cannot read a named
- * Firestore database — proven by runtime spike. It carries a tenant id and a
- * role and nothing else; never put clinical data in it.
+ * The mirrors exist only because Storage rules cannot read a named Firestore
+ * database — proven by runtime spike. They carry a tenant id, a bucket, and a
+ * role or client list; never put clinical data in them.
+ *
+ * The document KEY is the load-bearing part: storage.rules looks up
+ * `{bucket}__{uid}` directly, so a uid with no document for that bucket is not a
+ * member of that clinic. Keying by uid alone would break anyone who works at two
+ * clinics — a Superadmin works at all of them — because registering the second
+ * would overwrite their membership in the first.
+ *
+ * Mirrors must exist BEFORE the new storage rules are deployed to a bucket, or
+ * every upload and playback there denies.
  *
  * Re-runnable: it rewrites the registry entry and refreshes the mirror from the
  * tenant's current staff list.
@@ -54,6 +64,10 @@ if (!DRY && !args.yes) {
 }
 
 const databaseId = `clinic-${TENANT}`;
+// Must match tenantBucket() in src/lib/tenant.ts, which derives the same name
+// from the platform bucket at runtime. If these two ever disagree, the app
+// writes to one bucket while the rules authorise another.
+const bucket = args.bucket || `${PROJECT}-${TENANT}`;
 
 /** A handle on one named database of the same project. */
 function databaseHandle(project, database) {
@@ -69,30 +83,54 @@ console.log(`\n${C.bold("Register tenant")}`);
 console.log(`  project  : ${PROJECT}${DRY ? C.dim("  (DRY RUN)") : ""}`);
 console.log(`  tenant   : ${TENANT}`);
 console.log(`  database : ${databaseId}`);
+console.log(`  bucket   : ${bucket}`);
 console.log(`  name     : ${NAME}\n`);
 
-// Staff live in the tenant's own database. Before migration that database may
-// not exist yet, which is not an error — the mirror is simply empty until it does.
+// Staff and clients live in the tenant's own database. Before migration that
+// database may not exist yet, which is not an error — the mirrors are simply
+// empty until it does.
 let staff = [];
+let clients = [];
 try {
-  staff = await databaseHandle(PROJECT, databaseId).listAll("team_members");
+  const tenantDb = databaseHandle(PROJECT, databaseId);
+  staff = await tenantDb.listAll("team_members");
+  clients = await tenantDb.listAll("clients");
 } catch {
-  console.log(`  ${C.dim(`no ${databaseId} database yet — registering with an empty membership mirror`)}`);
+  console.log(`  ${C.dim(`no ${databaseId} database yet — registering with empty mirrors`)}`);
+}
+
+// Parents are anonymous users already linked to a client. The portal refreshes
+// this itself on every login (api/parent/storage-access), but a parent who is
+// signed in across the cutover never logs in again — backfilling here is what
+// keeps their videos playing.
+const parentClients = {};
+for (const c of clients) {
+  for (const uid of c.parentUids || []) {
+    (parentClients[uid] ||= []).push(c.__id);
+  }
 }
 
 await control.commit([
   control.setWrite(`tenants/${TENANT}`, {
     tenantId: TENANT,
     databaseId,
+    bucket,
     name: NAME,
     status: "active",
     isDemo: TENANT === "demo",
     updatedAt: new Date().toISOString(),
   }),
   ...staff.map((s) =>
-    control.setWrite(`tenant_members/${s.__id}`, {
+    control.setWrite(`tenant_members/${bucket}__${s.__id}`, {
       tenantId: TENANT,
       role: s.role || "",
+    }),
+  ),
+  ...Object.entries(parentClients).map(([uid, clientIds]) =>
+    control.setWrite(`tenant_parents/${bucket}__${uid}`, {
+      tenantId: TENANT,
+      clientIds,
+      updatedAt: new Date().toISOString(),
     }),
   ),
 ]);
@@ -100,4 +138,5 @@ await control.commit([
 console.log(`  ${C.green("✓")} tenants/${TENANT}`);
 console.log(`  ${C.green("✓")} ${staff.length} membership mirror(s)`);
 staff.forEach((s) => console.log(`      ${String(s.name || s.__id).padEnd(22)} ${s.role || ""}`));
+console.log(`  ${C.green("✓")} ${Object.keys(parentClients).length} parent mirror(s)`);
 console.log(`\n  ${DRY ? "would write" : "wrote"} ${control.writes} document(s)\n`);

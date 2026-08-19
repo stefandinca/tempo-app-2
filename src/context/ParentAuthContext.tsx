@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import { User, onAuthStateChanged, signInAnonymously, signOut as firebaseSignOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { grantStorageAccess, revokeStorageAccess } from "@/lib/parentStorageAccess";
 
 interface ParentAuthContextType {
   user: User | null;
@@ -57,6 +58,9 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
                 }
               }
               console.log("[ParentAuth] Replaced UID successfully.");
+              // The new uid has no Storage mirror yet; without this, videos and
+              // voice notes 403 for the rest of the session.
+              await grantStorageAccess(authUser);
               sessionStorage.setItem("parent_uid", authUser.uid);
               localStorage.setItem("parent_prev_uid", authUser.uid);
             } catch (err) {
@@ -129,6 +133,8 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
         }
       }
 
+      await grantStorageAccess(currentUser);
+
       // Store session info + persist UID for future cleanup
       sessionStorage.setItem("parent_uid", currentUser.uid);
       localStorage.setItem("parent_prev_uid", currentUser.uid);
@@ -150,7 +156,9 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
   const signOut = useCallback(async () => {
     try {
       // Remove current UID from client's parentUids before signing out
-      const currentUid = auth.currentUser?.uid;
+      const signingOut = auth.currentUser;
+      if (signingOut) await revokeStorageAccess(signingOut);
+      const currentUid = signingOut?.uid;
       const storedClientId = sessionStorage.getItem("parent_client_id");
       if (currentUid && storedClientId) {
         try {

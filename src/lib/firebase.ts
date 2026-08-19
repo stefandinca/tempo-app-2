@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getMessaging } from "firebase/messaging";
-import { resolveDatabaseId, DEFAULT_DATABASE_ID } from "@/lib/tenant";
+import { resolveDatabaseId, resolveStorageBucket, DEFAULT_DATABASE_ID } from "@/lib/tenant";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -30,16 +30,33 @@ export const auth = getAuth(app);
  * tenant data, and API routes resolve the database explicitly per request
  * instead (see tenantDatabaseFromRequest).
  */
-export const ACTIVE_DATABASE_ID =
-  typeof window !== "undefined"
-    ? resolveDatabaseId(window.location.hostname)
-    : DEFAULT_DATABASE_ID;
+const ACTIVE_HOSTNAME =
+  // A dev server answers on localhost, which resolves to the control plane and
+  // therefore shows an empty app. Setting this pretends to be a tenant host, so
+  // a clinic's database and bucket can be exercised locally.
+  process.env.NEXT_PUBLIC_TENANT_HOST ||
+  (typeof window !== "undefined" ? window.location.hostname : "");
+
+export const ACTIVE_DATABASE_ID = resolveDatabaseId(ACTIVE_HOSTNAME);
 
 export const db =
   ACTIVE_DATABASE_ID === DEFAULT_DATABASE_ID
     ? getFirestore(app)
     : getFirestore(app, ACTIVE_DATABASE_ID);
-export const storage = getStorage(app);
+
+/**
+ * Media is split the same way, but by bucket rather than by database: Storage
+ * rules can only read the `(default)` Firestore database, so the bucket name
+ * itself is the tenant key those rules compare against.
+ */
+export const ACTIVE_STORAGE_BUCKET = resolveStorageBucket(
+  ACTIVE_HOSTNAME,
+  firebaseConfig.storageBucket || "",
+);
+
+export const storage = ACTIVE_STORAGE_BUCKET
+  ? getStorage(app, `gs://${ACTIVE_STORAGE_BUCKET}`)
+  : getStorage(app);
 
 
 // Messaging export with safety wrapper

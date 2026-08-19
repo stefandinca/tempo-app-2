@@ -15,7 +15,18 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "storage": {
-    "rules": "storage.rules"
-  }
+  "storage": [
+    {
+      "bucket": "tempo-app-2-diaconumaria",
+      "rules": "storage.rules"
+    },
+    {
+      "bucket": "tempo-app-2-livebetterlife",
+      "rules": "storage.rules"
+    },
+    {
+      "bucket": "tempo-app-2-demo",
+      "rules": "storage.rules"
+    }
+  ]
 }

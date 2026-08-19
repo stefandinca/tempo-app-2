@@ -16,7 +16,11 @@
     "dev:live": "node scripts/tenant-env.mjs live -- next dev",
     "check:env": "node scripts/tenant-env.mjs --check",
     "dev:diaconumaria": "node scripts/tenant-env.mjs diaconumaria -- next dev",
-    "build:diaconumaria": "node scripts/tenant-env.mjs diaconumaria -- next build"
+    "build:diaconumaria": "node scripts/tenant-env.mjs diaconumaria -- next build",
+    "test:tenant": "node --experimental-strip-types --no-warnings scripts/test-tenant.mjs",
+    "test:rules": "node scripts/test-rules.mjs",
+    "test:storage-rules": "node scripts/test-storage-rules.mjs",
+    "test:isolation": "npm run test:tenant && npm run test:rules && npm run test:storage-rules"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

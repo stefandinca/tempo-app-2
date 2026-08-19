@@ -1,74 +1,102 @@
 rules_version = '2';
 
 service firebase.storage {
+  // ONE rules file serves every clinic.
+  //
+  // `{bucket}` binds the real bucket name, and each clinic has its own bucket,
+  // so the bucket IS the tenant. Every rule below reduces to: does this user
+  // belong to the bucket they are reaching into?
+  //
+  // Membership is read from the `(default)` Firestore database. That is not a
+  // leftover — Storage rules CANNOT read a named database. A named-database read
+  // compiles, deploys, and then denies everything at runtime with no error, so a
+  // rollout looks successful while every parent silently loses every video. Do
+  // not reintroduce one. (Runtime spike, 19 Aug 2026.)
+  //
+  // `firestore.get` here is a privileged read that bypasses Firestore rules,
+  // which is why the mirrors below are locked to `if false` in firestore.rules
+  // and still usable from here.
+  //
+  // Mirrors are keyed `{bucket}__{uid}`, not `{uid}`: one person can work at
+  // more than one clinic — a Superadmin works at all of them — and a uid-keyed
+  // document could name only one bucket, so registering a second clinic would
+  // silently revoke their access to the first. Concatenated path segments were
+  // runtime-verified, not assumed.
   match /b/{bucket}/o {
 
-    // Helper: Check if user is signed in
+    // tenant_members/{bucket}__{uid} -> { tenantId, role }
+    function member() {
+      return firestore.get(/databases/(default)/documents/tenant_members/$(bucket + '__' + request.auth.uid)).data;
+    }
+
+    // tenant_parents/{bucket}__{uid} -> { tenantId, clientIds }
+    function guardian() {
+      return firestore.get(/databases/(default)/documents/tenant_parents/$(bucket + '__' + request.auth.uid)).data;
+    }
+
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Helper: Check if user is an Admin
-    function isAdmin() {
-      return isSignedIn() &&
-             firestore.exists(/databases/(default)/documents/team_members/$(request.auth.uid)) &&
-             firestore.get(/databases/(default)/documents/team_members/$(request.auth.uid)).data.role in ['Admin', 'admin'];
-    }
-
-    // ============================================
-    // AVATARS
-    // Path: avatars/{userId}/{fileName}
-    // ============================================
-    match /avatars/{userId}/{fileName} {
-      allow read: if true; // Publicly readable
-      
-      // Allow write if you are the owner or an admin
-      // Simplified checks to reduce firestore overhead
-      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-    }
-
-    // Helper: Check if user is a staff member (Admin, Coordinator, or Therapist)
+    /** Staff of THIS bucket's clinic. Staff of another clinic are strangers here. */
     function isStaff() {
-      return isSignedIn() &&
-             firestore.exists(/databases/(default)/documents/team_members/$(request.auth.uid));
+      return isSignedIn()
+             && firestore.exists(/databases/(default)/documents/tenant_members/$(bucket + '__' + request.auth.uid));
     }
 
-    // Helper: Check if user is a parent of the specific client
+    function isAdmin() {
+      return isStaff() && member().role in ['Admin', 'admin', 'Superadmin', 'superadmin'];
+    }
+
+    /** Any parent at this clinic — enough to see staff avatars, not client files. */
+    function isTenantParent() {
+      return isSignedIn()
+             && firestore.exists(/databases/(default)/documents/tenant_parents/$(bucket + '__' + request.auth.uid));
+    }
+
+    /** A parent of this specific client. */
     function isClientParent(clientId) {
-      return isSignedIn() &&
-             firestore.exists(/databases/(default)/documents/clients/$(clientId)) &&
-             request.auth.uid in firestore.get(/databases/(default)/documents/clients/$(clientId)).data.parentUids;
+      return isTenantParent() && clientId in guardian().clientIds;
     }
 
     // ============================================
-    // CLIENT DOCUMENTS
-    // Path: clients/{clientId}/documents/{fileName}
+    // AVATARS — avatars/{userId}/{fileName}
+    // ============================================
+    // Read is no longer public. Avatars render from stored download URLs, which
+    // carry their own token and bypass rules, so tightening this costs the app
+    // nothing and stops the bucket being browsable by guessing paths.
+    match /avatars/{userId}/{fileName} {
+      allow read: if isStaff() || isTenantParent();
+      // Your own avatar, or an admin of this same clinic.
+      allow write: if isStaff() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // ============================================
+    // CLIENT DOCUMENTS — clients/{clientId}/documents/{fileName}
     // ============================================
     match /clients/{clientId}/documents/{fileName} {
-      allow read: if isAdmin() || isStaff() || isClientParent(clientId);
-      allow write: if isAdmin() || isStaff();
+      allow read: if isStaff() || isClientParent(clientId);
+      allow write: if isStaff();
     }
 
     // ============================================
-    // SESSION VIDEOS
-    // Path: clients/{clientId}/videos/{eventId}/{fileName}
+    // SESSION VIDEOS — clients/{clientId}/videos/{eventId}/{fileName}
     // ============================================
     match /clients/{clientId}/videos/{eventId}/{fileName} {
-      allow read: if isAdmin() || isStaff() || isClientParent(clientId);
-      allow write: if isAdmin() || isStaff();
+      allow read: if isStaff() || isClientParent(clientId);
+      allow write: if isStaff();
     }
 
     // ============================================
-    // VOICE FEEDBACK
-    // Path: clients/{clientId}/voiceFeedback/{eventId}/{fileName}
+    // VOICE FEEDBACK — clients/{clientId}/voiceFeedback/{eventId}/{fileName}
     // ============================================
     match /clients/{clientId}/voiceFeedback/{eventId}/{fileName} {
-      allow read: if isAdmin() || isStaff() || isClientParent(clientId);
-      allow write: if isAdmin() || isStaff();
+      allow read: if isStaff() || isClientParent(clientId);
+      allow write: if isStaff();
     }
 
     // ============================================
-    // DEFAULT: Deny all other paths
+    // DEFAULT: deny
     // ============================================
     match /{allPaths=**} {
       allow read, write: if false;

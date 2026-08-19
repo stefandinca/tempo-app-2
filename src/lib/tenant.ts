@@ -52,3 +52,32 @@ export function tenantDatabaseFromRequest(req: {
 }): string {
   return resolveDatabaseId(req.headers.get("host") || "");
 }
+
+/**
+ * Which Cloud Storage bucket a tenant's media lives in.
+ *
+ * One bucket per clinic, because Storage rules can only read the `(default)`
+ * Firestore database — proven by runtime spike — so the bucket name itself has
+ * to carry the tenant identity. The rule then reduces to one equality check
+ * against the `{bucket}` wildcard, and object paths stay exactly as they are.
+ *
+ * `platformBucket` is the project's own default bucket, used by the apex host
+ * and by local development. It is also the source of the naming prefix, so the
+ * derived names are unique across Cloud Storage without another config value.
+ */
+export function resolveStorageBucket(hostname: string, platformBucket: string): string {
+  const databaseId = resolveDatabaseId(hostname);
+  if (databaseId === DEFAULT_DATABASE_ID) return platformBucket;
+  return tenantBucket(databaseId.slice("clinic-".length), platformBucket);
+}
+
+/**
+ * `("diaconumaria", "tempo-app-2.firebasestorage.app")` -> `tempo-app-2-diaconumaria`.
+ *
+ * Bucket names are globally unique across all of Cloud Storage, so the project
+ * id has to be part of it. Kept separate from `resolveStorageBucket` because the
+ * provisioning scripts know the tenant label but have no hostname to resolve.
+ */
+export function tenantBucket(label: string, platformBucket: string): string {
+  return `${platformBucket.split(".")[0]}-${label}`;
+}
