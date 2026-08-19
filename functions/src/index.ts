@@ -1,4 +1,8 @@
-import * as functions from "firebase-functions";
+// v1 API explicitly: firebase-functions 7 makes the bare import v2. These two
+// HTTP functions stay on v1 so their public URLs do not change — the
+// /api/cloud-functions proxy builds them as
+// https://{region}-{project}.cloudfunctions.net/{name}, a v1 URL shape.
+import * as functionsV1 from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 
 admin.initializeApp();
@@ -8,14 +12,14 @@ const firestore = admin.firestore();
 // ============================================================
 // CORS + Auth helpers for onRequest-based callable functions
 // ============================================================
-function setCors(res: functions.Response) {
+function setCors(res: functionsV1.Response) {
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.set("Access-Control-Max-Age", "3600");
 }
 
-async function verifyAuth(req: functions.https.Request): Promise<admin.auth.DecodedIdToken> {
+async function verifyAuth(req: functionsV1.https.Request): Promise<admin.auth.DecodedIdToken> {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new Error("unauthenticated");
@@ -24,7 +28,7 @@ async function verifyAuth(req: functions.https.Request): Promise<admin.auth.Deco
   return admin.auth().verifyIdToken(token);
 }
 
-function sendError(res: functions.Response, code: number, status: string, message: string) {
+function sendError(res: functionsV1.Response, code: number, status: string, message: string) {
   res.status(code).json({ error: { status, message } });
 }
 
@@ -32,7 +36,7 @@ function sendError(res: functions.Response, code: number, status: string, messag
 // createTeamMember — Admin-only Cloud Function
 // Creates a Firebase Auth user + matching Firestore team_members doc
 // ============================================================
-export const createTeamMember = functions.https.onRequest(async (req, res) => {
+export const createTeamMember = functionsV1.https.onRequest(async (req, res) => {
   setCors(res);
 
   // Handle CORS preflight
@@ -147,7 +151,7 @@ export const createTeamMember = functions.https.onRequest(async (req, res) => {
 // migrateTeamMember — Superadmin-only Cloud Function
 // Migrates an existing team member doc to use the correct Auth UID
 // ============================================================
-export const migrateTeamMember = functions.https.onRequest(async (req, res) => {
+export const migrateTeamMember = functionsV1.https.onRequest(async (req, res) => {
   setCors(res);
 
   // Handle CORS preflight
