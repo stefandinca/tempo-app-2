@@ -3,6 +3,10 @@
 // /api/cloud-functions proxy builds them as
 // https://{region}-{project}.cloudfunctions.net/{name}, a v1 URL shape.
 import * as functionsV1 from "firebase-functions/v1";
+// v2 so this trigger can later target a NAMED Firestore database. v1 triggers
+// only ever fire on (default), so under the multi-database tenancy model push
+// would silently stop for every clinic. See the tenancy design, §5.
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 
 admin.initializeApp();
@@ -280,17 +284,24 @@ export const migrateTeamMember = functionsV1.https.onRequest(async (req, res) =>
 });
 
 // ============================================================
-// sendPushNotification — Firestore trigger (unchanged)
+// sendPushNotification — Firestore trigger (v2)
 // ============================================================
-export const sendPushNotification = functions.firestore
-  .document("notifications/{notificationId}")
-  .onCreate(async (snapshot, context) => {
+export const sendPushNotification = onDocumentCreated(
+  { document: "notifications/{notificationId}", region: "us-central1" },
+  async (event) => {
+    // v2 delivers the snapshot on event.data, and it is optional — a delete
+    // racing the create can fire the trigger with nothing attached.
+    const snapshot = event.data;
+    if (!snapshot) {
+      console.log("No snapshot on event; nothing to send");
+      return;
+    }
     const notification = snapshot.data();
     const recipientId = notification.recipientId;
 
     if (!recipientId) {
       console.log("No recipientId found in notification");
-      return null;
+      return;
     }
 
     // Get the user's FCM token
@@ -298,7 +309,7 @@ export const sendPushNotification = functions.firestore
 
     if (!tokenDoc.exists) {
       console.log(`No FCM token found for user ${recipientId}`);
-      return null;
+      return;
     }
 
     const tokenData = tokenDoc.data();
@@ -306,7 +317,7 @@ export const sendPushNotification = functions.firestore
 
     if (!fcmToken) {
       console.log(`Token document exists but no token field for user ${recipientId}`);
-      return null;
+      return;
     }
 
     const title = notification.title || "New Notification";
@@ -323,7 +334,7 @@ export const sendPushNotification = functions.firestore
         title: title,
         body: body,
         url: url,
-        notificationId: context.params.notificationId,
+        notificationId: event.params.notificationId,
         type: notification.type || "general",
         category: notification.category || "system"
       },
@@ -343,7 +354,7 @@ export const sendPushNotification = functions.firestore
     try {
       const response = await admin.messaging().send(payload);
       console.log("Successfully sent push notification:", response);
-      return { success: true, messageId: response };
+      return;
     } catch (error: any) {
       console.error("Error sending push notification:", error);
 
@@ -354,6 +365,7 @@ export const sendPushNotification = functions.firestore
         console.log(`Invalid token deleted for user ${recipientId}`);
       }
 
-      return { success: false, error: error.message };
+      return;
     }
-  });
+    },
+);
