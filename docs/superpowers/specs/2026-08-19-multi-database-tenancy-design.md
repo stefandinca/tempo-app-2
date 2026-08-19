@@ -165,26 +165,39 @@ never change:
 
 ```
 match /b/{bucket}/o {
-  function memberBucket() {
-    return firestore.get(/databases/(default)/documents/tenant_members/$(request.auth.uid)).data.bucket;
-  }
-  function isTenantStaff() {
+  function isStaff() {
     return request.auth != null &&
-      firestore.exists(/databases/(default)/documents/tenant_members/$(request.auth.uid)) &&
-      memberBucket() == bucket;
+      firestore.exists(/databases/(default)/documents/tenant_members/$(bucket + '__' + request.auth.uid));
   }
   ...
 }
 ```
 
 `{bucket}` binds the real bucket name, so **one rules file serves every tenant** —
-no per-tenant rules files, no path prefixes, no string parsing. The control-plane
-mirrors carry the bucket:
+no per-tenant rules files, no path prefixes, no string parsing.
+
+### Mirrors are keyed by bucket AND uid
+
+Revised again on 19 Aug, during implementation. The first version keyed mirrors
+by uid and put the bucket in a *field*. That is wrong: **one person can work at
+more than one clinic**, and a Superadmin works at all of them. A uid-keyed
+document can name only one bucket, so registering a second clinic silently
+revokes that person's Storage access to the first — with no error anywhere.
+
+The key carries the bucket instead:
 
 | Collection | Contents |
 |---|---|
-| `tenant_members/{uid}` | `{ tenantId, role, bucket }` |
-| `tenant_parents/{uid}` | `{ tenantId, bucket, clientIds: [...] }` |
+| `tenant_members/{bucket}__{uid}` | `{ tenantId, role }` |
+| `tenant_parents/{bucket}__{uid}` | `{ tenantId, clientIds: [...] }` |
+
+The bucket is deliberately NOT also a field — one source of truth, and the rule
+is a direct keyed lookup with nothing to scan.
+
+This depends on a rules path segment being a **concatenated expression**,
+`$(bucket + '__' + request.auth.uid)`. That was runtime-verified, not assumed:
+the same user, probed against two buckets, was allowed only where the matching
+mirror existed, and allowed on both once both mirrors existed.
 
 **Verified at runtime**, 19 Aug, with a real second Firebase Storage bucket on
 `tempo-app-demo` and two users whose mirrors named different buckets:
@@ -194,13 +207,31 @@ mirrors carry the bucket:
 | userA (mirror -> bucket A) | **ALLOW** | **DENY (403)** |
 | userB (mirror -> bucket B) | **ALLOW** | **DENY (403)** |
 
+`scripts/test-storage-rules.mjs` now keeps this honest: 23 assertions against
+the real buckets with real end-user ID tokens, covering both directions of the
+cross-tenant check, parent scoping to their own child, avatar ownership, and the
+default-deny path. It creates and removes its own users, mirrors and objects.
+
 One `storage.rules` file was deployed to both buckets in a single command, using
 the multi-bucket `storage` array in `firebase.json`. The `{bucket}` wildcard binds
 the real bucket name, so no per-tenant rules file is needed.
 
-> **Sequencing:** these rules deny everything until `tenant_members` entries carry
-> a `bucket` field. Deploy the mirrors first, then the rules — the reverse order
-> locks staff out of every document, video and voice note.
+> **Sequencing:** these rules deny everything until the `{bucket}__{uid}` mirrors
+> exist. Write the mirrors first, then deploy the rules to that bucket — the
+> reverse order locks staff out of every document, video and voice note.
+>
+> For the same reason `firebase.json` lists only the per-clinic buckets. The
+> platform bucket still serves the un-migrated live clinic under the OLD rules,
+> and is added to the list only once that clinic's objects have moved.
+
+### Object migration
+
+Uploads persist both `storagePath` and `downloadUrl`, and a GCS copy preserves
+the `firebaseStorageDownloadTokens` metadata — so a copied object keeps its
+token and its download URL differs from the original only in the bucket name.
+Migrating media is therefore: copy the objects, then substitute the bucket name
+inside the stored URLs. No re-upload, no broken links, and old links keep
+working until the source project is deleted.
 
 ### Why this beats the path-prefix approach
 
