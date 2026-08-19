@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -25,6 +25,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/context/ToastContext";
 import { useRecentActivities } from "@/hooks/useActivities";
+import { useEventsByMonth } from "@/hooks/useCollections";
 import { formatDistanceToNow } from "date-fns";
 import { enUS, ro } from "date-fns/locale";
 import { logActivity } from "@/lib/activityService";
@@ -36,6 +37,9 @@ export default function Dashboard() {
   const { success, error: showError } = useToast();
   const eventsLoading = events.loading || clients.loading || teamMembers.loading;
   const { activities, loading: activitiesLoading } = useRecentActivities(10);
+  // Scoped to the current month so the attendance KPI has a real sample.
+  const today = new Date();
+  const { data: monthEvents } = useEventsByMonth(today.getFullYear(), today.getMonth());
   const locale = i18n.language === 'ro' ? ro : enUS;
 
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -96,7 +100,6 @@ export default function Dashboard() {
   const getTherapist = (id: string) => teamMembers.data.find(tm => tm.id === id) || { name: t('common.unknown'), initials: "?", color: "#ccc" };
 
   // Filter today's events
-  const today = new Date();
   let todaysEvents = events.data.filter(evt => {
     const evtDate = new Date(evt.startTime);
     return evtDate.getDate() === today.getDate() &&
@@ -110,6 +113,47 @@ export default function Dashboard() {
   }
 
   todaysEvents.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
+  // KPI figures, computed from this month's events.
+  //
+  // DataContext's `events` is the 100 most recent by startTime and now includes
+  // upcoming sessions, so on a busy centre it can cover only a few days — far too
+  // narrow a sample for an attendance rate. This queries the month explicitly, the
+  // same scope the analytics page uses.
+  const monthAttendance = useMemo(() => {
+    // Matches useAnalyticsData exactly: any event with attendance logged counts
+    // in the denominator, and only "present" counts in the numerator — so absent
+    // AND excused both lower the rate. The two pages must not disagree.
+    const scored = monthEvents.filter((e: any) => e.attendance);
+    if (scored.length === 0) return null;
+    const present = scored.filter((e: any) => e.attendance === 'present').length;
+    return Math.round((present / scored.length) * 100);
+  }, [monthEvents]);
+
+  // Yesterday only counts if it falls inside the month we queried; on the 1st it
+  // does not, and claiming "0 yesterday" would be a fabrication of its own.
+  //
+  // Depends on the date parts rather than the Date object: `today` is rebuilt
+  // every render, so passing it would re-run this on every render and also roll
+  // over correctly at midnight without freezing the value for the session.
+  const todayYear = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const todayDate = today.getDate();
+  const yesterdayComparison = useMemo(() => {
+    const yesterday = new Date(todayYear, todayMonth, todayDate - 1);
+    if (yesterday.getMonth() !== todayMonth) return null;
+    let count = 0;
+    for (const evt of monthEvents) {
+      const d = new Date(evt.startTime);
+      if (d.getDate() === yesterday.getDate() && d.getMonth() === yesterday.getMonth()) {
+        if (userRole === 'Therapist' && user && evt.therapistId !== user.uid) continue;
+        count += 1;
+      }
+    }
+    return todaysEvents.length - count;
+  }, [monthEvents, todaysEvents.length, userRole, user, todayYear, todayMonth, todayDate]);
+
+  const activeClientCount = clients.data.filter((c: any) => !c.isArchived).length;
 
   if (eventsLoading) {
     return (
@@ -181,33 +225,51 @@ export default function Dashboard() {
       
       {/* KPI Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* No trend line: `createdAt` is missing on many client records, so any
+            "new this month" figure would under-report while looking authoritative. */}
         <KpiCard
           title={t('dashboard.active_clients')}
-          value={clients.data.length.toString()}
-          trend={t('dashboard.trends.this_month', { count: 3 })} 
-          icon={Users} 
-          trendIcon={TrendingUp}
-          trendColor="text-success-600"
+          value={activeClientCount.toString()}
+          icon={Users}
           iconBg="bg-primary-100 dark:bg-primary-900/30"
           iconColor="text-primary-600"
         />
-        <KpiCard 
-          title={t('dashboard.attendance_rate')} 
-          value="94%" 
-          trend={t('dashboard.trends.vs_last_week', { value: '-2%' })} 
-          icon={CheckCircle} 
-          trendIcon={TrendingDown}
-          trendColor="text-error-600"
+        <KpiCard
+          title={t('dashboard.attendance_rate')}
+          value={monthAttendance === null ? '—' : `${monthAttendance}%`}
+          trend={monthAttendance === null ? null : t('dashboard.trends.period_this_month')}
+          icon={CheckCircle}
+          trendColor="text-neutral-500"
           iconBg="bg-warning-100 dark:bg-warning-900/30"
           iconColor="text-warning-600"
         />
-        <KpiCard 
-          title={t('dashboard.sessions_today')} 
-          value={todaysEvents.length.toString()} 
-          trend={t('dashboard.trends.same_as_yesterday')} 
-          icon={CalendarCheck} 
-          trendIcon={Minus}
-          trendColor="text-neutral-500"
+        <KpiCard
+          title={t('dashboard.sessions_today')}
+          value={todaysEvents.length.toString()}
+          trend={
+            yesterdayComparison === null
+              ? null
+              : yesterdayComparison === 0
+                ? t('dashboard.trends.same_as_yesterday')
+                : t('dashboard.trends.vs_yesterday', {
+                    value: `${yesterdayComparison > 0 ? '+' : ''}${yesterdayComparison}`,
+                  })
+          }
+          icon={CalendarCheck}
+          trendIcon={
+            yesterdayComparison === null || yesterdayComparison === 0
+              ? Minus
+              : yesterdayComparison > 0
+                ? TrendingUp
+                : TrendingDown
+          }
+          trendColor={
+            yesterdayComparison && yesterdayComparison > 0
+              ? 'text-success-600'
+              : yesterdayComparison && yesterdayComparison < 0
+                ? 'text-error-600'
+                : 'text-neutral-500'
+          }
           iconBg="bg-secondary-100 dark:bg-secondary-900/30"
           iconColor="text-secondary-600"
         />
@@ -317,6 +379,8 @@ export default function Dashboard() {
   );
 }
 
+/** `trend` is optional — a card with no honest figure to show renders without a
+ *  trend line rather than inventing one. */
 function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendColor, iconBg, iconColor }: any) {
   return (
     <div className="bg-white dark:bg-neutral-900 p-3 lg:p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
@@ -325,10 +389,12 @@ function KpiCard({ title, value, trend, icon: Icon, trendIcon: TrendIcon, trendC
           <span className="text-xs lg:text-sm font-medium text-neutral-500 dark:text-neutral-400 font-display">{title}</span>
           <div className="flex items-baseline gap-2 lg:block">
             <h3 className="text-lg lg:text-2xl font-bold text-neutral-900 dark:text-white font-display tracking-tight leading-none lg:leading-normal">{value}</h3>
-            <p className={`text-[10px] lg:text-sm flex items-center gap-1 mt-0 lg:mt-1 ${trendColor}`}>
-              <TrendIcon className="w-2.5 h-2.5 lg:w-3 lg:h-3" />
-              {trend}
-            </p>
+            {trend && (
+              <p className={`text-[10px] lg:text-sm flex items-center gap-1 mt-0 lg:mt-1 ${trendColor}`}>
+                {TrendIcon && <TrendIcon className="w-2.5 h-2.5 lg:w-3 lg:h-3" />}
+                {trend}
+              </p>
+            )}
           </div>
         </div>
         <div className={`p-1.5 lg:p-2 rounded-lg ${iconBg} group-hover:scale-110 transition-transform order-first lg:order-none`}>

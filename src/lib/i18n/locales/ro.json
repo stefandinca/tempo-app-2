@@ -639,7 +639,9 @@
     "trends": {
       "this_month": "+{{count}} luna aceasta",
       "vs_last_week": "{{value}} față de săptămâna trecută",
-      "same_as_yesterday": "La fel ca ieri"
+      "same_as_yesterday": "La fel ca ieri",
+      "vs_yesterday": "{{value}} față de ieri",
+      "period_this_month": "luna aceasta"
     },
     "schedule": {
       "title": "Programul de Azi",

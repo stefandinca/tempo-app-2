@@ -635,7 +635,9 @@
     "trends": {
       "this_month": "+{{count}} this month",
       "vs_last_week": "{{value}} vs last week",
-      "same_as_yesterday": "Same as yesterday"
+      "same_as_yesterday": "Same as yesterday",
+      "vs_yesterday": "{{value}} vs yesterday",
+      "period_this_month": "this month"
     },
     "schedule": {
       "title": "Today's Schedule",
