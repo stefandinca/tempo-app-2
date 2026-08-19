@@ -23,7 +23,7 @@ import { ClientInvoice } from "@/lib/billing";
 import { useSystemSettings } from "@/hooks/useCollections";
 import { generateInvoicePDF, InvoiceData } from "@/lib/invoiceGenerator";
 import { useToast } from "@/context/ToastContext";
-import { db, IS_DEMO } from "@/lib/firebase";
+import { db, auth, IS_DEMO } from "@/lib/firebase";
 import { doc, runTransaction, serverTimestamp, collection, getDocs, query, where, getDoc, deleteDoc } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
 import { createNotificationsBatch, notifyParentInvoiceGenerated } from "@/lib/notificationService";
@@ -118,9 +118,16 @@ export default function ClientInvoicesTable({
         series: invData.series,
         clinicCif: invData.clinic?.cui
       };
+      // The route verifies this token server-side and reads the caller's role
+      // from team_members — it no longer accepts a role from the payload.
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) throw new Error(t('common.authenticating'));
       const response = await fetch('/api/smartbill/invoice', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify(payload)
       });
       const result = await response.json();

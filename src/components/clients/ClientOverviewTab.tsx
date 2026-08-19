@@ -14,6 +14,7 @@ import { db } from "@/lib/firebase";
 import { useToast } from "@/context/ToastContext";
 import { notifyClientAssigned } from "@/lib/notificationService";
 import { useConfirm } from "@/context/ConfirmContext";
+import { EVALUATION_KINDS, isEvaluationEnabled } from "@/components/settings/EvaluationAccessTab";
 
 interface ClientOverviewTabProps {
   client: any;
@@ -316,7 +317,37 @@ export default function ClientOverviewTab({ client, pendingAction, onActionHandl
 
       {/* Right Column: Actions & Schedule */}
       <div className="space-y-6">
-        
+
+        {/* Which evaluation protocols are available for this client. Read-only —
+            only a Superadmin can change it, in Settings > Evaluation Access. */}
+        {Array.isArray(client?.disabledEvaluations) && client.disabledEvaluations.length > 0 && (
+          <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
+            <h3 className="font-bold text-neutral-900 dark:text-white mb-1 font-display flex items-center gap-2">
+              <ClipboardCheck className="w-4 h-4 text-primary-500" />
+              {t('clients.evaluation_access.title')}
+            </h3>
+            <p className="text-xs text-neutral-500 mb-4">{t('clients.evaluation_access.subtitle')}</p>
+            <div className="flex flex-wrap gap-2">
+              {EVALUATION_KINDS.map((k) => {
+                const on = isEvaluationEnabled(client, k.id);
+                return (
+                  <span
+                    key={k.id}
+                    className={clsx(
+                      "px-2.5 py-1 rounded-lg text-xs font-semibold",
+                      on
+                        ? "bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400"
+                        : "bg-neutral-100 text-neutral-400 line-through dark:bg-neutral-800"
+                    )}
+                  >
+                    {k.name}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Report Generation */}
         <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
           <h3 className="font-bold text-neutral-900 dark:text-white mb-4 font-display">{t('clients.clinical_actions')}</h3>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { clsx } from "clsx";
 import { FileText, TrendingUp } from "lucide-react";
 import { Evaluation } from "@/types/evaluation";
@@ -17,6 +17,7 @@ import CARSList from "@/components/evaluations/CARSList";
 import CarolinaList from "@/components/evaluations/CarolinaList";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
 import { useClientVBMAPPEvaluations } from "@/hooks/useVBMAPP";
+import { isEvaluationEnabled } from "@/components/settings/EvaluationAccessTab";
 import { usePortageEvaluations } from "@/hooks/usePortage";
 import { useCARSEvaluations } from "@/hooks/useCARS";
 import { useCarolinaEvaluations } from "@/hooks/useCarolina";
@@ -69,13 +70,26 @@ export default function ClientEvaluationsTab({ client }: ClientEvaluationsTabPro
     };
   };
 
-  const EVAL_TOOLS = [
+  const ALL_EVAL_TOOLS = [
     { id: 'ablls', name: 'ABLLS-R', desc: t('evaluations.desc_ablls'), icon: Target, color: 'text-primary-600 bg-primary-50', stats: getStatusInfo(ablllsEvaluations) },
     { id: 'vbmapp', name: 'VB-MAPP', desc: t('evaluations.desc_vbmapp'), icon: Brain, color: 'text-purple-600 bg-purple-50', stats: getStatusInfo(vbmappEvaluations) },
     { id: 'portage', name: 'Portage', desc: t('evaluations.desc_portage'), icon: Compass, color: 'text-orange-600 bg-orange-50', stats: getStatusInfo(portageEvaluations) },
     { id: 'cars', name: 'CARS', desc: t('evaluations.desc_cars'), icon: Search, color: 'text-indigo-600 bg-indigo-50', stats: getStatusInfo(carsEvaluations) },
     { id: 'carolina', name: 'Carolina', desc: t('evaluations.desc_carolina'), icon: ClipboardCheck, color: 'text-teal-600 bg-teal-50', stats: getStatusInfo(carolinaEvaluations) },
   ];
+
+  // A Superadmin can disable protocols per client; disabled ones vanish entirely
+  // for everyone else. Firestore rules deny the reads too, so this is not merely
+  // cosmetic — without the filter the lists would just render permission errors.
+  const EVAL_TOOLS = ALL_EVAL_TOOLS.filter((tool) => isEvaluationEnabled(client, tool.id));
+
+  // If the protocol currently open gets disabled (or a stale link points at one),
+  // fall back to the picker rather than rendering a panel whose reads are denied.
+  useEffect(() => {
+    if (evalType !== "none" && !isEvaluationEnabled(client, evalType)) {
+      setEvalType("none");
+    }
+  }, [client, evalType]);
 
   // ABLLS handlers
   const getMostRecentCompletedABLLS = (): Evaluation | undefined => {

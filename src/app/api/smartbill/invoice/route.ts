@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebaseAdmin';
+import { requireStaffRole } from '@/lib/serverAuth';
 
 const SMARTBILL_API_URL = 'https://api.smartbill.ro/biz/eu/v1';
 
-export async function POST(req: NextRequest) {
-  try {
-    const { invoiceId, clientId, items, total, series, clinicCif, userRole } = await req.json();
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-    // 0. Role Authorization - Only Admin and Coordinator can generate invoices
-    if (!userRole || !['Admin', 'Coordinator'].includes(userRole)) {
-      return NextResponse.json({ error: 'Unauthorized: insufficient permissions' }, { status: 403 });
-    }
+export async function POST(req: NextRequest) {
+  // 0. Authorization — the role is read from a VERIFIED ID token, never from the
+  // request body. This route previously trusted a `userRole` field in the JSON
+  // payload, which any caller could set to "Admin".
+  const auth = await requireStaffRole(req, ['Admin', 'Coordinator']);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  try {
+    const { invoiceId, clientId, items, total, series, clinicCif } = await req.json();
 
     // 1. Basic Validation
     if (!invoiceId || !clientId) {
@@ -35,20 +41,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2.5 Fetch Invoicing Settings for VAT Rate and Credentials
-    const settingsRef = doc(db, "system_settings", "config");
-    const settingsSnap = await getDoc(settingsRef);
-    const settings = settingsSnap.exists() ? settingsSnap.data() : {};
+    // 2.5 Fetch Invoicing Settings for VAT Rate and Credentials.
+    // Admin SDK: this runs server-side with no signed-in user, so the client SDK
+    // was being denied by security rules and the route always failed with a 500.
+    const db = adminDb();
+    const settingsSnap = await db.collection("system_settings").doc("config").get();
+    const settings: any = settingsSnap.exists ? settingsSnap.data() : {};
     
     const vatRate = settings.invoicing?.vatRate ?? 0;
     
     // 2. Fetch Client Data
-    const clientRef = doc(db, "clients", clientId);
-    const clientSnap = await getDoc(clientRef);
-    if (!clientSnap.exists()) {
+    const clientSnap = await db.collection("clients").doc(clientId).get();
+    if (!clientSnap.exists) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
-    const client = clientSnap.data();
+    const client: any = clientSnap.data();
 
     // Prioritize Firestore credentials over env variables
     const user = settings.integrations?.smartbill?.user || process.env.SMARTBILL_USER;
@@ -103,8 +110,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Update local invoice with SmartBill details
-    const localInvoiceRef = doc(db, "invoices", invoiceId);
-    await updateDoc(localInvoiceRef, {
+    await db.collection("invoices").doc(invoiceId).update({
       smartBillSeries: result.series,
       smartBillNumber: result.number,
       smartBillUrl: result.url,

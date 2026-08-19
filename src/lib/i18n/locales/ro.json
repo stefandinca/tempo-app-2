@@ -456,7 +456,6 @@
     "level": "Nivel",
     "completed": "Finalizat",
     "pending": "În așteptare",
-    "back": "Înapoi",
     "today": "Astăzi",
     "previous_month": "Luna anterioară",
     "next_month": "Luna următoare"
@@ -487,7 +486,8 @@
       "billing": "Configurație Facturare",
       "translations": "Traduceri",
       "limits": "Limite Cont",
-      "system": "Sistem"
+      "system": "Sistem",
+      "evaluation_access": "Acces evaluări"
     },
     "profile": {
       "title": "Informații Profil",
@@ -611,6 +611,18 @@
       "team_usage_unlimited": "{{current}} membri echipă activi (nelimitat)",
       "save_success": "Limitele contului au fost salvate cu succes",
       "save_error": "Eroare la salvarea limitelor contului"
+    },
+    "evaluation_access": {
+      "title": "Acces la evaluări",
+      "subtitle": "Alege ce protocoale de evaluare poate folosi echipa fiecărui client.",
+      "warning": "Dezactivarea unui protocol îl ascunde — împreună cu toate evaluările deja înregistrate cu el — pentru Administratori, Coordonatori, Terapeuți și părinți. Doar Superadminii pot vedea sau modifica această setare.",
+      "search_placeholder": "Caută clienți…",
+      "client": "Client",
+      "click_to_disable": "Activat — apasă pentru a dezactiva",
+      "click_to_enable": "Dezactivat — apasă pentru a activa",
+      "saved": "Accesul la evaluări a fost actualizat",
+      "save_error": "Nu s-a putut actualiza accesul la evaluări",
+      "no_clients": "Niciun client nu corespunde căutării"
     }
   },
   "limits": {
@@ -1427,6 +1439,10 @@
         "in_progress": "În Desfășurare",
         "achieved": "Realizat"
       }
+    },
+    "evaluation_access": {
+      "title": "Acces la evaluări",
+      "subtitle": "Setat de un Superadmin în Setări."
     }
   },
   "reports": {
@@ -1582,7 +1598,6 @@
     "strongest_areas": "Cele mai Puternice Arii",
     "developmental_analysis": "Analiza Dezvoltării",
     "gap_analysis": "Evaluarea curentă indică un decalaj de dezvoltare de <strong>{{months}} luni</strong> față de copiii de aceeași vârstă.",
-    "points": "puncte",
     "level": "Nivel",
     "ready_mainstream": "învățământ de masă",
     "ready_targeted": "integrare direcționată",
@@ -2058,11 +2073,7 @@
       "already_synced": "Deja Sincronizată",
       "sync_smartbill": "Sincronizează SmartBill"
     },
-    "generate_invoice": "Generează Factura",
     "delete_invoice_storno": "Șterge Factura (Storno)",
-    "mark_as_paid": "Marchează ca Plătită",
-    "mark_pending": "Marchează ca Restantă",
-    "view_details": "Vezi Detalii",
     "errors": {
       "smartbill_sync": "Eroare Sincronizare SmartBill",
       "configure_clinic": "Vă rugăm să configurați datele clinicii în Setări > Configurație Facturare mai întâi.",
@@ -2109,8 +2120,6 @@
     "notification_payment_confirmed": "Plată Confirmată",
     "notification_payment_confirmed_message": "Plata dumneavoastră de {{total}} RON a fost confirmată. Mulțumim!",
     "update_error": "Eroare la actualizarea statusului facturii.",
-    "mark_pending_success": "Factură marcată ca restantă.",
-    "mark_paid_success": "Factură marcată ca plătită.",
     "delete_success": "Factură ștearsă și anulată.",
     "delete_error": "Eroare la ștergerea facturii.",
     "payout_messages": {
@@ -2369,13 +2378,34 @@
       "team": "Membri Echipă"
     },
     "actions": {
-      "send_message": { "label": "Trimite Mesaj", "desc": "Chat cu un membru al echipei" },
-      "new_event": { "label": "Ședință Nouă", "desc": "Programează o nouă ședință de terapie" },
-      "new_client": { "label": "Client Nou", "desc": "Adaugă un client nou în sistem" },
-      "new_team": { "label": "Membru Nou", "desc": "Adaugă un terapeut sau membru staff" },
-      "new_invoice": { "label": "Factură Nouă", "desc": "Creează o factură de plată" },
-      "new_service": { "label": "Serviciu Nou", "desc": "Adaugă un tip nou de serviciu" },
-      "new_evaluation": { "label": "Evaluare Nouă", "desc": "Programează o evaluare pentru client" }
+      "send_message": {
+        "label": "Trimite Mesaj",
+        "desc": "Chat cu un membru al echipei"
+      },
+      "new_event": {
+        "label": "Ședință Nouă",
+        "desc": "Programează o nouă ședință de terapie"
+      },
+      "new_client": {
+        "label": "Client Nou",
+        "desc": "Adaugă un client nou în sistem"
+      },
+      "new_team": {
+        "label": "Membru Nou",
+        "desc": "Adaugă un terapeut sau membru staff"
+      },
+      "new_invoice": {
+        "label": "Factură Nouă",
+        "desc": "Creează o factură de plată"
+      },
+      "new_service": {
+        "label": "Serviciu Nou",
+        "desc": "Adaugă un tip nou de serviciu"
+      },
+      "new_evaluation": {
+        "label": "Evaluare Nouă",
+        "desc": "Programează o evaluare pentru client"
+      }
     },
     "client_actions": {
       "view_profile": "Vezi profilul lui {{name}}",
@@ -2582,4 +2612,3 @@
     }
   }
 }
-
