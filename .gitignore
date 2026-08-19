@@ -369,3 +369,6 @@ public/firebase-messaging-sw.js
 
 .env.diaconumaria
 notification-backups/
+
+# Vercel CLI project link (created by `vercel link`)
+.vercel

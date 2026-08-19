@@ -79,11 +79,12 @@ from its Firebase console. The `NEXT_PUBLIC_*` values all restore from
 
 ## Vercel consolidation — 20 Aug 2026
 
-`tempo-app-2` is now the single platform project. `demo.tempoapp.ro` and
-`livebetterlife.tempoapp.ro` serve from it, verified end to end (9 parent
-sign-in assertions each). `tempo-demo` and `tempo-livebetterlife` keep their
-configuration but have builds disabled (ignored build step `exit 0`), so a push
-no longer builds four times. Neither was deleted: they are the rollback targets.
+`tempo-app-2` is now the single platform project. **All three clinic hostnames
+serve from it** — `livebetterlife`, `diaconumaria` and `demo` — each resolving
+its own database, bucket and Mira key from the host. `tempo-demo`,
+`tempo-livebetterlife` and `tempo-app-diaconumaria` keep their configuration but
+have builds disabled (ignored build step `exit 0`), so a push builds once rather
+than four times. None was deleted: they are the rollback targets.
 
 `tempo-web` is a **different repository** serving the apex and `www`. It was not
 touched, and an explicit domain always beats a wildcard, so it stays put.
@@ -98,7 +99,7 @@ per clinic. Each is now resolved from the request's host — see
 | `ANTHROPIC_API_KEY` | `ANTHROPIC_API_KEY_<TENANT>`, chosen per request |
 | one build per clinic | one build, host-resolved database, bucket and key |
 
-### Two things need you
+### One thing still needs you
 
 1. **The wildcard needs a DNS record.** `*.tempoapp.ro` is added to the project
    and ownership-verified, but `tempoapp.ro` DNS is managed at the registrar,
@@ -114,21 +115,21 @@ per clinic. Each is now resolved from the request's host — see
    record. The wildcard only removes the need for a DNS record per future
    clinic. `www` and the apex keep their explicit records and are unaffected.
 
-2. **Diaconu Maria's Mira key.** Her domain is deliberately still on
-   `tempo-app-diaconumaria`. Her key is stored `sensitive` on that project and
-   cannot be read back by anyone, including through the API — so it could not be
-   copied across, and moving her domain would have left Mira dead on a live
-   clinic. Set it on the platform project and the last domain can move:
+### Diaconu Maria's Mira key — resolved
 
-   ```bash
-   npx vercel env add ANTHROPIC_API_KEY_DIACONUMARIA production --scope stefandinca07-6037s-projects
-   # then, to move the domain:
-   node scripts/vercel-move-domain.mjs --domain=diaconumaria.tempoapp.ro \
-     --from=tempo-app-diaconumaria --to=tempo-app-2 --yes
-   ```
+Her key was stored `sensitive` and could not be read back by anyone, including
+through the API, so it could not be copied to the platform project. Rather than
+move her domain and leave Mira dead on a live clinic, a **new** key was issued
+for her and set as `ANTHROPIC_API_KEY_DIACONUMARIA`. That is the better outcome
+anyway: the old key stays scoped to the project it was made for.
 
-   ⚠️ **Do not delete `tempo-app-diaconumaria` before that key is copied** — that
-   project is the only place it exists.
+The platform project was redeployed before the move, because Vercel binds env at
+build time and a running deployment cannot see a variable added after it built —
+a step that, skipped, looks exactly like a wrong key.
+
+Her old key is now unused and **should be revoked in the Anthropic console**.
+`tempo-app-diaconumaria` no longer holds anything unique, so it can be deleted
+whenever the rollback window closes.
 
 ## Still to do
 
