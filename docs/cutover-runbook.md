@@ -102,6 +102,20 @@ old-project UID was rewritten to the platform one across 15 documents.
       sign in · client list · a calendar week · one evaluation · a client
       document or video · a parent login with an access code · Mira.
 
+- [ ] **Then, and only then, deploy the Firestore rules.**
+
+      ```bash
+      npm run test:rules
+      node scripts/deploy-rules.mjs --project=tempo-app-2
+      ```
+
+      This is a separate step on purpose. The rules in this branch remove the
+      clause that let any signed-in user add themselves to a client's
+      `parentUids` — production still relies on that clause until the merge is
+      live, so deploying it first stops every parent signing in. Verify a parent
+      login with a real access code immediately after, and be ready to redeploy
+      the previous ruleset from `main` if it fails.
+
 ---
 
 ## Immediately after
@@ -125,6 +139,10 @@ Revert the merge and redeploy:
 git revert -m 1 <merge-commit>
 git push
 ```
+
+If the Firestore rules were already deployed, roll those back too — check out
+`main` and run `node scripts/deploy-rules.mjs --project=tempo-app-2` from there,
+otherwise parent sign-in stays broken against the reverted code.
 
 The old databases and buckets were never written to or deleted, so this is a
 genuine rollback rather than a restore. The per-clinic Firebase projects are
@@ -153,3 +171,8 @@ untouched and still hold everything they held before.
 - **The old platform bucket allows CORS from `*`.** The three new buckets are
   restricted to their own clinic's origin plus localhost. That finding closes
   itself when the old bucket stops serving media.
+- **267 parent mirrors, and one client with 91 linked uids.** Anonymous uids are
+  per-device and per-session, and cleanup used to be best-effort from a browser
+  that had usually already gone. Sign-out now unlinks properly, so this stops
+  growing — but the existing backlog is untouched. Pruning uids that have not
+  been seen for months would be reasonable housekeeping, separately.
