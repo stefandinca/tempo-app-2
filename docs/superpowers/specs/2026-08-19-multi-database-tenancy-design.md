@@ -81,10 +81,14 @@ The same holds for parents: `isParent(clientId)` reads the client document from
 **Tenant key:** the subdomain label (`diaconumaria`). Database id is
 `clinic-<label>`. Apex and `admin.` are reserved for the control plane.
 
-**Client-side resolution:** the root layout (Server Component) reads the `Host`
-header, looks up the tenant, and injects the database id so
-`getFirestore(app, databaseId)` initialises synchronously. Firebase JS SDK
-10.14.1 supports this overload — confirmed in the installed types.
+**Client-side resolution:** `src/lib/tenant.ts` derives the database id from the
+hostname by convention (`diaconumaria.tempoapp.ro` -> `clinic-diaconumaria`),
+with no lookup. Chosen over reading the `Host` header in the root layout because
+`headers()` opts the whole app out of static rendering, and under a single
+project the database id is the *only* value that varies per tenant — which the
+hostname already encodes. It also keeps `getFirestore` synchronous, which matters
+because 68 files import the `db` singleton. Firebase JS SDK 10.14.1 supports the
+`getFirestore(app, databaseId)` overload — confirmed in the installed types.
 
 **Server-side resolution:** one service account for the whole project. API
 routes resolve the tenant from the request and call
@@ -250,6 +254,10 @@ Steps 1 and 2 are independent of each other and of 3.
 - Does the demo tenant stay a separate database, or become a normal tenant with
   an `isDemo` flag? (The old plan chose the flag; nothing here changes that.)
 - Where does the superadmin control-plane UI live — apex, or `admin.`?
-- Do we keep `tempo-app-2` as the platform project, or create a clean one? Its
-  name is a poor fit for a platform, and reusing it means the migration has a
-  self-referential step for Live Better Life.
+- **Platform project: `tempo-app-2`** (decided 19 Aug). Live Better Life's Auth
+  pool never moves, so its 8 staff keep their UIDs and its 329 anonymous parent
+  sessions keep working — no family has to re-enter an access code. Its data
+  moves within the project and its Storage objects only change path, not bucket.
+  The cost is a project name that reads oddly for a platform, surfacing only in
+  storage URLs and the auth domain. `tempo-platform` exists but has never had
+  Firestore enabled; it stays unused.
