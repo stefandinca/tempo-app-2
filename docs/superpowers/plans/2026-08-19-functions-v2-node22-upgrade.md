@@ -6,7 +6,7 @@
 
 **Architecture:** Minimal blast radius. Only `sendPushNotification` migrates to the v2 API, because only it needs per-database triggering. The two HTTP functions stay on the v1 API — imported explicitly from `firebase-functions/v1` — so their public URLs do not change and `src/app/api/cloud-functions/route.ts` keeps working untouched.
 
-**Tech Stack:** Firebase Cloud Functions, TypeScript, Node 22, `firebase-functions` 7.x, `firebase-admin` 14.x
+**Tech Stack:** Firebase Cloud Functions, TypeScript, Node 22, `firebase-functions` 7.x, `firebase-admin` 13.x
 
 **Spec:** `docs/superpowers/specs/2026-08-19-multi-database-tenancy-design.md` (§5)
 
@@ -14,7 +14,7 @@
 
 - Node runtime: **22** (`functions/package.json` → `engines.node`)
 - `firebase-functions`: **^7.3.2**. In v7 the root export is **v2**; the v1 API is only reachable at `firebase-functions/v1`. The current code imports the root and uses v1 APIs, so it will not compile after the bump until imports are fixed.
-- `firebase-admin` in `functions/`: **^14.2.0**. Do **not** change the root app's `firebase-admin` — it is deliberately pinned to `^12.7.0` (commit 98ae912, "downgrade firebase-admin to v12 to end the jose ESM crash for good"). That pin is about Vercel's bundler; functions run on GCP and are unaffected.
+- `firebase-admin` in `functions/`: **^13.10.0** — not 14. `firebase-functions-test@3.5.0` peers at `^13` maximum, and 14 makes `npm install` fail with ERESOLVE. `firebase-functions@7` accepts 11.10–14, so 13 satisfies both without `--legacy-peer-deps`. Do **not** change the root app's `firebase-admin` — it is deliberately pinned to `^12.7.0` (commit 98ae912, "downgrade firebase-admin to v12 to end the jose ESM crash for good"). That pin is about Vercel's bundler; functions run on GCP and are unaffected.
 - TypeScript in `functions/`: **^5.9** — matching the root app. Do not jump to 7.x.
 - Function region stays **`us-central1`** for all three. Changing it changes URLs.
 - Public URLs of `createTeamMember` and `migrateTeamMember` must not change.
@@ -43,7 +43,7 @@ In `functions/package.json`, set:
   },
   "main": "lib/index.js",
   "dependencies": {
-    "firebase-admin": "^14.2.0",
+    "firebase-admin": "^13.10.0",
     "firebase-functions": "^7.3.2"
   },
   "devDependencies": {
