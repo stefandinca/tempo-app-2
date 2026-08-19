@@ -9,12 +9,19 @@
  * explicit, and a run with no tenant fails instead of guessing.
  *
  *   node scripts/tenant-env.mjs demo -- next dev
- *   node scripts/tenant-env.mjs live -- next build
+ *   node scripts/tenant-env.mjs livebetterlife -- next build
  *   node scripts/tenant-env.mjs --check demo      # validate only, run nothing
  *
- * On Vercel the environment comes from the dashboard rather than a file, so if
- * the Firebase config is already present in process.env the run is allowed
- * through without a tenant argument (and the resolved project is still printed).
+ * Every clinic now shares ONE Firebase project and is separated by database and
+ * bucket, both derived from the hostname (src/lib/tenant.ts). So a tenant is no
+ * longer a different set of Firebase credentials — it is a different HOST, and
+ * that is all this sets. A dev server answers on localhost, which resolves to the
+ * control plane and shows an empty app, so NEXT_PUBLIC_TENANT_HOST is what makes
+ * a local run reach a clinic at all.
+ *
+ * On Vercel the environment comes from the dashboard rather than a file, and the
+ * real request hostname already selects the tenant, so a run with the Firebase
+ * config already in process.env is allowed through with no tenant argument.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { spawn } from "node:child_process";
@@ -44,15 +51,30 @@ function parseEnvFile(file) {
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 
-/** Firebase project each tenant name is expected to resolve to. */
+/** The single Firebase project every tenant now lives in. */
+const PLATFORM_PROJECT = "tempo-app-2";
+
+/**
+ * The host each tenant answers on. This is the whole of tenant selection: the
+ * app derives the Firestore database and the Storage bucket from it.
+ */
 const TENANTS = {
-  demo: { project: "tempo-app-demo", label: "Demo" },
-  live: { project: "tempo-app-2", label: "LIVE — Live Better Life (real clinic data)" },
-  diaconumaria: { project: "tempo-diaconumaria", label: "LIVE — Diaconu Maria (real clinic data)" },
+  demo: { host: "demo.tempoapp.ro", label: "Demo" },
+  livebetterlife: { host: "livebetterlife.tempoapp.ro", label: "LIVE — Live Better Life (real clinic data)" },
+  diaconumaria: { host: "diaconumaria.tempoapp.ro", label: "LIVE — Diaconu Maria (real clinic data)" },
 };
 
+/** Old name for a tenant, kept working so existing muscle memory does not break. */
+const ALIASES = { live: "livebetterlife" };
+
 /** Tenants holding real client records — flagged red and warned about. */
-const PRODUCTION_TENANTS = new Set(["live", "diaconumaria"]);
+const PRODUCTION_TENANTS = new Set(["livebetterlife", "diaconumaria"]);
+
+/**
+ * One project means one set of Firebase credentials, so there is one env file
+ * rather than one per clinic. `.env.live` is accepted as its previous name.
+ */
+const ENV_FILES = [".env.platform", ".env.live"];
 
 const REQUIRED = [
   "NEXT_PUBLIC_FIREBASE_API_KEY",
@@ -84,10 +106,10 @@ function usage(message) {
   // Generated from TENANTS so adding a clinic cannot leave this list stale.
   for (const [name, cfg] of Object.entries(TENANTS)) {
     const warn = PRODUCTION_TENANTS.has(name) ? "REAL clinic data" : "safe to write to";
-    console.error(`  ${C.bold(`npm run dev:${name}`.padEnd(28))} ${C.dim(`# ${cfg.project} — ${warn}`)}`);
+    console.error(`  ${C.bold(`npm run dev:${name}`.padEnd(28))} ${C.dim(`# ${cfg.host} — ${warn}`)}`);
   }
   console.error("");
-  console.error(C.dim("Each reads .env.<tenant>. On Vercel the dashboard environment is used instead.\n"));
+  console.error(C.dim(`All tenants share ${PLATFORM_PROJECT} and read ${ENV_FILES[0]}; the tenant sets the host.\n`));
   process.exit(1);
 }
 
@@ -95,7 +117,8 @@ const argv = process.argv.slice(2);
 const checkOnly = argv.includes("--check");
 const rest = argv.filter((a) => a !== "--check");
 const sepIndex = rest.indexOf("--");
-const tenant = sepIndex === -1 ? rest[0] : rest.slice(0, sepIndex)[0];
+const requested = sepIndex === -1 ? rest[0] : rest.slice(0, sepIndex)[0];
+const tenant = requested && ALIASES[requested] ? ALIASES[requested] : requested;
 const command = sepIndex === -1 ? [] : rest.slice(sepIndex + 1);
 
 let env = { ...process.env };
@@ -105,13 +128,16 @@ if (tenant) {
   if (!TENANTS[tenant]) {
     usage(`Unknown tenant "${tenant}". Known tenants: ${Object.keys(TENANTS).join(", ")}.`);
   }
-  const file = path.join(ROOT, `.env.${tenant}`);
-  if (!existsSync(file)) {
-    usage(`Tenant "${tenant}" selected but ${path.basename(file)} does not exist.`);
+  const file = ENV_FILES.map((f) => path.join(ROOT, f)).find(existsSync);
+  if (!file) {
+    usage(`None of ${ENV_FILES.join(" or ")} exists — one of them must hold the ${PLATFORM_PROJECT} config.`);
   }
   // File values win over the ambient shell, so a stale exported var cannot
   // quietly redirect the run to another project.
   env = { ...env, ...parseEnvFile(file) };
+  // The whole of tenant selection. Without it a dev server answers on localhost,
+  // which resolves to the control plane and shows an empty app.
+  env.NEXT_PUBLIC_TENANT_HOST = TENANTS[tenant].host;
   source = path.basename(file);
 } else if (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
   source = "inherited environment (CI / Vercel)";
@@ -128,21 +154,22 @@ if (missing.length) {
 }
 
 const project = env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-const expected = tenant ? TENANTS[tenant].project : null;
-if (expected && project !== expected) {
+if (tenant && project !== PLATFORM_PROJECT) {
   console.error(
-    `\n${C.red("✗ Refusing to run.")} Tenant "${tenant}" should target ${C.bold(expected)}, ` +
-    `but ${source} resolves to ${C.bold(project)}.\n`,
+    `\n${C.red("✗ Refusing to run.")} Every tenant now lives in ${C.bold(PLATFORM_PROJECT)}, ` +
+    `but ${source} resolves to ${C.bold(project)}.\n` +
+    `  A per-clinic project is the OLD architecture — its data no longer receives writes.\n`,
   );
   process.exit(1);
 }
 
-const isLive = tenant ? PRODUCTION_TENANTS.has(tenant) : project !== TENANTS.demo.project;
+const isLive = tenant ? PRODUCTION_TENANTS.has(tenant) : true;
 const label = tenant ? TENANTS[tenant].label : project;
 
 console.log("");
 console.log(`  ${C.bold("tenant  ")} ${isLive ? C.red(label) : C.green(label)}`);
-console.log(`  ${C.bold("project ")} ${isLive ? C.red(project) : C.green(project)}`);
+console.log(`  ${C.bold("project ")} ${C.green(project)}`);
+if (tenant) console.log(`  ${C.bold("host    ")} ${isLive ? C.red(TENANTS[tenant].host) : C.green(TENANTS[tenant].host)}`);
 console.log(`  ${C.bold("source  ")} ${C.dim(source)}`);
 if (isLive) {
   console.log(`  ${C.red("⚠  This is the production clinic database. Writes affect real client records.")}`);
