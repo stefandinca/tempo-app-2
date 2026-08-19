@@ -57,6 +57,18 @@ const cases = [
   ["admin edits an unrelated field", "ALLOW", "update", `${D}/clients/c1`,
     { uid: "a1" }, [...member("a1", "Admin")], { name: "Y" }, { name: "X" }],
 
+  // --- control plane ---
+  ["anonymous reads tenant_members", "DENY", "get", `${D}/tenant_members/u1`,
+    { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],
+  ["admin reads tenant_members", "DENY", "get", `${D}/tenant_members/u1`,
+    { uid: "a1" }, member("a1", "Admin")],
+  ["superadmin reads tenant_members", "DENY", "get", `${D}/tenant_members/u1`,
+    { uid: "s1" }, member("s1", "Superadmin")],
+  ["superadmin reads the tenant registry", "ALLOW", "get", `${D}/tenants/clinic-x`,
+    { uid: "s1" }, member("s1", "Superadmin")],
+  ["admin reads the tenant registry", "DENY", "get", `${D}/tenants/clinic-x`,
+    { uid: "a1" }, member("a1", "Admin")],
+
   // --- staff roster exposure ---
   ["anonymous reads team_members", "DENY", "get", `${D}/team_members/t1`,
     { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],

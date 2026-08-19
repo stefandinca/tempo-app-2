@@ -55,6 +55,25 @@ service cloud.firestore {
              && c.disabledEvaluations.hasAny([kind]);
     }
 
+    // ---- CONTROL PLANE — the (default) database only ----
+    // The tenant registry, and the membership mirrors that Storage rules need.
+    //
+    // Storage rules cannot read a named database (proven by runtime spike), so
+    // authorisation for per-tenant Storage paths has to resolve against these.
+    // Their firestore.get is a PRIVILEGED read that bypasses these rules — also
+    // proven — so locking them to `false` hides them from every client while
+    // keeping them usable for authorisation. They must never hold clinical data.
+    match /tenants/{tenantId} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
+    match /tenant_members/{memberUid} {
+      allow read, write: if false;
+    }
+    match /tenant_parents/{parentUid} {
+      allow read, write: if false;
+    }
+
     // --- Collections ---
 
     // Staff records carry e-mail, phone and salary. This was readable by ANY
