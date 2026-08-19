@@ -48,11 +48,15 @@ export class Db {
    *   that pass this take on the duty of guarding writes themselves — the demo
    *   seeder must never pass it.
    */
-  constructor(project, { allowAnyProject = false } = {}) {
+  constructor(project, { allowAnyProject = false, database = "(default)" } = {}) {
     if (!allowAnyProject) assertDemoProject(project);
     this.allowAnyProject = allowAnyProject;
     this.project = project;
-    this.base = `https://firestore.googleapis.com/v1/projects/${project}/databases/(default)/documents`;
+    // Held as a field because reads AND writes must agree on it. Overriding
+    // `base` alone used to leave commit() pointed at (default) — writes silently
+    // landed in the wrong database while reads came from the right one.
+    this.database = database;
+    this.base = `https://firestore.googleapis.com/v1/projects/${project}/databases/${database}/documents`;
     this.writes = 0;
     this.dryRun = false;
   }
@@ -87,7 +91,7 @@ export class Db {
     for (let i = 0; i < writes.length; i += 400) {
       const chunk = writes.slice(i, i + 400);
       const r = await fetch(
-        `https://firestore.googleapis.com/v1/projects/${this.project}/databases/(default)/documents:commit`,
+        `https://firestore.googleapis.com/v1/projects/${this.project}/databases/${this.database}/documents:commit`,
         { method: "POST", headers: this.headers(), body: JSON.stringify({ writes: chunk }) },
       );
       if (!r.ok) throw new Error(`commit: ${r.status} ${(await r.text()).slice(0, 400)}`);
@@ -96,7 +100,7 @@ export class Db {
   }
 
   docName(pathStr) {
-    return `projects/${this.project}/databases/(default)/documents/${pathStr}`;
+    return `projects/${this.project}/databases/${this.database}/documents/${pathStr}`;
   }
 
   /** Full overwrite of a document. */

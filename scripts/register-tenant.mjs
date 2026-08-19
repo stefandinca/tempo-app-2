@@ -57,9 +57,9 @@ const databaseId = `clinic-${TENANT}`;
 
 /** A handle on one named database of the same project. */
 function databaseHandle(project, database) {
-  const handle = new Db(project, { allowAnyProject: true });
-  handle.base = `https://firestore.googleapis.com/v1/projects/${project}/databases/${database}/documents`;
-  return handle;
+  // Pass `database` to the constructor — overriding `base` alone leaves writes
+  // pointed at (default) while reads come from the named database.
+  return new Db(project, { allowAnyProject: true, database });
 }
 
 const control = new Db(PROJECT, { allowAnyProject: true });
