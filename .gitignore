@@ -368,3 +368,4 @@ demo-backup/
 public/firebase-messaging-sw.js
 
 .env.diaconumaria
+notification-backups/
