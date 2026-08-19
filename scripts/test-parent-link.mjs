@@ -6,6 +6,10 @@
  *   node scripts/tenant-env.mjs demo -- npx next start -p 3100
  *   node scripts/test-parent-link.mjs            # in another terminal
  *
+ * Or against a deployed host, which is the post-cutover verification:
+ *
+ *   node scripts/test-parent-link.mjs --base=https://demo.tempoapp.ro
+ *
  * This covers the one flow where a mistake is both invisible and serious: an
  * access code is the ONLY credential a parent has, and what it unlocks is a
  * child's clinical record. The rules tests cover what the database permits; this
@@ -20,6 +24,7 @@
  * plane, and every tenant-scoped lookup misses for reasons nothing explains.
  */
 import http from "node:http";
+import https from "node:https";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -33,7 +38,10 @@ const args = Object.fromEntries(
 
 const PROJECT = args.project || "tempo-app-2";
 const PORT = Number(args.port || 3100);
-const HOST = args.host || "demo.tempoapp.ro";
+// Against a deployed host the real hostname selects the tenant, so no spoofing
+// is needed and none is done.
+const BASE = args.base ? new URL(args.base) : null;
+const HOST = args.host || (BASE ? BASE.host : "demo.tempoapp.ro");
 const DATABASE = args.database || "clinic-demo";
 const BUCKET = args.bucket || "tempo-app-2-demo";
 const CODE = args.code || "AMP-2019";
@@ -69,10 +77,11 @@ const docUrl = (database, coll, id) =>
 function call({ method, token, body, host = HOST }) {
   return new Promise((resolve, reject) => {
     const payload = body ? JSON.stringify(body) : null;
-    const req = http.request(
+    const transport = BASE && BASE.protocol === "https:" ? https : http;
+    const req = transport.request(
       {
-        host: "127.0.0.1",
-        port: PORT,
+        host: BASE ? BASE.hostname : "127.0.0.1",
+        port: BASE ? BASE.port || (BASE.protocol === "https:" ? 443 : 80) : PORT,
         // The trailing slash matters: next.config.js sets trailingSlash: true.
         path: "/api/parent/link/",
         method,
@@ -117,7 +126,7 @@ function assert(label, ok, detail) {
 }
 
 console.log(`\n${C.bold("parent portal sign-in — end to end")}`);
-console.log(`  server   : http://127.0.0.1:${PORT}  as ${HOST}`);
+console.log(`  server   : ${BASE ? BASE.origin : `http://127.0.0.1:${PORT}`}  as ${HOST}`);
 console.log(`  tenant   : ${DATABASE} / ${BUCKET}`);
 console.log(`  code     : ${CODE} -> ${CLIENT}\n`);
 
@@ -128,7 +137,7 @@ try {
   try {
     await call({ method: "DELETE" });
   } catch (err) {
-    console.error(`${C.red(`✗ Nothing is answering on port ${PORT}.`)}\n`);
+    console.error(`${C.red(`✗ Nothing is answering at ${BASE ? BASE.origin : `port ${PORT}`}.`)}\n`);
     console.error(`  npm run build:demo`);
     console.error(`  node scripts/tenant-env.mjs demo -- npx next start -p ${PORT}\n`);
     process.exit(1);
@@ -170,8 +179,10 @@ try {
   assert("an unauthenticated caller is rejected", r.status === 401, `${r.status}`);
 
   // The same code against a different host must not reach this clinic's data.
-  r = await call({ method: "POST", token: idToken, body: { code: CODE }, host: `localhost:${PORT}` });
-  assert("the code does not work on another host", r.status === 404, `${r.status}`);
+  if (!BASE) {
+    r = await call({ method: "POST", token: idToken, body: { code: CODE }, host: `localhost:${PORT}` });
+    assert("the code does not work on another host", r.status === 404, `${r.status}`);
+  }
 
   // --- sign-out -------------------------------------------------------------
   r = await call({ method: "DELETE", token: idToken });
