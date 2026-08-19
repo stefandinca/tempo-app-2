@@ -57,6 +57,21 @@ const cases = [
   ["admin edits an unrelated field", "ALLOW", "update", `${D}/clients/c1`,
     { uid: "a1" }, [...member("a1", "Admin")], { name: "Y" }, { name: "X" }],
 
+  // --- parent self-linking ---
+  // A signed-in stranger used to be able to write their own uid into any
+  // client's parentUids, and most client ids are firstname + a birthday. Linking
+  // is now server-side, against the access code, so every one of these denies.
+  ["anonymous adds itself to parentUids", "DENY", "update", `${D}/clients/c1`,
+    { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }],
+    { name: "X", parentUids: ["anon"] }, { name: "X", parentUids: [] }],
+  ["existing parent adds another uid to parentUids", "DENY", "update", `${D}/clients/c1`,
+    { uid: "p1" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/p1` }], result: { value: false } }],
+    { name: "X", parentUids: ["p1", "p2"] }, { name: "X", parentUids: ["p1"] }],
+  ["coordinator still edits a client", "ALLOW", "update", `${D}/clients/c1`,
+    { uid: "c2" }, member("c2", "Coordinator"), { name: "Y", parentUids: [] }, { name: "X", parentUids: [] }],
+  ["therapist edits a client (never was allowed)", "DENY", "update", `${D}/clients/c1`,
+    { uid: "t1" }, member("t1", "Therapist"), { name: "Y", parentUids: [] }, { name: "X", parentUids: [] }],
+
   // --- control plane ---
   ["anonymous reads tenant_members", "DENY", "get", `${D}/tenant_members/u1`,
     { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],

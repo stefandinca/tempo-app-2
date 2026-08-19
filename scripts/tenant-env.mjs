@@ -83,13 +83,16 @@ const REQUIRED = [
   "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
   "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
   "NEXT_PUBLIC_FIREBASE_APP_ID",
+  // Required, not optional: parent portal sign-in now goes through
+  // /api/parent/link, which needs the Admin SDK. Without this, no parent can
+  // reach the portal at all.
+  "FIREBASE_SERVICE_ACCOUNT",
 ];
 
 /** Absent, these degrade a feature rather than break the app — warn, don't fail. */
 const OPTIONAL = {
   NEXT_PUBLIC_FIREBASE_VAPID_KEY: "push notifications will not register",
   ANTHROPIC_API_KEY: "the Mira assistant returns ai_unavailable",
-  FIREBASE_SERVICE_ACCOUNT: "AI and SmartBill API routes cannot authenticate",
 };
 
 const C = {

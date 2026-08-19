@@ -98,12 +98,20 @@ service cloud.firestore {
       // they could simply re-enable a protocol the Superadmin disabled.
       allow update: if isSuperadmin()
                     || ((isAdmin() || isCoordinator())
-                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['disabledEvaluations']))
-                    || (
-        isSignedIn() &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['parentUids']) &&
-        request.resource.data.parentUids.hasAny([request.auth.uid])
-      );
+                        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['disabledEvaluations']));
+      // NOTE: there used to be a third clause here letting ANY signed-in user add
+      // their own uid to parentUids. Anonymous sign-in is open on the parent
+      // portal, and most client documents have human-chosen ids of the form
+      // firstname + a four-digit birthday, so guessing "adelina2511" was enough to
+      // grant yourself that child's records, evaluations, videos and voice notes.
+      //
+      // Parent linking now goes through /api/parent/link, which resolves the
+      // child from the ACCESS CODE with the Admin SDK. Nothing in the browser
+      // writes parentUids any more.
+      //
+      // 🚨 Deploy this only AFTER the app change is live. The old client-side
+      // write is still what production runs until then, and tightening this
+      // first stops every parent signing in.
       allow delete: if isAdmin();
     }
 
