@@ -20,6 +20,13 @@ Auth is already merged into `tempo-app-2`: Diaconu Maria's two staff and the
 demo login were imported with their UIDs and password hashes intact, and her
 old-project UID was rewritten to the platform one across 15 documents.
 
+This branch also closes a security hole found along the way: `firestore.rules`
+let any signed-in user add themselves to `clients/{id}.parentUids`, and 52 of
+Live Better Life's 88 client documents have ids of the form `firstname` plus a
+four-digit birthday. Parent linking now happens server-side against the access
+code. **Its rules change deploys after the merge, not before** — see the step
+below.
+
 ---
 
 ## Before the window
@@ -76,6 +83,17 @@ old-project UID was rewritten to the platform one across 15 documents.
 - [ ] **Run the isolation tests.** `npm run test:isolation` — 33 hostname
       assertions, the Firestore rules suite, and 23 live Storage assertions
       against the real buckets.
+
+- [ ] **Run the parent sign-in test**, which needs a running build:
+
+      ```bash
+      npm run build:demo
+      node scripts/tenant-env.mjs demo -- npx next start -p 3100   # leave running
+      npm run test:parent-link                                     # another terminal
+      ```
+
+      Ten assertions over the flow that matters most: an access code is the only
+      credential a parent has, and what it unlocks is a child's clinical record.
 
 ---
 
