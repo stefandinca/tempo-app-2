@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import ClinicLogo from "@/components/ClinicLogo";
+import { ClinicBrand } from "@/components/ClinicLogo";
+import ReportBugModal from "@/components/ReportBugModal";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -14,8 +16,7 @@ import {
   Search,
   Briefcase,
   MessageSquare,
-  Sparkles
-} from "lucide-react";
+  Sparkles, Bug } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useCommandPalette } from "@/context/CommandPaletteContext";
@@ -26,6 +27,7 @@ import { useTranslation } from "react-i18next";
 export default function Sidebar() {
   const { t } = useTranslation();
   const pathname = usePathname();
+  const [bugOpen, setBugOpen] = useState(false);
   const { clients } = useData();
 
   // Real count of active clients. This used to be a hardcoded 48, which was
@@ -56,13 +58,11 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 z-40 hidden lg:block">
-      {/* Logo */}
-      <div className="h-16 flex items-center gap-3 px-6 border-b border-neutral-200 dark:border-neutral-800">
-        <ClinicLogo size="sm" />
-        <div>
-          <h1 className="font-bold text-lg text-neutral-900 dark:text-white font-display">{t('header.titles.app_title')}</h1>
-          <p className="text-xs text-neutral-500">{t('header.titles.app_subtitle')}</p>
-        </div>
+      {/* Branding. A clinic's own logo replaces this entire row, wordmark
+          included — a real logo carries its own name and would read oddly
+          beside ours. */}
+      <div className="h-16 flex items-center px-6 border-b border-neutral-200 dark:border-neutral-800">
+        <ClinicBrand />
       </div>
       
       {/* Navigation */}
@@ -137,8 +137,8 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* Search Hint */}
-      <div className="absolute bottom-6 left-4 right-4">
+      {/* Search Hint + support */}
+      <div className="absolute bottom-6 left-4 right-4 space-y-2">
         <button
           onClick={openCommandPalette}
           className="w-full flex items-center gap-2 px-3 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
@@ -149,7 +149,17 @@ export default function Sidebar() {
             ⌘K
           </kbd>
         </button>
+
+        <button
+          onClick={() => setBugOpen(true)}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+        >
+          <Bug className="w-4 h-4" />
+          <span>{t('report_bug.button')}</span>
+        </button>
       </div>
+
+      <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
     </aside>
   );
 }

@@ -2624,5 +2624,18 @@
         }
       }
     }
+  },
+  "report_bug": {
+    "button": "Report a bug",
+    "title": "Report a bug",
+    "subtitle": "Tell us what went wrong and we will look into it.",
+    "what": "What happened?",
+    "what_placeholder": "Short summary, e.g. \"Calendar does not save attendance\"",
+    "details": "Details",
+    "details_placeholder": "What were you doing, what did you expect, and what happened instead?",
+    "send": "Send report",
+    "sent": "Thank you — your report has been sent",
+    "send_error": "Could not send the report. Please try again.",
+    "privacy": "We also receive your name, role, clinic and the page you were on, so we can reproduce the problem."
   }
 }

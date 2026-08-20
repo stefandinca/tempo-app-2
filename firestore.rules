@@ -161,6 +161,17 @@ service cloud.firestore {
     //   translations_*  i18n fetches these on every page load, for every user,
     //                   including anonymous parents — must stay broadly readable.
     //   config          staff only.
+    // Bug reports from every clinic land in ONE database, so they can be read
+    // together instead of scattered per clinic where nobody would look.
+    //
+    // Written only by /api/report-bug, which uses the Admin SDK and bypasses
+    // these rules — nothing may write one from a browser, so a clinic cannot
+    // forge a report against another clinic's name.
+    match /bug_reports/{reportId} {
+      allow read: if isSuperadmin();
+      allow write: if false;
+    }
+
     match /system_settings/{settingId} {
       allow read: if isSignedIn() && settingId.matches('translations_.*');
       // Readable by anyone signed in, including parents: it is a list of

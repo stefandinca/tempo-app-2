@@ -2629,5 +2629,18 @@
         }
       }
     }
+  },
+  "report_bug": {
+    "button": "Raportează o problemă",
+    "title": "Raportează o problemă",
+    "subtitle": "Spune-ne ce nu a funcționat și ne vom ocupa.",
+    "what": "Ce s-a întâmplat?",
+    "what_placeholder": "Pe scurt, ex. „Calendarul nu salvează prezența”",
+    "details": "Detalii",
+    "details_placeholder": "Ce făceai, ce te așteptai să se întâmple și ce s-a întâmplat de fapt?",
+    "send": "Trimite raportul",
+    "sent": "Mulțumim — raportul a fost trimis",
+    "send_error": "Raportul nu a putut fi trimis. Încearcă din nou.",
+    "privacy": "Primim și numele, rolul, centrul și pagina pe care te aflai, ca să putem reproduce problema."
   }
 }

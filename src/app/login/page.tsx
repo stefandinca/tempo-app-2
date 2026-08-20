@@ -220,7 +220,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center">
-          <ClinicLogo size="lg" className="mx-auto mb-6 shadow-xl shadow-primary-500/20" />
+          <ClinicLogo size="lg" className="mx-auto mb-6" />
           <h2 className="text-3xl font-semibold text-neutral-900 dark:text-white tracking-tight font-display">
             {IS_DEMO ? "TempoApp Demo" : (showForgotPassword ? t('auth.forgot_password_title') : t('auth.sign_in_title'))}
           </h2>

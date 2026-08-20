@@ -134,7 +134,7 @@ export default function AuthActionPage() {
       <div className="max-w-md w-full space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <ClinicLogo size="lg" className="mx-auto mb-6 shadow-xl shadow-primary-500/20" />
+          <ClinicLogo size="lg" className="mx-auto mb-6" />
         </div>
 
         {/* Verifying State */}

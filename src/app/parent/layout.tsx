@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { ClinicBrand } from "@/components/ClinicLogo";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -227,6 +228,12 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar Navigation (Desktop) — Grouped */}
       <nav className="fixed left-0 top-0 bottom-0 w-56 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 hidden lg:flex flex-col py-6">
+        {/* Clinic mark. Kept separate from the profile header below, which is
+            the CHILD's identity — the two should not compete. */}
+        <div className="px-5 pb-4 empty:hidden">
+          <ClinicBrand fallback="none" logoHeight="h-9" />
+        </div>
+
         {/* Profile Header */}
         <div className="px-5 pb-6 border-b border-neutral-100 dark:border-neutral-800">
           <div className="flex items-center gap-3">

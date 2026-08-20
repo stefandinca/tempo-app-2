@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ClinicBrand } from "@/components/ClinicLogo";
 import { usePathname } from "next/navigation";
 import { 
   LayoutDashboard, 
@@ -66,12 +67,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
       >
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-200 dark:border-neutral-800">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">T</span>
-            </div>
-            <span className="font-bold text-lg text-neutral-900 dark:text-white">{t('header.titles.app_title')}</span>
-          </div>
+          <ClinicBrand subtitle={false} logoHeight="h-9" />
           <button onClick={onClose} className="p-2 -mr-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
             <X className="w-5 h-5" />
           </button>

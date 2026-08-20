@@ -94,6 +94,21 @@ const cases = [
     { uid: "c3" }, member("c3", "Coordinator"), { logoUrl: "x" }, { logoUrl: "" }],
   ["a signed-out visitor still cannot read config", "DENY", "get", `${D}/system_settings/config`,
     null, []],
+  // --- bug reports ---
+  // Written only by the server. A clinic must not be able to forge one, read
+  // another clinic's, or read its own.
+  ["superadmin reads a bug report", "ALLOW", "get", `${D}/bug_reports/r1`,
+    { uid: "s1" }, member("s1", "Superadmin")],
+  ["admin reads a bug report", "DENY", "get", `${D}/bug_reports/r1`,
+    { uid: "a1" }, member("a1", "Admin")],
+  ["therapist reads a bug report", "DENY", "get", `${D}/bug_reports/r1`,
+    { uid: "t1" }, member("t1", "Therapist")],
+  ["a signed-out visitor reads a bug report", "DENY", "get", `${D}/bug_reports/r1`,
+    null, []],
+  ["admin writes a bug report from the browser", "DENY", "create", `${D}/bug_reports/r2`,
+    { uid: "a1" }, member("a1", "Admin"), { title: "x" }],
+  ["superadmin writes a bug report from the browser", "DENY", "create", `${D}/bug_reports/r2`,
+    { uid: "s1" }, member("s1", "Superadmin"), { title: "x" }],
   // --- parent self-linking ---
   // A signed-in stranger used to be able to write their own uid into any
   // client's parentUids, and most client ids are firstname + a birthday.

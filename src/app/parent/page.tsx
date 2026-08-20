@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import { useClinicBranding } from "@/components/ClinicLogo";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, KeyRound, ChevronRight, HelpCircle } from "lucide-react";
@@ -16,6 +17,7 @@ const LOCKOUT_DURATION_MS = 60_000;
 
 function ParentLoginContent() {
   const { t, i18n } = useTranslation();
+  const { logoUrl: clinicLogo } = useClinicBranding();
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -134,14 +136,22 @@ function ParentLoginContent() {
 
       <div className="max-w-md w-full bg-white dark:bg-neutral-900 rounded-3xl shadow-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="p-8 sm:p-12 text-center">
-          {/* Logo */}
+          {/* The clinic's own mark when it has one; otherwise the key, which
+              doubles as an affordance for "enter your code". */}
           <div className={clsx(
-            "mx-auto w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300",
-            isFocused
-              ? "bg-primary-500 text-white shadow-lg shadow-primary-500/30 scale-105"
-              : "bg-primary-100 dark:bg-primary-900/30 text-primary-600"
+            "mx-auto w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 overflow-hidden",
+            clinicLogo
+              ? "bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+              : isFocused
+                ? "bg-primary-500 text-white shadow-lg shadow-primary-500/30 scale-105"
+                : "bg-primary-100 dark:bg-primary-900/30 text-primary-600",
+            clinicLogo && isFocused && "scale-105 shadow-lg"
           )}>
-            <KeyRound className="w-9 h-9" />
+            {clinicLogo ? (
+              <img src={clinicLogo} alt="" className="w-full h-full object-contain p-2" />
+            ) : (
+              <KeyRound className="w-9 h-9" />
+            )}
           </div>
 
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
