@@ -18,6 +18,17 @@
  *      clinic-livebetterlife, and the run ABORTS if the clinic has fewer — i.e.
  *      if this copy is not redundant after all. --force overrides, deliberately
  *      awkwardly.
+ *
+ *      This runs in TWO passes, because the top-level pass on its own did not
+ *      cover most of what gets deleted: each client has up to a dozen
+ *      subcollections, so the nested documents outnumber the top-level ones
+ *      several times over — and every one of them used to pass the gate
+ *      unverified. Pass one counts the root collections up front (step 1).
+ *      Pass two runs after the walk (step 3b); it cannot run earlier, because
+ *      which subcollections exist is only known once each parent document has
+ *      been probed. It compares every nested collection path the walk actually
+ *      collected against the same path in the reference. Nothing is backed up
+ *      or deleted until both passes have gone through.
  *   2. It backs up everything it deletes, first, to disk.
  *   3. It recurses. Deleting a document does not delete its subcollections, and
  *      each client here has 11 of them.
@@ -103,8 +114,13 @@ async function collectionIds(database, docPath = "") {
   return (await r.json()).collectionIds || [];
 }
 
-async function countOf(database, collection) {
-  const r = await fetch(`${base(database)}:runAggregationQuery`, {
+/**
+ * How many documents a collection holds. An empty `parentDocPath` counts a
+ * top-level collection; set it (e.g. `clients/abc`) to count a subcollection
+ * under that document, which is what the nested redundancy pass needs.
+ */
+async function countOf(database, collection, parentDocPath = "") {
+  const r = await fetch(`${base(database)}${parentDocPath ? "/" + parentDocPath : ""}:runAggregationQuery`, {
     method: "POST",
     headers: H,
     body: JSON.stringify({
@@ -135,7 +151,9 @@ async function countOf(database, collection) {
       console.log(`    ${C.dim(`(${database} does not exist yet — treating ${collection} as 0)`)}`);
       return 0;
     }
-    throw new Error(`countOf(${database}, ${collection}) failed: HTTP ${r.status} ${body.slice(0, 400)}`);
+    throw new Error(
+      `countOf(${database}, ${parentDocPath ? parentDocPath + "/" : ""}${collection}) failed: HTTP ${r.status} ${body.slice(0, 400)}`,
+    );
   }
   const j = await r.json();
   const row = (Array.isArray(j) ? j : [j]).find((x) => x.result);
@@ -180,9 +198,9 @@ console.log(`  reference : ${REFERENCE}\n`);
 const roots = await collectionIds("(default)");
 const toPurge = roots.filter((c) => !KEEP_WHOLE.has(c));
 
-/* ---------- 1. verify redundancy ---------- */
+/* ---------- 1. verify redundancy: top-level collections ---------- */
 
-console.log(`${C.bold("  verifying every collection is already in " + REFERENCE)}\n`);
+console.log(`${C.bold("  verifying every ROOT collection is already in " + REFERENCE)}\n`);
 const unsafe = [];
 for (const c of toPurge) {
   const [here, there] = await Promise.all([countOf("(default)", c), countOf(REFERENCE, c)]);
@@ -264,6 +282,77 @@ if (!doomed.length) {
   console.log(`\n  ${C.green("nothing to purge")}\n`);
   process.exit(0);
 }
+
+/* ---------- 3b. verify redundancy: nested collections ---------- */
+
+/*
+ * Step 1 compared the root collections. It could not compare subcollections,
+ * because until the walk above ran we did not know which existed — and they are
+ * the bulk of what this script deletes. So the same gate is applied again here,
+ * now that every nested path is known, and still before anything is backed up
+ * or removed.
+ *
+ * "here" is exact: the number of documents this run has actually collected at
+ * that path, rather than a re-count of the database. "there" is one aggregation
+ * query per nested path against the reference. Same rule as step 1 —
+ * `there >= here`, --force overrides — and the same reason for it: a count that
+ * cannot be read throws rather than returning a sentinel, because a sentinel
+ * would silently disable the check it is part of.
+ */
+const doomedByCollection = new Map();
+for (const d of doomed) {
+  const collectionPath = d.path.slice(0, d.path.lastIndexOf("/"));
+  doomedByCollection.set(collectionPath, (doomedByCollection.get(collectionPath) || 0) + 1);
+}
+// A nested path has slashes (`clients/<id>/sessions`); a root one does not.
+const nestedPaths = [...doomedByCollection.keys()].filter((p) => p.includes("/"));
+
+console.log(`\n${C.bold("  verifying every NESTED collection is already in " + REFERENCE)}\n`);
+
+const nestedUnsafe = [];
+/** Rolled up per subcollection id, so a thousand paths do not print a thousand lines. */
+const perSub = new Map();
+
+for (let i = 0; i < nestedPaths.length; i += PROBE_BATCH) {
+  const batch = nestedPaths.slice(i, i + PROBE_BATCH);
+  const theres = await Promise.all(
+    batch.map((p) => {
+      const at = p.lastIndexOf("/");
+      return countOf(REFERENCE, p.slice(at + 1), p.slice(0, at));
+    }),
+  );
+  batch.forEach((p, idx) => {
+    const here = doomedByCollection.get(p);
+    const there = theres[idx];
+    if (there < here) nestedUnsafe.push(`${p}: (default)=${here}, ${REFERENCE}=${there}`);
+    const sub = p.slice(p.lastIndexOf("/") + 1);
+    const roll = perSub.get(sub) || { here: 0, there: 0, paths: 0 };
+    perSub.set(sub, { here: roll.here + here, there: roll.there + there, paths: roll.paths + 1 });
+  });
+}
+
+for (const [sub, roll] of [...perSub.entries()].sort()) {
+  const ok = roll.there >= roll.here;
+  console.log(
+    `    ${ok ? C.green("✓") : C.red("✗")} ${sub.padEnd(22)} ${String(roll.here).padStart(6)} here, ${String(roll.there).padStart(6)} there  ${C.dim(`(${roll.paths} path(s))`)}`,
+  );
+}
+if (!nestedPaths.length) console.log(`    ${C.dim("no nested collections were collected")}`);
+
+if (nestedUnsafe.length && !FORCE) {
+  console.error(`\n${C.red("✗ ABORTING — nested documents are not redundant:")}`);
+  nestedUnsafe.slice(0, 40).forEach((u) => console.error(`    ${u}`));
+  if (nestedUnsafe.length > 40) {
+    console.error(`    ${C.dim(`... and ${nestedUnsafe.length - 40} more`)}`);
+  }
+  console.error(`\n  ${C.dim("Investigate before deleting. --force overrides, and you should not need it.")}\n`);
+  process.exit(1);
+}
+console.log(
+  `\n  ${C.green("✓")} ${nestedPaths.length} nested collection path(s) verified${
+    nestedUnsafe.length ? C.yellow(`  — ${nestedUnsafe.length} NOT redundant, overridden by --force`) : ""
+  }`,
+);
 
 /* ---------- 4. back up, then delete ---------- */
 
