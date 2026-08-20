@@ -9,6 +9,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
+import { tenantIdentity } from "@/lib/platform/counts";
 import { logPlatformActivity } from "@/lib/platform/activity";
 
 export const runtime = "nodejs";
@@ -21,8 +22,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const gate = await requireSuperadmin(req);
   if (!gate.ok) return platformError(gate);
 
-  const derived = clinicDatabaseId(params.id);
-  if (!derived) return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
+  if (!clinicDatabaseId(params.id)) {
+    return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
+  }
 
   let body: { disabled?: unknown };
   try {
@@ -44,14 +46,26 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!registrySnap.exists) {
       return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
     }
-    const t = registrySnap.data() as { name?: string; databaseId?: string };
-    const databaseId = t.databaseId || derived;
+    // Database id from the same helper every other platform route uses,
+    // rather than resolving it by hand here.
+    const identity = tenantIdentity(registrySnap);
+    if (!identity) return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
+    const t = registrySnap.data() as { name?: string };
+    const databaseId = identity.databaseId;
 
     await adminDb(databaseId)
       .collection("system_settings")
       .doc("evaluation_access")
       .set(
-        { disabled, updatedAt: new Date().toISOString(), updatedBy: gate.caller.uid },
+        {
+          disabled,
+          updatedAt: new Date().toISOString(),
+          // Never the operator's real uid: evaluation_access is readable by
+          // anonymous parents (firestore.rules), so a real uid here would be
+          // exposed to anyone using the parent portal. Same sentinel
+          // logPlatformActivity() uses.
+          updatedBy: "platform",
+        },
         { merge: true },
       );
 

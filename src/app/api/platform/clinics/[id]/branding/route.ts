@@ -105,7 +105,16 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       .collection("system_settings")
       .doc("branding")
       .set(
-        { logoUrl, logoPath: path, updatedAt: new Date().toISOString(), updatedBy: gate.caller.uid },
+        {
+          logoUrl,
+          logoPath: path,
+          updatedAt: new Date().toISOString(),
+          // Never the operator's real uid: system_settings/branding is
+          // world-readable with no authentication (the logo renders on the
+          // login screen), so a real uid here would be published to anyone
+          // who asks. Same sentinel logPlatformActivity() uses.
+          updatedBy: "platform",
+        },
         { merge: true },
       );
 
@@ -145,7 +154,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const path = existing.exists ? (existing.data()?.logoPath as string | undefined) : undefined;
 
     await ref.set(
-      { logoUrl: "", logoPath: "", updatedAt: new Date().toISOString(), updatedBy: gate.caller.uid },
+      {
+        logoUrl: "",
+        logoPath: "",
+        updatedAt: new Date().toISOString(),
+        // See the PUT handler above: this document is world-readable, so no
+        // real uid goes into it.
+        updatedBy: "platform",
+      },
       { merge: true },
     );
     if (path && reg.bucket) {
