@@ -2674,7 +2674,6 @@
       "events": "Sessions",
       "licence": "Licence",
       "evaluations": "Evaluation access",
-      "evaluations_hint": "Read-only for now — editing arrives with Phase 2.",
       "evaluations_saved": "Evaluation access updated.",
       "branding": "Branding",
       "branding_upload": "Upload logo",
