@@ -55,6 +55,13 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // --- Resend (bug reports) ---
+  // Presence only, never the value. Bug reports are saved whether or not this
+  // is configured, so this is the only way to tell that the email half is off.
+  out.resendKeyPresent = !!process.env.RESEND_API_KEY;
+  out.bugReportTo = process.env.BUG_REPORT_TO || "stefan.dinca07@gmail.com";
+  out.resendFrom = process.env.RESEND_FROM || "TempoApp <bugs@tempoapp.ro>";
+
   out.ok =
     out.anthropic === "ok" && out.serviceAccount === "parsed" && out.firestore === "ok";
 
