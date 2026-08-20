@@ -231,6 +231,13 @@ Grace: 14 days, so writes actually stop on 3 Sep 2027 for the two term clinics.
 |---|---|---|
 | **Clinics** | `tenants` + per-clinic counts (clients, staff, events) | — |
 | **Clinic detail** | settings, licence, evaluation access, branding | evaluation toggles, licence, logo |
+
+**The demo clinic shows no evaluations, by decision.** All five protocols are
+disabled on `clinic-demo` deliberately — confirmed 20 Aug 2026 — so the
+evaluations tab reports them as coming soon and the assessment card and the
+parent portal's evaluations tab disappear. Anything that reconciles clinic
+state, here or in a seeding script, must preserve that rather than "repair"
+it toward the everything-enabled default.
 | **Bug reports** | `bug_reports` — has `tenantId`, `host`, `page`, `title`, `description`, `reportedBy`, `status` | `status` only |
 | **Leads** | `potential_clients` — `name`, `phone`, `email`, `clinic`, `consent`, `source`, `createdAt` | — |
 | **AI cost** | `ai_conversations` + `ai_usage_events` per clinic, summed | — |
@@ -320,5 +327,3 @@ fail open), **mirrors second**.
 - **Whether Superadmin should be hidden from the console's own clinic views.**
   `isPlatformStaff()` hides Stefan from clinic-facing lists; inside the console
   that filtering is probably wrong, since the operator is the audience.
-- **`clinic-demo` has all five evaluation protocols disabled.** Deliberate or
-  drift? Odd for a sales demo, and the console makes it a one-click answer.
