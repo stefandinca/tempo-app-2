@@ -15,7 +15,7 @@
 export const DEFAULT_DATABASE_ID = "(default)";
 
 /** Hosts that are the platform itself rather than a clinic. */
-const RESERVED = new Set(["", "www", "admin", "app", "api", "localhost"]);
+const RESERVED = new Set(["", "www", "admin", "app", "api", "localhost", "superadmin"]);
 
 /**
  * `diaconumaria.tempoapp.ro` -> `clinic-diaconumaria`.
