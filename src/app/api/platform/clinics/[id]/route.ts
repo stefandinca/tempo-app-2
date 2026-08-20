@@ -9,6 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
 import { countOf, tenantIdentity } from "@/lib/platform/counts";
+import { DEFAULT_GRACE_DAYS } from "@/lib/platform/licence";
 import type { ClinicDetail } from "@/lib/platform/types";
 
 export const runtime = "nodejs";
@@ -83,7 +84,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             plan: licence.plan || "unknown",
             expiresAt: licence.expiresAt ?? null,
             graceEndsAtMillis: licence.graceEndsAtMillis ?? null,
-            graceDays: Number(registryLicence?.graceDays ?? 14),
+            graceDays: Number(registryLicence?.graceDays ?? DEFAULT_GRACE_DAYS),
             notes: String(registryLicence?.notes || ""),
           }
         : null,
