@@ -2086,6 +2086,26 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Db } from "./demo-seed/firestore.mjs";
 
+/**
+ * Collections whose documents have subcollections, and which therefore need a
+ * per-document probe. Firestore cannot list subcollections in bulk, so probing
+ * every document everywhere would mean ~11,000 sequential round trips.
+ *
+ * This list is derived from the code that CREATES subcollections — every
+ * collection(db, parent, id, sub) and doc(db, parent, id, sub, ...) call site in
+ * src/ — not from sampling the data. Sampling would have missed `clients`
+ * entirely: its first five documents have no subcollections, while others have
+ * twelve.
+ *
+ * The canary pass below is a backstop against this list going stale as the
+ * schema grows, not the primary evidence. It aborts rather than guessing,
+ * because a silent orphan is the exact failure this task exists to prevent.
+ */
+const KNOWN_PARENTS = new Set(["clients", "threads", "ai_conversations"]);
+const CANARY_SAMPLE = 5;
+/** How many listCollectionIds probes to have in flight at once. */
+const PROBE_BATCH = 20;
+
 const args = Object.fromEntries(
   process.argv.slice(2).map((a) => {
     const [k, ...v] = a.replace(/^--/, "").split("=");
@@ -2149,6 +2169,30 @@ async function countOf(database, collection) {
   return Number(row?.result?.aggregateFields?.n?.integerValue ?? 0);
 }
 
+/** IDs of the first `n` documents in a top-level collection — a page, not a full listAll. */
+async function sampleDocIds(database, collection, n) {
+  const u = new URL(`${base(database)}/${collection}`);
+  u.searchParams.set("pageSize", String(n));
+  const r = await fetch(u, { headers: H });
+  if (!r.ok) return [];
+  const j = await r.json();
+  return (j.documents || []).map((d) => d.name.split("/").pop());
+}
+
+/**
+ * listCollectionIds for many document paths at once, PROBE_BATCH in flight at a
+ * time. Returns a Map keyed by the input path.
+ */
+async function probeMany(docPaths) {
+  const out = new Map();
+  for (let i = 0; i < docPaths.length; i += PROBE_BATCH) {
+    const batch = docPaths.slice(i, i + PROBE_BATCH);
+    const results = await Promise.all(batch.map((p) => collectionIds("(default)", p)));
+    batch.forEach((p, idx) => out.set(p, results[idx]));
+  }
+  return out;
+}
+
 const db = new Db(PROJECT, { allowAnyProject: true }); // (default)
 db.dryRun = DRY;
 
@@ -2179,28 +2223,58 @@ if (unsafe.length && !FORCE) {
   process.exit(1);
 }
 
-/* ---------- 2. collect, recursively ---------- */
+/* ---------- 2. canary: catch a stale KNOWN_PARENTS before it costs anything ---------- */
+
+console.log(`${C.bold("  canary — sampling collections outside KNOWN_PARENTS for missed subcollections")}\n`);
+const nonParents = toPurge.filter((c) => !KNOWN_PARENTS.has(c));
+const canaryPaths = [];
+for (const c of nonParents) {
+  for (const id of await sampleDocIds("(default)", c, CANARY_SAMPLE)) canaryPaths.push(`${c}/${id}`);
+}
+const canaryResults = await probeMany(canaryPaths);
+const staleFound = [...canaryResults.entries()].filter(([, subs]) => subs.length);
+if (staleFound.length) {
+  console.error(`\n${C.red("✗ ABORTING — KNOWN_PARENTS is stale:")}`);
+  staleFound.forEach(([p, subs]) => console.error(`    ${p} has subcollection(s): ${subs.join(", ")}`));
+  console.error(`\n  ${C.dim("Add the root collection to KNOWN_PARENTS above and re-run.")}\n`);
+  process.exit(1);
+}
+console.log(
+  `  ${C.green("✓")} canary clean — ${canaryPaths.length} sample(s) across ${nonParents.length} collection(s), no missed subcollections\n`,
+);
+
+/* ---------- 3. collect, recursively ---------- */
 
 const doomed = []; // { path, data }
 
-async function walk(collectionPath) {
+async function walk(collectionPath, probe) {
   const docs = await db.listAll(collectionPath).catch(() => []);
+  const candidates = [];
   for (const d of docs) {
     const docPath = `${collectionPath}/${d.__id}`;
     if (collectionPath === KEEP_SUPERADMINS && String(d.role || "").toLowerCase() === "superadmin") {
       console.log(`    ${C.green("keep")} ${docPath.padEnd(46)} ${d.role} ${C.dim(d.name || "")}`);
       continue;
     }
+    candidates.push({ d, docPath });
+  }
+
+  // Only KNOWN_PARENTS collections get a per-document subcollection probe — see
+  // the comment on KNOWN_PARENTS for why probing everything is too slow, and the
+  // canary above for why this is safe.
+  const subsByPath = probe ? await probeMany(candidates.map((c) => c.docPath)) : null;
+
+  for (const { d, docPath } of candidates) {
     // Subcollections first: a deleted parent would otherwise orphan them.
-    for (const sub of await collectionIds("(default)", docPath)) {
-      await walk(`${docPath}/${sub}`);
+    for (const sub of subsByPath?.get(docPath) || []) {
+      await walk(`${docPath}/${sub}`, false); // subcollections here are leaves, per KNOWN_PARENTS
     }
     doomed.push({ path: docPath, data: d });
   }
 }
 
 console.log(`\n${C.bold("  walking")}\n`);
-for (const c of toPurge) await walk(c);
+for (const c of toPurge) await walk(c, KNOWN_PARENTS.has(c));
 console.log(`\n  ${doomed.length} document(s) to delete`);
 
 if (!doomed.length) {
@@ -2208,7 +2282,7 @@ if (!doomed.length) {
   process.exit(0);
 }
 
-/* ---------- 3. back up, then delete ---------- */
+/* ---------- 4. back up, then delete ---------- */
 
 const dir = path.join(process.cwd(), "notification-backups", `control-plane-purge_${PROJECT}`);
 mkdirSync(dir, { recursive: true });
@@ -2266,7 +2340,7 @@ done
 npm run test:isolation
 ```
 
-Expected: all four `firestore=ok`; 52 + 43 + 29 assertions pass. The Storage
+Expected: all four `firestore=ok`; 49 + 43 + 29 assertions pass. The Storage
 suite matters most here — it reads `tenant_members` from `(default)`, so a
 purge that took too much would fail it loudly.
 

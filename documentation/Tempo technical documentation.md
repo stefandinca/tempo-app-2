@@ -1828,6 +1828,106 @@ the collection at all, so a clinic cannot forge a report against another clinic.
 
 ---
 
+# 29. Platform Console
+
+The operator console for the whole estate — every clinic, from one screen —
+reached at `superadmin.tempoapp.ro` and built from the same `tempo-app-2`
+Next.js bundle and the same Vercel project as every clinic. There is no
+separate deployment; a request reaches the console the same way it reaches a
+clinic — by `Host`.
+
+## 29.1 The host, and why `superadmin` is reserved
+
+`superadmin.tempoapp.ro` used to resolve to `clinic-superadmin` — a database
+that does not exist, so the host rendered an empty app with no error rather
+than the console. `src/lib/tenant.ts`'s `RESERVED` set already excluded `www`,
+`admin`, `app`, `api` and `localhost` from ever being read as a clinic label;
+`superadmin` was added alongside them so `resolveDatabaseId` sends that host to
+`(default)` like every other reserved label, instead of manufacturing a clinic
+id for a clinic that was never onboarded. The same set that reserves the host
+also refuses it as a tenant label — no clinic can ever be given `superadmin`.
+
+`src/lib/platform/labels.ts` carries a second, narrower answer to a different
+question: `isPlatformHost` is an explicit allowlist of the one hostname the
+console is actually reached at (plus local development), not "anything
+`tenant.ts` didn't claim as a clinic" — that would also cover `localhost`,
+every Vercel preview deployment and a bare IP, none of which should pass a
+Superadmin-only gate.
+
+## 29.2 Why the console is a path, not the root
+
+`/` already belongs to the `(dashboard)` route group — the staff dashboard's
+home page, on every clinic host and on `(default)` alike. The console cannot
+also claim `/` in the same Next.js app, so it lives under `/platform`, a plain
+path segment rather than its own route group: on `superadmin.tempoapp.ro`,
+`/platform` is the console and `/` still resolves to whatever `(dashboard)`
+renders against the control-plane database — which is nothing usable, since
+`(default)` holds no clinic to sign in to. The console does not attempt to own
+the apex of its own host.
+
+## 29.3 The two-check gate, and why a clinic host gets 404
+
+Every `/api/platform/*` route is gated by `requireSuperadmin`
+(`src/lib/platform/gate.ts`), which checks two independent things before
+touching the Admin SDK. That matters because the Admin SDK bypasses Firestore
+rules entirely — the gate is the only thing standing between a request and all
+four clinics' records:
+
+| Check | Question | Failure |
+| --- | --- | --- |
+| `isPlatformHost` | Did this arrive on `superadmin.tempoapp.ro` (or local dev)? | 404 |
+| `requireStaffRole` against `(default)` | Is the caller a verified Superadmin? | 401 (no/invalid token) or 403 (authenticated but not Superadmin) |
+
+The host check runs first — it needs no I/O — and failing it returns **404,
+not 403**. A clinic host must not even learn these routes exist: 403 would
+confirm to a clinic's own compromised session, or to a scanner probing
+`livebetterlife.tempoapp.ro/api/platform/clinics`, that there is something
+here to be denied. 404 says nothing was ever there. `npm run test:platform`
+asserts this directly — a clinic host gets 404, never 401, on every platform
+route.
+
+Neither check alone would do. Host-only would let any clinic's domain reach
+these routes. Role-only would work, but the host check means a session token
+stolen on a clinic domain cannot be replayed against the platform — it never
+arrives on a request that satisfies the host check in the first place.
+
+The client-side gate in `src/app/platform/layout.tsx` (wrong database, or not
+signed in as Superadmin) is signposting only. Every route re-checks
+server-side, because the bundle is shared by every clinic and anything decided
+in the browser can be bypassed.
+
+## 29.4 Route table
+
+| Route | Reads | Notes |
+| --- | --- | --- |
+| `/platform` | `tenants` (control plane) + one fan-out read per clinic | Every registered clinic with live client/staff/session counts |
+| `/platform/clinics/[id]` | `tenants/{id}` + that clinic's own database | Database id, bucket, licence, legal entity, evaluation access, staff roster |
+| `/platform/bug-reports` | `clinic-demo` | Every clinic's reports in one inbox; status is editable |
+| `/platform/leads` | `clinic-demo` | The demo site's sales-enquiry form |
+| `/platform/ai-usage` | `tenants` + each clinic's `ai_conversations` / `ai_usage_events` | Mira spend, summed server-side with `AggregateField`, never fetched-and-summed |
+| `/platform/health` | `tenants` + each clinic's database | Reachability, bucket, Mira key, licence — a broken clinic degrades to a flag, not a 500 |
+
+Each page calls the matching `/api/platform/*` route — `clinics`,
+`clinics/[id]`, `bug-reports` (GET and PATCH), `leads`, `ai-usage`, `health` —
+all behind `requireSuperadmin`.
+
+## 29.5 Bug reports and leads live in `clinic-demo`, not the control plane
+
+Both routes read from `clinic-demo` (`BUG_REPORT_DATABASE` /
+`LEADS_DATABASE`), not `(default)`. `/api/report-bug` has always written every
+clinic's reports to one database so they can be triaged together instead of
+scattered per clinic where nobody would look — the console is the reader that
+feature never had. Leads come from the demo site's own sales form, written
+with the browser's own `db` handle, so they land wherever `demo.tempoapp.ro`
+resolves — `clinic-demo`, since the form only exists on the demo host.
+
+Neither collection belongs to the control-plane's tenant registry; they
+happen to live in a database that is also a clinic's. `BUG_REPORT_DATABASE`
+and `LEADS_DATABASE` are pinned string constants for exactly that reason —
+not a lookup that could drift if `clinic-demo` were ever renamed or retired.
+
+---
+
 # Appendix A: Command Palette Commands
 
 | Command | Shortcut | Action |

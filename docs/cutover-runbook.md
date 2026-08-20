@@ -135,9 +135,13 @@ whenever the rollback window closes.
       redundancy while this settles. Once the new bucket has proven itself, add
       it to the `storage` array and redeploy; the new rules deny everything
       there, which is correct for a bucket that should hold no clinic data.
-- [ ] **Purge `(default)` of clinic data**, leaving `tenants`, `tenant_members`,
-      `tenant_parents`. Back up first. It is still Live Better Life's original
-      database and is the rollback target, so leave it until confident.
+- [x] **Purge `(default)` of clinic data** — done 20 Aug 2026, 11,124
+      documents (`scripts/purge-control-plane.mjs`, backed up first to
+      `notification-backups/control-plane-purge_tempo-app-2/purged.json`
+      before anything was deleted). `tenants`, `tenant_members`,
+      `tenant_parents`, and team_members' one Superadmin (Stefan Dinca) remain
+      — the console still authenticates. `(default)` is no longer a rollback
+      target; the retired per-clinic Firebase projects still are.
 - [ ] **Decommission** `tempo-app-demo` and `tempo-diaconumaria` once the old
       objects are no longer wanted.
 - [x] **Collapse to one Vercel project** — done 20 Aug 2026, see below. Two of
@@ -150,3 +154,11 @@ whenever the rollback window closes.
 - [ ] 267 parent mirrors and one client with 91 linked uids, from years of
       anonymous sessions. Sign-out now unlinks properly so it stops growing;
       pruning the backlog is optional housekeeping.
+- [ ] **Attach `superadmin.tempoapp.ro`.** The platform console
+      (`documentation/Tempo technical documentation.md` §29) is built and
+      gated but not reachable: it needs `vercel domains add
+      superadmin.tempoapp.ro tempo-app-2` — the same HTTP-01 certificate route
+      as a clinic, no registrar step — plus a manual Firebase Authorized
+      domains entry, added by hand because `register-tenant.mjs` provisions
+      clinics and the platform host is not one. Deliberately held back from
+      this branch; the repo owner is deciding on it separately.

@@ -1,0 +1,125 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { platformGet, platformPatch } from "@/lib/platform/clientApi";
+import type { BugReport } from "@/lib/platform/types";
+import DataTable, { type Column } from "@/components/platform/DataTable";
+import { useToast } from "@/context/ToastContext";
+
+const NEXT_STATUS: Record<string, string> = {
+  new: "triaged",
+  triaged: "resolved",
+  resolved: "new",
+  wontfix: "new",
+};
+
+export default function PlatformBugReportsPage() {
+  const { t } = useTranslation();
+  const { success, error: toastError } = useToast();
+  const [reports, setReports] = useState<BugReport[]>([]);
+  // What the collection actually holds, which the query caps. Without it, a
+  // capped list reads as "this is every report that was ever filed".
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  // Per-row in-flight guard. Every state transition cycleStatus makes —
+  // optimistic update and rollback alike — touches only the clicked row's
+  // entry via a functional map, never a whole-array snapshot. That is what
+  // lets two different rows be updated concurrently without one's rollback
+  // clobbering the other's committed change; this set only exists to stop
+  // the SAME row from firing a second PATCH while its first is in flight.
+  const [pending, setPending] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    let cancelled = false;
+    platformGet<{ reports: BugReport[]; total: number }>("/api/platform/bug-reports")
+      .then((d) => {
+        if (cancelled) return;
+        setReports(d.reports);
+        setTotal(d.total ?? d.reports.length);
+      })
+      .catch((e) => {
+        console.error("[platform/bug-reports] failed to load:", e);
+        if (cancelled) return;
+        setLoadError(t("platform.bug_reports.load_error", { defaultValue: "Could not load bug reports." }));
+        toastError(t("platform.load_failed", { defaultValue: "Could not load." }));
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function cycleStatus(report: BugReport) {
+    if (pending.has(report.id)) return;
+    const status = NEXT_STATUS[report.status] || "triaged";
+    setPending((p) => new Set(p).add(report.id));
+    setReports((rs) => rs.map((r) => (r.id === report.id ? { ...r, status } : r)));
+    try {
+      await platformPatch("/api/platform/bug-reports", { id: report.id, status });
+      success(t("platform.bug_reports.updated", { defaultValue: "Status updated." }));
+    } catch {
+      setReports((rs) => rs.map((r) => (r.id === report.id ? { ...r, status: report.status } : r)));
+      toastError(t("platform.bug_reports.update_failed", { defaultValue: "Could not update." }));
+    } finally {
+      setPending((p) => {
+        const n = new Set(p);
+        n.delete(report.id);
+        return n;
+      });
+    }
+  }
+
+  const columns: Column<BugReport>[] = [
+    {
+      key: "title",
+      header: t("platform.bug_reports.report", { defaultValue: "Report" }),
+      render: (r) => (
+        <div className="max-w-md">
+          <p className="font-semibold">{r.title}</p>
+          <p className="text-xs text-neutral-500 line-clamp-2">{r.description}</p>
+        </div>
+      ),
+    },
+    { key: "tenant", header: t("platform.bug_reports.clinic", { defaultValue: "Clinic" }), render: (r) => r.tenantId || "—" },
+    { key: "page", header: t("platform.bug_reports.page", { defaultValue: "Page" }), render: (r) => r.page || "—" },
+    { key: "by", header: t("platform.bug_reports.by", { defaultValue: "Reported by" }), render: (r) => r.reportedBy?.name || "—" },
+    { key: "when", header: t("platform.bug_reports.when", { defaultValue: "When" }), render: (r) => (r.createdAt || "").slice(0, 10) || "—" },
+    {
+      key: "status",
+      header: t("platform.bug_reports.status", { defaultValue: "Status" }),
+      align: "right",
+      render: (r) => (
+        <button
+          onClick={(e) => { e.stopPropagation(); cycleStatus(r); }}
+          disabled={pending.has(r.id)}
+          className="px-3 py-2 min-h-[44px] rounded-lg text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {r.status}
+        </button>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      {!loadError && total > reports.length && (
+        <p className="text-xs text-neutral-500">
+          {t("platform.truncated", {
+            defaultValue: "Showing the {{shown}} most recent of {{total}}.",
+            shown: reports.length,
+            total,
+          })}
+        </p>
+      )}
+      <DataTable
+        rows={reports}
+        columns={columns}
+        loading={loading}
+        error={loadError}
+        getRowId={(r) => r.id}
+        empty={t("platform.bug_reports.empty", { defaultValue: "No bug reports." })}
+      />
+    </div>
+  );
+}
