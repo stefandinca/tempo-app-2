@@ -36,7 +36,7 @@
  * failing, which is a far worse outcome than refusing to run.
  */
 import { Db } from "./demo-seed/firestore.mjs";
-import { buildLicence, licenceMirror } from "../src/lib/platform/licence.ts";
+import { buildLicence, licenceMirror, DEFAULT_GRACE_DAYS } from "../src/lib/platform/licence.ts";
 import { clinicDatabaseId } from "../src/lib/platform/labels.ts";
 
 const LICENCES = {
@@ -45,7 +45,6 @@ const LICENCES = {
   diaconumaria:   { plan: "term", expiresAt: "2027-08-20T00:00:00.000Z" },
   aicaa:          { plan: "term", expiresAt: "2027-08-20T00:00:00.000Z" },
 };
-const GRACE_DAYS = 14;
 
 /** Who `updatedBy` names on a script-written licence, as opposed to a console admin's uid. */
 const ACTOR = "script:set-licences.mjs";
@@ -161,7 +160,7 @@ const results = [];
 for (const { label, name, databaseId } of resolved) {
   const cfg = LICENCES[label];
   const built = buildLicence(
-    { plan: cfg.plan, expiresAt: cfg.expiresAt, graceDays: GRACE_DAYS, notes: "" },
+    { plan: cfg.plan, expiresAt: cfg.expiresAt, graceDays: DEFAULT_GRACE_DAYS, notes: "" },
     ACTOR,
   );
   if ("error" in built) {

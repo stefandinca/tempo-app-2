@@ -13,7 +13,7 @@
 
 export const DEFAULT_GRACE_DAYS = 14;
 
-export type LicencePlan = "lifetime" | "term";
+type LicencePlan = "lifetime" | "term";
 
 export interface LicenceInput {
   plan: LicencePlan;
