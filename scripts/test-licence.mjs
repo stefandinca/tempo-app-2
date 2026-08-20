@@ -70,6 +70,9 @@ check("an unknown plan is refused",
 check("a lifetime licence ignores any date it is handed",
   buildLicence({ plan: "lifetime", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 14, notes: "" }, "u").expiresAt,
   null);
+check("notes over 2000 characters are refused",
+  buildLicence({ plan: "lifetime", expiresAt: null, graceDays: 14, notes: "x".repeat(2001) }, "u").error,
+  "notes_too_long");
 
 console.log("");
 if (failures.length) {

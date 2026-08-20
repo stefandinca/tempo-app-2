@@ -46,9 +46,17 @@ export function buildLicence(
     return { error: "invalid_grace" };
   }
 
+  const notes = String(input.notes || "");
+  // A note this long has never been an operator's note; it is the kind of
+  // value that fails the Firestore write with a 500 instead of a clean 400.
+  // 2000 characters is generous for an operator's reason-for-change.
+  if (notes.length > 2000) {
+    return { error: "notes_too_long" };
+  }
+
   const base = {
     graceDays: input.graceDays,
-    notes: String(input.notes || ""),
+    notes,
     updatedAt: new Date().toISOString(),
     updatedBy,
   };

@@ -57,16 +57,23 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         db.collection("system_settings").doc("licence").get().catch(() => null),
       ]);
 
-    const licence = licenceSnap?.exists
-      ? (licenceSnap.data() as {
-          plan?: string;
-          expiresAt?: string | null;
-          graceEndsAtMillis?: number | null;
-        })
-      : null;
-    // graceDays and notes are operator-facing fields the mirror deliberately
-    // does not carry (rules never read them), so they come from the registry.
-    const registryLicence = t?.licence ?? null;
+    // The licence shown below comes from the REGISTRY (`t.licence`), not
+    // `licenceSnap` above. The write route deliberately writes the registry
+    // first, precisely so that a failed mirror write leaves the clinic
+    // unrestricted and reports `mirrored: false` while the console still
+    // shows the licence that was just set. If this route gated display on
+    // `licenceSnap.exists` instead, that exact case — mirror write failed,
+    // registry has a licence — would render as "no licence — unlimited",
+    // hiding the one state the write order exists to keep visible. Do not
+    // switch this back to the mirror. `licenceSnap` is still fetched above,
+    // unused here, for Task 7's drift comparison against the registry.
+    const registryLicence = (t?.licence ?? null) as {
+      plan?: string;
+      expiresAt?: string | null;
+      graceEndsAtMillis?: number | null;
+      graceDays?: number;
+      notes?: string;
+    } | null;
     const config = configSnap?.exists ? (configSnap.data() as Record<string, any>) : null;
     const entities = Array.isArray(config?.legalEntities) ? config!.legalEntities : [];
 
@@ -79,13 +86,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       isDemo: !!t.isDemo,
       host: identity.host,
       counts: { clients, staff: staffCount, events },
-      licence: licence
+      licence: registryLicence
         ? {
-            plan: licence.plan || "unknown",
-            expiresAt: licence.expiresAt ?? null,
-            graceEndsAtMillis: licence.graceEndsAtMillis ?? null,
-            graceDays: Number(registryLicence?.graceDays ?? DEFAULT_GRACE_DAYS),
-            notes: String(registryLicence?.notes || ""),
+            plan: registryLicence.plan || "unknown",
+            expiresAt: registryLicence.expiresAt ?? null,
+            graceEndsAtMillis: registryLicence.graceEndsAtMillis ?? null,
+            graceDays: Number(registryLicence.graceDays ?? DEFAULT_GRACE_DAYS),
+            notes: String(registryLicence.notes || ""),
           }
         : null,
       disabledEvaluations: evalSnap?.exists ? (evalSnap.data()?.disabled ?? []) : [],

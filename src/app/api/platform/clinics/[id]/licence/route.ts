@@ -20,6 +20,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
+import { tenantIdentity } from "@/lib/platform/counts";
 import { buildLicence, licenceMirror, type LicenceInput } from "@/lib/platform/licence";
 import { logPlatformActivity } from "@/lib/platform/activity";
 
@@ -38,6 +39,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   try {
     body = await req.json();
   } catch {
+    return NextResponse.json({ error: "invalid_body" }, { status: 400 });
+  }
+  // `req.json()` succeeds on the JSON literal `null` (it is valid JSON), so a
+  // `null` or otherwise non-object body reaches here without throwing. Reject
+  // it explicitly rather than letting `body.plan` below raise an uncaught
+  // TypeError that Next would turn into a generic 500 — the route's contract
+  // is that malformed input is a 400.
+  if (typeof body !== "object" || body === null) {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
 
@@ -60,8 +69,16 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!registrySnap.exists) {
       return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
     }
+    // The same derivation every other platform route uses: an explicit
+    // `databaseId` on the registry document wins over `clinic-<id>`, and it
+    // goes through `clinicDatabaseId()`'s validation rather than being
+    // string-concatenated inline again here.
+    const identity = tenantIdentity(registrySnap);
+    if (!identity) {
+      return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
+    }
     const t = registrySnap.data() as { name?: string; databaseId?: string };
-    const databaseId = t.databaseId || `clinic-${params.id}`;
+    const databaseId = identity.databaseId;
 
     // 1. Source of truth.
     await registryRef.set({ licence: built }, { merge: true });
