@@ -14,18 +14,27 @@ export interface Column<T> {
  * The console's one table. Scrolls horizontally inside its own container so a
  * wide row never makes the page scroll sideways on a phone.
  */
-export default function DataTable<T extends { id?: string }>({
+export default function DataTable<T>({
   rows,
   columns,
   empty,
   loading,
   onRowClick,
+  getRowId,
 }: {
   rows: T[];
   columns: Column<T>[];
   empty: string;
   loading?: boolean;
   onRowClick?: (row: T) => void;
+  /**
+   * A row's identity is the caller's business, not the table's — requiring an
+   * `id` field on every `T` forced callers to reshape their data purely to be
+   * tabular (`ClinicSpend` and `ClinicHealth` key on `tenantId`, not `id`).
+   * Without this, the React key falls back to the row's index, which is fine
+   * only as long as the list is never reordered client-side.
+   */
+  getRowId?: (row: T, index: number) => string;
 }) {
   if (loading) {
     return (
@@ -57,28 +66,46 @@ export default function DataTable<T extends { id?: string }>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => (
-            <tr
-              key={row.id ?? i}
-              onClick={onRowClick ? () => onRowClick(row) : undefined}
-              className={clsx(
-                "border-b last:border-0 border-neutral-100 dark:border-neutral-800/60",
-                onRowClick && "cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/40",
-              )}
-            >
-              {columns.map((c) => (
-                <td
-                  key={c.key}
-                  className={clsx(
-                    "px-4 py-3 text-neutral-800 dark:text-neutral-200",
-                    c.align === "right" ? "text-right" : "text-left",
-                  )}
-                >
-                  {c.render(row)}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {rows.map((row, i) => {
+            const key = getRowId ? getRowId(row, i) : String(i);
+            return (
+              <tr
+                key={key}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (e) => {
+                        if (e.key === "Enter") {
+                          onRowClick(row);
+                        } else if (e.key === " ") {
+                          e.preventDefault();
+                          onRowClick(row);
+                        }
+                      }
+                    : undefined
+                }
+                tabIndex={onRowClick ? 0 : undefined}
+                role={onRowClick ? "button" : undefined}
+                className={clsx(
+                  "border-b last:border-0 border-neutral-100 dark:border-neutral-800/60",
+                  onRowClick &&
+                    "cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset",
+                )}
+              >
+                {columns.map((c) => (
+                  <td
+                    key={c.key}
+                    className={clsx(
+                      "px-4 py-3 text-neutral-800 dark:text-neutral-200",
+                      c.align === "right" ? "text-right" : "text-left",
+                    )}
+                  >
+                    {c.render(row)}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

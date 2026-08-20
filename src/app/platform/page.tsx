@@ -18,7 +18,10 @@ export default function PlatformClinicsPage() {
     let cancelled = false;
     platformGet<{ clinics: ClinicSummary[] }>("/api/platform/clinics")
       .then((d) => { if (!cancelled) setClinics(d.clinics); })
-      .catch((e) => { if (!cancelled) setError(String(e.message || e)); })
+      .catch((e) => {
+        console.error("[platform/clinics] failed to load:", e);
+        if (!cancelled) setError(String(e.message || e));
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, []);
@@ -54,15 +57,20 @@ export default function PlatformClinicsPage() {
   ];
 
   if (error) {
-    return <p className="text-error-600 dark:text-error-400 text-sm">{error}</p>;
+    return (
+      <p className="text-error-600 dark:text-error-400 text-sm">
+        {t("platform.clinics.error", { defaultValue: "Could not load clinics." })}
+      </p>
+    );
   }
 
   return (
     <DataTable
-      rows={clinics.map((c) => ({ ...c, id: c.tenantId }))}
+      rows={clinics}
       columns={columns}
       loading={loading}
       empty={t("platform.clinics.empty", { defaultValue: "No clinics registered." })}
+      getRowId={(c) => c.tenantId}
       onRowClick={(c) => router.push(`/platform/clinics/${c.tenantId}`)}
     />
   );
