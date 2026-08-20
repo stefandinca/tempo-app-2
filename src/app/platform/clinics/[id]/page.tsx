@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Loader2 } from "lucide-react";
-import { platformGet, PlatformError } from "@/lib/platform/clientApi";
+import { ArrowLeft, Loader2, Upload, X } from "lucide-react";
+import { platformGet, platformPut, platformDelete, platformUpload, PlatformError } from "@/lib/platform/clientApi";
 import type { ClinicDetail } from "@/lib/platform/types";
+import { useToast } from "@/context/ToastContext";
+import LicenceEditor from "@/components/platform/LicenceEditor";
 
 const PROTOCOLS = ["ablls", "vbmapp", "portage", "cars", "carolina"];
 
@@ -30,26 +32,82 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 export default function PlatformClinicDetailPage() {
   const { t } = useTranslation();
+  const { success, error: toastError } = useToast();
   const params = useParams<{ id: string }>();
   const [clinic, setClinic] = useState<ClinicDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [evalSaving, setEvalSaving] = useState(false);
+  const [brandingSaving, setBrandingSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const d = await platformGet<{ clinic: ClinicDetail }>(`/api/platform/clinics/${params.id}`);
+      setClinic(d.clinic);
+      setError(null);
+    } catch (e) {
+      console.error("[platform/clinic] failed to load:", e);
+      // A raw API error code — `server_error` — is not a message for a
+      // human, and every sibling screen shows a translated one. Keep only
+      // the distinction the operator can act on: a clinic that is not in
+      // the registry, versus a request that failed.
+      setError(e instanceof PlatformError && e.status === 404 ? "not_found" : "load_error");
+    }
+  }, [params.id]);
 
   useEffect(() => {
     let cancelled = false;
-    platformGet<{ clinic: ClinicDetail }>(`/api/platform/clinics/${params.id}`)
-      .then((d) => { if (!cancelled) setClinic(d.clinic); })
-      .catch((e) => {
-        console.error("[platform/clinic] failed to load:", e);
-        // A raw API error code — `server_error` — is not a message for a
-        // human, and every sibling screen shows a translated one. Keep only
-        // the distinction the operator can act on: a clinic that is not in
-        // the registry, versus a request that failed.
-        if (!cancelled) setError(e instanceof PlatformError && e.status === 404 ? "not_found" : "load_error");
-      })
-      .finally(() => { if (!cancelled) setLoading(false); });
+    setLoading(true);
+    load().finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [params.id]);
+  }, [load]);
+
+  async function toggleEvaluation(protocol: string) {
+    if (!clinic || evalSaving) return;
+    const next = clinic.disabledEvaluations.includes(protocol)
+      ? clinic.disabledEvaluations.filter((p) => p !== protocol)
+      : [...clinic.disabledEvaluations, protocol];
+    setEvalSaving(true);
+    try {
+      await platformPut(`/api/platform/clinics/${clinic.tenantId}/evaluations`, { disabled: next });
+      success(t("platform.clinic.evaluations_saved", { defaultValue: "Evaluation access updated." }));
+      await load();
+    } catch {
+      toastError(t("platform.clinic.save_failed", { defaultValue: "Could not save." }));
+    } finally {
+      setEvalSaving(false);
+    }
+  }
+
+  async function uploadBranding(file: File) {
+    if (!clinic || brandingSaving) return;
+    setBrandingSaving(true);
+    try {
+      await platformUpload(`/api/platform/clinics/${clinic.tenantId}/branding`, file);
+      success(t("platform.clinic.branding_saved", { defaultValue: "Branding updated." }));
+      await load();
+    } catch {
+      toastError(t("platform.clinic.save_failed", { defaultValue: "Could not save." }));
+    } finally {
+      setBrandingSaving(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function removeBranding() {
+    if (!clinic || brandingSaving) return;
+    setBrandingSaving(true);
+    try {
+      await platformDelete(`/api/platform/clinics/${clinic.tenantId}/branding`);
+      success(t("platform.clinic.branding_saved", { defaultValue: "Branding updated." }));
+      await load();
+    } catch {
+      toastError(t("platform.clinic.save_failed", { defaultValue: "Could not save." }));
+    } finally {
+      setBrandingSaving(false);
+    }
+  }
 
   if (loading) {
     return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary-500" /></div>;
@@ -92,27 +150,76 @@ export default function PlatformClinicDetailPage() {
 
       <section className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
         <h3 className="font-semibold mb-2 text-neutral-900 dark:text-white">
+          {t("platform.clinic.licence", { defaultValue: "Licence" })}
+        </h3>
+        <LicenceEditor tenantId={clinic.tenantId} value={clinic.licence} onSaved={load} />
+      </section>
+
+      <section className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+        <h3 className="font-semibold mb-2 text-neutral-900 dark:text-white">
           {t("platform.clinic.evaluations", { defaultValue: "Evaluation access" })}
         </h3>
-        <p className="text-xs text-neutral-500 mb-3">
-          {t("platform.clinic.evaluations_hint", { defaultValue: "Read-only for now — editing arrives with Phase 2." })}
-        </p>
         <div className="flex flex-wrap gap-2">
           {PROTOCOLS.map((p) => {
             const enabled = !clinic.disabledEvaluations.includes(p);
             return (
-              <span
+              <button
                 key={p}
+                onClick={() => toggleEvaluation(p)}
+                disabled={evalSaving}
                 className={
                   enabled
-                    ? "px-3 py-1 rounded-full text-xs font-semibold bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400"
-                    : "px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-400 dark:bg-neutral-800"
+                    ? "px-3 py-2 min-h-[44px] rounded-full text-xs font-semibold bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    : "px-3 py-2 min-h-[44px] rounded-full text-xs font-semibold bg-neutral-100 text-neutral-400 dark:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 }
               >
                 {PROTOCOL_LABELS[p] || p}
-              </span>
+              </button>
             );
           })}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+        <h3 className="font-semibold mb-2 text-neutral-900 dark:text-white">
+          {t("platform.clinic.branding", { defaultValue: "Branding" })}
+        </h3>
+        <div className="flex flex-wrap items-center gap-3">
+          {clinic.brandingLogoUrl && (
+            <img
+              src={clinic.brandingLogoUrl}
+              alt={clinic.name}
+              className="h-11 w-11 rounded-lg object-contain border border-neutral-200 dark:border-neutral-700 bg-white"
+            />
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) uploadBranding(file);
+            }}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={brandingSaving}
+            className="px-4 py-2 min-h-[44px] rounded-lg text-sm font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+          >
+            {brandingSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+            {t("platform.clinic.branding_upload", { defaultValue: "Upload logo" })}
+          </button>
+          {clinic.brandingLogoUrl && (
+            <button
+              onClick={removeBranding}
+              disabled={brandingSaving}
+              className="px-4 py-2 min-h-[44px] rounded-lg text-sm font-semibold bg-error-50 dark:bg-error-900/20 text-error-700 dark:text-error-400 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              {t("platform.clinic.branding_remove", { defaultValue: "Remove logo" })}
+            </button>
+          )}
         </div>
       </section>
 

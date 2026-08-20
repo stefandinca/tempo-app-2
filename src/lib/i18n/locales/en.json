@@ -2672,8 +2672,15 @@
       "status": "Status",
       "clients": "Clients",
       "events": "Sessions",
+      "licence": "Licence",
       "evaluations": "Evaluation access",
       "evaluations_hint": "Read-only for now — editing arrives with Phase 2.",
+      "evaluations_saved": "Evaluation access updated.",
+      "branding": "Branding",
+      "branding_upload": "Upload logo",
+      "branding_remove": "Remove logo",
+      "branding_saved": "Branding updated.",
+      "save_failed": "Could not save.",
       "staff": "Staff",
       "not_found": "Clinic not found.",
       "load_error": "Could not load this clinic."
@@ -2689,6 +2696,20 @@
       "update_failed": "Could not update.",
       "empty": "No bug reports.",
       "load_error": "Could not load bug reports."
+    },
+    "licence": {
+      "plan_term": "Term",
+      "plan_lifetime": "Lifetime",
+      "expires": "Expires",
+      "grace": "Grace (days)",
+      "notes": "Notes",
+      "save": "Save licence",
+      "saved": "Licence saved.",
+      "save_failed": "Could not save the licence.",
+      "not_mirrored": "Saved, but not yet enforced on the clinic. Check Health.",
+      "past_expiry_title": "Expiry date is in the past",
+      "past_expiry_message": "Staff at this clinic will become read-only as soon as this saves. Continue?",
+      "past_expiry_confirm": "Save anyway"
     },
     "leads": {
       "name": "Name",

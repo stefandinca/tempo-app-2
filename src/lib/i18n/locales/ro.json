@@ -2677,8 +2677,15 @@
       "status": "Status",
       "clients": "Clienți",
       "events": "Ședințe",
+      "licence": "Licență",
       "evaluations": "Acces evaluări",
       "evaluations_hint": "Deocamdată doar vizualizare — editarea vine în Faza 2.",
+      "evaluations_saved": "Accesul la evaluări a fost actualizat.",
+      "branding": "Branding",
+      "branding_upload": "Încarcă logo",
+      "branding_remove": "Elimină logo",
+      "branding_saved": "Branding actualizat.",
+      "save_failed": "Nu s-a putut salva.",
       "staff": "Echipă",
       "not_found": "Centrul nu a fost găsit.",
       "load_error": "Nu s-a putut încărca acest centru."
@@ -2694,6 +2701,20 @@
       "update_failed": "Nu s-a putut actualiza.",
       "empty": "Nicio raportare.",
       "load_error": "Nu s-au putut încărca raportările."
+    },
+    "licence": {
+      "plan_term": "Pe termen",
+      "plan_lifetime": "Pe viață",
+      "expires": "Expiră",
+      "grace": "Grație (zile)",
+      "notes": "Note",
+      "save": "Salvează licența",
+      "saved": "Licență salvată.",
+      "save_failed": "Nu s-a putut salva licența.",
+      "not_mirrored": "Salvat, dar încă neaplicat la centru. Verifică Stare.",
+      "past_expiry_title": "Data de expirare este în trecut",
+      "past_expiry_message": "Echipa acestui centru va deveni doar-vizualizare imediat ce se salvează. Continuați?",
+      "past_expiry_confirm": "Salvează oricum"
     },
     "leads": {
       "name": "Nume",
