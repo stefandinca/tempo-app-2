@@ -63,6 +63,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           graceEndsAtMillis?: number | null;
         })
       : null;
+    // graceDays and notes are operator-facing fields the mirror deliberately
+    // does not carry (rules never read them), so they come from the registry.
+    const registryLicence = t?.licence ?? null;
     const config = configSnap?.exists ? (configSnap.data() as Record<string, any>) : null;
     const entities = Array.isArray(config?.legalEntities) ? config!.legalEntities : [];
 
@@ -80,6 +83,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             plan: licence.plan || "unknown",
             expiresAt: licence.expiresAt ?? null,
             graceEndsAtMillis: licence.graceEndsAtMillis ?? null,
+            graceDays: Number(registryLicence?.graceDays ?? 14),
+            notes: String(registryLicence?.notes || ""),
           }
         : null,
       disabledEvaluations: evalSnap?.exists ? (evalSnap.data()?.disabled ?? []) : [],

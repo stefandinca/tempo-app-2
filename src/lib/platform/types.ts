@@ -22,6 +22,13 @@ export interface ClinicDetail extends ClinicSummary {
   /** From system_settings/config — the clinic's own billing identity. */
   legalName: string | null;
   staff: Array<{ uid: string; name: string; role: string; email: string }>;
+  /**
+   * graceDays and notes come from the REGISTRY, not the mirror — the mirror
+   * deliberately does not carry them, since Firestore rules never read them.
+   * An intersection on the detail type only: ClinicSummary.licence stays the
+   * narrower shape the list screen needs.
+   */
+  licence: (NonNullable<ClinicSummary["licence"]> & { graceDays: number; notes: string }) | null;
 }
 
 export interface BugReport {
