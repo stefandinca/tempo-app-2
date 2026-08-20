@@ -13,6 +13,7 @@
  * is worse than a noisy one.
  */
 import { adminDb } from "@/lib/firebaseAdmin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export interface PlatformActivityEntry {
   /** e.g. "licence_updated", "evaluation_access_updated", "branding_updated" */
@@ -51,7 +52,7 @@ export async function logPlatformActivity(
         viaPlatformConsole: true,
         operatorUid: entry.caller.uid,
       },
-      createdAt: new Date().toISOString(),
+      createdAt: FieldValue.serverTimestamp(),
     });
   } catch (e: any) {
     console.error(
