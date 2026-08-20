@@ -2642,5 +2642,78 @@
     "sent": "Mulțumim — raportul a fost trimis",
     "send_error": "Raportul nu a putut fi trimis. Încearcă din nou.",
     "privacy": "Primim și numele, rolul, centrul și pagina pe care te aflai, ca să putem reproduce problema."
+  },
+  "platform": {
+    "title": "Platforma TempoApp",
+    "wrong_host": "Consola platformei este disponibilă la superadmin.tempoapp.ro.",
+    "not_authorised": "Doar pentru Superadmin.",
+    "load_failed": "Nu s-a putut încărca.",
+    "nav": {
+      "clinics": "Centre",
+      "bug_reports": "Raportări",
+      "leads": "Lead-uri",
+      "ai_usage": "Costuri Mira",
+      "health": "Stare"
+    },
+    "clinics": {
+      "name": "Centru",
+      "licence": "Licență",
+      "no_licence": "fără — nelimitat",
+      "lifetime": "pe viață",
+      "clients": "Clienți",
+      "staff": "Echipă",
+      "events": "Ședințe",
+      "error": "Nu s-au putut încărca centrele.",
+      "empty": "Niciun centru înregistrat."
+    },
+    "clinic": {
+      "back": "Toate centrele",
+      "details": "Detalii",
+      "database": "Bază de date",
+      "bucket": "Spațiu de stocare",
+      "legal_name": "Entitate juridică",
+      "status": "Status",
+      "clients": "Clienți",
+      "events": "Ședințe",
+      "evaluations": "Acces evaluări",
+      "evaluations_hint": "Deocamdată doar vizualizare — editarea vine în Faza 2.",
+      "staff": "Echipă",
+      "not_found": "Centrul nu a fost găsit."
+    },
+    "bug_reports": {
+      "report": "Raportare",
+      "clinic": "Centru",
+      "page": "Pagină",
+      "by": "Raportat de",
+      "when": "Când",
+      "status": "Status",
+      "updated": "Status actualizat.",
+      "update_failed": "Nu s-a putut actualiza.",
+      "empty": "Nicio raportare."
+    },
+    "leads": {
+      "name": "Nume",
+      "clinic": "Centru",
+      "contact": "Contact",
+      "when": "Când",
+      "empty": "Niciun lead."
+    },
+    "ai": {
+      "clinic": "Centru",
+      "conversations": "Conversații",
+      "insights": "Analize",
+      "cost": "Cost (USD)",
+      "total": "Total pe toate centrele",
+      "empty": "Nicio utilizare înregistrată."
+    },
+    "health": {
+      "clinic": "Centru",
+      "database": "Bază de date",
+      "bucket": "Stocare",
+      "mira": "Cheie Mira",
+      "licence": "Licență",
+      "error": "Eroare",
+      "empty": "Niciun centru înregistrat."
+    }
   }
 }

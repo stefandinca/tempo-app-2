@@ -154,3 +154,11 @@ whenever the rollback window closes.
 - [ ] 267 parent mirrors and one client with 91 linked uids, from years of
       anonymous sessions. Sign-out now unlinks properly so it stops growing;
       pruning the backlog is optional housekeeping.
+- [ ] **Attach `superadmin.tempoapp.ro`.** The platform console
+      (`documentation/Tempo technical documentation.md` §29) is built and
+      gated but not reachable: it needs `vercel domains add
+      superadmin.tempoapp.ro tempo-app-2` — the same HTTP-01 certificate route
+      as a clinic, no registrar step — plus a manual Firebase Authorized
+      domains entry, added by hand because `register-tenant.mjs` provisions
+      clinics and the platform host is not one. Deliberately held back from
+      this branch; the repo owner is deciding on it separately.

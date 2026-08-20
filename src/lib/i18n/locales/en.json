@@ -2637,5 +2637,78 @@
     "sent": "Thank you — your report has been sent",
     "send_error": "Could not send the report. Please try again.",
     "privacy": "We also receive your name, role, clinic and the page you were on, so we can reproduce the problem."
+  },
+  "platform": {
+    "title": "TempoApp Platform",
+    "wrong_host": "The platform console is served from superadmin.tempoapp.ro.",
+    "not_authorised": "Superadmin access only.",
+    "load_failed": "Could not load.",
+    "nav": {
+      "clinics": "Clinics",
+      "bug_reports": "Bug reports",
+      "leads": "Leads",
+      "ai_usage": "Mira spend",
+      "health": "Health"
+    },
+    "clinics": {
+      "name": "Clinic",
+      "licence": "Licence",
+      "no_licence": "none — unlimited",
+      "lifetime": "lifetime",
+      "clients": "Clients",
+      "staff": "Staff",
+      "events": "Sessions",
+      "error": "Could not load clinics.",
+      "empty": "No clinics registered."
+    },
+    "clinic": {
+      "back": "All clinics",
+      "details": "Details",
+      "database": "Database",
+      "bucket": "Storage bucket",
+      "legal_name": "Legal entity",
+      "status": "Status",
+      "clients": "Clients",
+      "events": "Sessions",
+      "evaluations": "Evaluation access",
+      "evaluations_hint": "Read-only for now — editing arrives with Phase 2.",
+      "staff": "Staff",
+      "not_found": "Clinic not found."
+    },
+    "bug_reports": {
+      "report": "Report",
+      "clinic": "Clinic",
+      "page": "Page",
+      "by": "Reported by",
+      "when": "When",
+      "status": "Status",
+      "updated": "Status updated.",
+      "update_failed": "Could not update.",
+      "empty": "No bug reports."
+    },
+    "leads": {
+      "name": "Name",
+      "clinic": "Centre",
+      "contact": "Contact",
+      "when": "When",
+      "empty": "No leads yet."
+    },
+    "ai": {
+      "clinic": "Clinic",
+      "conversations": "Chats",
+      "insights": "Insights",
+      "cost": "Cost (USD)",
+      "total": "Total across all clinics",
+      "empty": "No usage recorded."
+    },
+    "health": {
+      "clinic": "Clinic",
+      "database": "Database",
+      "bucket": "Bucket",
+      "mira": "Mira key",
+      "licence": "Licence",
+      "error": "Error",
+      "empty": "No clinics registered."
+    }
   }
 }
