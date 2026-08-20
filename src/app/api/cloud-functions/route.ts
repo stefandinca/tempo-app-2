@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolveDatabaseId } from "@/lib/tenant";
 
 const REGION = "us-central1";
 const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
@@ -50,6 +51,19 @@ export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization") || "";
   const forwardBody = JSON.stringify({ data: body.data || {} });
 
+  // Which clinic is calling. This route runs on the clinic's own hostname, so
+  // it is the only part of the chain that knows — the Cloud Function answers on
+  // cloudfunctions.net and sees nothing tenant-specific in its own Host. Without
+  // this the functions fall back to (default), the control plane, and a team
+  // member created through the app is invisible to the clinic that created them.
+  //
+  // NEXT_PUBLIC_TENANT_HOST first, matching src/lib/firebase.ts: a dev server
+  // answers on localhost while its browser session is pointed at a clinic, and
+  // the two must not disagree about which database they mean.
+  const databaseId = resolveDatabaseId(
+    process.env.NEXT_PUBLIC_TENANT_HOST || req.headers.get("host") || "",
+  );
+
   const url = `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/${functionName}`;
   console.log(`[Proxy] Attempting to call Cloud Function: ${url}`);
 
@@ -59,6 +73,7 @@ export async function POST(req: NextRequest) {
       headers: {
         "Content-Type": "application/json",
         "Authorization": authHeader,
+        "X-Tempo-Database": databaseId,
       },
       body: forwardBody,
     });

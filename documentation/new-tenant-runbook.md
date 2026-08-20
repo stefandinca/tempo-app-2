@@ -51,6 +51,23 @@ npm run test:rules
 node scripts/deploy-rules.mjs --project=tempo-app-2
 ```
 
+### Register the database for push notifications
+
+A Firestore trigger watches exactly one database, named at deploy time, so push
+has to be registered per clinic. Add a line to `functions/src/index.ts`:
+
+```ts
+export const sendPushNotification<Label> = pushNotificationTrigger("clinic-<label>");
+```
+
+then `firebase deploy --only functions --project tempo-app-2`.
+
+**Nothing warns you if you skip this.** The clinic's notifications still appear
+in the app — the bell, the dropdown, the page all read Firestore directly — and
+only the *push* half is missing, so it looks like users disabled notifications
+rather than like a deployment gap. Verify by creating a notification for a user
+with a registered device and watching the function's logs.
+
 ## 2. Create the Storage bucket
 
 ```bash

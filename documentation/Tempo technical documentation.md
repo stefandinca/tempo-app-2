@@ -1199,28 +1199,67 @@ Handles background FCM data-only messages → displays browser notifications →
 
 # 19. Cloud Functions
 
-**Directory**: `functions/` | **Runtime**: Node.js 20 | **Region**: us-central1
+**Directory**: `functions/` | **Runtime**: Node.js 22 | **Region**: us-central1 |
+**firebase-functions** 7.x, **firebase-admin** 13.x
+
+## Which database a function talks to
+
+> ⚠️ `admin.firestore()` is **always** `(default)` — the control plane, which
+> holds no clinic's records. A Cloud Function answers on `cloudfunctions.net`,
+> so unlike the app and the API routes it cannot derive the tenant from its own
+> hostname. Every function here has to be told, and none may assume.
+
+The two HTTP functions read an `X-Tempo-Database` header, set by
+`/api/cloud-functions` — that proxy runs on the clinic's own hostname, so it is
+the only participant that knows which clinic is calling. The header is required
+and `(default)` is refused.
+
+Trusting a caller-supplied database is safe **only** because the caller's role is
+then checked in that same database: name another clinic and you are not staff
+there, so the request fails at the role check. Moving a role check back to a
+fixed database would break that property.
 
 ## `createTeamMember` (HTTP POST)
 
-- Admin/Superadmin only
-- Creates Firebase Auth user + `team_members` Firestore document
+- Admin/Superadmin **of the calling clinic** only
+- Creates a Firebase Auth user (shared platform-wide — the same person can be
+  staff at several clinics) + `team_members` and `team_public` documents **in
+  that clinic's database**
 - Email validation, duplicate checking
 - Sets `inviteStatus: "pending"`
 
 ## `migrateTeamMember` (HTTP POST)
 
-- Superadmin only
+- Superadmin of the calling clinic only
 - Migrates old team member docs to correct Auth UID
 - Updates foreign key references in events, threads
 - Batch operations for consistency
 
-## `sendPushNotification` (Firestore Trigger)
+## `sendPushNotification*` (Firestore Triggers — one per clinic)
 
-- Triggered on `notifications/{notificationId}` creation
-- Fetches target user's FCM token from `fcm_tokens/{userId}`
-- Sends data-only message via FCM
+A Firestore trigger binds to exactly one database, named at deploy time: the v2
+`database` option is a plain string with no wildcard, and v1 triggers only ever
+fire on `(default)`. So there is one export per clinic, all built by
+`pushNotificationTrigger(databaseId)`:
+
+```
+sendPushNotificationLivebetterlife   sendPushNotificationDiaconumaria
+sendPushNotificationDemo             sendPushNotificationAicaa
+```
+
+Each one:
+
+- Triggers on `notifications/{notificationId}` creation **in its own database**
+- Fetches the target user's FCM token from `fcm_tokens/{userId}` in that same
+  database
+- Sends a data-only message via FCM
 - Auto-cleans invalid tokens
+
+**Onboarding a clinic must add a line here.** Nothing warns you if it is missed:
+in-app notifications keep working, because the bell and the notifications page
+read Firestore directly, and only push goes quiet — which reads like users
+declining permission rather than a deployment gap. See
+`documentation/new-tenant-runbook.md` step 1.
 
 ---
 

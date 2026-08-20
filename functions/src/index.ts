@@ -3,15 +3,49 @@
 // /api/cloud-functions proxy builds them as
 // https://{region}-{project}.cloudfunctions.net/{name}, a v1 URL shape.
 import * as functionsV1 from "firebase-functions/v1";
-// v2 so this trigger can later target a NAMED Firestore database. v1 triggers
-// only ever fire on (default), so under the multi-database tenancy model push
-// would silently stop for every clinic. See the tenancy design, §5.
+// v2 because a trigger has to name the NAMED Firestore database it watches.
+// v1 triggers only ever fire on (default), so under one database per clinic
+// push silently stopped for everyone. One registration per clinic, below.
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 
 admin.initializeApp();
 
-const firestore = admin.firestore();
+/**
+ * Every clinic has its own Firestore database, derived from the hostname by
+ * src/lib/tenant.ts. Nothing here reaches the right one by accident:
+ * `admin.firestore()` is always `(default)`, which is the control plane and
+ * holds no clinic's records.
+ *
+ * That was the bug. createTeamMember wrote team_members and team_public into
+ * `(default)`, so a member added through the app got an Auth account and then
+ * stayed invisible to the clinic that added them. The caller's own admin check
+ * read `(default)` too, which is why it appeared to half-work for exactly one
+ * clinic — the one whose original records still sit there — and returned
+ * PERMISSION_DENIED for every other.
+ */
+const CLINIC_DATABASE = /^clinic-[a-z0-9][a-z0-9-]{0,48}[a-z0-9]$/;
+
+/**
+ * Which clinic a request is about, from the `X-Tempo-Database` header set by
+ * /api/cloud-functions — that proxy runs on the clinic's own hostname, so it is
+ * the only participant that knows. This function answers on cloudfunctions.net
+ * and can tell nothing from its own Host.
+ *
+ * Taking it from the caller is safe ONLY because the caller's role is then
+ * checked in that same database: name someone else's clinic and you are simply
+ * not staff there. Anyone moving a role check back to a fixed database has to
+ * stop reading this header in the same commit.
+ *
+ * Required, and `(default)` is refused: no clinic lives there, so a request
+ * naming it is a misconfiguration rather than an intention. Defaulting instead
+ * of refusing is the bug above, and its failure mode is silence.
+ */
+function requestedDatabase(req: functionsV1.https.Request): string | null {
+  const raw = String(req.get("x-tempo-database") || "").trim();
+  return CLINIC_DATABASE.test(raw) ? raw : null;
+}
 
 // ============================================================
 // CORS + Auth helpers for onRequest-based callable functions
@@ -63,7 +97,17 @@ export const createTeamMember = functionsV1.https.onRequest(async (req, res) => 
     return;
   }
 
-  // 2. Verify caller is Admin/Superadmin
+  // The clinic this request is about. Every read and write below is scoped to
+  // it, the caller's own role check included.
+  const databaseId = requestedDatabase(req);
+  if (!databaseId) {
+    sendError(res, 400, "INVALID_ARGUMENT", "Missing or malformed X-Tempo-Database header.");
+    return;
+  }
+  const firestore = getFirestore(databaseId);
+
+  // 2. Verify caller is Admin/Superadmin — in THAT clinic, which is what makes
+  // trusting the header above safe: naming another clinic fails right here.
   const callerDoc = await firestore.collection("team_members").doc(caller.uid).get();
   if (!callerDoc.exists) {
     sendError(res, 403, "PERMISSION_DENIED", "Caller is not a team member.");
@@ -146,7 +190,7 @@ export const createTeamMember = functionsV1.https.onRequest(async (req, res) => 
     role: memberData.role,
   });
 
-  console.log(`Team member created: ${authUser.uid} (${normalizedEmail}) by ${caller.uid}`);
+  console.log(`Team member created: ${authUser.uid} (${normalizedEmail}) in ${databaseId} by ${caller.uid}`);
 
   res.status(200).json({ result: { uid: authUser.uid } });
 });
@@ -178,7 +222,15 @@ export const migrateTeamMember = functionsV1.https.onRequest(async (req, res) =>
     return;
   }
 
-  // 2. Verify caller is Superadmin
+  // The clinic this request is about — see createTeamMember above.
+  const databaseId = requestedDatabase(req);
+  if (!databaseId) {
+    sendError(res, 400, "INVALID_ARGUMENT", "Missing or malformed X-Tempo-Database header.");
+    return;
+  }
+  const firestore = getFirestore(databaseId);
+
+  // 2. Verify caller is Superadmin — in that clinic.
   const callerDoc = await firestore.collection("team_members").doc(caller.uid).get();
   if (!callerDoc.exists) {
     sendError(res, 403, "PERMISSION_DENIED", "Caller is not a team member.");
@@ -278,94 +330,125 @@ export const migrateTeamMember = functionsV1.https.onRequest(async (req, res) =>
 
   await batch.commit();
 
-  console.log(`Team member migrated: ${oldDocId} → ${authUser.uid} (${normalizedEmail})`);
+  console.log(`Team member migrated: ${oldDocId} → ${authUser.uid} (${normalizedEmail}) in ${databaseId}`);
 
   res.status(200).json({ result: { uid: authUser.uid, migrated: true } });
 });
 
 // ============================================================
-// sendPushNotification — Firestore trigger (v2)
+// sendPushNotification — Firestore trigger (v2), one per clinic
 // ============================================================
-export const sendPushNotification = onDocumentCreated(
-  { document: "notifications/{notificationId}", region: "us-central1" },
-  async (event) => {
-    // v2 delivers the snapshot on event.data, and it is optional — a delete
-    // racing the create can fire the trigger with nothing attached.
-    const snapshot = event.data;
-    if (!snapshot) {
-      console.log("No snapshot on event; nothing to send");
-      return;
-    }
-    const notification = snapshot.data();
-    const recipientId = notification.recipientId;
+/**
+ * A Firestore trigger binds to exactly ONE database at deploy time — the v2
+ * `database` option is a plain string with no wildcard, and v1 triggers only
+ * ever fire on `(default)`. Under one database per clinic, push therefore has
+ * to be registered once per clinic.
+ *
+ * Until it was, push did nothing for anyone. The single registration watched
+ * `(default)`, which no clinic writes notifications to, so every send was a
+ * no-op that logged nothing and failed nowhere.
+ *
+ * ADDING A CLINIC MEANS ADDING A LINE BELOW and redeploying functions. The list
+ * cannot be derived: registration happens at deploy time, long before any
+ * request carries a hostname. A missing entry is silent, which is precisely how
+ * this went unnoticed — so the onboarding runbook names this file at the step
+ * that creates the database.
+ */
+function pushNotificationTrigger(databaseId: string) {
+  return onDocumentCreated(
+    {
+      document: "notifications/{notificationId}",
+      database: databaseId,
+      region: "us-central1",
+    },
+    async (event) => {
+      // v2 delivers the snapshot on event.data, and it is optional — a delete
+      // racing the create can fire the trigger with nothing attached.
+      const snapshot = event.data;
+      if (!snapshot) {
+        console.log("No snapshot on event; nothing to send");
+        return;
+      }
+      const notification = snapshot.data();
+      const recipientId = notification.recipientId;
 
-    if (!recipientId) {
-      console.log("No recipientId found in notification");
-      return;
-    }
-
-    // Get the user's FCM token
-    const tokenDoc = await admin.firestore().collection("fcm_tokens").doc(recipientId).get();
-
-    if (!tokenDoc.exists) {
-      console.log(`No FCM token found for user ${recipientId}`);
-      return;
-    }
-
-    const tokenData = tokenDoc.data();
-    const fcmToken = tokenData?.token;
-
-    if (!fcmToken) {
-      console.log(`Token document exists but no token field for user ${recipientId}`);
-      return;
-    }
-
-    const title = notification.title || "New Notification";
-    const body = notification.message || "You have a new update";
-    const url = notification.actions?.[0]?.route || "/parent/dashboard";
-
-    console.log(`Sending push notification: title="${title}", body="${body}", url="${url}"`);
-
-    // Data-only message - service worker will handle display
-    // IMPORTANT: Do NOT include 'notification' field or 'fcmOptions.link'
-    // as these cause the browser to auto-display a notification
-    const payload: admin.messaging.Message = {
-      data: {
-        title: title,
-        body: body,
-        url: url,
-        notificationId: event.params.notificationId,
-        type: notification.type || "general",
-        category: notification.category || "system"
-      },
-      // Web push - only set headers, no notification-triggering options
-      webpush: {
-        headers: {
-          Urgency: "high"
-        }
-      },
-      // Android specific (for future mobile support)
-      android: {
-        priority: "high"
-      },
-      token: fcmToken
-    };
-
-    try {
-      const response = await admin.messaging().send(payload);
-      console.log("Successfully sent push notification:", response);
-      return;
-    } catch (error: any) {
-      console.error("Error sending push notification:", error);
-
-      // If token is invalid, remove it
-      if (error.code === "messaging/registration-token-not-registered" ||
-          error.code === "messaging/invalid-registration-token") {
-        await tokenDoc.ref.delete();
-        console.log(`Invalid token deleted for user ${recipientId}`);
+      if (!recipientId) {
+        console.log("No recipientId found in notification");
+        return;
       }
 
-      return;
-    }
+      // The token lives in the SAME clinic database as the notification that
+      // triggered this. admin.firestore() here would read the control plane.
+      const tokenDoc = await getFirestore(databaseId)
+        .collection("fcm_tokens")
+        .doc(recipientId)
+        .get();
+
+      if (!tokenDoc.exists) {
+        console.log(`No FCM token found for user ${recipientId} in ${databaseId}`);
+        return;
+      }
+
+      const tokenData = tokenDoc.data();
+      const fcmToken = tokenData?.token;
+
+      if (!fcmToken) {
+        console.log(`Token document exists but no token field for user ${recipientId}`);
+        return;
+      }
+
+      const title = notification.title || "New Notification";
+      const body = notification.message || "You have a new update";
+      const url = notification.actions?.[0]?.route || "/parent/dashboard";
+
+      console.log(`Sending push (${databaseId}): title="${title}", body="${body}", url="${url}"`);
+
+      // Data-only message - service worker will handle display
+      // IMPORTANT: Do NOT include 'notification' field or 'fcmOptions.link'
+      // as these cause the browser to auto-display a notification
+      const payload: admin.messaging.Message = {
+        data: {
+          title: title,
+          body: body,
+          url: url,
+          notificationId: event.params.notificationId,
+          type: notification.type || "general",
+          category: notification.category || "system",
+        },
+        // Web push - only set headers, no notification-triggering options
+        webpush: {
+          headers: {
+            Urgency: "high",
+          },
+        },
+        // Android specific (for future mobile support)
+        android: {
+          priority: "high",
+        },
+        token: fcmToken,
+      };
+
+      try {
+        const response = await admin.messaging().send(payload);
+        console.log("Successfully sent push notification:", response);
+        return;
+      } catch (error: any) {
+        console.error("Error sending push notification:", error);
+
+        // If token is invalid, remove it
+        if (error.code === "messaging/registration-token-not-registered" ||
+            error.code === "messaging/invalid-registration-token") {
+          await tokenDoc.ref.delete();
+          console.log(`Invalid token deleted for user ${recipientId}`);
+        }
+
+        return;
+      }
     },
-);
+  );
+}
+
+export const sendPushNotificationLivebetterlife = pushNotificationTrigger("clinic-livebetterlife");
+export const sendPushNotificationDiaconumaria = pushNotificationTrigger("clinic-diaconumaria");
+export const sendPushNotificationDemo = pushNotificationTrigger("clinic-demo");
+export const sendPushNotificationAicaa = pushNotificationTrigger("clinic-aicaa");
