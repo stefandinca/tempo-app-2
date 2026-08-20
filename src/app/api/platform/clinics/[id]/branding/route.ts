@@ -10,10 +10,12 @@
  * the login and password-reset screens, before anyone has signed in. It holds a
  * URL to an image that is public by nature and nothing else.
  */
+import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { getStorage } from "firebase-admin/storage";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
+import { tenantIdentity } from "@/lib/platform/counts";
 import { logPlatformActivity } from "@/lib/platform/activity";
 
 export const runtime = "nodejs";
@@ -24,10 +26,15 @@ const MAX_BYTES = 2 * 1024 * 1024;
 async function registryFor(id: string) {
   const snap = await adminDb().collection("tenants").doc(id).get();
   if (!snap.exists) return null;
-  const t = snap.data() as { name?: string; databaseId?: string; bucket?: string };
+  // One source for the databaseId derivation, shared with every other
+  // platform route, rather than reimplementing the `clinic-${id}` fallback
+  // here and risking the two disagreeing.
+  const identity = tenantIdentity(snap);
+  if (!identity) return null;
+  const t = snap.data() as { name?: string; bucket?: string };
   return {
     name: t.name || id,
-    databaseId: t.databaseId || `clinic-${id}`,
+    databaseId: identity.databaseId,
     bucket: t.bucket || "",
   };
 }
@@ -68,15 +75,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const bucket = getStorage().bucket(reg.bucket);
     const blob = bucket.file(path);
 
+    // NOT blob.makePublic(): every clinic bucket is provisioned with uniform
+    // bucket-level access (scripts/create-tenant-bucket.mjs sets
+    // iamConfiguration.uniformBucketLevelAccess.enabled), which disables
+    // per-object ACLs outright — makePublic() is an ACL call and the GCS API
+    // 400s under UBLA. The obvious fix, granting `allUsers` objectViewer at
+    // the bucket level, is not an option here: these buckets hold client
+    // documents, session videos and voice recordings for real children in
+    // therapy, and `branding/` is one prefix among all of that. Instead we do
+    // what the client SDK's getDownloadURL() does — a Firebase download token
+    // in the object's custom metadata, which grants access via the token in
+    // the URL rather than an ACL. This is the exact URL shape BrandingTab.tsx
+    // already writes to `system_settings/branding.logoUrl` for a clinic-signed
+    // upload, so both paths stay consistent.
+    const token = randomUUID();
     await blob.save(Buffer.from(await file.arrayBuffer()), {
-      contentType: file.type,
       resumable: false,
+      metadata: { contentType: file.type, metadata: { firebaseStorageDownloadTokens: token } },
     });
-    // The login screen renders this before anyone signs in, so the object has
-    // to be readable without a token. storage.rules already allows public READ
-    // on branding/**; makePublic gives the URL below the same property.
-    await blob.makePublic();
-    const logoUrl = `https://storage.googleapis.com/${reg.bucket}/${path}`;
+    const logoUrl = `https://firebasestorage.googleapis.com/v0/b/${reg.bucket}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
 
     const previous = await adminDb(reg.databaseId)
       .collection("system_settings")
