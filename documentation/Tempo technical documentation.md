@@ -1357,14 +1357,23 @@ explicitly and refuses to guess (§28.2).
 
 ## 23.3 Deployment Process
 
-**Hosting**: Vercel — one project per tenant (§28).
+**Hosting**: Vercel — **one project, `tempo-app-2`, for every clinic** (§28). The
+tenant is the hostname, not the deployment.
 
-1. Push to the tracked branch; Vercel builds with `npm run build`
-2. Environment comes from the Vercel dashboard, per project (not from `.env` files)
-3. Each tenant's subdomain is attached in Vercel, and must also be added to
-   Firebase → Authentication → Authorized domains
+1. Push to `main`; Vercel builds once with `npm run build`
+2. Environment comes from the Vercel dashboard. Anything that differs per clinic
+   is resolved from the request host instead — see §28.3
+3. Every clinic subdomain is attached to that one project, and must also be added
+   to Firebase → Authentication → Authorized domains
+4. Environment variables bind at **build time**: a running deployment cannot see
+   one added afterwards, and the symptom looks exactly like a wrong value.
+   Redeploy after changing them
 
-Onboarding a new tenant: `documentation/new-tenant-runbook.md`.
+The marketing site (`tempoapp.ro`, `www`) is a different repository on its own
+Vercel project. The retired per-clinic projects still exist with builds disabled
+as rollback targets.
+
+Onboarding a new clinic: `documentation/new-tenant-runbook.md`.
 
 > The cPanel/Passenger artefacts were deleted in Aug 2026.
 
