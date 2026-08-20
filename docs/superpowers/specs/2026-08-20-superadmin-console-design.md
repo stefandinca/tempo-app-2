@@ -344,6 +344,33 @@ fail open), **mirrors second**.
 - **Blocking sign-in on expiry.** Simple, but it takes the audit trail and the
   clinic's own records away at the moment a dispute is most likely.
 
+## 10a. Phase 4 — the cleanup pass
+
+Four items were parked during Phase 1 with reasons recorded, and confirmed on
+21 Aug 2026 as a cleanup pass to run AFTER phases 2 and 3. They are listed here
+rather than in a plan ledger because a ledger is deleted when its plan
+completes, and these outlive it.
+
+1. **The gate's Host parsing does not validate the port.** `labels.ts` splits on
+   `:` and keeps the first segment, so `localhost:evil.com` reads as
+   `localhost`. It grants nothing today — anyone able to set an arbitrary Host
+   can already send bare `localhost`, and the Superadmin token is the real gate
+   — but it is imprecise parsing inside a security check, and phase 2 turns
+   these routes into writers.
+2. **`role="button"` on a `<tr>`** overrides the implicit row role and can strip
+   screen-reader table navigation. The final Phase 1 review proposed a third
+   option neither of the original two had costed: keep the row click handler AND
+   put a real `<Link>` in the name cell, which restores row semantics at no
+   cost to keyboard access.
+3. **ai-usage partial-aggregate roll-up.** A clinic whose two ledgers disagree
+   is excluded from the total and marked; the summary line could still be
+   clearer about what it left out.
+4. **Backfill the leads' timestamps.** 27 of 30 `potential_clients` documents
+   carry an ISO string rather than a Timestamp, because the collection passed
+   through the tenant migration. Firestore orders by type before value, so past
+   the page limit the truncation would cut by type rather than by date. Harmless
+   at 30 rows; a backfill removes the caveat permanently.
+
 ## 11. Open questions
 
 - **Renewal is manual.** Nothing emails a warning before expiry. A scheduled
