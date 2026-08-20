@@ -167,6 +167,29 @@ const cases = [
     { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],
   ["therapist reads system_settings/config", "ALLOW", "get", `${D}/system_settings/config`,
     { uid: "t1" }, member("t1", "Therapist")],
+
+  // --- public lead form (unauthenticated) ---
+  // login/page.tsx always sets createdAt via serverTimestamp() alongside
+  // name/email/phone/clinic, but the RULE used to only check source, consent
+  // and a key count — nothing stopped a create that skipped createdAt from
+  // saving anyway. The console's leads reader orders by createdAt, and
+  // Firestore's orderBy silently DROPS a document missing the ordered field,
+  // so that lead would be invisible with no error anywhere.
+  ["public lead create WITHOUT createdAt is denied", "DENY", "create", `${D}/potential_clients/lead1`,
+    null, [], {
+      source: "demo_platform_entry", consent: true,
+      name: "Ana Pop", email: "ana@example.com", phone: "0700000000", clinic: "Centrul Ana",
+    }],
+  ["public lead create WITH createdAt still passes", "ALLOW", "create", `${D}/potential_clients/lead2`,
+    null, [], {
+      source: "demo_platform_entry", consent: true, createdAt: "2026-08-19T10:00:00Z",
+      name: "Ana Pop", email: "ana@example.com", phone: "0700000000", clinic: "Centrul Ana",
+    }],
+  ["public lead create with an over-long field is denied", "DENY", "create", `${D}/potential_clients/lead3`,
+    null, [], {
+      source: "demo_platform_entry", consent: true, createdAt: "2026-08-19T10:00:00Z",
+      name: "A".repeat(500), email: "ana@example.com", phone: "0700000000", clinic: "Centrul Ana",
+    }],
 ];
 
 const testCases = cases.map(([, expectation, method, path, auth, mocks, resource, before]) => ({

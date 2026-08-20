@@ -117,11 +117,16 @@ service cloud.firestore {
       // The self-branch may NOT touch `role` or `isActive`. Without that
       // restriction a Therapist could updateDoc their own document with
       // { role: "superadmin" } — hasRole() accepts the lowercase form — and own
-      // a live clinic holding real children's clinical records. `isActive` is
-      // here so a deactivated account cannot switch itself back on.
+      // a live clinic holding real children's clinical records. That is live
+      // enforcement today. `isActive` is not: neither requireStaffRole()
+      // (src/lib/serverAuth.ts) nor AuthContext consults it, so deactivating a
+      // member does not currently lock them out of anything. It stays
+      // denylisted anyway, as hardening ahead of that enforcement existing —
+      // so the field cannot already be self-settable on the day something
+      // starts reading it.
       //
-      // A DENYLIST of the two fields that grant ACCESS, not an allowlist of the
-      // fields we happen to know about, and deliberately so. Self-writes are
+      // A DENYLIST of these two fields, not an allowlist of the fields we
+      // happen to know about, and deliberately so. Self-writes are
       // spread across the settings page (photoURL, name/email/phone/color,
       // language), NotificationPreferences (notificationPreferences) and
       // AuthContext (inviteStatus); an allowlist would break whichever one a
@@ -462,9 +467,29 @@ service cloud.firestore {
 
     match /potential_clients/{leadId} {
       // Public lead form (unauthenticated) — constrain shape to limit spam/abuse.
+      //
+      // `createdAt` is REQUIRED. The console's reader
+      // (src/app/api/platform/leads/route.ts) orders this collection by
+      // createdAt, and Firestore's orderBy silently DROPS documents missing
+      // the ordered field — before this line, a create satisfying only the
+      // two equality checks below could omit it, and the lead would save yet
+      // never appear in the console: no error, no empty row, just absent.
+      //
+      // String fields are capped individually rather than trusting
+      // keys().size() alone: a handful of keys with one enormous string value
+      // passes a key-count limit just as easily as a real lead does.
       allow create: if request.resource.data.source == "demo_platform_entry"
                     && request.resource.data.consent == true
-                    && request.resource.data.keys().size() <= 15;
+                    && request.resource.data.keys().hasAll(['createdAt'])
+                    && request.resource.data.keys().size() <= 15
+                    && (!('name' in request.resource.data) ||
+                        (request.resource.data.name is string && request.resource.data.name.size() <= 200))
+                    && (!('email' in request.resource.data) ||
+                        (request.resource.data.email is string && request.resource.data.email.size() <= 320))
+                    && (!('phone' in request.resource.data) ||
+                        (request.resource.data.phone is string && request.resource.data.phone.size() <= 40))
+                    && (!('clinic' in request.resource.data) ||
+                        (request.resource.data.clinic is string && request.resource.data.clinic.size() <= 200));
       allow read, update, delete: if isAdmin();
     }
 
