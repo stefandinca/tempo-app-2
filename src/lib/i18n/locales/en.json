@@ -2746,6 +2746,7 @@
       "bucket": "Bucket",
       "mira": "Mira key",
       "licence": "Licence",
+      "licence_sync": "Licence in sync",
       "error": "Error",
       "empty": "No clinics registered.",
       "load_error": "Could not load clinic health."

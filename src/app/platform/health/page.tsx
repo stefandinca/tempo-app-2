@@ -47,6 +47,14 @@ export default function PlatformHealthPage() {
     { key: "bucket", header: t("platform.health.bucket", { defaultValue: "Bucket" }), align: "right", render: (c) => <Flag ok={c.bucketConfigured} /> },
     { key: "mira", header: t("platform.health.mira", { defaultValue: "Mira key" }), align: "right", render: (c) => <Flag ok={c.anthropicKeyPresent} /> },
     { key: "licence", header: t("platform.health.licence", { defaultValue: "Licence" }), align: "right", render: (c) => <Flag ok={c.licencePresent} /> },
+    // The rules enforce the clinic's mirror, not the registry. A cross here
+    // means the clinic is being held to a deadline nobody set in the console.
+    {
+      key: "licenceSync",
+      header: t("platform.health.licence_sync", { defaultValue: "Licence in sync" }),
+      align: "right",
+      render: (c) => <Flag ok={c.licenceInSync} />,
+    },
     {
       key: "error",
       header: t("platform.health.error", { defaultValue: "Error" }),

@@ -24,8 +24,22 @@ export async function GET(req: NextRequest) {
 
     const health = await Promise.all(
       registry.docs.map(async (doc): Promise<ClinicHealth> => {
-        const t = doc.data() as { name?: string; databaseId?: string; bucket?: string };
+        const t = doc.data() as {
+          name?: string;
+          databaseId?: string;
+          bucket?: string;
+          licence?: { graceEndsAtMillis?: number | null };
+        };
         const identity = tenantIdentity(doc);
+
+        // The deadline the REGISTRY holds, versus the one the clinic's own
+        // database holds. `undefined` means "no licence at all" and is kept
+        // distinct from `null`, which is a lifetime licence that was recorded:
+        // both are unrestricted at runtime, but only one of them means the
+        // mirror write never landed, and that is what this column is for.
+        const registryGrace: number | null | undefined = t.licence
+          ? (t.licence.graceEndsAtMillis ?? null)
+          : undefined;
 
         // A registry id that is not a well-formed clinic label is itself a
         // broken clinic, and this is the screen that reports broken clinics —
@@ -39,10 +53,9 @@ export async function GET(req: NextRequest) {
             bucketConfigured: !!t.bucket,
             anthropicKeyPresent: !!anthropicKeyFor(doc.id),
             licencePresent: false,
-            // Task 7 computes this against the control-plane registry. Literal false
-            // until then so the tree compiles at every commit — a health screen that
-            // claims every licence is out of sync is obviously wrong, which is
-            // preferable to one that quietly claims they are all fine.
+            // There is no database to compare against, so this is unknown
+            // rather than false — reported as drift so the row reads as
+            // "look at this clinic", which is what the row is already saying.
             licenceInSync: false,
             error: `registry id ${JSON.stringify(doc.id)} is not a valid clinic label`,
           };
@@ -50,16 +63,28 @@ export async function GET(req: NextRequest) {
 
         let databaseReachable = false;
         let licencePresent = false;
+        let mirrorGrace: number | null | undefined;
         let error: string | null = null;
 
         try {
           const db = adminDb(identity.databaseId);
           await db.collection("team_members").limit(1).get();
           databaseReachable = true;
-          licencePresent = (await db.collection("system_settings").doc("licence").get()).exists;
+          const mirror = await db.collection("system_settings").doc("licence").get();
+          licencePresent = mirror.exists;
+          if (mirror.exists) mirrorGrace = mirror.data()?.graceEndsAtMillis ?? null;
         } catch (e: any) {
           error = String(e?.message || e).slice(0, 160);
         }
+
+        // What the rules enforce is the MIRROR, so a mismatch means the clinic
+        // is being held to a deadline nobody set in the console — in either
+        // direction. Both absent is in sync: that is the unrestricted state
+        // every clinic starts in, and it is not drift.
+        //
+        // An unreachable database cannot be compared, and reporting a clinic we
+        // could not read as "in sync" would be the one wrong answer here.
+        const licenceInSync = databaseReachable && registryGrace === mirrorGrace;
 
         return {
           tenantId: identity.tenantId,
@@ -68,11 +93,7 @@ export async function GET(req: NextRequest) {
           bucketConfigured: !!t.bucket,
           anthropicKeyPresent: !!anthropicKeyFor(identity.tenantId),
           licencePresent,
-          // Task 7 computes this against the control-plane registry. Literal false
-          // until then so the tree compiles at every commit — a health screen that
-          // claims every licence is out of sync is obviously wrong, which is
-          // preferable to one that quietly claims they are all fine.
-          licenceInSync: false,
+          licenceInSync,
           error,
         };
       }),

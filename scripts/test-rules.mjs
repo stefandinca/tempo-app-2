@@ -46,6 +46,19 @@ const evalAccess = (disabled) => [
   },
 ];
 
+/**
+ * No licence mirror — which is where every clinic sits until one is written,
+ * and what every case in this file assumes. Appended to EVERY case below
+ * rather than to the ones that happen to hit a gated rule: an unmocked
+ * get/exists is a service-call ERROR in the test API, not a `false`, so a case
+ * that reaches licenceActive() without this mock fails for the wrong reason.
+ * Licence enforcement itself is asserted in scripts/test-licence.mjs.
+ */
+const noLicence = [
+  { function: "exists", args: [{ exact_value: `${D}/system_settings/licence` }], result: { value: false } },
+  { function: "get", args: [{ exact_value: `${D}/system_settings/licence` }], result: { value: { data: {} } } },
+];
+
 const cases = [
   // --- evaluation gating (per CLINIC, not per child) ---
   ["therapist reads a DISABLED protocol", "DENY", "get", `${D}/clients/c1/cars_evaluations/e1`,
@@ -166,7 +179,7 @@ const testCases = cases.map(([, expectation, method, path, auth, mocks, resource
     ...(resource ? { resource: { data: resource } } : {}),
   },
   ...(before ? { resource: { data: before } } : {}),
-  functionMocks: mocks,
+  functionMocks: [...mocks, ...noLicence],
 }));
 
 const res = await fetch(`https://firebaserules.googleapis.com/v1/projects/${PROJECT}:test`, {

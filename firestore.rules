@@ -60,6 +60,27 @@ service cloud.firestore {
                   .data.get('disabled', []).hasAny([kind]);
     }
 
+    // Whether this clinic's licence still permits STAFF WRITES.
+    //
+    // Fails OPEN: a clinic with no licence document is unrestricted. These
+    // rules deploy to every database at once while the mirrors are written per
+    // clinic afterwards, so fail-closed would freeze every clinic in the gap.
+    //
+    // graceEndsAtMillis is epoch milliseconds precisely so this comparison
+    // needs no date parsing. null means a lifetime licence.
+    //
+    // READS ARE NEVER GATED, and neither is anything a parent does. The clinic
+    // is the data controller and we are the processor: a billing lapse must not
+    // become an outage on a child's clinical record.
+    function licenceActive() {
+      return !exists(/databases/$(database)/documents/system_settings/licence)
+             || get(/databases/$(database)/documents/system_settings/licence)
+                  .data.get('graceEndsAtMillis', null) == null
+             || request.time.toMillis()
+                  < get(/databases/$(database)/documents/system_settings/licence)
+                       .data.graceEndsAtMillis;
+    }
+
     // ---- CONTROL PLANE — the (default) database only ----
     // The tenant registry, and the membership mirrors that Storage rules need.
     //
@@ -89,19 +110,22 @@ service cloud.firestore {
       // Creates are handled by Cloud Function (Admin SDK) only
       allow create: if false;
       // Admins can update any member; members can update their own doc (e.g., inviteStatus)
-      allow update: if isAdmin() || (isSignedIn() && memberId == request.auth.uid);
-      allow delete: if isAdmin();
+      // Only the ADMIN branch is licence-gated. Someone editing their own
+      // profile is not the clinic buying anything, and locking a person out of
+      // their own record would be a strange thing for an unpaid invoice to do.
+      allow update: if (isAdmin() && licenceActive()) || (isSignedIn() && memberId == request.auth.uid);
+      allow delete: if isAdmin() && licenceActive();
     }
 
     match /clients/{clientId} {
       // Staff-only listing. Parent login goes through /client_codes/{CODE}.
       allow list: if isAdmin() || isCoordinator() || isTherapist();
       allow get: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
-      allow create: if isAdmin() || isCoordinator();
+      allow create: if (isAdmin() || isCoordinator()) && licenceActive();
       // Only a Superadmin may change which evaluations are enabled — Admin and
       // Coordinator have blanket write access to client docs, so without this
       // they could simply re-enable a protocol the Superadmin disabled.
-      allow update: if isSuperadmin() || isAdmin() || isCoordinator();
+      allow update: if (isSuperadmin() || isAdmin() || isCoordinator()) && licenceActive();
       // NOTE: there used to be a third clause here letting ANY signed-in user add
       // their own uid to parentUids. Anonymous sign-in is open on the parent
       // portal, and most client documents have human-chosen ids of the form
@@ -115,7 +139,7 @@ service cloud.firestore {
       // 🚨 Deploy this only AFTER the app change is live. The old client-side
       // write is still what production runs until then, and tightening this
       // first stops every parent signing in.
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && licenceActive();
     }
 
     // Display-only mirror of team_members: name, initials, colour, role.
@@ -124,7 +148,7 @@ service cloud.firestore {
     // createTeamMember Cloud Function. NEVER put contact details or pay here.
     match /team_public/{memberId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin() || isCoordinator();
+      allow write: if (isAdmin() || isCoordinator()) && licenceActive();
     }
 
     // Parent access code -> { clientId, clientName } lookup.
@@ -133,25 +157,25 @@ service cloud.firestore {
     match /client_codes/{code} {
       allow get: if isSignedIn();
       allow list: if isAdmin() || isCoordinator() || isTherapist();
-      allow create, update, delete: if isAdmin() || isCoordinator() || isTherapist();
+      allow create, update, delete: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
     }
 
     match /events/{eventId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() ||
                     (isSignedIn() && resource.data.clientId != null && isParent(resource.data.clientId));
-      allow create: if isAdmin() || isCoordinator() || isTherapist();
-      allow update: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
-      allow delete: if isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid);
+      allow create: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow update: if (isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid)) && licenceActive();
+      allow delete: if (isAdmin() || isCoordinator() || (isTherapist() && resource.data.therapistId == request.auth.uid)) && licenceActive();
     }
 
     match /services/{serviceId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin();
+      allow write: if isAdmin() && licenceActive();
     }
 
     match /programs/{programId} {
       allow read: if isSignedIn();
-      allow write: if isAdmin() || isCoordinator() || isTherapist();
+      allow write: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
     }
     
     // system_settings/config holds SmartBill API credentials and the clinic's
@@ -192,14 +216,14 @@ service cloud.firestore {
     match /invoices/{invoiceId} {
       allow read: if isAdmin() ||
                     (isSignedIn() && resource.data.clientId != null && isParent(resource.data.clientId));
-      allow create: if isAdmin();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow create: if isAdmin() && licenceActive();
+      allow update: if isAdmin() && licenceActive();
+      allow delete: if isAdmin() && licenceActive();
     }
 
     match /payouts/{payoutId} {
       allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow write: if isAdmin() && licenceActive();
     }
 
     match /notifications/{notificationId} {
@@ -222,57 +246,64 @@ service cloud.firestore {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
                         && !evalDisabled('ablls'));
-      allow write: if isSuperadmin()
-                     || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled('ablls'));
+      allow write: if (isSuperadmin()
+                       || ((isAdmin() || isCoordinator() || isTherapist())
+                           && !evalDisabled('ablls')))
+                      && licenceActive();
     }
 
     match /clients/{clientId}/vbmapp_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
                         && !evalDisabled('vbmapp'));
-      allow write: if isSuperadmin()
-                     || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled('vbmapp'));
+      allow write: if (isSuperadmin()
+                       || ((isAdmin() || isCoordinator() || isTherapist())
+                           && !evalDisabled('vbmapp')))
+                      && licenceActive();
     }
 
     match /clients/{clientId}/portage_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
                         && !evalDisabled('portage'));
-      allow write: if isSuperadmin()
-                     || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled('portage'));
+      allow write: if (isSuperadmin()
+                       || ((isAdmin() || isCoordinator() || isTherapist())
+                           && !evalDisabled('portage')))
+                      && licenceActive();
     }
 
     match /clients/{clientId}/cars_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
                         && !evalDisabled('cars'));
-      allow write: if isSuperadmin()
-                     || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled('cars'));
+      allow write: if (isSuperadmin()
+                       || ((isAdmin() || isCoordinator() || isTherapist())
+                           && !evalDisabled('cars')))
+                      && licenceActive();
     }
 
     match /clients/{clientId}/carolina_evaluations/{evalId} {
       allow read: if isSuperadmin()
                     || ((isAdmin() || isCoordinator() || isTherapist() || isParent(clientId))
                         && !evalDisabled('carolina'));
-      allow write: if isSuperadmin()
-                     || ((isAdmin() || isCoordinator() || isTherapist())
-                         && !evalDisabled('carolina'));
+      allow write: if (isSuperadmin()
+                       || ((isAdmin() || isCoordinator() || isTherapist())
+                           && !evalDisabled('carolina')))
+                      && licenceActive();
     }
 
     match /clients/{clientId}/interventionPlans/{planId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
-      allow write: if isAdmin() || isCoordinator();
+      allow write: if (isAdmin() || isCoordinator()) && licenceActive();
     }
 
     match /clients/{clientId}/homework/{homeworkId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() || isParent(clientId);
-      allow create, delete: if isAdmin() || isCoordinator() || isTherapist();
+      allow create, delete: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
       // Parents may only toggle completion, not rewrite homework content.
-      allow update: if isAdmin() || isCoordinator() || isTherapist() ||
+      // The parent branch is NOT gated: a parent has no relationship with our
+      // invoice, and ticking off homework must keep working past a lapse.
+      allow update: if ((isAdmin() || isCoordinator() || isTherapist()) && licenceActive()) ||
                       (isParent(clientId) &&
                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed', 'completedAt']));
     }
@@ -280,35 +311,35 @@ service cloud.firestore {
     match /clients/{clientId}/documents/{documentId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() ||
                     (isParent(clientId) && resource.data.sharedWithParent == true);
-      allow create: if isAdmin() || isCoordinator() || isTherapist();
-      allow update: if isAdmin() || isCoordinator() || isTherapist();
-      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+      allow create: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow update: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow delete: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
     }
 
     // SESSION VIDEOS
     match /clients/{clientId}/videos/{videoId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() ||
                     (isParent(clientId) && resource.data.sharedWithParent == true);
-      allow create: if isAdmin() || isCoordinator() || isTherapist();
-      allow update: if isAdmin() || isCoordinator() || isTherapist();
-      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+      allow create: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow update: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow delete: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
     }
 
     // VOICE FEEDBACK
     match /clients/{clientId}/voiceFeedback/{feedbackId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() ||
                     (isParent(clientId) && resource.data.sharedWithParent == true);
-      allow create: if isAdmin() || isCoordinator() || isTherapist();
-      allow update: if isAdmin() || isCoordinator() || isTherapist();
-      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+      allow create: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow update: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow delete: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
     }
 
     match /clients/{clientId}/reports/{reportId} {
       allow read: if isAdmin() || isCoordinator() || isTherapist() ||
                     (isParent(clientId) && resource.data.sharedWithParent == true);
-      allow create: if isAdmin() || isCoordinator() || isTherapist();
-      allow update: if isAdmin() || isCoordinator() || isTherapist();
-      allow delete: if isAdmin() || isCoordinator() || isTherapist();
+      allow create: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow update: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
+      allow delete: if (isAdmin() || isCoordinator() || isTherapist()) && licenceActive();
     }
 
     match /fcm_tokens/{userId} {
@@ -383,11 +414,13 @@ service cloud.firestore {
     }
 
     match /expenses/{expenseId} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin();
+      allow write: if isAdmin() && licenceActive();
     }
 
     match /recurring_expenses/{configId} {
-      allow read, write: if isAdmin();
+      allow read: if isAdmin();
+      allow write: if isAdmin() && licenceActive();
     }
 
     match /potential_clients/{leadId} {

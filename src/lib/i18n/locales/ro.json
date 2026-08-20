@@ -2751,6 +2751,7 @@
       "bucket": "Stocare",
       "mira": "Cheie Mira",
       "licence": "Licență",
+      "licence_sync": "Licență sincronizată",
       "error": "Eroare",
       "empty": "Niciun centru înregistrat.",
       "load_error": "Nu s-a putut încărca starea centrelor."
