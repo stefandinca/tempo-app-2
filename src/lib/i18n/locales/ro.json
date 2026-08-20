@@ -2744,7 +2744,7 @@
       "empty": "Nicio utilizare înregistrată.",
       "load_error": "Nu s-au putut încărca costurile Mira.",
       "partial": "Nu s-a putut citi.",
-      "total_partial": "nu include centrele ale căror costuri nu au putut fi citite ({{n}})"
+      "total_partial": "nu include centrele ale căror costuri nu au putut fi citite ({{n}}): {{names}}"
     },
     "health": {
       "clinic": "Centru",

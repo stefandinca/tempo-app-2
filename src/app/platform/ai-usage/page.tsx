@@ -68,8 +68,9 @@ export default function PlatformAiUsagePage() {
         {unread.length > 0 && (
           <span className="ml-2 text-warning-600 dark:text-warning-400">
             {t("platform.ai.total_partial", {
-              defaultValue: "excludes clinics whose spend could not be read ({{n}})",
+              defaultValue: "excludes clinics whose spend could not be read ({{n}}): {{names}}",
               n: unread.length,
+              names: unread.map((c) => c.name).join(", "),
             })}
           </span>
         )}

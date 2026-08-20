@@ -2739,7 +2739,7 @@
       "empty": "No usage recorded.",
       "load_error": "Could not load Mira spend.",
       "partial": "Could not be read.",
-      "total_partial": "excludes clinics whose spend could not be read ({{n}})"
+      "total_partial": "excludes clinics whose spend could not be read ({{n}}): {{names}}"
     },
     "health": {
       "clinic": "Clinic",
