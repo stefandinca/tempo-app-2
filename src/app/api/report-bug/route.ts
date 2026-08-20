@@ -66,7 +66,7 @@ async function sendEmail(subject: string, lines: [string, string][], body: strin
     if (!res.ok) {
       const detail = (await res.text()).slice(0, 300);
       console.error("[report-bug] Resend rejected the message:", res.status, detail);
-      return { sent: false, reason: `resend_${res.status}` };
+      return { sent: false, reason: `resend_${res.status}: ${detail.slice(0, 160)}` };
     }
     return { sent: true };
   } catch (e: any) {
@@ -130,5 +130,7 @@ export async function POST(req: NextRequest) {
     description,
   );
 
-  return NextResponse.json({ ok: true, id, emailed: email.sent });
+  // The reason travels back so a silent email failure is diagnosable. It is a
+  // status line from Resend, never a credential.
+  return NextResponse.json({ ok: true, id, emailed: email.sent, ...(email.sent ? {} : { emailError: email.reason }) });
 }
