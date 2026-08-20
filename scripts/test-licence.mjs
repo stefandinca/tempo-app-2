@@ -230,6 +230,40 @@ const rulesCases = [
   ["grace elapsed — admin edits another member", "DENY", "update", `${D}/team_members/t2`,
     { uid: "a1" }, [...member("a1", "Admin"), ...EXPIRED], { name: "X" }, { name: "Y" }],
 
+  // --- NOBODY PROMOTES THEMSELVES ---
+  // The self-branch of team_members/update had no field restriction, so any
+  // Therapist could updateDoc their own document with { role: "superadmin" }.
+  // Pre-existing, not a licence-gate regression. A denylist of the two access
+  // fields — every other self-write must keep working, licensed or not.
+  ["a therapist cannot promote themselves", "DENY", "update", `${D}/team_members/t1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...LIVE],
+    { name: "T", role: "superadmin" }, { name: "T", role: "Therapist" }],
+  ["a therapist cannot promote themselves (capitalised)", "DENY", "update", `${D}/team_members/t1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...LIVE],
+    { name: "T", role: "Superadmin" }, { name: "T", role: "Therapist" }],
+  ["a deactivated member cannot switch themselves back on", "DENY", "update", `${D}/team_members/t1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...LIVE],
+    { name: "T", isActive: true }, { name: "T", isActive: false }],
+  // The legitimate self-writes, which the denylist must leave untouched.
+  ["a therapist still saves their notification preferences", "ALLOW", "update", `${D}/team_members/t1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...LIVE],
+    { role: "Therapist", notificationPreferences: { emailDigest: true } },
+    { role: "Therapist", notificationPreferences: { emailDigest: false } }],
+  ["a therapist still activates their own invite", "ALLOW", "update", `${D}/team_members/t1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...LIVE],
+    { role: "Therapist", inviteStatus: "active" }, { role: "Therapist", inviteStatus: "pending" }],
+  ["a therapist still edits their own profile fields", "ALLOW", "update", `${D}/team_members/t1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...LIVE],
+    { role: "Therapist", name: "New", phone: "1", language: "en", photoURL: "u" },
+    { role: "Therapist", name: "Old", phone: "2", language: "ro", photoURL: "" }],
+  // The admin path must keep working — TeamMemberModal writes role and isActive.
+  ["an admin still changes another member's role", "ALLOW", "update", `${D}/team_members/t2`,
+    { uid: "a1" }, [...member("a1", "Admin"), ...LIVE],
+    { role: "Coordinator", isActive: false }, { role: "Therapist", isActive: true }],
+  ["an admin still changes their OWN role", "ALLOW", "update", `${D}/team_members/a1`,
+    { uid: "a1" }, [...member("a1", "Admin"), ...LIVE],
+    { role: "Coordinator" }, { role: "Admin" }],
+
   // --- NOTHING A PARENT DOES IS GATED ---
   ["grace elapsed — parent reads their child", "ALLOW", "get", `${D}/clients/c1`,
     { uid: "p1" }, [...outsider("p1"), ...client("c1", { parentUids: ["p1"] }), ...EXPIRED]],

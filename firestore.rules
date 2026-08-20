@@ -113,7 +113,30 @@ service cloud.firestore {
       // Only the ADMIN branch is licence-gated. Someone editing their own
       // profile is not the clinic buying anything, and locking a person out of
       // their own record would be a strange thing for an unpaid invoice to do.
-      allow update: if (isAdmin() && licenceActive()) || (isSignedIn() && memberId == request.auth.uid);
+      //
+      // The self-branch may NOT touch `role` or `isActive`. Without that
+      // restriction a Therapist could updateDoc their own document with
+      // { role: "superadmin" } — hasRole() accepts the lowercase form — and own
+      // a live clinic holding real children's clinical records. `isActive` is
+      // here so a deactivated account cannot switch itself back on.
+      //
+      // A DENYLIST of the two fields that grant ACCESS, not an allowlist of the
+      // fields we happen to know about, and deliberately so. Self-writes are
+      // spread across the settings page (photoURL, name/email/phone/color,
+      // language), NotificationPreferences (notificationPreferences) and
+      // AuthContext (inviteStatus); an allowlist would break whichever one a
+      // future search misses, silently, in production, for a therapist
+      // mid-session. Naming only the access fields cannot — everything else
+      // keeps working exactly as it does today. `weeklyCapacity` is
+      // deliberately absent: it is capacity planning, not access.
+      //
+      // The admin path (TeamMemberModal, which does write role and isActive)
+      // is unaffected — it satisfies the isAdmin() branch before this one.
+      // Do not "simplify" this away.
+      allow update: if (isAdmin() && licenceActive())
+                       || (isSignedIn() && memberId == request.auth.uid
+                           && !request.resource.data.diff(resource.data)
+                                .affectedKeys().hasAny(['role', 'isActive']));
       allow delete: if isAdmin() && licenceActive();
     }
 
