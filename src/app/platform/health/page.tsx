@@ -38,6 +38,21 @@ export default function PlatformHealthPage() {
     { key: "bucket", header: t("platform.health.bucket", { defaultValue: "Bucket" }), align: "right", render: (c) => <Flag ok={c.bucketConfigured} /> },
     { key: "mira", header: t("platform.health.mira", { defaultValue: "Mira key" }), align: "right", render: (c) => <Flag ok={c.anthropicKeyPresent} /> },
     { key: "licence", header: t("platform.health.licence", { defaultValue: "Licence" }), align: "right", render: (c) => <Flag ok={c.licencePresent} /> },
+    {
+      key: "error",
+      header: t("platform.health.error", { defaultValue: "Error" }),
+      render: (c) =>
+        c.error ? (
+          <span
+            title={c.error}
+            className="block max-w-[16rem] truncate text-xs text-error-600 dark:text-error-400"
+          >
+            {c.error}
+          </span>
+        ) : (
+          ""
+        ),
+    },
   ];
 
   return (

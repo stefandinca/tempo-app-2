@@ -7,6 +7,7 @@
  * records one row per evaluation-insights generation.
  */
 import { NextResponse, type NextRequest } from "next/server";
+import { AggregateField } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError } from "@/lib/platform/gate";
 import type { ClinicSpend } from "@/lib/platform/types";
@@ -30,13 +31,22 @@ export async function GET(req: NextRequest) {
         let costUsd = 0;
 
         try {
-          const convs = await db.collection("ai_conversations").limit(1000).get();
-          conversations = convs.size;
-          convs.forEach((c) => { costUsd += Number(c.data().costUsd || 0); });
+          // Aggregated server-side rather than fetched-and-summed: a fetch capped at
+          // a page size silently under-counts once a clinic passes that many rows,
+          // and this number is what an invoice gets reconciled against.
+          const convAgg = await db
+            .collection("ai_conversations")
+            .aggregate({ n: AggregateField.count(), cost: AggregateField.sum("costUsd") })
+            .get();
+          conversations = convAgg.data().n;
+          costUsd += Number(convAgg.data().cost || 0);
 
-          const events = await db.collection("ai_usage_events").limit(1000).get();
-          insightEvents = events.size;
-          events.forEach((e) => { costUsd += Number(e.data().costUsd || 0); });
+          const eventAgg = await db
+            .collection("ai_usage_events")
+            .aggregate({ n: AggregateField.count(), cost: AggregateField.sum("costUsd") })
+            .get();
+          insightEvents = eventAgg.data().n;
+          costUsd += Number(eventAgg.data().cost || 0);
         } catch {
           // An unreachable clinic contributes nothing rather than failing the page.
         }
