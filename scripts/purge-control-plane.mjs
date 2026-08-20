@@ -92,7 +92,14 @@ const base = (db) => `https://firestore.googleapis.com/v1/projects/${PROJECT}/da
 async function collectionIds(database, docPath = "") {
   const url = `${base(database)}${docPath ? "/" + docPath : ""}:listCollectionIds`;
   const r = await fetch(url, { method: "POST", headers: H, body: "{}" });
-  if (!r.ok) return [];
+  // Backs both the canary pass and the per-document subcollection probe. A
+  // failed request must never read as "no subcollections" — that is exactly
+  // the silent-orphan outcome this script exists to prevent. This is only
+  // ever called against (default), which is assumed to exist, so there is no
+  // legitimate-absence case to special-case here: any non-ok response throws.
+  if (!r.ok) {
+    throw new Error(`collectionIds(${database}, ${docPath || "<root>"}) failed: HTTP ${r.status} ${(await r.text()).slice(0, 400)}`);
+  }
   return (await r.json()).collectionIds || [];
 }
 
@@ -107,7 +114,29 @@ async function countOf(database, collection) {
       },
     }),
   });
-  if (!r.ok) return -1;
+  if (!r.ok) {
+    const body = await r.text();
+    // The redundancy gate is `there >= here`. A sentinel return here used to
+    // read as data: if (default)'s count failed, "here" became -1 and every
+    // comparison passed, silently disabling the exact check that protects
+    // against deleting non-redundant data. So any failure counting (default)
+    // throws, unconditionally — there is no safe fallback value for it.
+    //
+    // The ONE legitimate exception: a REFERENCE clinic database that has
+    // never been created (a clinic mid-onboarding). Firestore reports that
+    // distinctly — HTTP 404, status NOT_FOUND — from "the collection is
+    // empty", which is a normal 200 with count 0 (verified directly against
+    // the live API before writing this). Only for that exact signature, and
+    // only for a non-(default) database, is "0" an honest answer rather than
+    // a fabricated one: the database really does hold zero documents. Every
+    // other failure — rate limits, permission errors, timeouts, or anything
+    // at all against (default) — throws.
+    if (database !== "(default)" && r.status === 404 && /NOT_FOUND/.test(body)) {
+      console.log(`    ${C.dim(`(${database} does not exist yet — treating ${collection} as 0)`)}`);
+      return 0;
+    }
+    throw new Error(`countOf(${database}, ${collection}) failed: HTTP ${r.status} ${body.slice(0, 400)}`);
+  }
   const j = await r.json();
   const row = (Array.isArray(j) ? j : [j]).find((x) => x.result);
   return Number(row?.result?.aggregateFields?.n?.integerValue ?? 0);
@@ -118,7 +147,11 @@ async function sampleDocIds(database, collection, n) {
   const u = new URL(`${base(database)}/${collection}`);
   u.searchParams.set("pageSize", String(n));
   const r = await fetch(u, { headers: H });
-  if (!r.ok) return [];
+  // Same reasoning as collectionIds(): only ever called against (default), so
+  // any failure throws rather than being read as "collection is empty".
+  if (!r.ok) {
+    throw new Error(`sampleDocIds(${database}, ${collection}) failed: HTTP ${r.status} ${(await r.text()).slice(0, 400)}`);
+  }
   const j = await r.json();
   return (j.documents || []).map((d) => d.name.split("/").pop());
 }
@@ -192,7 +225,13 @@ console.log(
 const doomed = []; // { path, data }
 
 async function walk(collectionPath, probe) {
-  const docs = await db.listAll(collectionPath).catch(() => []);
+  // db.listAll() already throws on a non-ok response (see
+  // scripts/demo-seed/firestore.mjs). Previously that was swallowed here,
+  // which meant a failed listing read as an empty collection: for a
+  // subcollection, the parent would still be deleted while its children were
+  // neither backed up nor removed — orphaned and unrecorded. Let it propagate
+  // instead; the run aborts before anything is deleted.
+  const docs = await db.listAll(collectionPath);
   const candidates = [];
   for (const d of docs) {
     const docPath = `${collectionPath}/${d.__id}`;
@@ -230,7 +269,12 @@ if (!doomed.length) {
 
 const dir = path.join(process.cwd(), "notification-backups", `control-plane-purge_${PROJECT}`);
 mkdirSync(dir, { recursive: true });
-const file = path.join(dir, "purged.json");
+// Timestamped, not static: commits go in chunks of 400, so a partial failure
+// followed by a re-run must not let the smaller second doomed set overwrite
+// the first run's backup — that would destroy the only record of what the
+// partial run already deleted.
+const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+const file = path.join(dir, `purged_${stamp}.json`);
 writeFileSync(file, JSON.stringify(doomed, null, 1), "utf8");
 console.log(`  ${C.green("✓")} backed up to ${C.dim(file)}`);
 
