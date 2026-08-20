@@ -107,7 +107,7 @@ using the Admin SDK with `adminDb(databaseId)`:
 | `/api/platform/clinics/[id]/licence` | PUT | set plan and expiry |
 | `/api/platform/clinics/[id]/branding` | PUT | upload a logo to that clinic's bucket |
 | `/api/platform/bug-reports` | GET/PATCH | list; change `status` |
-| `/api/platform/leads` | GET | `potential_clients` |
+| `/api/platform/leads` | GET/PATCH | both lead collections; PATCH sets `status` on a marketing lead |
 | `/api/platform/ai-usage` | GET | per-clinic Mira spend |
 | `/api/platform/health` | GET | per-clinic reachability |
 
@@ -223,6 +223,9 @@ but `test-rules.mjs` should keep asserting the deepest path.
 
 Grace: 14 days, so writes actually stop on 3 Sep 2027 for the two term clinics.
 
+Confirmed 21 Aug 2026. Every date is editable from the console once Phase 2
+ships, so these are a starting position rather than a commitment.
+
 ---
 
 ## 6. Screens
@@ -239,9 +242,30 @@ parent portal's evaluations tab disappear. Anything that reconciles clinic
 state, here or in a seeding script, must preserve that rather than "repair"
 it toward the everything-enabled default.
 | **Bug reports** | `bug_reports` — has `tenantId`, `host`, `page`, `title`, `description`, `reportedBy`, `status` | `status` only |
-| **Leads** | `potential_clients` — `name`, `phone`, `email`, `clinic`, `consent`, `source`, `createdAt` | — |
+| **Leads** | `potential_clients` AND `leads` — two funnels, one screen (below) | `status`, on the marketing leads only |
 | **AI cost** | `ai_conversations` + `ai_usage_events` per clinic, summed | — |
 | **Health** | per-clinic database reachability, Mira key, bucket, licence state | — |
+
+### Two lead funnels, one screen
+
+They are not duplicates of each other:
+
+| Collection | Written by | Carries |
+|---|---|---|
+| `potential_clients` | the demo site entry form (`src/app/login/page.tsx`) | name, email, phone, clinic, consent |
+| `leads` | the marketing site contact form (`tempo-web`, a different repo) | name, email, phone, message, teamSize, **status** |
+
+One screen with a source column and a filter, because they are one job: people
+waiting to be contacted. Two screens means two inboxes, and the one nobody opens
+is the one that matters — the failure this phase exists to end.
+
+A column a source lacks renders blank rather than being hidden; the shape of the
+row tells you where it came from. Only `leads` carries `status`, so only its rows
+get the triage control, exactly as `bug_reports` does.
+
+`leads` has NO rule in `firestore.rules`, so it defaults to deny for every
+browser. It is written from outside this repo and read here through the Admin
+SDK, which bypasses rules. Do not add a client-readable rule for it.
 
 Both inboxes live in **`clinic-demo`**, not `(default)`: `report-bug/route.ts`
 pins `BUG_REPORT_DATABASE = "clinic-demo"`, and the demo login page writes leads
