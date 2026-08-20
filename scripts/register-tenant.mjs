@@ -11,6 +11,9 @@
  *   tenant_members/{bucket}__{uid}   one per staff member of that tenant
  *   tenant_parents/{bucket}__{uid}   one per parent uid already linked to a client
  *
+ * ...and adds the clinic's hostname to Firebase Auth's authorized domains,
+ * because that list is project-wide and sign-in on an unlisted origin fails.
+ *
  * The mirrors exist only because Storage rules cannot read a named Firestore
  * database — proven by runtime spike. They carry a tenant id, a bucket, and a
  * role or client list; never put clinical data in them.
@@ -27,6 +30,7 @@
  * Re-runnable: it rewrites the registry entry and refreshes the mirror from the
  * tenant's current staff list.
  */
+import { execSync } from "node:child_process";
 import { Db } from "./demo-seed/firestore.mjs";
 
 const args = Object.fromEntries(
@@ -64,10 +68,73 @@ if (!DRY && !args.yes) {
 }
 
 const databaseId = `clinic-${TENANT}`;
+// Same convention as everything else: the hostname IS the tenant.
+const host = args.host || `${TENANT}.tempoapp.ro`;
 // Must match tenantBucket() in src/lib/tenant.ts, which derives the same name
 // from the platform bucket at runtime. If these two ever disagree, the app
 // writes to one bucket while the rules authorise another.
 const bucket = args.bucket || `${PROJECT}-${TENANT}`;
+
+/**
+ * Put the clinic's hostname on Firebase Auth's authorized-domains list.
+ *
+ * That list is PROJECT-WIDE — it is not per database and not per tenant — so a
+ * new clinic inherits nothing and has to be added. Miss it and email/password
+ * sign-in still works, which is what makes this so easy to ship broken: only
+ * the federated and redirect flows fail (`signInWithPopup` refuses to run on an
+ * unlisted origin), and they fail in the console where nobody is looking. Two
+ * of the first three clinics were live for months without it.
+ *
+ * Read-modify-write against one shared list, so this appends and never
+ * replaces, and writes nothing at all when the host is already there — a
+ * re-run of this script must not risk clobbering another clinic's entry.
+ */
+async function ensureAuthorizedDomain(project, hostname) {
+  const url = `https://identitytoolkit.googleapis.com/admin/v2/projects/${project}/config`;
+  const token = execSync("gcloud auth application-default print-access-token", {
+    stdio: ["ignore", "pipe", "pipe"],
+  })
+    .toString()
+    .trim();
+  // ADC is a user credential, and Identity Toolkit refuses one without a quota
+  // project. The error it gives otherwise names neither the header nor this API.
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+    "x-goog-user-project": project,
+  };
+
+  const res = await fetch(url, { headers });
+  const config = await res.json();
+  if (!res.ok) {
+    console.log(`  ${C.red("✗")} could not read the auth config: ${config?.error?.message || res.status}`);
+    console.log(`  ${C.dim("Add " + hostname + " by hand: Firebase console -> Authentication -> Settings -> Authorized domains")}`);
+    return false;
+  }
+
+  const domains = config.authorizedDomains || [];
+  if (domains.includes(hostname)) {
+    console.log(`  ${C.green("✓")} ${hostname} already an authorized domain`);
+    return true;
+  }
+  if (DRY) {
+    console.log(`  ${C.dim(`would add ${hostname} to ${domains.length} authorized domain(s)`)}`);
+    return true;
+  }
+
+  const patch = await fetch(`${url}?updateMask=authorizedDomains`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify({ authorizedDomains: [...domains, hostname] }),
+  });
+  const body = await patch.json();
+  if (!patch.ok) {
+    console.log(`  ${C.red("✗")} could not add ${hostname}: ${body?.error?.message || patch.status}`);
+    return false;
+  }
+  console.log(`  ${C.green("✓")} ${hostname} added to authorized domains (${(body.authorizedDomains || []).length} total)`);
+  return true;
+}
 
 /** A handle on one named database of the same project. */
 function databaseHandle(project, database) {
@@ -84,6 +151,7 @@ console.log(`  project  : ${PROJECT}${DRY ? C.dim("  (DRY RUN)") : ""}`);
 console.log(`  tenant   : ${TENANT}`);
 console.log(`  database : ${databaseId}`);
 console.log(`  bucket   : ${bucket}`);
+console.log(`  host     : ${host}`);
 console.log(`  name     : ${NAME}\n`);
 
 // Staff and clients live in the tenant's own database. Before migration that
@@ -139,4 +207,17 @@ console.log(`  ${C.green("✓")} tenants/${TENANT}`);
 console.log(`  ${C.green("✓")} ${staff.length} membership mirror(s)`);
 staff.forEach((s) => console.log(`      ${String(s.name || s.__id).padEnd(22)} ${s.role || ""}`));
 console.log(`  ${C.green("✓")} ${Object.keys(parentClients).length} parent mirror(s)`);
+
+// Not part of the Firestore commit above: a different API, and a project-wide
+// one. Done here anyway so onboarding cannot forget it — the failure is silent
+// enough that it went unnoticed on two live clinics.
+const authorized = await ensureAuthorizedDomain(PROJECT, host);
+
 console.log(`\n  ${DRY ? "would write" : "wrote"} ${control.writes} document(s)\n`);
+if (!authorized) {
+  console.log(
+    `  ${C.red("The tenant is registered, but " + host + " is NOT an authorized domain.")}\n` +
+    `  ${C.dim("Sign-in with Google will fail there until it is. Re-run this, or add it in the console.")}\n`,
+  );
+  process.exitCode = 1;
+}

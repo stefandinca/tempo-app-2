@@ -1402,8 +1402,10 @@ tenant is the hostname, not the deployment.
 1. Push to `main`; Vercel builds once with `npm run build`
 2. Environment comes from the Vercel dashboard. Anything that differs per clinic
    is resolved from the request host instead — see §28.3
-3. Every clinic subdomain is attached to that one project, and must also be added
-   to Firebase → Authentication → Authorized domains
+3. Every clinic subdomain is attached to that one project, and must also be an
+   authorized domain in Firebase Auth. That list is project-wide, and
+   `scripts/register-tenant.mjs` now adds the host as part of onboarding — a
+   missing entry breaks only federated sign-in, silently, on that one host
 4. Environment variables bind at **build time**: a running deployment cannot see
    one added afterwards, and the symptom looks exactly like a wrong value.
    Redeploy after changing them

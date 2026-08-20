@@ -110,6 +110,16 @@ Writes `tenants/<label>` plus a `tenant_members/{bucket}__{uid}` mirror for ever
 staff member, into the `(default)` control plane. Storage authorisation depends
 on these, because Storage rules cannot read a named database.
 
+It also adds `<label>.tempoapp.ro` to **Firebase Auth's authorized domains**, so
+you do not have to remember to. That list is project-wide rather than per
+clinic, and a missing entry breaks sign-in with Google on that host only —
+email and password keep working, and the failure surfaces in the browser console
+where nobody is looking. Two clinics ran for months without it.
+
+The script appends and never replaces, writes nothing when the host is already
+listed, and exits non-zero if the tenant registered but the domain did not, so
+a half-done run cannot pass for a clean one.
+
 Re-run it whenever staff are added — or let it be, since parent mirrors refresh
 themselves on every portal login.
 
