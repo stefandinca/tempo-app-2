@@ -203,7 +203,13 @@ npm run test:isolation      # tenant mapping, Firestore rules, Storage rules
 Then on the real hostname:
 
 - `https://<label>.tempoapp.ro/api/assistant/health/` reports
-  `tenant=<label>`, `projectId=tempo-app-2`, `anthropic=ok`
+  `tenant=<label>`, `database=clinic-<label>`, `projectId=tempo-app-2`,
+  `firestore=ok`, `anthropic=ok`
+
+  `database` and `firestore` together are the load-bearing part: the check
+  reads the **clinic's own** database, so `firestore=ok` means that clinic's
+  records are reachable. It used to probe `(default)`, which answers on every
+  host and would have signed off a clinic whose database was missing entirely.
 - sign in · client list · a calendar week · upload a document · a parent login
   with an access code
 
