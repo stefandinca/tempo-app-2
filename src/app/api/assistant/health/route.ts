@@ -2,7 +2,7 @@
 // WITHOUT exposing any secret values (no keys, no private key, no tokens).
 // Safe to expose; intended for setup/debugging and can be removed afterwards.
 import { NextRequest, NextResponse } from "next/server";
-import { tenantIdFromRequest } from "@/lib/tenant";
+import { tenantIdFromRequest, tenantDatabaseFromRequest } from "@/lib/tenant";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,9 +46,15 @@ export async function GET(req: NextRequest) {
 
   // --- Live Admin round-trip (this is what actually fails when the key is mangled) ---
   if (out.serviceAccount === "parsed") {
+    // Probe THIS clinic's database, not (default). The control plane answers on
+    // every host, so probing it only ever proved the credential parsed — it said
+    // nothing about whether the clinic's own records are reachable, which is the
+    // one thing this endpoint is used to confirm when onboarding a clinic.
+    const database = tenantDatabaseFromRequest(req);
+    out.database = database;
     try {
       const { adminDb } = await import("@/lib/firebaseAdmin");
-      await adminDb().collection("user_ai_usage").limit(1).get();
+      await adminDb(database).collection("team_members").limit(1).get();
       out.firestore = "ok";
     } catch (e: any) {
       out.firestore = "error: " + String(e?.message || e).slice(0, 200);
