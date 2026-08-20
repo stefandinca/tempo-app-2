@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useData } from "@/context/DataContext";
 import { useTranslation } from "react-i18next";
-import { Loader2, Activity as ActivityIcon, Calendar, Users, FileText, UserCheck, ArrowLeft } from "lucide-react";
+import { Loader2, Activity as ActivityIcon, Calendar, Users, FileText, UserCheck, ArrowLeft, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useActivitiesByCategory } from "@/hooks/useActivities";
 import { ActivityCategory } from "@/types/activity";
@@ -18,6 +18,7 @@ const getCategoryIcon = (id: ActivityCategory) => {
     case 'evaluations': return FileText;
     case 'clients': return Users;
     case 'team': return Users;
+    case 'system': return ShieldCheck;
     default: return Users;
   }
 };
@@ -38,7 +39,7 @@ export default function ActivityPage() {
 
   const locale = i18n.language === 'ro' ? ro : enUS;
 
-  const categories: ActivityCategory[] = ['sessions', 'attendance', 'evaluations', 'clients', 'team'];
+  const categories: ActivityCategory[] = ['sessions', 'attendance', 'evaluations', 'clients', 'team', 'system'];
 
   const getActivityMessage = (activity: any): string => {
     const metadata = activity.metadata || {};

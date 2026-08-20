@@ -22,7 +22,8 @@ export type ActivityCategory =
   | 'clients'
   | 'team'
   | 'voice_feedback'
-  | 'videos';
+  | 'videos'
+  | 'system';
 
 export interface Activity {
   id: string;

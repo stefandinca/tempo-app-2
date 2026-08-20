@@ -705,7 +705,8 @@
       "attendance": "Attendance",
       "evaluations": "Evaluations",
       "clients": "Clients",
-      "team": "Team"
+      "team": "Team",
+      "system": "System"
     }
   },
   "calendar": {

@@ -32,12 +32,25 @@ export async function logPlatformActivity(
       // The clinic's own feed filters by category; "system" keeps platform
       // actions distinguishable from a therapist's or an admin's.
       category: "system",
-      userId: entry.caller.uid,
-      userName: entry.caller.name || "TempoApp",
+      // Attribute the change to the PLATFORM, not the operator.
+      //
+      // The clinic is deliberately never shown that a Superadmin account exists
+      // (see src/lib/roles.ts). If we record userId: operator.uid here, the
+      // entry gets filtered by hiddenStaffIds in src/app/(dashboard)/activity/page.tsx
+      // and disappears from the very audit trail it exists to populate.
+      //
+      // From the clinic's perspective, the actor is genuinely TempoApp-the-vendor
+      // anyway. The operator's identity goes into metadata for our own forensics.
+      userId: "platform",
+      userName: "TempoApp",
       userPhotoURL: null,
       targetId: "platform",
       targetName: entry.targetName,
-      metadata: { ...(entry.metadata || {}), viaPlatformConsole: true },
+      metadata: {
+        ...(entry.metadata || {}),
+        viaPlatformConsole: true,
+        operatorUid: entry.caller.uid,
+      },
       createdAt: new Date().toISOString(),
     });
   } catch (e: any) {
