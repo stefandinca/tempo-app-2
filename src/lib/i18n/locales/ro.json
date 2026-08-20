@@ -2688,7 +2688,8 @@
       "save_failed": "Nu s-a putut salva.",
       "staff": "Echipă",
       "not_found": "Centrul nu a fost găsit.",
-      "load_error": "Nu s-a putut încărca acest centru."
+      "load_error": "Nu s-a putut încărca acest centru.",
+      "refresh_failed": "Salvat, dar pagina nu a putut fi reîmprospătată."
     },
     "bug_reports": {
       "report": "Raportare",
@@ -2713,7 +2714,7 @@
       "save_failed": "Nu s-a putut salva licența.",
       "not_mirrored": "Salvat, dar încă neaplicat la centru. Verifică Stare.",
       "past_expiry_title": "Data de expirare este în trecut",
-      "past_expiry_message": "Echipa acestui centru va deveni doar-vizualizare imediat ce se salvează. Continuați?",
+      "past_expiry_message": "Echipa acestui centru a depășit deja perioada de grație ({{date}}) și va deveni doar-vizualizare imediat ce se salvează. Continuați?",
       "past_expiry_confirm": "Salvează oricum"
     },
     "leads": {

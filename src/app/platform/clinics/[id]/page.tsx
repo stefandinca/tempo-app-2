@@ -41,20 +41,28 @@ export default function PlatformClinicDetailPage() {
   const [brandingSaving, setBrandingSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (isRefresh = false) => {
     try {
       const d = await platformGet<{ clinic: ClinicDetail }>(`/api/platform/clinics/${params.id}`);
       setClinic(d.clinic);
       setError(null);
     } catch (e) {
       console.error("[platform/clinic] failed to load:", e);
+      if (isRefresh) {
+        // The write landed; only the re-read failed. Keep the page —
+        // blanking it would report a failure that did not happen.
+        toastError(t("platform.clinic.refresh_failed", {
+          defaultValue: "Saved, but the page could not be refreshed.",
+        }));
+        return;
+      }
       // A raw API error code — `server_error` — is not a message for a
       // human, and every sibling screen shows a translated one. Keep only
       // the distinction the operator can act on: a clinic that is not in
       // the registry, versus a request that failed.
       setError(e instanceof PlatformError && e.status === 404 ? "not_found" : "load_error");
     }
-  }, [params.id]);
+  }, [params.id, t, toastError]);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,7 +80,7 @@ export default function PlatformClinicDetailPage() {
     try {
       await platformPut(`/api/platform/clinics/${clinic.tenantId}/evaluations`, { disabled: next });
       success(t("platform.clinic.evaluations_saved", { defaultValue: "Evaluation access updated." }));
-      await load();
+      await load(true);
     } catch {
       toastError(t("platform.clinic.save_failed", { defaultValue: "Could not save." }));
     } finally {
@@ -86,7 +94,7 @@ export default function PlatformClinicDetailPage() {
     try {
       await platformUpload(`/api/platform/clinics/${clinic.tenantId}/branding`, file);
       success(t("platform.clinic.branding_saved", { defaultValue: "Branding updated." }));
-      await load();
+      await load(true);
     } catch {
       toastError(t("platform.clinic.save_failed", { defaultValue: "Could not save." }));
     } finally {
@@ -101,7 +109,7 @@ export default function PlatformClinicDetailPage() {
     try {
       await platformDelete(`/api/platform/clinics/${clinic.tenantId}/branding`);
       success(t("platform.clinic.branding_saved", { defaultValue: "Branding updated." }));
-      await load();
+      await load(true);
     } catch {
       toastError(t("platform.clinic.save_failed", { defaultValue: "Could not save." }));
     } finally {
@@ -152,7 +160,7 @@ export default function PlatformClinicDetailPage() {
         <h3 className="font-semibold mb-2 text-neutral-900 dark:text-white">
           {t("platform.clinic.licence", { defaultValue: "Licence" })}
         </h3>
-        <LicenceEditor tenantId={clinic.tenantId} value={clinic.licence} onSaved={load} />
+        <LicenceEditor tenantId={clinic.tenantId} value={clinic.licence} onSaved={() => { void load(true); }} />
       </section>
 
       <section className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">

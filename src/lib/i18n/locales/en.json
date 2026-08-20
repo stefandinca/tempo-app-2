@@ -2683,7 +2683,8 @@
       "save_failed": "Could not save.",
       "staff": "Staff",
       "not_found": "Clinic not found.",
-      "load_error": "Could not load this clinic."
+      "load_error": "Could not load this clinic.",
+      "refresh_failed": "Saved, but the page could not be refreshed."
     },
     "bug_reports": {
       "report": "Report",
@@ -2708,7 +2709,7 @@
       "save_failed": "Could not save the licence.",
       "not_mirrored": "Saved, but not yet enforced on the clinic. Check Health.",
       "past_expiry_title": "Expiry date is in the past",
-      "past_expiry_message": "Staff at this clinic will become read-only as soon as this saves. Continue?",
+      "past_expiry_message": "Staff at this clinic are already past their grace period ({{date}}) and will be read-only as soon as this saves. Continue?",
       "past_expiry_confirm": "Save anyway"
     },
     "leads": {

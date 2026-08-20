@@ -176,11 +176,11 @@ export default function PlatformLeadsPage() {
           </button>
         ))}
       </div>
-      {!loadError && total > leads.length && (
+      {!loadError && source === "all" && total > leads.length && (
         <p className="text-xs text-neutral-500">
           {t("platform.truncated", {
             defaultValue: "Showing the {{shown}} most recent of {{total}}.",
-            shown: leads.length,
+            shown: filtered.length,
             total,
           })}
         </p>

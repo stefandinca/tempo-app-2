@@ -21,12 +21,14 @@ export interface LicenceValue {
  * inputs disappear for a lifetime one rather than sitting there disabled and
  * inviting the question of whether they still apply.
  *
- * A past expiry date is a legitimate way to force an immediate freeze, but a
- * mistyped year reads identically to that intent at the API layer — the
- * mirror enforces it the moment it lands, and that clinic's staff go
- * read-only right away. So a term licence whose chosen expiry is already in
- * the past requires an explicit confirmation naming that consequence before
- * it saves; a future expiry saves without ceremony.
+ * A past expiry date is a legitimate way to force a freeze, but a mistyped
+ * year reads identically to that intent at the API layer. Enforcement is
+ * against the grace end, not the expiry itself — `graceEndsAtMillis` in
+ * `src/lib/platform/licence.ts` — so staff only go read-only once that later
+ * date has passed. A term licence whose expiry *plus grace* is already
+ * behind it requires an explicit confirmation naming that consequence before
+ * it saves; anything still inside its grace period, or in the future, saves
+ * without ceremony.
  */
 export default function LicenceEditor({
   tenantId,
@@ -76,13 +78,20 @@ export default function LicenceEditor({
   }
 
   function save() {
-    const isPast = plan === "term" && !!expiresAt && new Date(expiresAt).getTime() < Date.now();
-    if (isPast) {
+    // `graceDays` is a string in state and can be mid-edit empty; `|| 0`
+    // makes an empty box mean "no grace", the conservative reading — it
+    // fires the confirm more often, never less.
+    const graceMs = (Number(graceDays) || 0) * 86400000;
+    const frozenAlready =
+      plan === "term" && !!expiresAt && new Date(expiresAt).getTime() + graceMs < Date.now();
+    if (frozenAlready) {
+      const graceEndDate = new Date(new Date(expiresAt).getTime() + graceMs).toLocaleDateString();
       confirm({
         title: t("platform.licence.past_expiry_title", { defaultValue: "Expiry date is in the past" }),
         message: t("platform.licence.past_expiry_message", {
           defaultValue:
-            "Staff at this clinic will become read-only as soon as this saves. Continue?",
+            "Staff at this clinic are already past their grace period ({{date}}) and will be read-only as soon as this saves. Continue?",
+          date: graceEndDate,
         }),
         confirmLabel: t("platform.licence.past_expiry_confirm", { defaultValue: "Save anyway" }),
         variant: "danger",
