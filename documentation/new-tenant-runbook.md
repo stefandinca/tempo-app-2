@@ -133,7 +133,36 @@ firebase deploy --only storage --project tempo-app-2
 > exist. Deploying them first locks the clinic out of every document, video and
 > voice note it has.
 
-## 5. Point the hostname at the platform
+## 5. Set the licence
+
+A new clinic has neither `tenants/<label>.licence` nor its
+`system_settings/licence` mirror, and §29.6 of the technical documentation
+explains why that means *unrestricted, not broken*: `licenceActive()` fails
+open, so a clinic with neither document never hits a single one of the 38
+staff-write gates it would otherwise be subject to. Nothing else in this
+runbook, or in the app, will ever prompt anyone to come back and set one — a
+clinic left here runs unrestricted forever, which is the fail-open default
+working exactly as designed and exactly not as intended.
+
+Set one now, while `tenants/<label>` already exists from step 4 — both
+writers below require it — and before the clinic is handed to anyone:
+
+- **From the console** — the normal path for a single new clinic. Sign in as
+  Superadmin on `superadmin.tempoapp.ro`, open `/platform/clinics/<label>`,
+  and use the Licence panel: pick a plan, an expiry (or none, for lifetime),
+  and a grace period — 14 days unless there is a reason for something else —
+  then save. The registry write and the clinic's mirror write both happen
+  server-side, in that order, from one click.
+- **From `scripts/set-licences.mjs`** — the bulk path. Add the new clinic's
+  row to the `LICENCES` table at the top of the script and re-run it,
+  `--dry-run` first and then `--yes`. Useful when licensing several clinics
+  at once, or when the licence should be reproducible from a committed file
+  rather than a one-off console click.
+
+Either way, confirm it landed on `/platform/health`: this clinic should show
+a licence present and "Licence in sync" true.
+
+## 6. Point the hostname at the platform
 
 Add the domain to the **`tempo-app-2`** Vercel project (not a new one):
 
@@ -165,7 +194,7 @@ project and never given a record of its own — served a Let's Encrypt certifica
 whose only SAN is `aicaa.tempoapp.ro`, within minutes and with no registrar
 involvement.
 
-## 6. Give the clinic its Mira key
+## 7. Give the clinic its Mira key
 
 Each clinic pays for its own usage, so each gets its own Anthropic key. On the
 `tempo-app-2` Vercel project add:
@@ -179,7 +208,7 @@ deployment cannot see a variable added after it built, and the symptom is
 identical to a wrong key. Without one, Mira answers `ai_unavailable` and the rest
 of the app is unaffected.
 
-## 7. Brand it and set what they bought
+## 8. Brand it and set what they bought
 
 Sign in as Superadmin **on the clinic's own subdomain**:
 
@@ -239,3 +268,7 @@ Use a test client, never a real child.
   `scripts/deploy-rules.mjs`.
 - **Reusing a label that differs from the hostname.** Everything is derived from
   the hostname; a mismatch is a clinic staring at an empty app.
+- **Skipping step 5.** A clinic with no licence document isn't broken — it's
+  unrestricted, silently and indefinitely, because `licenceActive()` fails
+  open. Nothing surfaces the omission later; check `/platform/health` before
+  handing the clinic over.

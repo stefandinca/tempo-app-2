@@ -1926,6 +1926,162 @@ happen to live in a database that is also a clinic's. `BUG_REPORT_DATABASE`
 and `LEADS_DATABASE` are pinned string constants for exactly that reason —
 not a lookup that could drift if `clinic-demo` were ever renamed or retired.
 
+## 29.6 The licence: two records, one write order, and why it fails open
+
+A clinic's licence is not one document but two, written in a fixed order.
+`tenants/{id}.licence` in the control plane (the `(default)` database) is the
+source of truth; `system_settings/licence` in the clinic's own database is a
+mirror of it. The mirror exists because Firestore rules cannot read another
+database — `get(/databases/$(database)/...)` always binds to whichever
+database the request landed on, so a rule evaluating inside
+`clinic-diaconumaria` has no way to consult `(default)`. Duplicating the
+record is the only way for that clinic's own rules to see it at all.
+
+Exactly two things write it, and both write registry first, mirror second:
+the console's `PUT /api/platform/clinics/[id]/licence`
+(`src/app/api/platform/clinics/[id]/licence/route.ts`, one clinic at a time,
+Superadmin, from the browser) and `scripts/set-licences.mjs` (all four
+clinics, bulk, refuses to run without `--yes`). Both call the same
+`buildLicence`/`licenceMirror` pair in `src/lib/platform/licence.ts` rather
+than recomputing the arithmetic, so the two paths can never compute two
+different answers for the same clinic. Registry first matters because a
+mirror failure after a successful registry write leaves the clinic
+unrestricted — the console shows a licence that isn't enforced yet, and
+re-running the write is what fixes it. The reverse order would risk the
+opposite: a clinic frozen by a mirror the console cannot see or undo.
+
+Of the fields on a licence, only `graceEndsAtMillis` is load-bearing — it's
+the one value `firestore.rules` actually compares against. `plan`,
+`expiresAt` and `updatedAt` are mirrored too, but only for the console and
+the Health screen to display; nothing in the rules reads them. It's computed
+once, at write time:
+
+```
+graceEndsAtMillis = Date.parse(expiresAt) + graceDays * 86400000
+```
+
+— epoch milliseconds rather than a date, specifically so the rule can compare
+it against `request.time.toMillis()` with no date parsing and no timezone
+question. A lifetime licence stores `graceEndsAtMillis: null`, and `null`
+means unrestricted forever, in the rule as much as in the maths. The default
+grace period, on both writers, is 14 days (`DEFAULT_GRACE_DAYS` in
+`src/lib/platform/licence.ts`); either can override it per clinic.
+
+It fails open, on purpose. `licenceActive()` in `firestore.rules` reads:
+
+```
+!exists(/databases/$(database)/documents/system_settings/licence)
+  || get(...).data.get('graceEndsAtMillis', null) == null
+  || request.time.toMillis() < get(...).data.graceEndsAtMillis
+```
+
+The `!exists(...)` clause runs first and short-circuits before either `get()`
+does. A clinic with no `system_settings/licence` document at all is
+unrestricted — not because that is a safe default in the abstract, but
+because these rules deploy to every database at once while the mirrors are
+written per clinic afterwards, and fail-closed would freeze every clinic for
+the length of that gap. The same clause covers a document that exists but
+carries no `graceEndsAtMillis`: `.get('graceEndsAtMillis', null)` treats a
+malformed or partial mirror exactly like no mirror at all.
+
+The Health screen (`/platform/health`) makes that gap visible instead of
+inferred: a "Licence in sync" column compares the registry's
+`graceEndsAtMillis` against the mirror's. `undefined` — no `licence` field on
+the registry document — is kept distinct from `null` — a licence that was
+recorded, and is a deliberate lifetime grant — because both are unrestricted
+at runtime but only one of them means nobody has set a licence yet. Both
+absent counts as "in sync": that is the state every new clinic starts in, and
+it is not drift. An unreachable clinic database is reported as out of sync
+rather than compared, because reporting a clinic Health could not even read
+as "fine" would be the one wrong answer available.
+
+## 29.7 What `licenceActive()` gates, and what it deliberately does not
+
+`licenceActive()` is appended to 38 `allow create` / `update` / `delete` /
+`write` clauses across `firestore.rules` — every staff write to clinical,
+scheduling and financial data: `clients`, the admin branch of
+`team_members`, `team_public`, `client_codes`, `events`, `services`,
+`programs`, `invoices`, `payouts`, `expenses`, `recurring_expenses`, all five
+evaluation subcollections, `interventionPlans`, `documents`, session
+`videos`, `voiceFeedback`, `reports`, and the staff side of `homework`. The
+`&&` binds across the whole `allow` expression in every one of those clauses,
+roles included, so past the grace deadline none of the four staff roles —
+Superadmin included — writes through any of them. Recovery doesn't depend on
+any of the 38: the console's own licence write goes through the Admin SDK,
+which bypasses Firestore rules entirely, and the one rule that would matter
+if a Superadmin ever needed to write `system_settings/licence` from a
+browser session is exempt from `licenceActive()` by design (§29.8).
+
+Several write paths are deliberately left ungated, and the reasoning isn't
+the same reasoning twice:
+
+| Not gated | Why |
+| --- | --- |
+| Every read, without exception | A billing lapse must not become an outage on a child's clinical record. |
+| `activities` (the audit log) | An audit trail must not gain holes at exactly the moment — a billing dispute — when it is most likely to be read closely. |
+| `homework`'s parent-completion branch, `threads`/`messages`, `notifications`, `user_consents` | A parent has no relationship with our invoice. Ticking off homework, messaging a therapist and recording consent must keep working past a lapse that is entirely between us and the clinic. |
+| `team_members`'s self-update branch | Someone editing their own profile is not the clinic buying anything, and locking a person out of their own record would be a strange thing for an unpaid invoice to do. |
+| `system_settings` | Gating it would stop us fixing the very licence that is blocking them — see §29.8. |
+
+## 29.8 Two vulnerabilities the licence review closed, 21 Aug 2026
+
+Making `system_settings/licence` load-bearing turned two pre-existing gaps
+into something worth fixing immediately rather than eventually. Both shipped
+to all four clinics on 21 Aug 2026.
+
+`system_settings/{settingId}` had a single write rule — `isAdmin()`, for
+every document in the collection. `licence` fell through to it like any
+other setting, but `licenceActive()` fails open on an absent or malformed
+document, so an Admin at an expired clinic could simply delete
+`system_settings/licence`, or push `graceEndsAtMillis` forward into the next
+century, and lift all 38 gates at their own clinic in one write. The fix
+splits the rule by document id: `licence`, `branding` and
+`evaluation_access` now require `isSuperadmin()`; every other document in the
+collection stays `isAdmin()`. This costs the platform nothing operationally
+— the console itself writes the licence with the Admin SDK, which bypasses
+these rules entirely.
+
+The second was older, and related to the licence work only in how it was
+found. The self-update branch of `team_members/{memberId}` — the clause that
+lets a signed-in user edit their own document without being an Admin —
+placed no restriction on which fields that write could touch. Any Therapist
+could call `updateDoc` on their own document with `{ role: "superadmin" }`;
+`hasRole()` accepts the lowercase form, so `isSuperadmin()` would then return
+true for them, handing them a live clinic holding real children's clinical
+records. That clause was byte-identical before any of the licence-gate work
+began — it had been live in all four clinics for as long as the self-branch
+existed, and surfaced only because reviewing every new `licenceActive()`
+clause meant reading this one closely for the first time. The fix is a
+denylist of exactly the two fields that grant access, `role` and `isActive`,
+rather than an allowlist of fields already known to be safe: self-writes are
+spread across the settings page (`photoURL`, `name`/`email`/`phone`/`color`,
+`language`), `NotificationPreferences` (`notificationPreferences`) and
+`AuthContext` (`inviteStatus`) — five call sites in total — and an allowlist
+built from today's search would silently break whichever one a future search
+missed. Naming only the two fields that grant access cannot break any of the
+other five. `weeklyCapacity` is deliberately left off the denylist: it is
+capacity planning, not access. The Admin path (`TeamMemberModal`, which does
+write `role` and `isActive`) is unaffected — it satisfies the `isAdmin()`
+branch of the same `allow update` before this branch is ever evaluated.
+
+## 29.9 The licences in force, 21 Aug 2026
+
+| Clinic | Plan | Expires | Writes actually stop |
+| --- | --- | --- | --- |
+| Live Better Life | lifetime | never | never |
+| Demo | lifetime | never | never |
+| Diaconu Maria | term | 20 Aug 2027 | 3 Sep 2027 |
+| Academia lui Alex | term | 20 Aug 2027 | 3 Sep 2027 |
+
+Set by `scripts/set-licences.mjs --project=tempo-app-2 --yes`, which holds
+the same four rows as a literal table at the top of the file. Diaconu Maria
+and Academia lui Alex expire twelve months from onboarding, with the
+fourteen-day default grace pushing the actual write freeze to 3 Sep 2027.
+Every date here is editable per clinic from `superadmin.tempoapp.ro` through
+the `LicenceEditor` panel described in 29.6 — this is a starting position,
+not a commitment, and none of the four clinics is within a year of it
+mattering.
+
 ---
 
 # Appendix A: Command Palette Commands
