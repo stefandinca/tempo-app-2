@@ -108,7 +108,6 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
   }, [isOpen, memberToEdit]);
 
   const isAdmin = userRole === 'Admin' || userRole === 'Superadmin';
-  const isEditingSelf = authUser?.uid === memberToEdit?.id;
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -467,7 +466,7 @@ export default function TeamMemberModal({ isOpen, onClose, memberToEdit }: TeamM
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                 <select
-                  disabled={!isAdmin && !isEditingSelf}
+                  disabled={!isAdmin}
                   className="w-full pl-10 pr-3 py-2 bg-neutral-100 dark:bg-neutral-800 border-transparent rounded-lg focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
                   value={formData.roleLabel}
                   onChange={e => setFormData({...formData, roleLabel: e.target.value})}
