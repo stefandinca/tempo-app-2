@@ -44,6 +44,7 @@ export default function PlatformLeadsPage() {
       rows={leads}
       columns={columns}
       loading={loading}
+      getRowId={(l) => l.id}
       empty={t("platform.leads.empty", { defaultValue: "No leads yet." })}
     />
   );
