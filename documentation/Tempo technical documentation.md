@@ -300,6 +300,20 @@ export const storage = getStorage(app);
 
 ## 4.2 Firestore Collections Schema
 
+> ⚠️ **Timestamp fields hold two different types.** Anything the app wrote is a
+> Firestore `Timestamp`. Almost everything older is an **ISO string**, because
+> the tenant migration round-tripped every document through the REST helper in
+> `scripts/demo-seed/firestore.mjs`, which decodes `timestampValue` to a plain
+> string and re-encodes it as `stringValue`. Measured on Live Better Life: 298
+> of 300 activities, 44 of 44 threads, and every migrated event, invoice and
+> document.
+>
+> Ordering is unaffected — ISO strings sort identically — so this is invisible
+> in queries and only ever wrong on screen. **Never call `.toDate()` directly.**
+> Use `toDateOrNull` / `toISO` / `toMillis` from `src/lib/timestamps.ts`, which
+> accept either shape. `value?.toDate()` guards the field being absent, not the
+> method being missing, and threw on every migrated row.
+
 ### `team_members/{uid}`
 
 | Field | Type | Description |
@@ -364,26 +378,32 @@ Lookup collection for parent login. Document ID is the uppercased access code; k
 | title | string | Event title |
 | startTime | string (ISO) | Start date/time |
 | duration | number | Duration in minutes |
-| eventType | string | Service ID |
+| type | string | Service ID. **Not** `eventType` — the form field is called that, but it is written as `type` |
 | clientId | string | Primary client ID (used by security rules and queries) |
 | clientIds | string[] | All assigned client IDs |
 | therapistId | string | Primary therapist ID (used by security rules) |
 | teamMemberIds | string[] | All assigned team member IDs |
-| programs | ProgramEntry[] | Programs with scores (minus, zero, prompted, plus) and notes |
+| programIds | string[] | Programs assigned to the session |
+| programScores | Record | Per-program scores (minus, zero, prompted, plus) |
+| programNotes | Record | Per-program notes |
+| objectiveNotes | Record | Per-objective notes |
+| endTime | string (ISO) | End date/time |
+| details | string | Free-text notes |
 | attendance | Record | Client attendance: "present" / "absent" / "excused" |
 | status | string | "scheduled" / "completed" / "cancelled" |
-| isRecurring | boolean | Recurring flag |
-| recurringEndDate | Timestamp | Recurrence end date |
-| createdAt | Timestamp | Creation date |
+| recurringGroupId | string \| null | Groups the occurrences of one recurring series |
+| createdAt | Timestamp \| string | Creation date — see the timestamp note below |
 
 ### `services/{serviceId}`
 
 | Field | Type | Description |
 | --- | --- | --- |
-| name | string | Service name |
-| description | string | Service description |
-| hourlyRate | number | Hourly billing rate |
-| color | string | Calendar color |
+| id | string | Matches the document id, and `events.type` |
+| label | string | Display name — **not** `name` |
+| basePrice | number | Price per hour — **not** `hourlyRate` |
+| isBillable | boolean | False for lunch breaks and days off; excluded from invoices |
+| requiresTime | boolean | Whether a duration is meaningful |
+| color | string | Calendar colour (seeded clinics only; absent on older records) |
 
 ### `invoices/{invoiceId}`
 
@@ -444,13 +464,18 @@ Lookup collection for parent login. Document ID is the uppercased access code; k
 
 | Field | Type | Description |
 | --- | --- | --- |
-| userId | string | Target user |
-| type | NotificationType | Category |
+| recipientId | string | Target user — **not** `userId` |
+| recipientRole | string | Role at the time of sending |
+| type | NotificationType | e.g. `schedule_created`, `attendance_logged` |
+| category | NotificationCategory | `schedule` / `attendance` / `billing` / … |
 | title | string | Notification title |
-| body | string | Notification body |
+| message | string | Notification body — **not** `body` |
 | read | boolean | Read status |
-| actionUrl | string | Deep link URL |
-| createdAt | Timestamp | Creation date |
+| actions | Action[] | `{ label, route, type }`; the push trigger reads `actions[0].route` — there is no `actionUrl` |
+| clientId | string | Set on parent-facing notifications; drives the rules |
+| sourceType / sourceId | string | What produced it |
+| triggeredBy | string | Who caused it |
+| createdAt | Timestamp \| string | Creation date — see the timestamp note below |
 
 ### `threads/{threadId}`
 
@@ -1467,7 +1492,7 @@ Onboarding a new clinic: `documentation/new-tenant-runbook.md`.
 | --- | --- | --- | --- |
 | H6 | High | `useCollections` hook exhaustive deps warning | Intentionally suppressed to avoid infinite loops |
 | M5/M6/M7 | Medium | ~~Context providers don't memoize values~~ — **partly fixed**: `AuthContext` and `DataContext` now use `useMemo`. `ParentAuthContext` still builds its value inline | Remaining work is `ParentAuthContext` only |
-| M9 | Medium | Inconsistent timestamps (serverTimestamp vs toISOString) | New code should use `serverTimestamp()`. Note the seeder and several existing paths write ISO strings, so readers must handle both |
+| M9 | Medium | Timestamp fields hold both `Timestamp` and ISO string — the migration flattened the historical ones (§4.2) | New code writes `serverTimestamp()`; readers must go through `src/lib/timestamps.ts`, which takes either. Covered by `npm run test:timestamps` |
 | — | Medium | Deterministic thread ids (`thread_{uidA}_{uidB}`) plus `allow get` on `threads` leave thread metadata and `lastMessage` previews reachable by id | Message bodies are still protected by the participants check. The staff-roster half of this is fixed — see below |
 | — | Medium | The parent access-code lockout (5 attempts / 60s) is enforced only in React state in `src/app/parent/page.tsx`; `client_codes` allows `get` to any signed-in user | Enumeration is blocked (`list` is staff-only), but brute force via the SDK bypasses the UI limit |
 | — | Low | Image optimization disabled | Using `<img>` instead of `<Image>` |

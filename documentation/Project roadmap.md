@@ -289,7 +289,7 @@ that was to replace it are both retired; the plan for the latter is in
 
 | Item | Impact | Status |
 | --- | --- | --- |
-| Fix hardcoded dashboard metrics (attendance %, trends) | Critical — data integrity | To do |
+| ~~Fix hardcoded dashboard metrics (attendance %, trends)~~ | Critical — data integrity | Done — the dashboard now renders `—` rather than inventing a trend, and `useAnalyticsData` computes real rates |
 | Increase touch targets to 44x44px minimum | Accessibility compliance | To do |
 | Add focus ring indicators on interactive elements | Keyboard navigation | To do |
 | Add inline form validation (error text below fields) | UX — form usability | To do |
