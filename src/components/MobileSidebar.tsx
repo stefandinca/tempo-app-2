@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ClinicBrand } from "@/components/ClinicLogo";
+import ReportBugModal from "@/components/ReportBugModal";
 import { usePathname } from "next/navigation";
 import { 
   LayoutDashboard, 
@@ -14,7 +16,8 @@ import {
   Briefcase,
   MessageSquare,
   X,
-  Search
+  Search,
+  Bug
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useNotifications } from "@/context/NotificationContext";
@@ -46,6 +49,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
   const { t } = useTranslation();
   const { unreadMessageCount } = useNotifications();
   const { open: openCommandPalette } = useCommandPalette();
+  const [bugOpen, setBugOpen] = useState(false);
 
   return (
     <>
@@ -144,8 +148,26 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
               </Link>
             );
           })}
+
+          {/* Support. Closing the drawer first would unmount the modal if the
+              drawer unmounted when closed — it does not, it slides, so the
+              modal below stays mounted and simply rises above it. */}
+          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+            <button
+              onClick={() => {
+                onClose();
+                setBugOpen(true);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
+            >
+              <Bug className="w-5 h-5" />
+              <span>{t('report_bug.button')}</span>
+            </button>
+          </div>
         </nav>
       </aside>
+
+      <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
     </>
   );
 }
