@@ -38,6 +38,16 @@ export default function DataTable<T>({
    */
   error?: string | null;
   loading?: boolean;
+  /**
+   * Optional convenience: clicking anywhere in the row navigates. This is a
+   * MOUSE-ONLY shortcut. `<tr>` cannot carry `role="button"` without
+   * overriding the table's implicit row semantics for screen readers, so
+   * keyboard and screen-reader access come from a real `<Link>`/`<a>` the
+   * caller renders in the first meaningful cell's `render` — not from the
+   * row itself. The row's click handler ignores clicks that land on that
+   * anchor, so the anchor's own navigation does not also fire and push a
+   * duplicate history entry.
+   */
   onRowClick?: (row: T) => void;
   /**
    * A row's identity is the caller's business, not the table's — requiring an
@@ -93,25 +103,21 @@ export default function DataTable<T>({
             return (
               <tr
                 key={key}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
-                onKeyDown={
+                onClick={
                   onRowClick
                     ? (e) => {
-                        if (e.key === "Enter") {
-                          onRowClick(row);
-                        } else if (e.key === " ") {
-                          e.preventDefault();
-                          onRowClick(row);
-                        }
+                        // The caller's first cell renders a real anchor for this
+                        // same navigation; when the click landed there, let its
+                        // own handler do the work instead of also firing this
+                        // one and pushing a duplicate history entry.
+                        if ((e.target as HTMLElement).closest("a")) return;
+                        onRowClick(row);
                       }
                     : undefined
                 }
-                tabIndex={onRowClick ? 0 : undefined}
-                role={onRowClick ? "button" : undefined}
                 className={clsx(
                   "border-b last:border-0 border-neutral-100 dark:border-neutral-800/60",
-                  onRowClick &&
-                    "cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset",
+                  onRowClick && "cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800/40",
                 )}
               >
                 {columns.map((c) => (

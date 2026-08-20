@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { platformGet } from "@/lib/platform/clientApi";
 import type { ClinicSummary } from "@/lib/platform/types";
@@ -33,7 +34,15 @@ export default function PlatformClinicsPage() {
       header: t("platform.clinics.name", { defaultValue: "Clinic" }),
       render: (c) => (
         <div>
-          <p className="font-semibold">{c.name}</p>
+          {/* The table row is a mouse-only click shortcut (see DataTable's
+              onRowClick doc); this Link is the real, keyboard- and
+              screen-reader-accessible way to reach the clinic. */}
+          <Link
+            href={`/platform/clinics/${c.tenantId}`}
+            className="font-semibold hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-sm"
+          >
+            {c.name}
+          </Link>
           <p className="text-xs text-neutral-500">{c.host}</p>
         </div>
       ),
