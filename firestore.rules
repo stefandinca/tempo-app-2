@@ -207,8 +207,22 @@ service cloud.firestore {
       allow read: if settingId == 'branding';
       allow read: if isAdmin() || isCoordinator() || isTherapist();
       // An Admin runs the clinic, but does not decide what the clinic bought,
-      // nor how it is branded — both are ours to set.
-      allow write: if (settingId == 'evaluation_access' || settingId == 'branding')
+      // nor how it is branded, nor what its licence says — all three are ours
+      // to set. The licence is the one with teeth: every gate in this file
+      // reads system_settings/licence, and licenceActive() fails OPEN on a
+      // missing document, so an Admin able to write it could simply delete it
+      // and lift every gate at their own expired clinic.
+      //
+      // Deliberately NOT licence-gated. system_settings has to stay writable
+      // while a clinic is expired, or fixing the licence that is blocking them
+      // would require the licence that is blocking them. This clause decides
+      // WHO may write, not whether a licence is required in order to write —
+      // keep those two apart.
+      //
+      // Costs us nothing: the platform console writes the licence with the
+      // Admin SDK (src/app/api/platform/clinics/[id]/licence/route.ts), which
+      // bypasses these rules entirely.
+      allow write: if (settingId == 'evaluation_access' || settingId == 'branding' || settingId == 'licence')
                      ? isSuperadmin()
                      : isAdmin();
     }

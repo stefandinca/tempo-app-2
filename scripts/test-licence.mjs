@@ -160,6 +160,36 @@ const rulesCases = [
     { uid: "t1" }, [...member("t1", "Therapist"), ...EXPIRED],
     { clientId: "c1", therapistId: "t1", notes: "x" }, { clientId: "c1", therapistId: "t1" }],
 
+  // --- A LIVE LICENCE LETS THE WORK THROUGH ---
+  // The deny-while-expired direction below is the easy half. These assert the
+  // other one, and they are the ones to be afraid of: everything else's
+  // allow-direction rides on test-rules.mjs, which mocks the licence ABSENT.
+  // Without these, a regression making licenceActive() return false for a
+  // perfectly valid in-term licence — freezing all four clinics at once —
+  // would still show green.
+  ["licence live — admin updates a client", "ALLOW", "update", `${D}/clients/c1`,
+    { uid: "a1" }, [...member("a1", "Admin"), ...LIVE], { name: "Y" }, { name: "X" }],
+  ["licence live — staff writes an ABLLS-R evaluation", "ALLOW", "create", `${D}/clients/c1/evaluations/e1`,
+    { uid: "t1" }, [...member("t1", "Therapist"), ...evalAccess(null), ...LIVE], { scores: {} }],
+
+  // --- THE LICENCE DOCUMENT IS OURS, NOT THE CLINIC'S ---
+  // Every gate in firestore.rules reads system_settings/licence, and
+  // licenceActive() fails OPEN on a missing document — so an Admin able to
+  // write it could delete it, or push graceEndsAtMillis to 2099, and lift all
+  // of them at their own expired clinic.
+  ["expired — an Admin cannot rewrite the licence", "DENY", "update", `${D}/system_settings/licence`,
+    { uid: "a1" }, [...member("a1", "Admin"), ...EXPIRED],
+    { plan: "term", graceEndsAtMillis: 4102444800000 }, { plan: "term", graceEndsAtMillis: NOW_MS - 86400000 }],
+  ["expired — an Admin cannot delete the licence", "DENY", "delete", `${D}/system_settings/licence`,
+    { uid: "a1" }, [...member("a1", "Admin"), ...EXPIRED],
+    null, { plan: "term", graceEndsAtMillis: NOW_MS - 86400000 }],
+  // The un-expire path. system_settings is NOT licence-gated on purpose: if it
+  // were, fixing the licence that blocks a clinic would need the licence that
+  // blocks them, and an expired clinic would be one we could not revive.
+  ["expired — a Superadmin may still write the licence", "ALLOW", "update", `${D}/system_settings/licence`,
+    { uid: "s1" }, [...member("s1", "Superadmin"), ...EXPIRED],
+    { plan: "term", graceEndsAtMillis: NOW_MS + 86400000 }, { plan: "term", graceEndsAtMillis: NOW_MS - 86400000 }],
+
   // --- READS ARE NEVER GATED ---
   ["grace elapsed — therapist READS an event", "ALLOW", "get", `${D}/events/e1`,
     { uid: "t1" }, [...member("t1", "Therapist"), ...EXPIRED], null, { clientId: "c1", therapistId: "t1" }],
