@@ -81,6 +81,16 @@ const DATABASE_CASES = [
   ["UPPER_SCORE.tempoapp.ro", DEFAULT_DATABASE_ID],
   ["a.tempoapp.ro", DEFAULT_DATABASE_ID],               // one character fails the pattern
   [`${"x".repeat(60)}.tempoapp.ro`, DEFAULT_DATABASE_ID], // too long for a database id
+
+  // A lookalike domain must not select a clinic. Matching on the first label
+  // alone accepted every one of these, because it never checked what the host
+  // actually ENDED with — the exact failure this file's header warns about.
+  ["diaconumaria.tempoapp.ro.evil.com", DEFAULT_DATABASE_ID],
+  ["diaconumaria.evil.com", DEFAULT_DATABASE_ID],
+  ["diaconumaria.tempoapp.com", DEFAULT_DATABASE_ID],
+  ["diaconumaria.tempoapp.ro.uk", DEFAULT_DATABASE_ID],
+  ["evil.diaconumaria.tempoapp.ro", DEFAULT_DATABASE_ID],  // a deeper subdomain is not a clinic
+  ["diaconumaria.tempoapp.ro.evil.com:443", DEFAULT_DATABASE_ID], // nor with a port
 ];
 
 for (const [host, expected] of DATABASE_CASES) {

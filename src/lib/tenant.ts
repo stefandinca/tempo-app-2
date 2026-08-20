@@ -53,9 +53,19 @@ export function resolveDatabaseId(hostname: string): string {
     return DEFAULT_DATABASE_ID;
   }
 
-  // A clinic host is <label>.tempoapp.ro — three labels. Fewer means the apex.
+  // A clinic host is EXACTLY <label>.tempoapp.ro.
+  //
+  // Counting labels is not enough. `parts.length >= 3` accepted any domain
+  // whose FIRST label happened to match a clinic, so both
+  // `diaconumaria.tempoapp.ro.evil.com` and `diaconumaria.anything.com`
+  // resolved to clinic-diaconumaria. Vercel only routes hosts configured on
+  // the project, so this was not reachable in production — but this function
+  // picks the database, the storage bucket AND the per-clinic API key, and a
+  // boundary that load-bearing should not depend on a routing layer to hold.
   const parts = host.split(".");
-  if (parts.length < 3) return DEFAULT_DATABASE_ID;
+  if (parts.length !== 3 || parts[1] !== "tempoapp" || parts[2] !== "ro") {
+    return DEFAULT_DATABASE_ID;
+  }
 
   const label = parts[0];
   if (RESERVED.has(label)) return DEFAULT_DATABASE_ID;
