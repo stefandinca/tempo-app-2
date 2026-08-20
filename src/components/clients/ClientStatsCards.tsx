@@ -8,6 +8,7 @@ import { setClientCode } from "@/lib/clientCodeSync";
 import { useToast } from "@/context/ToastContext";
 import { useClientEvents } from "@/hooks/useCollections";
 import { useClientEvaluations } from "@/hooks/useEvaluations";
+import { useEvaluationAccess } from "@/components/settings/EvaluationAccessTab";
 import { useChatActions } from "@/hooks/useChat";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -24,6 +25,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
   const { createOrGetThread } = useChatActions();
   const { data: events, loading: eventsLoading } = useClientEvents(client.id);
   const { evaluations, loading: evaluationsLoading } = useClientEvaluations(client.id);
+  const evalAccess = useEvaluationAccess();
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [isStartingChat, setIsStartingChat] = useState(false);
@@ -158,7 +160,10 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
         </div>
       </div>
 
-      {/* 3. Latest Assessment Card */}
+      {/* 3. Latest Assessment Card — omitted entirely when the clinic has no
+             protocols. Its reads are denied by rules, so it could only render an
+             empty shell pointing at a tab that says "coming soon". */}
+      {!evalAccess.allDisabled && (
       <div className="bg-white dark:bg-neutral-900 p-3 lg:p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
         <div className="flex items-center gap-3 mb-2 lg:mb-4">
           <div className="p-1.5 lg:p-2 rounded-lg bg-warning-50 dark:bg-warning-900/20 text-warning-600">
@@ -195,6 +200,7 @@ export default function ClientStatsCards({ client }: ClientStatsCardsProps) {
           )}
         </div>
       </div>
+      )}
 
     </div>
   );

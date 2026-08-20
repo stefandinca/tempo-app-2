@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useEvaluationAccess } from "@/components/settings/EvaluationAccessTab";
 import { BarChart2, TrendingUp, Award, BookOpen, ListChecks, FileText, Target, CheckCircle2, Circle, Clock, Flag } from "lucide-react";
 import { usePortalData, PortalLoading, PortalError } from "../PortalContext";
 import { useInterventionPlans, usePrograms as useAllPrograms } from "@/hooks/useCollections";
@@ -27,9 +28,17 @@ type Tab = "programs" | "evaluations" | "goals";
 export default function ParentProgressPage() {
   const { t } = useTranslation();
   const { data: client, sessions, programs, evaluations, loading, error } = usePortalData();
+  const evalAccess = useEvaluationAccess();
   const { data: interventionPlans, activePlan } = useInterventionPlans(client?.id || "");
   const { data: allPrograms } = useAllPrograms();
   const [activeTab, setActiveTab] = useState<Tab>("programs");
+
+  // Access loads asynchronously, so the tab can be on screen for a moment
+  // before the gate is known. If it is selected and then withdrawn, fall back
+  // rather than render an empty panel.
+  useEffect(() => {
+    if (evalAccess.allDisabled && activeTab === "evaluations") setActiveTab("programs");
+  }, [evalAccess.allDisabled, activeTab]);
   const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | VBMAPPEvaluation | null>(null);
 
   const previousEvaluation = useMemo(() => {
@@ -171,9 +180,13 @@ export default function ParentProgressPage() {
     );
   }
 
+  // A parent is shown nothing about evaluations when the clinic has none — not
+  // even "coming soon", which is a message for the clinic rather than a family.
   const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: "programs", label: t("parent_portal.progress.tabs.programs"), icon: ListChecks },
-    { key: "evaluations", label: t("parent_portal.progress.tabs.evaluations"), icon: FileText },
+    ...(evalAccess.allDisabled
+      ? []
+      : [{ key: "evaluations" as Tab, label: t("parent_portal.progress.tabs.evaluations"), icon: FileText }]),
     { key: "goals", label: t("parent_portal.progress.tabs.goals"), icon: Target },
   ];
 
