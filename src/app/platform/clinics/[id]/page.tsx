@@ -10,6 +10,15 @@ import type { ClinicDetail } from "@/lib/platform/types";
 
 const PROTOCOLS = ["ablls", "vbmapp", "portage", "cars", "carolina"];
 
+// Proper nouns, identical in English and Romanian — no t() needed.
+const PROTOCOL_LABELS: Record<string, string> = {
+  ablls: "ABLLS-R",
+  vbmapp: "VB-MAPP",
+  portage: "Portage",
+  cars: "CARS",
+  carolina: "Carolina",
+};
+
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex justify-between gap-4 py-2 border-b last:border-0 border-neutral-100 dark:border-neutral-800/60">
@@ -87,7 +96,7 @@ export default function PlatformClinicDetailPage() {
                     : "px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-400 dark:bg-neutral-800"
                 }
               >
-                {p}
+                {PROTOCOL_LABELS[p] || p}
               </span>
             );
           })}

@@ -22,6 +22,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!derived) return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
 
   try {
+    // Not guarded by .catch(): if the registry lookup itself fails, we do not
+    // know what clinic we are looking at, and 500 is the correct response.
     const registryDoc = await adminDb().collection("tenants").doc(params.id).get();
     if (!registryDoc.exists) return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
 
@@ -29,21 +31,27 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const databaseId = t.databaseId || derived;
     const db = adminDb(databaseId);
 
-    const [clients, events, staffSnap, evalSnap, brandingSnap, configSnap, licenceSnap] =
+    // Everything below reads the CLINIC's own database, which can be
+    // unreachable even when the registry (control plane) is fine. countOf()
+    // already degrades to 0 on failure; the raw .get() calls need the same
+    // treatment here so one broken clinic renders as zeros/empty/null
+    // instead of 500ing the whole page.
+    const [staffCount, clients, events, staffSnap, evalSnap, brandingSnap, configSnap, licenceSnap] =
       await Promise.all([
+        countOf(db, "team_members"),
         countOf(db, "clients"),
         countOf(db, "events"),
-        db.collection("team_members").limit(50).get(),
-        db.collection("system_settings").doc("evaluation_access").get(),
-        db.collection("system_settings").doc("branding").get(),
-        db.collection("system_settings").doc("config").get(),
-        db.collection("system_settings").doc("licence").get(),
+        db.collection("team_members").limit(50).get().catch(() => null),
+        db.collection("system_settings").doc("evaluation_access").get().catch(() => null),
+        db.collection("system_settings").doc("branding").get().catch(() => null),
+        db.collection("system_settings").doc("config").get().catch(() => null),
+        db.collection("system_settings").doc("licence").get().catch(() => null),
       ]);
 
-    const licence = licenceSnap.exists
+    const licence = licenceSnap?.exists
       ? (licenceSnap.data() as { plan?: string; expiresAt?: string | null })
       : null;
-    const config = configSnap.exists ? (configSnap.data() as Record<string, any>) : null;
+    const config = configSnap?.exists ? (configSnap.data() as Record<string, any>) : null;
     const entities = Array.isArray(config?.legalEntities) ? config!.legalEntities : [];
 
     const clinic: ClinicDetail = {
@@ -54,15 +62,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       status: t.status || "unknown",
       isDemo: !!t.isDemo,
       host: `${registryDoc.id}.tempoapp.ro`,
-      counts: { clients, staff: staffSnap.size, events },
+      counts: { clients, staff: staffCount, events },
       licence: licence ? { plan: licence.plan || "unknown", expiresAt: licence.expiresAt ?? null } : null,
-      disabledEvaluations: evalSnap.exists ? (evalSnap.data()?.disabled ?? []) : [],
-      brandingLogoUrl: brandingSnap.exists ? (brandingSnap.data()?.logoUrl ?? null) : null,
+      disabledEvaluations: evalSnap?.exists ? (evalSnap.data()?.disabled ?? []) : [],
+      brandingLogoUrl: brandingSnap?.exists ? (brandingSnap.data()?.logoUrl ?? null) : null,
       legalName: entities[0]?.name ?? null,
-      staff: staffSnap.docs.map((d) => {
-        const m = d.data() as Record<string, any>;
-        return { uid: d.id, name: m.name || "", role: m.role || "", email: m.email || "" };
-      }),
+      staff: staffSnap
+        ? staffSnap.docs.map((d) => {
+            const m = d.data() as Record<string, any>;
+            return { uid: d.id, name: m.name || "", role: m.role || "", email: m.email || "" };
+          })
+        : [],
     };
 
     return NextResponse.json({ clinic });
