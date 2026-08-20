@@ -21,12 +21,21 @@ export default function PlatformHealthPage() {
   const { error: toastError } = useToast();
   const [health, setHealth] = useState<ClinicHealth[]>([]);
   const [loading, setLoading] = useState(true);
+  // A toast is transient; this is not. On the screen whose entire job is
+  // telling you something is broken, a failed fetch must not fall through to
+  // "No clinics registered."
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     platformGet<{ health: ClinicHealth[] }>("/api/platform/health")
       .then((d) => { if (!cancelled) setHealth(d.health); })
-      .catch(() => { if (!cancelled) toastError(t("platform.load_failed", { defaultValue: "Could not load." })); })
+      .catch((e) => {
+        console.error("[platform/health] failed to load:", e);
+        if (cancelled) return;
+        setLoadError(t("platform.health.load_error", { defaultValue: "Could not load clinic health." }));
+        toastError(t("platform.load_failed", { defaultValue: "Could not load." }));
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,6 +70,7 @@ export default function PlatformHealthPage() {
       getRowId={(h) => h.tenantId}
       columns={columns}
       loading={loading}
+      error={loadError}
       empty={t("platform.health.empty", { defaultValue: "No clinics registered." })}
     />
   );

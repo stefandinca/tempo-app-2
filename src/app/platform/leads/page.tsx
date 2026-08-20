@@ -11,13 +11,26 @@ export default function PlatformLeadsPage() {
   const { t } = useTranslation();
   const { error: toastError } = useToast();
   const [leads, setLeads] = useState<Lead[]>([]);
+  // What the collection actually holds, which the query caps. Rendering the
+  // capped list on its own would read as the whole pipeline.
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    platformGet<{ leads: Lead[] }>("/api/platform/leads")
-      .then((d) => { if (!cancelled) setLeads(d.leads); })
-      .catch(() => { if (!cancelled) toastError(t("platform.load_failed", { defaultValue: "Could not load." })); })
+    platformGet<{ leads: Lead[]; total: number }>("/api/platform/leads")
+      .then((d) => {
+        if (cancelled) return;
+        setLeads(d.leads);
+        setTotal(d.total ?? d.leads.length);
+      })
+      .catch((e) => {
+        console.error("[platform/leads] failed to load:", e);
+        if (cancelled) return;
+        setLoadError(t("platform.leads.load_error", { defaultValue: "Could not load leads." }));
+        toastError(t("platform.load_failed", { defaultValue: "Could not load." }));
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,12 +53,24 @@ export default function PlatformLeadsPage() {
   ];
 
   return (
-    <DataTable
-      rows={leads}
-      columns={columns}
-      loading={loading}
-      getRowId={(l) => l.id}
-      empty={t("platform.leads.empty", { defaultValue: "No leads yet." })}
-    />
+    <div className="space-y-4">
+      {!loadError && total > leads.length && (
+        <p className="text-xs text-neutral-500">
+          {t("platform.truncated", {
+            defaultValue: "Showing the {{shown}} most recent of {{total}}.",
+            shown: leads.length,
+            total,
+          })}
+        </p>
+      )}
+      <DataTable
+        rows={leads}
+        columns={columns}
+        loading={loading}
+        error={loadError}
+        getRowId={(l) => l.id}
+        empty={t("platform.leads.empty", { defaultValue: "No leads yet." })}
+      />
+    </div>
   );
 }

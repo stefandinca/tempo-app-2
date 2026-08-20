@@ -2648,6 +2648,7 @@
     "wrong_host": "Consola platformei este disponibilă la superadmin.tempoapp.ro.",
     "not_authorised": "Doar pentru Superadmin.",
     "load_failed": "Nu s-a putut încărca.",
+    "truncated": "Se afișează cele mai recente {{shown}} din {{total}}.",
     "nav": {
       "clinics": "Centre",
       "bug_reports": "Raportări",
@@ -2678,7 +2679,8 @@
       "evaluations": "Acces evaluări",
       "evaluations_hint": "Deocamdată doar vizualizare — editarea vine în Faza 2.",
       "staff": "Echipă",
-      "not_found": "Centrul nu a fost găsit."
+      "not_found": "Centrul nu a fost găsit.",
+      "load_error": "Nu s-a putut încărca acest centru."
     },
     "bug_reports": {
       "report": "Raportare",
@@ -2689,14 +2691,16 @@
       "status": "Status",
       "updated": "Status actualizat.",
       "update_failed": "Nu s-a putut actualiza.",
-      "empty": "Nicio raportare."
+      "empty": "Nicio raportare.",
+      "load_error": "Nu s-au putut încărca raportările."
     },
     "leads": {
       "name": "Nume",
       "clinic": "Centru",
       "contact": "Contact",
       "when": "Când",
-      "empty": "Niciun lead."
+      "empty": "Niciun lead.",
+      "load_error": "Nu s-au putut încărca lead-urile."
     },
     "ai": {
       "clinic": "Centru",
@@ -2704,7 +2708,10 @@
       "insights": "Analize",
       "cost": "Cost (USD)",
       "total": "Total pe toate centrele",
-      "empty": "Nicio utilizare înregistrată."
+      "empty": "Nicio utilizare înregistrată.",
+      "load_error": "Nu s-au putut încărca costurile Mira.",
+      "partial": "Nu s-a putut citi.",
+      "total_partial": "nu include centrele ale căror costuri nu au putut fi citite ({{n}})"
     },
     "health": {
       "clinic": "Centru",
@@ -2713,7 +2720,8 @@
       "mira": "Cheie Mira",
       "licence": "Licență",
       "error": "Eroare",
-      "empty": "Niciun centru înregistrat."
+      "empty": "Niciun centru înregistrat.",
+      "load_error": "Nu s-a putut încărca starea centrelor."
     }
   }
 }

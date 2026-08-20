@@ -18,7 +18,11 @@ export default function PlatformBugReportsPage() {
   const { t } = useTranslation();
   const { success, error: toastError } = useToast();
   const [reports, setReports] = useState<BugReport[]>([]);
+  // What the collection actually holds, which the query caps. Without it, a
+  // capped list reads as "this is every report that was ever filed".
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   // Per-row in-flight guard. Every state transition cycleStatus makes —
   // optimistic update and rollback alike — touches only the clicked row's
   // entry via a functional map, never a whole-array snapshot. That is what
@@ -29,9 +33,18 @@ export default function PlatformBugReportsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    platformGet<{ reports: BugReport[] }>("/api/platform/bug-reports")
-      .then((d) => { if (!cancelled) setReports(d.reports); })
-      .catch(() => { if (!cancelled) toastError(t("platform.load_failed", { defaultValue: "Could not load." })); })
+    platformGet<{ reports: BugReport[]; total: number }>("/api/platform/bug-reports")
+      .then((d) => {
+        if (cancelled) return;
+        setReports(d.reports);
+        setTotal(d.total ?? d.reports.length);
+      })
+      .catch((e) => {
+        console.error("[platform/bug-reports] failed to load:", e);
+        if (cancelled) return;
+        setLoadError(t("platform.bug_reports.load_error", { defaultValue: "Could not load bug reports." }));
+        toastError(t("platform.load_failed", { defaultValue: "Could not load." }));
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,12 +102,24 @@ export default function PlatformBugReportsPage() {
   ];
 
   return (
-    <DataTable
-      rows={reports}
-      columns={columns}
-      loading={loading}
-      getRowId={(r) => r.id}
-      empty={t("platform.bug_reports.empty", { defaultValue: "No bug reports." })}
-    />
+    <div className="space-y-4">
+      {!loadError && total > reports.length && (
+        <p className="text-xs text-neutral-500">
+          {t("platform.truncated", {
+            defaultValue: "Showing the {{shown}} most recent of {{total}}.",
+            shown: reports.length,
+            total,
+          })}
+        </p>
+      )}
+      <DataTable
+        rows={reports}
+        columns={columns}
+        loading={loading}
+        error={loadError}
+        getRowId={(r) => r.id}
+        empty={t("platform.bug_reports.empty", { defaultValue: "No bug reports." })}
+      />
+    </div>
   );
 }

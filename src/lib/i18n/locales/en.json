@@ -2643,6 +2643,7 @@
     "wrong_host": "The platform console is served from superadmin.tempoapp.ro.",
     "not_authorised": "Superadmin access only.",
     "load_failed": "Could not load.",
+    "truncated": "Showing the {{shown}} most recent of {{total}}.",
     "nav": {
       "clinics": "Clinics",
       "bug_reports": "Bug reports",
@@ -2673,7 +2674,8 @@
       "evaluations": "Evaluation access",
       "evaluations_hint": "Read-only for now — editing arrives with Phase 2.",
       "staff": "Staff",
-      "not_found": "Clinic not found."
+      "not_found": "Clinic not found.",
+      "load_error": "Could not load this clinic."
     },
     "bug_reports": {
       "report": "Report",
@@ -2684,14 +2686,16 @@
       "status": "Status",
       "updated": "Status updated.",
       "update_failed": "Could not update.",
-      "empty": "No bug reports."
+      "empty": "No bug reports.",
+      "load_error": "Could not load bug reports."
     },
     "leads": {
       "name": "Name",
       "clinic": "Centre",
       "contact": "Contact",
       "when": "When",
-      "empty": "No leads yet."
+      "empty": "No leads yet.",
+      "load_error": "Could not load leads."
     },
     "ai": {
       "clinic": "Clinic",
@@ -2699,7 +2703,10 @@
       "insights": "Insights",
       "cost": "Cost (USD)",
       "total": "Total across all clinics",
-      "empty": "No usage recorded."
+      "empty": "No usage recorded.",
+      "load_error": "Could not load Mira spend.",
+      "partial": "Could not be read.",
+      "total_partial": "excludes clinics whose spend could not be read ({{n}})"
     },
     "health": {
       "clinic": "Clinic",
@@ -2708,7 +2715,8 @@
       "mira": "Mira key",
       "licence": "Licence",
       "error": "Error",
-      "empty": "No clinics registered."
+      "empty": "No clinics registered.",
+      "load_error": "Could not load clinic health."
     }
   }
 }

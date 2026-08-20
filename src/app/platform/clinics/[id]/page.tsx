@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { platformGet } from "@/lib/platform/clientApi";
+import { platformGet, PlatformError } from "@/lib/platform/clientApi";
 import type { ClinicDetail } from "@/lib/platform/types";
 
 const PROTOCOLS = ["ablls", "vbmapp", "portage", "cars", "carolina"];
@@ -39,7 +39,14 @@ export default function PlatformClinicDetailPage() {
     let cancelled = false;
     platformGet<{ clinic: ClinicDetail }>(`/api/platform/clinics/${params.id}`)
       .then((d) => { if (!cancelled) setClinic(d.clinic); })
-      .catch((e) => { if (!cancelled) setError(String(e.message || e)); })
+      .catch((e) => {
+        console.error("[platform/clinic] failed to load:", e);
+        // A raw API error code — `server_error` — is not a message for a
+        // human, and every sibling screen shows a translated one. Keep only
+        // the distinction the operator can act on: a clinic that is not in
+        // the registry, versus a request that failed.
+        if (!cancelled) setError(e instanceof PlatformError && e.status === 404 ? "not_found" : "load_error");
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [params.id]);
@@ -48,7 +55,13 @@ export default function PlatformClinicDetailPage() {
     return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary-500" /></div>;
   }
   if (error || !clinic) {
-    return <p className="text-error-600 text-sm">{error || t("platform.clinic.not_found", { defaultValue: "Clinic not found." })}</p>;
+    return (
+      <p className="text-error-600 dark:text-error-400 text-sm" role="alert">
+        {error === "load_error"
+          ? t("platform.clinic.load_error", { defaultValue: "Could not load this clinic." })
+          : t("platform.clinic.not_found", { defaultValue: "Clinic not found." })}
+      </p>
+    );
   }
 
   return (

@@ -18,6 +18,7 @@ export default function DataTable<T>({
   rows,
   columns,
   empty,
+  error,
   loading,
   onRowClick,
   getRowId,
@@ -25,6 +26,17 @@ export default function DataTable<T>({
   rows: T[];
   columns: Column<T>[];
   empty: string;
+  /**
+   * Set when the fetch FAILED, and shown instead of `empty`.
+   *
+   * Without this a failed request renders as an empty estate: four pages
+   * caught the error into a toast, left `rows` empty, and let the table say
+   * "No clinics registered." The health screen — whose entire job is telling
+   * you something is broken — was the worst of them. "We could not ask" and
+   * "we asked, and there is nothing" are different facts and must not share
+   * a rendering.
+   */
+  error?: string | null;
   loading?: boolean;
   onRowClick?: (row: T) => void;
   /**
@@ -41,6 +53,16 @@ export default function DataTable<T>({
       <div className="flex items-center justify-center py-16">
         <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
       </div>
+    );
+  }
+  // Ahead of the row check, not inside it: a partially-loaded list beside a
+  // failure is still a failure, and reporting it is never less useful than
+  // rendering rows we know to be incomplete.
+  if (error) {
+    return (
+      <p className="py-16 text-center text-sm text-error-600 dark:text-error-400" role="alert">
+        {error}
+      </p>
     );
   }
   if (!rows.length) {

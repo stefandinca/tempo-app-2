@@ -20,10 +20,11 @@ export default function PlatformClinicsPage() {
       .then((d) => { if (!cancelled) setClinics(d.clinics); })
       .catch((e) => {
         console.error("[platform/clinics] failed to load:", e);
-        if (!cancelled) setError(String(e.message || e));
+        if (!cancelled) setError(t("platform.clinics.error", { defaultValue: "Could not load clinics." }));
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const columns: Column<ClinicSummary>[] = [
@@ -56,19 +57,14 @@ export default function PlatformClinicsPage() {
     { key: "events", header: t("platform.clinics.events", { defaultValue: "Sessions" }), align: "right", render: (c) => c.counts.events },
   ];
 
-  if (error) {
-    return (
-      <p className="text-error-600 dark:text-error-400 text-sm">
-        {t("platform.clinics.error", { defaultValue: "Could not load clinics." })}
-      </p>
-    );
-  }
-
+  // The bespoke early return this page used to carry now lives in DataTable,
+  // so all five list screens report a failed load the same way.
   return (
     <DataTable
       rows={clinics}
       columns={columns}
       loading={loading}
+      error={error}
       empty={t("platform.clinics.empty", { defaultValue: "No clinics registered." })}
       getRowId={(c) => c.tenantId}
       onRowClick={(c) => router.push(`/platform/clinics/${c.tenantId}`)}
