@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { User, Bell, Shield, Moon, LogOut, Check, CreditCard, Monitor, Loader2, Globe, Camera, ShieldAlert, ClipboardList } from "lucide-react";
+import { User, Bell, Shield, Moon, LogOut, Check, CreditCard, Monitor, Loader2, Globe, Camera, ShieldAlert, ClipboardList, Image as ImageIcon } from "lucide-react";
 import { clsx } from "clsx";
 import BillingConfigTab from "@/components/settings/BillingConfigTab";
 import LimitsConfigTab from "@/components/settings/LimitsConfigTab";
 import EvaluationAccessTab from "@/components/settings/EvaluationAccessTab";
+import BrandingTab from "@/components/settings/BrandingTab";
 import TranslationManager from "@/components/settings/TranslationManager";
 import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 import { doc, updateDoc } from "firebase/firestore";
@@ -161,7 +162,8 @@ export default function SettingsPage() {
   if (isSuperadmin) {
     menuItems.push(
       { id: "limits", label: t('settings.tabs.limits'), icon: ShieldAlert },
-      { id: "evaluation_access", label: t('settings.tabs.evaluation_access'), icon: ClipboardList }
+      { id: "evaluation_access", label: t('settings.tabs.evaluation_access'), icon: ClipboardList },
+      { id: "branding", label: t('settings.tabs.branding'), icon: ImageIcon }
     );
   }
 
@@ -406,6 +408,7 @@ export default function SettingsPage() {
           {activeTab === "billing" && isAdmin && <BillingConfigTab />}
           {activeTab === "limits" && isSuperadmin && <LimitsConfigTab />}
           {activeTab === "evaluation_access" && isSuperadmin && <EvaluationAccessTab />}
+          {activeTab === "branding" && isSuperadmin && <BrandingTab />}
           {activeTab === "translations" && isAdmin && <TranslationManager />}
           
           {activeTab === "system" && isAdmin && (

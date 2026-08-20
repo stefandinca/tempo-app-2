@@ -487,7 +487,8 @@
       "translations": "Traduceri",
       "limits": "Limite Cont",
       "system": "Sistem",
-      "evaluation_access": "Acces evaluări"
+      "evaluation_access": "Acces evaluări",
+      "branding": "Branding"
     },
     "profile": {
       "title": "Informații Profil",
@@ -623,6 +624,20 @@
       "save_error": "Nu s-a putut actualiza accesul la evaluări",
       "enabled_hint": "Disponibil pentru acest centru",
       "disabled_hint": "Ascuns pentru acest centru"
+    },
+    "branding": {
+      "title": "Branding",
+      "subtitle": "Înlocuiește sigla TempoApp cu logo-ul acestui centru.",
+      "current": "Logo curent",
+      "upload": "Încarcă logo",
+      "replace": "Înlocuiește logo",
+      "remove": "Elimină",
+      "saved": "Logo-ul a fost actualizat",
+      "removed": "Logo-ul a fost eliminat",
+      "save_error": "Nu s-a putut actualiza logo-ul",
+      "wrong_type": "Folosește o imagine PNG, JPG, SVG sau WebP",
+      "too_large": "Imaginea depășește 2 MB",
+      "hint": "Apare în bara laterală și pe ecranul de autentificare. Recomandăm o imagine pătrată pe fundal transparent; fără ea se folosește sigla TempoApp."
     }
   },
   "limits": {

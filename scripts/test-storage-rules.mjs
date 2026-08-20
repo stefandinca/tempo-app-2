@@ -47,6 +47,7 @@ const USERS = {
   adminA: { email: "ruletest-admin-a@example.invalid", pass: "RuleTest!Admin1" },
   parentA: { email: "ruletest-parent-a@example.invalid", pass: "RuleTest!Parent1" },
   staffB: { email: "ruletest-staff-b@example.invalid", pass: "RuleTest!Staff2" },
+  superA: { email: "ruletest-super-a@example.invalid", pass: "RuleTest!Super1" },
   outsider: { email: "ruletest-outsider@example.invalid", pass: "RuleTest!Out1" },
 };
 
@@ -89,12 +90,12 @@ const objUrl = (bucket, name) =>
   `https://storage.googleapis.com/storage/v1/b/${bucket}/o/${encodeURIComponent(name)}`;
 
 /** Upload as an end user — governed by the rules. Returns the HTTP status. */
-async function userUpload(idToken, bucket, name) {
+async function userUpload(idToken, bucket, name, contentType = "text/plain") {
   const r = await fetch(
     `https://firebasestorage.googleapis.com/v0/b/${bucket}/o?uploadType=media&name=${encodeURIComponent(name)}`,
     {
       method: "POST",
-      headers: { Authorization: `Bearer ${idToken}`, "Content-Type": "text/plain" },
+      headers: { Authorization: `Bearer ${idToken}`, "Content-Type": contentType },
       body: "probe",
     },
   );
@@ -165,6 +166,10 @@ try {
     tenantId: { stringValue: "ruletest-a" },
     role: { stringValue: "Admin" },
   });
+  await mirror("tenant_members", `${BUCKET_A}__${u.superA.uid}`, {
+    tenantId: { stringValue: "ruletest-a" },
+    role: { stringValue: "Superadmin" },
+  });
   await mirror("tenant_members", `${BUCKET_B}__${u.staffB.uid}`, {
     tenantId: { stringValue: "ruletest-b" },
     role: { stringValue: "Therapist" },
@@ -182,7 +187,8 @@ try {
   const AVATAR_B = `avatars/${u.staffB.uid}/probe.txt`;
   const STRAY = "ruletest-stray/probe.txt";
 
-  for (const n of [DOC_1, VID_1, VOICE_1, DOC_2, AVATAR_A, STRAY]) await adminPut(BUCKET_A, n);
+  const BRAND = "branding/logo-ruletest.txt";
+  for (const n of [DOC_1, VID_1, VOICE_1, DOC_2, AVATAR_A, STRAY, BRAND]) await adminPut(BUCKET_A, n);
   await adminPut(BUCKET_B, DOC_1);
 
   // ---- the boundary that matters -------------------------------------------
@@ -210,6 +216,14 @@ try {
   assert("parent A writes into their own child's folder", await userUpload(u.parentA.idToken, BUCKET_A, DOC_1), "deny");
   assert("parent A reads a staff avatar", await userRead(u.parentA.idToken, BUCKET_A, AVATAR_A), "allow");
 
+  console.log(`\n${C.bold("  branding")}\n`);
+  assert("a Superadmin writes the clinic logo", await userUpload(u.superA.idToken, BUCKET_A, BRAND, "image/png"), "allow");
+  assert("a therapist writes the clinic logo", await userUpload(u.staffA.idToken, BUCKET_A, BRAND, "image/png"), "deny");
+  assert("an admin writes the clinic logo", await userUpload(u.adminA.idToken, BUCKET_A, BRAND, "image/png"), "deny");
+  assert("a Superadmin of ANOTHER clinic writes it", await userUpload(u.superA.idToken, BUCKET_B, BRAND, "image/png"), "deny");
+  assert("a Superadmin uploads a NON-image as the logo", await userUpload(u.superA.idToken, BUCKET_A, BRAND, "text/plain"), "deny");
+  assert("an outsider reads the logo (it is public)", await userRead(u.outsider.idToken, BUCKET_A, BRAND), "allow");
+
   console.log(`\n${C.bold("  everyone else")}\n`);
   assert("signed-in outsider reads a client document", await userRead(u.outsider.idToken, BUCKET_A, DOC_1), "deny");
   assert("signed-in outsider writes a client document", await userUpload(u.outsider.idToken, BUCKET_A, DOC_1), "deny");
@@ -222,7 +236,7 @@ try {
   // deliberately, so an object a probe unexpectedly managed to write is removed
   // too — including from a previous run that was killed part-way.
   for (const bucket of [BUCKET_A, BUCKET_B]) {
-    for (const prefix of ["clients/ruletest-", "avatars/", "ruletest-stray/", "spike/"]) {
+    for (const prefix of ["clients/ruletest-", "avatars/", "ruletest-stray/", "spike/", "branding/logo-ruletest"]) {
       const r = await fetch(
         `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${encodeURIComponent(prefix)}`,
         { headers: ADC },

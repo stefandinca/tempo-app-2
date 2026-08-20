@@ -81,6 +81,19 @@ const cases = [
   ["a parent reads evaluation_access", "ALLOW", "get", `${D}/system_settings/evaluation_access`,
     { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }]],
 
+  // --- clinic branding ---
+  // The logo renders before anyone signs in, so the document is public.
+  // Setting it is ours alone: an Admin runs the clinic, not the brand.
+  ["a signed-out visitor reads branding", "ALLOW", "get", `${D}/system_settings/branding`,
+    null, []],
+  ["superadmin sets branding", "ALLOW", "update", `${D}/system_settings/branding`,
+    { uid: "s1" }, member("s1", "Superadmin"), { logoUrl: "x" }, { logoUrl: "" }],
+  ["admin sets branding", "DENY", "update", `${D}/system_settings/branding`,
+    { uid: "a1" }, member("a1", "Admin"), { logoUrl: "x" }, { logoUrl: "" }],
+  ["coordinator sets branding", "DENY", "update", `${D}/system_settings/branding`,
+    { uid: "c3" }, member("c3", "Coordinator"), { logoUrl: "x" }, { logoUrl: "" }],
+  ["a signed-out visitor still cannot read config", "DENY", "get", `${D}/system_settings/config`,
+    null, []],
   // --- parent self-linking ---
   // A signed-in stranger used to be able to write their own uid into any
   // client's parentUids, and most client ids are firstname + a birthday.
@@ -131,7 +144,9 @@ const cases = [
 const testCases = cases.map(([, expectation, method, path, auth, mocks, resource, before]) => ({
   expectation,
   request: {
-    auth: { uid: auth.uid, token: {} },
+    // A null auth is a signed-out visitor, which some rules must still allow
+    // (the clinic logo) and most must still refuse.
+    ...(auth ? { auth: { uid: auth.uid, token: {} } } : {}),
     path, method, time: "2026-08-19T10:00:00Z",
     ...(resource ? { resource: { data: resource } } : {}),
   },

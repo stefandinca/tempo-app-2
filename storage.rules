@@ -48,6 +48,11 @@ service firebase.storage {
       return isStaff() && member().role in ['Admin', 'admin', 'Superadmin', 'superadmin'];
     }
 
+    /** Only we set a clinic's branding — an Admin runs the clinic, not the brand. */
+    function isSuperadmin() {
+      return isStaff() && member().role in ['Superadmin', 'superadmin'];
+    }
+
     /** Any parent at this clinic — enough to see staff avatars, not client files. */
     function isTenantParent() {
       return isSignedIn()
@@ -69,6 +74,20 @@ service firebase.storage {
       allow read: if isStaff() || isTenantParent();
       // Your own avatar, or an admin of this same clinic.
       allow write: if isStaff() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // ============================================
+    // BRANDING — branding/{fileName}
+    // ============================================
+    // The clinic's logo. World-readable on purpose: it renders on the login and
+    // password-reset screens, before anyone is signed in. The size and type
+    // limits are here rather than only in the UI, because the UI is not the
+    // boundary — this is the only place a 4GB "logo" is actually refused.
+    match /branding/{fileName} {
+      allow read: if true;
+      allow write: if isSuperadmin()
+                     && request.resource.size < 2 * 1024 * 1024
+                     && request.resource.contentType.matches('image/.*');
     }
 
     // ============================================

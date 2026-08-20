@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ClinicLogo from "@/components/ClinicLogo";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -57,9 +58,7 @@ export default function Sidebar() {
     <aside className="fixed left-0 top-0 h-full w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 z-40 hidden lg:block">
       {/* Logo */}
       <div className="h-16 flex items-center gap-3 px-6 border-b border-neutral-200 dark:border-neutral-800">
-        <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-lg font-display">T</span>
-        </div>
+        <ClinicLogo size="sm" />
         <div>
           <h1 className="font-bold text-lg text-neutral-900 dark:text-white font-display">{t('header.titles.app_title')}</h1>
           <p className="text-xs text-neutral-500">{t('header.titles.app_subtitle')}</p>

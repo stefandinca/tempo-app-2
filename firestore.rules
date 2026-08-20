@@ -166,9 +166,16 @@ service cloud.firestore {
       // Readable by anyone signed in, including parents: it is a list of
       // protocol names, and every view filters itself with it.
       allow read: if isSignedIn() && settingId == 'evaluation_access';
+      // World-readable, deliberately: the clinic's logo renders on the login and
+      // password-reset screens, where nobody is signed in yet. The document
+      // holds a URL to an image that is public by nature and nothing else.
+      allow read: if settingId == 'branding';
       allow read: if isAdmin() || isCoordinator() || isTherapist();
-      // An Admin runs the clinic, but does not decide what the clinic bought.
-      allow write: if settingId == 'evaluation_access' ? isSuperadmin() : isAdmin();
+      // An Admin runs the clinic, but does not decide what the clinic bought,
+      // nor how it is branded — both are ours to set.
+      allow write: if (settingId == 'evaluation_access' || settingId == 'branding')
+                     ? isSuperadmin()
+                     : isAdmin();
     }
 
     match /invoices/{invoiceId} {

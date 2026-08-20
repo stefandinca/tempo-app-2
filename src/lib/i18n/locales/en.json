@@ -483,7 +483,8 @@
       "translations": "Translations",
       "limits": "Account Limits",
       "system": "System",
-      "evaluation_access": "Evaluation access"
+      "evaluation_access": "Evaluation access",
+      "branding": "Branding"
     },
     "profile": {
       "title": "Profile Information",
@@ -619,6 +620,20 @@
       "save_error": "Could not update evaluation access",
       "enabled_hint": "Available to this clinic",
       "disabled_hint": "Hidden from this clinic"
+    },
+    "branding": {
+      "title": "Branding",
+      "subtitle": "Replace the TempoApp mark with this clinic's own logo.",
+      "current": "Current logo",
+      "upload": "Upload logo",
+      "replace": "Replace logo",
+      "remove": "Remove",
+      "saved": "Logo updated",
+      "removed": "Logo removed",
+      "save_error": "Could not update the logo",
+      "wrong_type": "Use a PNG, JPG, SVG or WebP image",
+      "too_large": "That image is larger than 2 MB",
+      "hint": "Shown in the sidebar and on the sign-in screen. A square image on a transparent background works best; without one the TempoApp mark is used."
     }
   },
   "limits": {

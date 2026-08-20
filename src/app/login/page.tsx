@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import ClinicLogo from "@/components/ClinicLogo";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -219,9 +220,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/20 mb-6">
-            <span className="text-white font-bold text-3xl font-display">T</span>
-          </div>
+          <ClinicLogo size="lg" className="mx-auto mb-6 shadow-xl shadow-primary-500/20" />
           <h2 className="text-3xl font-semibold text-neutral-900 dark:text-white tracking-tight font-display">
             {IS_DEMO ? "TempoApp Demo" : (showForgotPassword ? t('auth.forgot_password_title') : t('auth.sign_in_title'))}
           </h2>
