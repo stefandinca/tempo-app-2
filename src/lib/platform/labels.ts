@@ -48,8 +48,22 @@ export function clinicDatabaseId(label: string): string | null {
  * own hostname, and a preview deployment is not the console. Widening this
  * should be a considered decision, not a side effect of reusing `tenant.ts`'s
  * fallback.
+ *
+ * The loopback entries exist for `npm run dev` and are DEVELOPMENT ONLY. In a
+ * production build they are not in the set at all, because `Host` is supplied
+ * by the caller: sending `Host: localhost` to the deployed console costs
+ * nothing, and accepting it would hand back exactly the property the host
+ * check is here for — that a session stolen on a clinic domain cannot be
+ * replayed against the platform. Phase 2 turns these routes into writers,
+ * which raises the stakes rather than lowering them. `next dev` and the test
+ * runner both leave NODE_ENV at something other than "production", so local
+ * work is unaffected; `npm start` against a production build is not, and that
+ * is the intended trade.
  */
-const PLATFORM_HOSTS = new Set(["superadmin.tempoapp.ro", "localhost", "127.0.0.1"]);
+const PLATFORM_HOSTS = new Set([
+  "superadmin.tempoapp.ro",
+  ...(process.env.NODE_ENV !== "production" ? ["localhost", "127.0.0.1"] : []),
+]);
 
 /**
  * True when this request arrived on the platform host rather than a

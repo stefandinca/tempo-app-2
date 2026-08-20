@@ -7,8 +7,22 @@
  *
  * The label check is the one that matters most: an unvalidated label reaching
  * adminDb() is how a typo becomes a read of the wrong clinic's database.
+ *
+ * labels.ts is imported DYNAMICALLY, twice, and that is deliberate. Its
+ * platform-host allowlist is built once, at import time, from NODE_ENV: the
+ * loopback entries are development-only, because `Host` is supplied by the
+ * caller and accepting `Host: localhost` on the deployed console would undo
+ * the gate. Testing both builds therefore means setting NODE_ENV before each
+ * import, which a static import — hoisted and evaluated before any statement
+ * here could run — cannot accommodate. It also makes this file's assertions
+ * independent of whatever NODE_ENV the runner happened to inherit. The query
+ * strings are what stop Node's module cache from handing back the first
+ * instance for the second import.
  */
-import { clinicDatabaseId, isPlatformHost } from "../src/lib/platform/labels.ts";
+process.env.NODE_ENV = "development";
+const { clinicDatabaseId, isPlatformHost } = await import(
+  "../src/lib/platform/labels.ts?env=development"
+);
 
 const C = {
   red: (s) => `\x1b[31m${s}\x1b[0m`,
@@ -60,6 +74,23 @@ check("a missing Host header is refused, not accepted", isPlatformHost(reqWithHo
 check("a clinic host is not the platform", isPlatformHost(reqWithHost("livebetterlife.tempoapp.ro")), false);
 check("a Vercel preview deploy is not the platform", isPlatformHost(reqWithHost("tempo-app-2.vercel.app")), false);
 check("an arbitrary domain is not the platform", isPlatformHost(reqWithHost("evil.com")), false);
+
+console.log(`
+${C.bold("loopback is development-only")}
+`);
+
+// A second, separate instance of the module, built as production sees it.
+process.env.NODE_ENV = "production";
+const prod = await import("../src/lib/platform/labels.ts?env=production");
+process.env.NODE_ENV = "development";
+
+check("localhost is refused in a production build", prod.isPlatformHost(reqWithHost("localhost")), false);
+check("localhost:3000 is refused in a production build", prod.isPlatformHost(reqWithHost("localhost:3000")), false);
+check("127.0.0.1 is refused in a production build", prod.isPlatformHost(reqWithHost("127.0.0.1")), false);
+check("the canonical host still passes in production", prod.isPlatformHost(reqWithHost("superadmin.tempoapp.ro")), true);
+// The dev-build assertions above are only meaningful if the two builds really
+// are separate module instances rather than one cached copy.
+check("the dev build still accepts localhost", isPlatformHost(reqWithHost("localhost")), true);
 
 const BASE = process.argv.find((a) => a.startsWith("--base="))?.slice(7) || "";
 
