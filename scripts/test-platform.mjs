@@ -8,7 +8,7 @@
  * The label check is the one that matters most: an unvalidated label reaching
  * adminDb() is how a typo becomes a read of the wrong clinic's database.
  */
-import { clinicDatabaseId } from "../src/lib/platform/gate.ts";
+import { clinicDatabaseId } from "../src/lib/platform/labels.ts";
 
 const C = {
   red: (s) => `\x1b[31m${s}\x1b[0m`,
