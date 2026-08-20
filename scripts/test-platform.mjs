@@ -70,10 +70,22 @@ check("mixed case", isPlatformHost(reqWithHost("SuperAdmin.TempoApp.ro")), true)
 check("localhost", isPlatformHost(reqWithHost("localhost")), true);
 check("localhost with a port", isPlatformHost(reqWithHost("localhost:3000")), true);
 check("a bare IP", isPlatformHost(reqWithHost("127.0.0.1")), true);
+check("a bare IP with a port", isPlatformHost(reqWithHost("127.0.0.1:3000")), true);
 check("a missing Host header is refused, not accepted", isPlatformHost(reqWithHost(null)), false);
 check("a clinic host is not the platform", isPlatformHost(reqWithHost("livebetterlife.tempoapp.ro")), false);
 check("a Vercel preview deploy is not the platform", isPlatformHost(reqWithHost("tempo-app-2.vercel.app")), false);
 check("an arbitrary domain is not the platform", isPlatformHost(reqWithHost("evil.com")), false);
+// A prefix match is not a match: the allowlist compares with Set.has (exact
+// equality), never startsWith, so a host that merely begins with the
+// canonical name must still be refused.
+check("a host merely starting with the canonical name is not the platform", isPlatformHost(reqWithHost("superadmin.tempoapp.ro.evil.com")), false);
+// `Host` brackets an IPv6 literal because the address itself contains colons
+// (RFC 3986 §3.2.2) — `[::1]:3000`, not `::1:3000`. Naive `split(":")[0]`
+// port-stripping truncates that to `[`; neither the mangled nor the correctly
+// parsed form is on the allowlist, so both are refused — but for the right
+// reason, which matters the day this allowlist ever grows to include one.
+check("an IPv6 literal with a port is not the platform", isPlatformHost(reqWithHost("[::1]:3000")), false);
+check("an IPv6 literal without a port is not the platform", isPlatformHost(reqWithHost("[::1]")), false);
 
 console.log(`
 ${C.bold("loopback is development-only")}

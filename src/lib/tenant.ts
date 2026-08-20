@@ -18,6 +18,27 @@ export const DEFAULT_DATABASE_ID = "(default)";
 const RESERVED = new Set(["", "www", "admin", "app", "api", "localhost", "superadmin"]);
 
 /**
+ * Strips a trailing `:port` from a `Host` header value.
+ *
+ * `host.split(":")[0]` is wrong for an IPv6 literal: `Host` brackets those
+ * (`[::1]:3000`, RFC 3986 §3.2.2) specifically because the address itself
+ * contains colons, and naively splitting on the first one truncates it to
+ * `[`. No bracketed literal resolves to a tenant here regardless, but the
+ * parsing should be correct on its own terms rather than merely harmless by
+ * accident — this same helper lives in `src/lib/platform/labels.ts`,
+ * duplicated rather than imported because both files are deliberately
+ * dependency-free (see that file's header comment).
+ */
+function stripPort(host: string): string {
+  if (host.startsWith("[")) {
+    const end = host.indexOf("]");
+    return end === -1 ? host : host.slice(1, end);
+  }
+  const colon = host.indexOf(":");
+  return colon === -1 ? host : host.slice(0, colon);
+}
+
+/**
  * `diaconumaria.tempoapp.ro` -> `clinic-diaconumaria`.
  * Anything unrecognised -> `(default)`, which is the control plane and, until
  * the migration completes, where every tenant's data still lives.
@@ -25,7 +46,7 @@ const RESERVED = new Set(["", "www", "admin", "app", "api", "localhost", "supera
 export function resolveDatabaseId(hostname: string): string {
   if (!hostname) return DEFAULT_DATABASE_ID;
 
-  const host = hostname.toLowerCase().split(":")[0];
+  const host = stripPort(hostname.toLowerCase());
 
   // Local development and Vercel preview deploys have no tenant subdomain.
   if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".vercel.app")) {

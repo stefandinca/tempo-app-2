@@ -66,14 +66,37 @@ const PLATFORM_HOSTS = new Set([
 ]);
 
 /**
+ * Strips a trailing `:port` from a `Host` header value.
+ *
+ * `host.split(":")[0]` is wrong for an IPv6 literal: `Host` brackets those
+ * (`[::1]:3000`, RFC 3986 §3.2.2) specifically because the address itself
+ * contains colons, and naively splitting on the first one truncates it to
+ * `[`. None of `PLATFORM_HOSTS` is an IPv6 literal, so today that mistake
+ * still fails closed — but "happens not to match anything" is not the same
+ * property as "parses the header correctly", and this is a security check,
+ * not just a hostname.
+ */
+function stripPort(host: string): string {
+  if (host.startsWith("[")) {
+    const end = host.indexOf("]");
+    return end === -1 ? host : host.slice(1, end);
+  }
+  const colon = host.indexOf(":");
+  return colon === -1 ? host : host.slice(0, colon);
+}
+
+/**
  * True when this request arrived on the platform host rather than a
  * clinic's — or anywhere else. `Host` is case-insensitive and may carry a
- * port, so both are normalised before comparing. A MISSING `Host` header is
- * refused, not accepted: it is the worst case, not a neutral one.
+ * port, so both are normalised before comparing. Comparison is exact-match
+ * against the allowlist (`Set.has`), never a prefix or substring test, so
+ * `superadmin.tempoapp.ro.evil.com` does not match `superadmin.tempoapp.ro`.
+ * A MISSING `Host` header is refused, not accepted: it is the worst case,
+ * not a neutral one.
  */
 export function isPlatformHost(req: {
   headers: { get(name: string): string | null };
 }): boolean {
-  const host = (req.headers.get("host") || "").toLowerCase().split(":")[0];
+  const host = stripPort((req.headers.get("host") || "").toLowerCase());
   return PLATFORM_HOSTS.has(host);
 }
