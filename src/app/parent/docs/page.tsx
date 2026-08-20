@@ -8,6 +8,7 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
+import { toDateOrNull } from "@/lib/timestamps";
 
 interface Document {
   id: string;
@@ -238,8 +239,8 @@ export default function ParentDocsPage() {
                       <span>{formatFileSize(doc.fileSize)}</span>
                       <span>&middot;</span>
                       <span>
-                        {doc.uploadedAt?.toDate?.()
-                          ? new Date(doc.uploadedAt.toDate()).toLocaleDateString(currentLang, {
+                        {toDateOrNull(doc.uploadedAt)
+                          ? toDateOrNull(doc.uploadedAt)!.toLocaleDateString(currentLang, {
                               month: "short",
                               day: "numeric",
                               year: "numeric"

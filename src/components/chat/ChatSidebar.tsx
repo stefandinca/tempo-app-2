@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 import { Plus, Archive, Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
+import { toDateOrNull } from "@/lib/timestamps";
 
 interface ChatSidebarProps {
   threads: ChatThread[];
@@ -101,7 +102,7 @@ export default function ChatSidebar({ threads, archivedThreads, activeThreadId, 
                     {otherUser?.name || t('common.unknown')}
                   </h3>
                   <span className="text-[10px] text-neutral-400">
-                    {thread.updatedAt?.toDate().toLocaleDateString(i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US', { month: 'short', day: 'numeric' })}
+                    {toDateOrNull(thread.updatedAt)?.toLocaleDateString(i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

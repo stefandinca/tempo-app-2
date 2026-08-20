@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Activity, ActivityCategory } from '@/types/activity';
 import { fetchActivitiesByCategory } from '@/lib/activityService';
+import { toISO } from '@/lib/timestamps';
 import { db } from '@/lib/firebase';
 import { collection, query, orderBy, limit as firestoreLimit, onSnapshot } from 'firebase/firestore';
 
@@ -27,7 +28,8 @@ export function useRecentActivities(limit: number = 10) {
         const data = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+          // See lib/timestamps: most rows hold an ISO string, not a Timestamp.
+          createdAt: toISO(doc.data().createdAt) || new Date().toISOString(),
         })) as Activity[];
 
         setActivities(data);

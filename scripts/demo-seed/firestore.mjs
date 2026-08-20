@@ -145,6 +145,30 @@ export function toFields(obj) {
   return out;
 }
 
+/**
+ * Decode a REST field value.
+ *
+ * ⚠️ TIMESTAMPS DO NOT SURVIVE A ROUND TRIP THROUGH THIS PAIR OF FUNCTIONS.
+ * A `timestampValue` decodes to a plain **string**, and `toValue` then encodes
+ * a string as `stringValue` — only a `Date` becomes a `timestampValue` again.
+ * So anything read and re-written by these helpers comes out the other side with
+ * its Timestamps flattened to ISO strings.
+ *
+ * That already happened, at scale: the tenant migration copied every clinic
+ * through here, which is why 298 of 300 activities, 44 of 44 threads and every
+ * migrated event, invoice and document carry string timestamps today. Nothing
+ * noticed, because ISO strings sort identically to timestamps — it surfaced only
+ * on screen, where readers calling `.toDate()` either threw or silently fell
+ * back. `src/lib/timestamps.ts` exists to absorb that, and the app now reads
+ * both shapes.
+ *
+ * Left as-is deliberately: the data is already written, the readers tolerate
+ * both, and changing the decoder would alter what every consuming script sees
+ * for no benefit to records that already exist. If this is ever used to migrate
+ * another clinic, return `new Date(f.timestampValue)` here first — `toValue`
+ * already encodes a Date correctly — and re-check the scripts that call
+ * `listAll`.
+ */
 export function fromValue(f) {
   if (f == null) return null;
   if ("nullValue" in f) return null;
@@ -152,6 +176,7 @@ export function fromValue(f) {
   if ("booleanValue" in f) return f.booleanValue;
   if ("integerValue" in f) return Number(f.integerValue);
   if ("doubleValue" in f) return f.doubleValue;
+  // Lossy on purpose — see the warning above before "fixing" this.
   if ("timestampValue" in f) return f.timestampValue;
   if ("arrayValue" in f) return (f.arrayValue.values || []).map(fromValue);
   if ("mapValue" in f) {

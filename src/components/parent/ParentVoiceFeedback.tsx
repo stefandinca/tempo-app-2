@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Mic } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toDateOrNull } from "@/lib/timestamps";
 import { db } from "@/lib/firebase";
 import {
   collection,
@@ -92,8 +93,9 @@ export default function ParentVoiceFeedback({
 
       <div className="space-y-2">
         {feedback.map((item) => {
-          const recordedDate = item.recordedAt?.toDate
-            ? item.recordedAt.toDate().toLocaleDateString(currentLang, {
+          const recordedAt = toDateOrNull(item.recordedAt);
+          const recordedDate = recordedAt
+            ? recordedAt.toLocaleDateString(currentLang, {
                 month: "short",
                 day: "numeric",
               })

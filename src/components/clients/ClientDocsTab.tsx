@@ -30,6 +30,7 @@ import { notifyParentDocumentShared } from "@/lib/notificationService";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
+import { toDateOrNull, toMillis } from "@/lib/timestamps";
 import { useConfirm } from "@/context/ConfirmContext";
 
 interface ClientDocsTabProps {
@@ -44,7 +45,7 @@ function getFileIcon(fileType: string) {
 }
 
 export default function ClientDocsTab({ client }: ClientDocsTabProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, userData } = useAuth();
   const { success, error: showError } = useToast();
   const { confirm: customConfirm } = useConfirm();
@@ -228,9 +229,12 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
     ...reports.map(r => ({ ...r, isReport: true, category: 'report' })),
     ...documents.map(d => ({ ...d, isReport: false }))
   ].sort((a, b) => {
-    const dateA = a.generatedAt || a.uploadedAt;
-    const dateB = b.generatedAt || b.uploadedAt;
-    return (dateB?.seconds || 0) - (dateA?.seconds || 0);
+    // Most of these carry an ISO string rather than a Timestamp, so reading
+    // `.seconds` yielded undefined and every comparison was 0 - 0 — the list
+    // was never actually sorted. See lib/timestamps.
+    const dateA = toMillis(a.generatedAt || a.uploadedAt) ?? 0;
+    const dateB = toMillis(b.generatedAt || b.uploadedAt) ?? 0;
+    return dateB - dateA;
   });
 
   const filteredItems = filterCategory === "all" 
@@ -319,7 +323,9 @@ export default function ClientDocsTab({ client }: ClientDocsTabProps) {
                   </div>
                   <p className="text-xs text-neutral-500">
                     {item.isReport ? t('reports.client.title') : (CATEGORIES.find(c => c.id === item.category)?.label || t('cl_tab.doc', { defaultValue: 'Doc' }))} •
-                    {new Date((item.generatedAt || item.uploadedAt)?.seconds * 1000).toLocaleDateString('ro-RO')}
+                    {toDateOrNull(item.generatedAt || item.uploadedAt)?.toLocaleDateString(
+                      i18n.language.startsWith('ro') ? 'ro-RO' : 'en-US',
+                    ) || ''}
                   </p>
                 </div>
 

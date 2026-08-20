@@ -1,6 +1,7 @@
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs, where, startAfter, Query } from 'firebase/firestore';
 import { Activity, ActivityType, ActivityCategory } from '@/types/activity';
+import { toISO } from '@/lib/timestamps';
 
 const ACTIVITIES_COLLECTION = 'activities';
 
@@ -65,7 +66,9 @@ export async function fetchRecentActivities(limitCount: number = 10): Promise<Ac
     return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+      // Most rows carry an ISO string rather than a Timestamp (see lib/timestamps).
+      // `new Date()` survives only for a serverTimestamp not yet acknowledged.
+      createdAt: toISO(doc.data().createdAt) || new Date().toISOString(),
     })) as Activity[];
   } catch (error) {
     console.error('Failed to fetch activities:', error);
@@ -103,7 +106,9 @@ export async function fetchActivitiesByCategory(
     const activities = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+      // Most rows carry an ISO string rather than a Timestamp (see lib/timestamps).
+      // `new Date()` survives only for a serverTimestamp not yet acknowledged.
+      createdAt: toISO(doc.data().createdAt) || new Date().toISOString(),
     })) as Activity[];
 
     const last = snapshot.docs[snapshot.docs.length - 1];
