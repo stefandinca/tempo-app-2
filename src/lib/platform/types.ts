@@ -46,12 +46,19 @@ export interface BugReport {
 
 export interface Lead {
   id: string;
+  /** Which funnel this came from. `marketing` rows carry a status. */
+  source: "marketing" | "demo";
   name: string;
   email: string;
   phone: string;
+  /** Marketing only — what they wrote in the contact form. */
+  message: string;
+  /** Marketing only — e.g. "4-10 Terapeuți". */
+  teamSize: string;
+  /** Demo only — the centre name they typed. */
   clinic: string;
-  consent: boolean;
-  source: string;
+  /** Marketing only; null for demo rows, which have no status field. */
+  status: string | null;
   createdAt: string | null;
 }
 
