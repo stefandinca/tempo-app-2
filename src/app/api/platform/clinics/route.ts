@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
             bucket?: string;
             status?: string;
             isDemo?: boolean;
+            licence?: { plan?: string; expiresAt?: string | null } | null;
           };
           // Database id and hostname from ONE source, and through the label
           // validator — see tenantIdentity(). A registry id that is not a
@@ -44,20 +45,25 @@ export async function GET(req: NextRequest) {
           }
           const db = adminDb(identity.databaseId);
 
-          const [clients, staff, events, licenceSnap] = await Promise.all([
+          const [clients, staff, events] = await Promise.all([
             countOf(db, "clients"),
             countOf(db, "team_members"),
             countOf(db, "events"),
-            db.collection("system_settings").doc("licence").get().catch(() => null),
           ]);
 
-          const licence = licenceSnap?.exists
-            ? (licenceSnap.data() as {
-                plan?: string;
-                expiresAt?: string | null;
-                graceEndsAtMillis?: number | null;
-              })
-            : null;
+          // Read from the REGISTRY (`t.licence`), not the clinic's mirror. The
+          // write route deliberately writes the registry first, so a failed
+          // mirror write leaves `mirrored: false` while the registry already
+          // has the licence — see the fuller explanation in
+          // src/app/api/platform/clinics/[id]/route.ts. Reading the mirror
+          // here would show "none — unlimited" for a licensed clinic whenever
+          // its mirror write failed, which is the bug this route exists not
+          // to reintroduce. This also drops one cross-database read per
+          // clinic from the console's front page.
+          const licence = (t.licence ?? null) as {
+            plan?: string;
+            expiresAt?: string | null;
+          } | null;
 
           return {
             tenantId: identity.tenantId,
@@ -72,7 +78,6 @@ export async function GET(req: NextRequest) {
               ? {
                   plan: licence.plan || "unknown",
                   expiresAt: licence.expiresAt ?? null,
-                  graceEndsAtMillis: licence.graceEndsAtMillis ?? null,
                 }
               : null,
           };

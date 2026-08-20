@@ -70,7 +70,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const registryLicence = (t?.licence ?? null) as {
       plan?: string;
       expiresAt?: string | null;
-      graceEndsAtMillis?: number | null;
       graceDays?: number;
       notes?: string;
     } | null;
@@ -90,7 +89,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         ? {
             plan: registryLicence.plan || "unknown",
             expiresAt: registryLicence.expiresAt ?? null,
-            graceEndsAtMillis: registryLicence.graceEndsAtMillis ?? null,
             graceDays: Number(registryLicence.graceDays ?? DEFAULT_GRACE_DAYS),
             notes: String(registryLicence.notes || ""),
           }

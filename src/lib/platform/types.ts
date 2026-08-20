@@ -10,8 +10,8 @@ export interface ClinicSummary {
   isDemo: boolean;
   host: string;
   counts: { clients: number; staff: number; events: number };
-  /** Phase 3 fills this in. Null means no licence document — unlimited. */
-  licence: { plan: string; expiresAt: string | null; graceEndsAtMillis: number | null } | null;
+  /** From the registry (`tenants/{id}.licence`). Null means no licence set — unlimited. */
+  licence: { plan: string; expiresAt: string | null } | null;
 }
 
 /** One clinic's detail page. */
