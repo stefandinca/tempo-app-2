@@ -8,7 +8,7 @@
  * The label check is the one that matters most: an unvalidated label reaching
  * adminDb() is how a typo becomes a read of the wrong clinic's database.
  */
-import { clinicDatabaseId } from "../src/lib/platform/labels.ts";
+import { clinicDatabaseId, isPlatformHost } from "../src/lib/platform/labels.ts";
 
 const C = {
   red: (s) => `\x1b[31m${s}\x1b[0m`,
@@ -43,6 +43,23 @@ check("a path traversal is refused", clinicDatabaseId("../default"), null);
 check("a slash is refused", clinicDatabaseId("aicaa/x"), null);
 check("the control plane cannot be named", clinicDatabaseId("(default)"), null);
 check("an already-prefixed id is refused", clinicDatabaseId("clinic-aicaa"), "clinic-clinic-aicaa");
+
+console.log(`
+${C.bold("is this request on the platform host?")}
+`);
+
+const reqWithHost = (h) => ({ headers: { get: (n) => (n.toLowerCase() === "host" ? h : null) } });
+
+check("the canonical host", isPlatformHost(reqWithHost("superadmin.tempoapp.ro")), true);
+check("the canonical host with a port", isPlatformHost(reqWithHost("superadmin.tempoapp.ro:443")), true);
+check("mixed case", isPlatformHost(reqWithHost("SuperAdmin.TempoApp.ro")), true);
+check("localhost", isPlatformHost(reqWithHost("localhost")), true);
+check("localhost with a port", isPlatformHost(reqWithHost("localhost:3000")), true);
+check("a bare IP", isPlatformHost(reqWithHost("127.0.0.1")), true);
+check("a missing Host header is refused, not accepted", isPlatformHost(reqWithHost(null)), false);
+check("a clinic host is not the platform", isPlatformHost(reqWithHost("livebetterlife.tempoapp.ro")), false);
+check("a Vercel preview deploy is not the platform", isPlatformHost(reqWithHost("tempo-app-2.vercel.app")), false);
+check("an arbitrary domain is not the platform", isPlatformHost(reqWithHost("evil.com")), false);
 
 const BASE = process.argv.find((a) => a.startsWith("--base="))?.slice(7) || "";
 

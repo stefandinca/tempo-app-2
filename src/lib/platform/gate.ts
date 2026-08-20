@@ -16,10 +16,9 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { requireStaffRole } from "@/lib/serverAuth";
-import { tenantIdFromRequest } from "@/lib/tenant";
-import { clinicDatabaseId } from "@/lib/platform/labels";
+import { clinicDatabaseId, isPlatformHost } from "@/lib/platform/labels";
 
-export { clinicDatabaseId };
+export { clinicDatabaseId, isPlatformHost };
 
 export interface PlatformCaller {
   uid: string;
@@ -30,11 +29,6 @@ export interface PlatformCaller {
 export type PlatformAuthResult =
   | { ok: true; caller: PlatformCaller }
   | { ok: false; status: number; error: string };
-
-/** True when this request arrived on the platform host rather than a clinic's. */
-export function isPlatformHost(req: NextRequest): boolean {
-  return tenantIdFromRequest(req) === "";
-}
 
 export async function requireSuperadmin(req: NextRequest): Promise<PlatformAuthResult> {
   // Cheapest check first, and it needs no I/O.
