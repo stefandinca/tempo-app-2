@@ -9,7 +9,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError } from "@/lib/platform/gate";
-import { countOf } from "@/lib/platform/counts";
+import { countOf, tenantIdentity } from "@/lib/platform/counts";
 import type { ClinicSummary } from "@/lib/platform/types";
 
 export const runtime = "nodejs";
@@ -22,45 +22,55 @@ export async function GET(req: NextRequest) {
   try {
     const registry = await adminDb().collection("tenants").get();
 
-    const clinics = await Promise.all(
-      registry.docs.map(async (doc): Promise<ClinicSummary> => {
-        const t = doc.data() as {
-          tenantId?: string;
-          name?: string;
-          databaseId?: string;
-          bucket?: string;
-          status?: string;
-          isDemo?: boolean;
-        };
-        const databaseId = t.databaseId || `clinic-${doc.id}`;
-        const db = adminDb(databaseId);
+    const clinics = (
+      await Promise.all(
+        registry.docs.map(async (doc): Promise<ClinicSummary | null> => {
+          const t = doc.data() as {
+            tenantId?: string;
+            name?: string;
+            databaseId?: string;
+            bucket?: string;
+            status?: string;
+            isDemo?: boolean;
+          };
+          // Database id and hostname from ONE source, and through the label
+          // validator — see tenantIdentity(). A registry id that is not a
+          // clinic label is refused rather than concatenated into a database
+          // name; the health screen is where it is reported as such.
+          const identity = tenantIdentity(doc);
+          if (!identity) {
+            console.error("[platform/clinics] registry id is not a clinic label:", doc.id);
+            return null;
+          }
+          const db = adminDb(identity.databaseId);
 
-        const [clients, staff, events, licenceSnap] = await Promise.all([
-          countOf(db, "clients"),
-          countOf(db, "team_members"),
-          countOf(db, "events"),
-          db.collection("system_settings").doc("licence").get().catch(() => null),
-        ]);
+          const [clients, staff, events, licenceSnap] = await Promise.all([
+            countOf(db, "clients"),
+            countOf(db, "team_members"),
+            countOf(db, "events"),
+            db.collection("system_settings").doc("licence").get().catch(() => null),
+          ]);
 
-        const licence = licenceSnap?.exists
-          ? (licenceSnap.data() as { plan?: string; expiresAt?: string | null })
-          : null;
+          const licence = licenceSnap?.exists
+            ? (licenceSnap.data() as { plan?: string; expiresAt?: string | null })
+            : null;
 
-        return {
-          tenantId: doc.id,
-          name: t.name || doc.id,
-          databaseId,
-          bucket: t.bucket || "",
-          status: t.status || "unknown",
-          isDemo: !!t.isDemo,
-          host: `${doc.id}.tempoapp.ro`,
-          counts: { clients, staff, events },
-          licence: licence
-            ? { plan: licence.plan || "unknown", expiresAt: licence.expiresAt ?? null }
-            : null,
-        };
-      }),
-    );
+          return {
+            tenantId: identity.tenantId,
+            name: t.name || identity.tenantId,
+            databaseId: identity.databaseId,
+            bucket: t.bucket || "",
+            status: t.status || "unknown",
+            isDemo: !!t.isDemo,
+            host: identity.host,
+            counts: { clients, staff, events },
+            licence: licence
+              ? { plan: licence.plan || "unknown", expiresAt: licence.expiresAt ?? null }
+              : null,
+          };
+        }),
+      )
+    ).filter((c): c is ClinicSummary => c !== null);
 
     clinics.sort((a, b) => a.name.localeCompare(b.name));
     return NextResponse.json({ clinics });

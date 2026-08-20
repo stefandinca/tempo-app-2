@@ -8,7 +8,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
-import { countOf } from "@/lib/platform/counts";
+import { countOf, tenantIdentity } from "@/lib/platform/counts";
 import type { ClinicDetail } from "@/lib/platform/types";
 
 export const runtime = "nodejs";
@@ -18,8 +18,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const gate = await requireSuperadmin(req);
   if (!gate.ok) return platformError(gate);
 
-  const derived = clinicDatabaseId(params.id);
-  if (!derived) return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
+  // Checked here, before any I/O, so a malformed label never reaches
+  // .doc(params.id) either — a path segment with a slash in it names a
+  // different document altogether.
+  if (!clinicDatabaseId(params.id)) {
+    return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
+  }
 
   try {
     // Not guarded by .catch(): if the registry lookup itself fails, we do not
@@ -27,9 +31,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const registryDoc = await adminDb().collection("tenants").doc(params.id).get();
     if (!registryDoc.exists) return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
 
+    // Database id and hostname from the same helper the list routes use, so
+    // this page cannot disagree with the row that linked to it.
+    const identity = tenantIdentity(registryDoc);
+    if (!identity) return NextResponse.json({ error: "unknown_clinic" }, { status: 404 });
+
     const t = registryDoc.data() as Record<string, any>;
-    const databaseId = t.databaseId || derived;
-    const db = adminDb(databaseId);
+    const db = adminDb(identity.databaseId);
 
     // Everything below reads the CLINIC's own database, which can be
     // unreachable even when the registry (control plane) is fine. countOf()
@@ -55,13 +63,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const entities = Array.isArray(config?.legalEntities) ? config!.legalEntities : [];
 
     const clinic: ClinicDetail = {
-      tenantId: registryDoc.id,
-      name: t.name || registryDoc.id,
-      databaseId,
+      tenantId: identity.tenantId,
+      name: t.name || identity.tenantId,
+      databaseId: identity.databaseId,
       bucket: t.bucket || "",
       status: t.status || "unknown",
       isDemo: !!t.isDemo,
-      host: `${registryDoc.id}.tempoapp.ro`,
+      host: identity.host,
       counts: { clients, staff: staffCount, events },
       licence: licence ? { plan: licence.plan || "unknown", expiresAt: licence.expiresAt ?? null } : null,
       disabledEvaluations: evalSnap?.exists ? (evalSnap.data()?.disabled ?? []) : [],

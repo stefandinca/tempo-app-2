@@ -7,13 +7,44 @@
  * records one row per evaluation-insights generation.
  */
 import { NextResponse, type NextRequest } from "next/server";
-import { AggregateField } from "firebase-admin/firestore";
+import { AggregateField, type Firestore } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError } from "@/lib/platform/gate";
+import { tenantIdentity } from "@/lib/platform/counts";
 import type { ClinicSpend } from "@/lib/platform/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/**
+ * One ledger's row count and cost.
+ *
+ * Aggregated server-side rather than fetched-and-summed: a fetch capped at a
+ * page size silently under-counts once a clinic passes that many rows, and
+ * this number is what an invoice gets reconciled against.
+ *
+ * Returns null — never a zero — when the aggregate fails. The two ledgers used
+ * to share one try/catch, so a clinic whose ai_conversations read succeeded and
+ * whose ai_usage_events read threw returned the partial sum, and the console
+ * rendered it as a finished `$x.xxxx`. A cost that is silently low is worse
+ * than one that admits it does not know.
+ */
+async function ledger(
+  db: Firestore,
+  collection: string,
+  tenantId: string,
+): Promise<{ n: number; cost: number } | null> {
+  try {
+    const agg = await db
+      .collection(collection)
+      .aggregate({ n: AggregateField.count(), cost: AggregateField.sum("costUsd") })
+      .get();
+    return { n: agg.data().n, cost: Number(agg.data().cost || 0) };
+  } catch (e: any) {
+    console.error(`[platform/ai-usage] ${tenantId}/${collection} failed:`, String(e?.message || e));
+    return null;
+  }
+}
 
 export async function GET(req: NextRequest) {
   const gate = await requireSuperadmin(req);
@@ -22,44 +53,37 @@ export async function GET(req: NextRequest) {
   try {
     const registry = await adminDb().collection("tenants").get();
 
-    const spend = await Promise.all(
-      registry.docs.map(async (doc): Promise<ClinicSpend> => {
-        const t = doc.data() as { name?: string; databaseId?: string };
-        const db = adminDb(t.databaseId || `clinic-${doc.id}`);
-        let conversations = 0;
-        let insightEvents = 0;
-        let costUsd = 0;
+    const spend = (
+      await Promise.all(
+        registry.docs.map(async (doc): Promise<ClinicSpend | null> => {
+          const identity = tenantIdentity(doc);
+          if (!identity) {
+            console.error("[platform/ai-usage] registry id is not a clinic label:", doc.id);
+            return null;
+          }
+          const t = doc.data() as { name?: string };
+          const db = adminDb(identity.databaseId);
 
-        try {
-          // Aggregated server-side rather than fetched-and-summed: a fetch capped at
-          // a page size silently under-counts once a clinic passes that many rows,
-          // and this number is what an invoice gets reconciled against.
-          const convAgg = await db
-            .collection("ai_conversations")
-            .aggregate({ n: AggregateField.count(), cost: AggregateField.sum("costUsd") })
-            .get();
-          conversations = convAgg.data().n;
-          costUsd += Number(convAgg.data().cost || 0);
+          const [conv, events] = await Promise.all([
+            ledger(db, "ai_conversations", identity.tenantId),
+            ledger(db, "ai_usage_events", identity.tenantId),
+          ]);
+          const costUsd = (conv?.cost || 0) + (events?.cost || 0);
 
-          const eventAgg = await db
-            .collection("ai_usage_events")
-            .aggregate({ n: AggregateField.count(), cost: AggregateField.sum("costUsd") })
-            .get();
-          insightEvents = eventAgg.data().n;
-          costUsd += Number(eventAgg.data().cost || 0);
-        } catch {
-          // An unreachable clinic contributes nothing rather than failing the page.
-        }
-
-        return {
-          tenantId: doc.id,
-          name: t.name || doc.id,
-          conversations,
-          insightEvents,
-          costUsd: Math.round(costUsd * 10000) / 10000,
-        };
-      }),
-    );
+          return {
+            tenantId: identity.tenantId,
+            name: t.name || identity.tenantId,
+            conversations: conv?.n || 0,
+            insightEvents: events?.n || 0,
+            costUsd: Math.round(costUsd * 10000) / 10000,
+            // EITHER ledger failing makes the whole row untrustworthy: the
+            // one that failed contributes a fabricated 0 to both its count
+            // and the cost.
+            partial: !conv || !events,
+          };
+        }),
+      )
+    ).filter((s): s is ClinicSpend => s !== null);
 
     spend.sort((a, b) => b.costUsd - a.costUsd);
     return NextResponse.json({ spend });

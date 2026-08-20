@@ -54,6 +54,14 @@ export interface ClinicSpend {
   conversations: number;
   insightEvents: number;
   costUsd: number;
+  /**
+   * True when at least one of the two ledgers could not be read, so every
+   * number on this row is short by an unknown amount. The console renders a
+   * partial row as "—" and leaves it out of the total: this figure is what a
+   * clinic's invoice gets reconciled against, and a cost that is silently low
+   * is worse than one that admits it does not know.
+   */
+  partial: boolean;
 }
 
 export interface ClinicHealth {

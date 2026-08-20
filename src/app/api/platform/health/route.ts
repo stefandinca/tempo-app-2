@@ -8,6 +8,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError } from "@/lib/platform/gate";
+import { tenantIdentity } from "@/lib/platform/counts";
 import { anthropicKeyFor } from "@/lib/assistant/anthropic";
 import type { ClinicHealth } from "@/lib/platform/types";
 
@@ -24,13 +25,30 @@ export async function GET(req: NextRequest) {
     const health = await Promise.all(
       registry.docs.map(async (doc): Promise<ClinicHealth> => {
         const t = doc.data() as { name?: string; databaseId?: string; bucket?: string };
-        const databaseId = t.databaseId || `clinic-${doc.id}`;
+        const identity = tenantIdentity(doc);
+
+        // A registry id that is not a well-formed clinic label is itself a
+        // broken clinic, and this is the screen that reports broken clinics —
+        // so it becomes a row with the reason, rather than a clinic quietly
+        // missing from the estate.
+        if (!identity) {
+          return {
+            tenantId: doc.id,
+            name: t.name || doc.id,
+            databaseReachable: false,
+            bucketConfigured: !!t.bucket,
+            anthropicKeyPresent: !!anthropicKeyFor(doc.id),
+            licencePresent: false,
+            error: `registry id ${JSON.stringify(doc.id)} is not a valid clinic label`,
+          };
+        }
+
         let databaseReachable = false;
         let licencePresent = false;
         let error: string | null = null;
 
         try {
-          const db = adminDb(databaseId);
+          const db = adminDb(identity.databaseId);
           await db.collection("team_members").limit(1).get();
           databaseReachable = true;
           licencePresent = (await db.collection("system_settings").doc("licence").get()).exists;
@@ -39,11 +57,11 @@ export async function GET(req: NextRequest) {
         }
 
         return {
-          tenantId: doc.id,
-          name: t.name || doc.id,
+          tenantId: identity.tenantId,
+          name: t.name || identity.tenantId,
           databaseReachable,
           bucketConfigured: !!t.bucket,
-          anthropicKeyPresent: !!anthropicKeyFor(doc.id),
+          anthropicKeyPresent: !!anthropicKeyFor(identity.tenantId),
           licencePresent,
           error,
         };
