@@ -518,7 +518,7 @@ Full dark mode support for comfortable use in any lighting condition.
 | Metric | Count |
 | --- | --- |
 | Staff portal pages | 15 |
-| Clinics using the platform | 1 live, 1 demo, 1 onboarding |
+| Clinics using the platform | 3 live, 1 demo |
 | Parent portal pages | 9 |
 | Evaluation types supported | 5 |
 | User roles | 5 |

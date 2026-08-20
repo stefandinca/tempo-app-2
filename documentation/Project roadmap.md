@@ -230,6 +230,7 @@ Final polish, Cloud Functions, and quality-of-life improvements.
 | Live Better Life | `livebetterlife.tempoapp.ro` | `clinic-livebetterlife` | Production |
 | Diaconu Maria | `diaconumaria.tempoapp.ro` | `clinic-diaconumaria` | Production |
 | Demo | `demo.tempoapp.ro` | `clinic-demo` | Sales/demo, seeded |
+| Academia lui Alex | `aicaa.tempoapp.ro` | `clinic-aicaa` | Production, onboarded 20 Aug 2026 |
 
 **Multi-database model, live since 20 Aug 2026.** One Firebase project
 (`tempo-app-2`) and one Vercel project serve every clinic, separated by a

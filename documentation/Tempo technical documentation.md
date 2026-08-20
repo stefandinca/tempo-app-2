@@ -497,7 +497,7 @@ function isParentOf(clientId) { /* checks parentUids array on client doc */ }
 | Collection | Read | Write |
 | --- | --- | --- |
 | `team_members` | All staff | Admin/Superadmin |
-| `clients` | Staff list; parents `get` own child only | Staff (parents may update only `parentUids`) |
+| `clients` | Staff list; parents `get` own child only | Staff only — the browser never writes `parentUids`; linking goes through `/api/parent/link` (§16.1) |
 | `client_codes` | `get`: any signed-in user; `list`: staff only | Staff |
 | `events` | Staff + parents (child assigned) | Staff |
 | `evaluations` (subcollections) | Staff + parents (own child) | Staff |
@@ -542,7 +542,7 @@ interface AuthContextType {
 2. Selects language (EN/RO)
 3. Enters client access code (4-8 character alphanumeric)
 4. App signs in anonymously (if not already), then `getDoc` on `/client_codes/{CODE}` — the lookup doc holds `{ clientId, clientName }`
-5. On match → anonymous UID is added to the client's `parentUids` array (stale UIDs cleaned up best-effort via `localStorage` `parent_prev_uid`)
+5. On match → the browser calls `POST /api/parent/link` with the code. The server re-resolves the child from the **code** with the Admin SDK and writes `parentUids` itself, ignoring any client id the caller supplies (stale UIDs dropped via `localStorage` `parent_prev_uid`)
 6. Session info persisted in `sessionStorage`; all subsequent queries filter by this client association
 
 > ⚠️ **Security**: Rate limited — 5 failed attempts triggers 60-second lockout. Codes live on client documents and are mirrored to `/client_codes` (get-only for parents, list forbidden), so parents never query the `clients` collection. A 30-minute idle timeout auto-signs parents out.
@@ -664,7 +664,7 @@ Manages calendar event creation modal state. Can be triggered from multiple loca
 **CommandPaletteContext** — `src/context/CommandPaletteContext.tsx`
 Global Cmd+K search modal state. Stores pending actions in sessionStorage.
 
-**PortalContext** — `src/context/PortalContext.tsx`
+**PortalContext** — `src/app/parent/PortalContext.tsx`
 Parent portal data provider. Fetches child's client data, sessions, evaluations. Scoped to authenticated parent's child only.
 
 ## 7.3 Known Issues
@@ -1078,7 +1078,7 @@ await logActivity({
 1. Parent → `/parent` → Select Language
 2. Enter access code (4-8 alphanumeric chars)
 3. Anonymous Firebase sign-in, then `getDoc` on `/client_codes/{CODE}` (get-only lookup; listing forbidden by rules)
-4. Match found → UID added to client's `parentUids` (old UIDs cleaned up best-effort)
+4. Match found → `POST /api/parent/link` links the uid server-side, resolving the child from the code rather than trusting the browser (old UIDs dropped best-effort)
 5. No match → Show error (rate limited: 5 attempts / 60s lockout)
 6. Redirect to `/parent/dashboard` (30-minute idle timeout auto-signs out)
 
@@ -1427,12 +1427,15 @@ Onboarding a new clinic: `documentation/new-tenant-runbook.md`.
 | H6 | High | `useCollections` hook exhaustive deps warning | Intentionally suppressed to avoid infinite loops |
 | M5/M6/M7 | Medium | ~~Context providers don't memoize values~~ — **partly fixed**: `AuthContext` and `DataContext` now use `useMemo`. `ParentAuthContext` still builds its value inline | Remaining work is `ParentAuthContext` only |
 | M9 | Medium | Inconsistent timestamps (serverTimestamp vs toISOString) | New code should use `serverTimestamp()`. Note the seeder and several existing paths write ISO strings, so readers must handle both |
-| — | Medium | `team_members` is readable by any signed-in user, including anonymous parents — exposes staff name, e-mail and phone. Combined with deterministic thread ids (`thread_{uidA}_{uidB}`) and `allow get` on `threads`, thread metadata and `lastMessage` previews are reachable too | Message bodies are still protected by the participants check. Tighten the `team_members` read rule |
+| — | Medium | Deterministic thread ids (`thread_{uidA}_{uidB}`) plus `allow get` on `threads` leave thread metadata and `lastMessage` previews reachable by id | Message bodies are still protected by the participants check. The staff-roster half of this is fixed — see below |
 | — | Medium | The parent access-code lockout (5 attempts / 60s) is enforced only in React state in `src/app/parent/page.tsx`; `client_codes` allows `get` to any signed-in user | Enumeration is blocked (`list` is staff-only), but brute force via the SDK bypasses the UI limit |
 | — | Low | Image optimization disabled | Using `<img>` instead of `<Image>` |
 | — | Low | `MODEL` and `PRICING` are hardcoded in `src/lib/assistant/` | Must be changed together or `/ai-usage` reports wrong costs (§27.6) |
 
 ## Fixed Since March 2026
+
+- `team_members` is no longer readable by any signed-in user. Reads are staff-only, and parents read `team_public/{uid}` — a mirror carrying name, initials, colour and role and nothing else, kept in sync by `src/lib/teamPublicSync.ts`. Rules grant whole documents and cannot hide fields, so the fields parents legitimately need had to live somewhere else
+- Parent linking no longer happens in the browser. `/api/parent/link` resolves the child from the **access code** server-side, and the rule that let any signed-in user append themselves to `clients.parentUids` is gone. Client ids were largely guessable (`firstname` + a four-digit birthday), so that rule alone was enough to reach a child's whole record
 
 - Chat: deterministic thread IDs prevent duplicate threads; message attribution uses `senderRole`/`senderClientId` so parent re-logins keep correct sent/received display
 - Chat: archiving persists across parent sessions (keyed by `clientId`, not anonymous UID); archived threads view with unarchive (`useArchivedThreads`)
@@ -1463,8 +1466,17 @@ NEXT_PUBLIC_FIREBASE_VAPID_KEY    # Web Push key — PER PROJECT, not shared
 NEXT_PUBLIC_APP_ENV               # "demo" only for the demo tenant; omit otherwise
 
 # Server-only (never NEXT_PUBLIC_)
-ANTHROPIC_API_KEY                 # Mira; absent -> chat returns 503 ai_unavailable
+ANTHROPIC_API_KEY_<TENANT>        # Mira, per clinic — e.g. ANTHROPIC_API_KEY_AICAA (§28.3)
+ANTHROPIC_API_KEY                 # Unsuffixed fallback. Deliberately NOT set on the platform
+                                  # project, so a clinic with no key of its own answers
+                                  # ai_unavailable rather than silently billing another
+                                  # clinic's key
 FIREBASE_SERVICE_ACCOUNT          # Admin SDK JSON, minified to one line
+
+# Bug reports (§28.9)
+RESEND_API_KEY                    # absent -> the report is still stored, the email is not
+RESEND_FROM                       # must name a sender verified in the Resend account
+BUG_REPORT_TO                     # defaults to the maintainer's address
 
 # SmartBill Integration
 SMARTBILL_USER                    # SmartBill API username
@@ -1579,6 +1591,7 @@ request arrived on.
 | Live Better Life | `livebetterlife.tempoapp.ro` | `clinic-livebetterlife` | `tempo-app-2-livebetterlife` |
 | Diaconu Maria | `diaconumaria.tempoapp.ro` | `clinic-diaconumaria` | `tempo-app-2-diaconumaria` |
 | Demo | `demo.tempoapp.ro` | `clinic-demo` | `tempo-app-2-demo` |
+| Academia lui Alex | `aicaa.tempoapp.ro` | `clinic-aicaa` | `tempo-app-2-aicaa` |
 
 `tempoapp.ro` and `www` are the marketing site — a **different repository**
 (`tempo-web`) on its own Vercel project. Never touch it from here.
@@ -1727,15 +1740,21 @@ the collection at all, so a clinic cannot forge a report against another clinic.
 
 ## 28.10 What still needs a human
 
-- **The wildcard domain does not work, and cannot as things stand.** The
-  `*.tempoapp.ro` CNAME exists and resolves to Vercel, but a wildcard TLS
-  certificate needs a DNS-01 challenge, which requires Vercel to control the zone.
-  DNS is at hostico (`serviceType: external`), so Vercel reports
-  `acceptedChallenges: []` and issues nothing; an arbitrary subdomain resolves and
-  then fails the TLS handshake. Moving the nameservers to Vercel would fix it but
-  means recreating the MX records that carry mail for the domain. Nothing depends
-  on the wildcard — each clinic has its own record — so the per-clinic record in
-  the onboarding runbook stays.
+- **The wildcard covers DNS but never TLS.** `*.tempoapp.ro CNAME
+  cname.vercel-dns.com` is in the zone, so any subdomain resolves to Vercel. A
+  wildcard *certificate* still needs a DNS-01 challenge, which requires Vercel to
+  control the zone; DNS is at hostico (`serviceType: external`), so Vercel reports
+  `acceptedChallenges: []` and issues nothing for a host it has not been told
+  about. Moving the nameservers would fix that, and would mean recreating the MX
+  records that carry mail for the domain — still not worth it.
+
+  Attaching the hostname to the project supplies the certificate by another route:
+  Vercel completes an **HTTP-01** challenge, which needs only that the name already
+  resolves to it. So **onboarding needs no registrar step**, and the per-clinic DNS
+  record was dropped from the runbook on 20 Aug 2026. Verified while onboarding
+  `aicaa`: an unregistered subdomain resolves and fails the handshake, while
+  `aicaa.tempoapp.ro` — attached to the project, never given a record of its own —
+  serves a certificate whose only SAN is `aicaa.tempoapp.ro`.
 - `RESEND_FROM` must name a sender verified in the Resend account. The default,
   `bugs@tempoapp.ro`, is rejected until `tempoapp.ro` is verified.
 - The platform bucket and `(default)`'s clinic data are still the rollback

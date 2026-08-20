@@ -99,21 +99,17 @@ per clinic. Each is now resolved from the request's host — see
 | `ANTHROPIC_API_KEY` | `ANTHROPIC_API_KEY_<TENANT>`, chosen per request |
 | one build per clinic | one build, host-resolved database, bucket and key |
 
-### One thing still needs you
+### The wildcard record — done
 
-1. **The wildcard needs a DNS record.** `*.tempoapp.ro` is added to the project
-   and ownership-verified, but `tempoapp.ro` DNS is managed at the registrar,
-   not Vercel (`serviceType=external`), so Vercel reports it
-   `misconfigured=true` and an arbitrary subdomain does not resolve. Add at the
-   registrar:
+`*.tempoapp.ro CNAME cname.vercel-dns.com` now exists at the registrar, so any
+subdomain resolves to Vercel without a record of its own. Confirmed 20 Aug 2026:
+`zzz-no-such-clinic.tempoapp.ro` resolves.
 
-   ```
-   *.tempoapp.ro    CNAME    cname.vercel-dns.com
-   ```
-
-   Until then everything still works — each clinic's own subdomain has its own
-   record. The wildcard only removes the need for a DNS record per future
-   clinic. `www` and the apex keep their explicit records and are unaffected.
+It buys exactly one thing — resolution. Vercel still cannot issue a *wildcard*
+certificate, because that needs a DNS-01 challenge and the zone is not Vercel's.
+A new clinic's hostname must still be attached to the project, which is what
+earns it a per-host certificate over HTTP-01. Net effect on onboarding: the
+registrar step is gone, the Vercel step is not.
 
 ### Diaconu Maria's Mira key — resolved
 
@@ -146,9 +142,10 @@ whenever the rollback window closes.
       objects are no longer wanted.
 - [x] **Collapse to one Vercel project** — done 20 Aug 2026, see below. Two of
       three domains moved; Diaconu Maria's is held pending her Mira key.
-- [ ] **Update `documentation/new-tenant-runbook.md`.** A new clinic is now a
-      database, a bucket, `register-tenant.mjs`, a Vercel domain and a DNS
-      record — no new Firebase project.
+- [x] **Update `documentation/new-tenant-runbook.md`** — done. A new clinic is a
+      database, a bucket, `register-tenant.mjs` and a Vercel domain. No new
+      Firebase project, and since the wildcard record landed, no DNS record
+      either.
 - [ ] Rotate the SmartBill credentials (long-standing, unrelated to this).
 - [ ] 267 parent mirrors and one client with 91 linked uids, from years of
       anonymous sessions. Sign-out now unlinks properly so it stops growing;

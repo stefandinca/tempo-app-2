@@ -115,19 +115,28 @@ node scripts/vercel-move-domain.mjs --domain=<label>.tempoapp.ro \
   --from=<current-project> --to=tempo-app-2 --yes   # only if it already exists
 ```
 
-For a brand-new hostname, add it in the Vercel dashboard, then create the DNS
-record at the registrar:
+For a brand-new hostname, add it to the `tempo-app-2` project in the Vercel
+dashboard. **That is the whole of it — the registrar needs nothing.**
 
-```
-<label>.tempoapp.ro    CNAME    cname.vercel-dns.com
-```
+`*.tempoapp.ro CNAME cname.vercel-dns.com` is already in the zone, so any new
+subdomain resolves to Vercel the moment someone asks for it. What the wildcard
+cannot do is carry TLS. A wildcard certificate needs a DNS-01 challenge, which
+requires Vercel to control the zone, and `tempoapp.ro` runs on hostico
+nameservers alongside the MX records for mail — so Vercel issues nothing for a
+subdomain it has never been told about, and the browser gets a handshake failure
+rather than a page.
 
-This step does **not** go away. `*.tempoapp.ro` is added to the project and its
-DNS record exists, but Vercel cannot issue a wildcard certificate for it: that
-needs a DNS-01 challenge, which requires Vercel to control the zone. `tempoapp.ro`
-runs on hostico nameservers, alongside the MX records for mail, so moving it is
-not worth a convenience. Verified 20 Aug 2026 — an arbitrary subdomain resolves
-to Vercel and then fails the TLS handshake.
+Adding the hostname to the project is what closes that gap: Vercel then completes
+an **HTTP-01** challenge, which needs only that the name already resolves to it,
+and issues a certificate for that one host. Resolution comes from the wildcard,
+the certificate comes from the domain being attached — two different mechanisms,
+and only the second one is your job.
+
+Verified 20 Aug 2026 while onboarding `aicaa`: an unregistered subdomain resolves
+to Vercel and fails the handshake, while `aicaa.tempoapp.ro` — attached to the
+project and never given a record of its own — served a Let's Encrypt certificate
+whose only SAN is `aicaa.tempoapp.ro`, within minutes and with no registrar
+involvement.
 
 ## 6. Give the clinic its Mira key
 
