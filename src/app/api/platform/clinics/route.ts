@@ -52,7 +52,11 @@ export async function GET(req: NextRequest) {
           ]);
 
           const licence = licenceSnap?.exists
-            ? (licenceSnap.data() as { plan?: string; expiresAt?: string | null })
+            ? (licenceSnap.data() as {
+                plan?: string;
+                expiresAt?: string | null;
+                graceEndsAtMillis?: number | null;
+              })
             : null;
 
           return {
@@ -65,7 +69,11 @@ export async function GET(req: NextRequest) {
             host: identity.host,
             counts: { clients, staff, events },
             licence: licence
-              ? { plan: licence.plan || "unknown", expiresAt: licence.expiresAt ?? null }
+              ? {
+                  plan: licence.plan || "unknown",
+                  expiresAt: licence.expiresAt ?? null,
+                  graceEndsAtMillis: licence.graceEndsAtMillis ?? null,
+                }
               : null,
           };
         }),

@@ -39,6 +39,11 @@ export async function GET(req: NextRequest) {
             bucketConfigured: !!t.bucket,
             anthropicKeyPresent: !!anthropicKeyFor(doc.id),
             licencePresent: false,
+            // Task 7 computes this against the control-plane registry. Literal false
+            // until then so the tree compiles at every commit — a health screen that
+            // claims every licence is out of sync is obviously wrong, which is
+            // preferable to one that quietly claims they are all fine.
+            licenceInSync: false,
             error: `registry id ${JSON.stringify(doc.id)} is not a valid clinic label`,
           };
         }
@@ -63,6 +68,11 @@ export async function GET(req: NextRequest) {
           bucketConfigured: !!t.bucket,
           anthropicKeyPresent: !!anthropicKeyFor(identity.tenantId),
           licencePresent,
+          // Task 7 computes this against the control-plane registry. Literal false
+          // until then so the tree compiles at every commit — a health screen that
+          // claims every licence is out of sync is obviously wrong, which is
+          // preferable to one that quietly claims they are all fine.
+          licenceInSync: false,
           error,
         };
       }),

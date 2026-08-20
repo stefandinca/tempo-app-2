@@ -57,7 +57,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       ]);
 
     const licence = licenceSnap?.exists
-      ? (licenceSnap.data() as { plan?: string; expiresAt?: string | null })
+      ? (licenceSnap.data() as {
+          plan?: string;
+          expiresAt?: string | null;
+          graceEndsAtMillis?: number | null;
+        })
       : null;
     const config = configSnap?.exists ? (configSnap.data() as Record<string, any>) : null;
     const entities = Array.isArray(config?.legalEntities) ? config!.legalEntities : [];
@@ -71,7 +75,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       isDemo: !!t.isDemo,
       host: identity.host,
       counts: { clients, staff: staffCount, events },
-      licence: licence ? { plan: licence.plan || "unknown", expiresAt: licence.expiresAt ?? null } : null,
+      licence: licence
+        ? {
+            plan: licence.plan || "unknown",
+            expiresAt: licence.expiresAt ?? null,
+            graceEndsAtMillis: licence.graceEndsAtMillis ?? null,
+          }
+        : null,
       disabledEvaluations: evalSnap?.exists ? (evalSnap.data()?.disabled ?? []) : [],
       brandingLogoUrl: brandingSnap?.exists ? (brandingSnap.data()?.logoUrl ?? null) : null,
       legalName: entities[0]?.name ?? null,

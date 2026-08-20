@@ -11,7 +11,7 @@ export interface ClinicSummary {
   host: string;
   counts: { clients: number; staff: number; events: number };
   /** Phase 3 fills this in. Null means no licence document — unlimited. */
-  licence: { plan: string; expiresAt: string | null } | null;
+  licence: { plan: string; expiresAt: string | null; graceEndsAtMillis: number | null } | null;
 }
 
 /** One clinic's detail page. */
@@ -71,5 +71,11 @@ export interface ClinicHealth {
   bucketConfigured: boolean;
   anthropicKeyPresent: boolean;
   licencePresent: boolean;
+  /**
+   * Whether the clinic's mirrored licence matches the registry. They are two
+   * documents in two databases; drift means the console shows one thing and the
+   * rules enforce another.
+   */
+  licenceInSync: boolean;
   error: string | null;
 }

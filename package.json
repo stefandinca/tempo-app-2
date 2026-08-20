@@ -23,6 +23,7 @@
     "build:livebetterlife": "node scripts/tenant-env.mjs livebetterlife -- next build",
     "test:parent-link": "node scripts/test-parent-link.mjs",
     "test:platform": "node --experimental-strip-types --no-warnings scripts/test-platform.mjs",
+    "test:licence": "node --experimental-strip-types --no-warnings scripts/test-licence.mjs",
     "dev:aicaa": "node scripts/tenant-env.mjs aicaa -- next dev",
     "build:aicaa": "node scripts/tenant-env.mjs aicaa -- next build",
     "test:timestamps": "node --experimental-strip-types --no-warnings scripts/test-timestamps.mjs"
