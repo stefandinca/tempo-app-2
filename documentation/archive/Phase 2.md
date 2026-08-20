@@ -1,5 +1,12 @@
 # TempoApp Phase 2 Roadmap: From MVP to Production Ready
 
+> ⚠️ **STALE — ARCHIVED.** This document is kept for reference and is no longer
+> maintained. It may describe a version of the product or its infrastructure that
+> no longer exists. **Verify against the code before trusting anything here.**
+> Current documentation lives in `documentation/`.
+
+
+
 **Status:** Draft
 **Target Timeline:** 4-6 Weeks
 **Focus:** Refinement, Parent Ecosystem, and Advanced Clinical Tools

@@ -1,5 +1,12 @@
 # Multi-Tenant Provisioning — Implementation Plan
 
+> ⚠️ **STALE — ARCHIVED.** This document is kept for reference and is no longer
+> maintained. It may describe a version of the product or its infrastructure that
+> no longer exists. **Verify against the code before trusting anything here.**
+> Current documentation lives in `documentation/`.
+
+
+
 > **Status:** ON HOLD (drafted June 2026). Pick up when onboarding a 2nd real client.
 > **Goal:** turn client onboarding from "create a Vercel project + set env vars + configure DNS + deploy" into "fill a form in a superadmin dashboard → live", **without** giving up per-clinic data isolation.
 

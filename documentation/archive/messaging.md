@@ -1,5 +1,12 @@
 # Internal Messaging System - Development Plan
 
+> ⚠️ **STALE — ARCHIVED.** This document is kept for reference and is no longer
+> maintained. It may describe a version of the product or its infrastructure that
+> no longer exists. **Verify against the code before trusting anything here.**
+> Current documentation lives in `documentation/`.
+
+
+
 ## 1. Executive Summary
 **Objective:** Implement a secure, real-time internal messaging system to facilitate collaboration between team members (Therapists, Admins, Staff) without leaving the TempoApp ecosystem.
 

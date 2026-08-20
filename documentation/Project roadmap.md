@@ -193,8 +193,8 @@ Final polish, Cloud Functions, and quality-of-life improvements.
 
 **What was built:**
 
-- [x]  **Voice Feedback** — Record/play/share/delete audio notes per session (`useVoiceFeedback`, `useAudioRecorder`), parent playback, rules, notifications (spec: `old documentation/voice-feedback.md`)
-- [x]  **Session Videos** — Record/play/share/delete video clips per session (`useSessionVideos`, `useMediaRecorder`), parent playback, rules, notifications (spec: `old documentation/video-recording.md`)
+- [x]  **Voice Feedback** — Record/play/share/delete audio notes per session (`useVoiceFeedback`, `useAudioRecorder`), parent playback, rules, notifications (spec: `documentation/archive/voice-feedback.md`)
+- [x]  **Session Videos** — Record/play/share/delete video clips per session (`useSessionVideos`, `useMediaRecorder`), parent playback, rules, notifications (spec: `documentation/archive/video-recording.md`)
 - [x]  **Chat fixes** — Deterministic thread IDs (no duplicates), `senderRole`-based message attribution (survives parent re-login), persistent parent archiving, archived threads view with unarchive
 - [x]  **Parent auth rework** — Login via `/client_codes/{CODE}` lookup collection (get-only, enumeration forbidden); fixed permission errors, double-login, stale-UID duplicate notifications; 30-min idle auto sign-out
 - [x]  **Parent portal redesign** — Restructured navigation, redesigned dashboard/profile, intervention plan removed from profile, dashboard shows every session from the latest session day
@@ -225,16 +225,22 @@ Final polish, Cloud Functions, and quality-of-life improvements.
 
 ## Tenants
 
-| Tenant | Firebase project | Status |
-| --- | --- | --- |
-| Live Better Life | `tempo-app-2` | Production — the operating clinic |
-| Demo | `tempo-app-demo` | Sales/demo, seeded with mock data |
-| Clinic #2 | — | **Pending onboarding** — see `new-tenant-runbook.md` |
+| Clinic | Hostname | Database | Status |
+| --- | --- | --- | --- |
+| Live Better Life | `livebetterlife.tempoapp.ro` | `clinic-livebetterlife` | Production |
+| Diaconu Maria | `diaconumaria.tempoapp.ro` | `clinic-diaconumaria` | Production |
+| Demo | `demo.tempoapp.ro` | `clinic-demo` | Sales/demo, seeded |
 
-Hosting is **Vercel**, one project per tenant (silo model). The cPanel/Passenger
-path is retired. Moving to a single deployment on a wildcard domain is planned
-but blocked on per-tenant Admin SDK routing — see
-`multi-tenant-implementation-plan.md`.
+**Multi-database model, live since 20 Aug 2026.** One Firebase project
+(`tempo-app-2`) and one Vercel project serve every clinic, separated by a
+Firestore database and a Storage bucket derived from the hostname. Adding a
+clinic is a database, a bucket, a registry entry and a DNS record — no new
+project of either kind. See `new-tenant-runbook.md` and §28 of the technical
+documentation.
+
+The silo model (a Firebase and Vercel project per clinic) and the bridge model
+that was to replace it are both retired; the plan for the latter is in
+`documentation/archive/`. The cPanel/Passenger path is long retired.
 
 ## What's Live
 
@@ -401,7 +407,7 @@ The scratch list was archived in Aug 2026; these were still open when it was.
 
 ## Video Recording & Session Documentation
 
-> ✅ **v1 SHIPPED** (see Phase 8 and `documentation/old documentation/video-recording.md`). Basic recording, playback, parent sharing, and storage limits are live. Remaining items below (compression, bookmarks, comparison viewer) are still future work.
+> ✅ **v1 SHIPPED** (see Phase 8 and `documentation/archive/video-recording.md`). Basic recording, playback, parent sharing, and storage limits are live. Remaining items below (compression, bookmarks, comparison viewer) are still future work.
 
 > Enable therapists to record therapy sessions directly within the platform for review, training, and parent sharing.
 
@@ -461,7 +467,7 @@ The scratch list was archived in Aug 2026; these were still open when it was.
 
 ## Audio Feedback & Voice Notes
 
-> ✅ **v1 SHIPPED for therapists** (see Phase 8 and `documentation/old documentation/voice-feedback.md`). Voice session notes with parent playback are live. Transcription, chat voice messages, parent-recorded feedback, and dictation mode remain future work.
+> ✅ **v1 SHIPPED for therapists** (see Phase 8 and `documentation/archive/voice-feedback.md`). Voice session notes with parent playback are live. Transcription, chat voice messages, parent-recorded feedback, and dictation mode remain future work.
 
 > Allow therapists and parents to leave voice-based feedback, reducing the friction of typing detailed notes — especially on mobile devices during or after sessions.
 

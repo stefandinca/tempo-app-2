@@ -6,7 +6,22 @@ check it against the code before trusting it.
 
 **Current documentation lives one level up in `documentation/`.**
 
+Every file in this folder carries a stale banner at the top. This folder was
+called `old documentation/` until 20 Aug 2026.
+
 ---
+
+## Archived August 2026 — after the multi-database cutover
+
+On 20 Aug 2026 all three clinics moved onto **one Firebase project and one Vercel
+project**, separated by a Firestore database and a Storage bucket derived from the
+hostname. That invalidated everything written about the silo model.
+
+| File | Why archived |
+|---|---|
+| `multi-tenant-implementation-plan.md` | The bridge-model plan: keep a Firebase project per clinic, share one Vercel deployment. Superseded — the product went further, to one project with a database and bucket per clinic. The design that shipped is `docs/superpowers/specs/2026-08-19-multi-database-tenancy-design.md`; what was actually done is `docs/cutover-runbook.md`. Its central worry — that one `FIREBASE_SERVICE_ACCOUNT` cannot serve several projects — is exactly why the silo model was abandoned rather than bridged. |
+| `tempo-diaconumaria.md` | Firebase web config for the `tempo-diaconumaria` project. That project no longer serves anything: her clinic runs from `tempo-app-2` on the `clinic-diaconumaria` database. Kept only so the old project can be identified if it needs decommissioning. |
+
 
 ## Archived August 2026
 

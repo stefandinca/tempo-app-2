@@ -1,253 +1,188 @@
-# New Tenant Runbook
+# Onboarding a New Clinic
 
-How to stand up a new clinic on TempoApp today, under the **silo model** — one
-Firebase project and one Vercel project per tenant.
+How to stand up a new clinic on TempoApp, under the **multi-database model** —
+one Firebase project and one Vercel project for the whole platform, with a
+Firestore database and a Storage bucket per clinic.
 
-> This is the manual process. The plan to replace most of it with a form lives in
-> [`multi-tenant-implementation-plan.md`](./multi-tenant-implementation-plan.md).
-> Read the [constraint](#the-constraint-that-decides-when-to-automate) below before
-> deciding to build that.
+> **No new Firebase project. No new Vercel project.** If you are about to create
+> either, stop — that was the old silo model, archived on 20 Aug 2026. See
+> `documentation/archive/ARCHIVE-INDEX.md`.
 
-Budget roughly **half a day** for the first one and 1–2 hours once familiar.
+Budget **under an hour**, most of it waiting for DNS.
 
 ---
 
-## 0. Before you start
+## 0. Pick the label
 
-Decide two names and keep them consistent everywhere:
+One lowercase label, used everywhere and never changed afterwards:
 
-| Thing | Example | Notes |
+| Thing | Derived as | Example |
 |---|---|---|
-| Subdomain | `clinicx.tempoapp.ro` | The label becomes the tenant key if/when the bridge model lands |
-| Firebase project id | `tempo-clinicx` | Cannot be renamed later. Lowercase, no underscores |
+| Hostname | `<label>.tempoapp.ro` | `clinicx.tempoapp.ro` |
+| Firestore database | `clinic-<label>` | `clinic-clinicx` |
+| Storage bucket | `tempo-app-2-<label>` | `tempo-app-2-clinicx` |
+| Mira API key variable | `ANTHROPIC_API_KEY_<LABEL>` | `ANTHROPIC_API_KEY_CLINICX` |
 
-Existing tenants for reference: `tempo-app-2` (live — Live Better Life),
-`tempo-diaconumaria` (live — Diaconu Maria), `tempo-app-demo` (demo).
+It must match `^[a-z0-9][a-z0-9-]{0,48}[a-z0-9]$` — two characters minimum,
+hyphens allowed inside. `src/lib/tenant.ts` derives everything from it, so a
+label the pattern rejects resolves to the control plane and the clinic sees an
+empty app.
 
-Register the new tenant in `scripts/tenant-env.mjs` (`TENANTS` and, for a real
-clinic, `PRODUCTION_TENANTS`), add `.env.<tenant>`, and add `dev:<tenant>` /
-`build:<tenant>` npm scripts. The FCM service worker is generated from that env,
-so a tenant missing here cannot be built locally.
-
-> ⚠️ **Google caps Firebase projects per organisation** (~dozens by default).
-> Per-project isolation is right up to a few dozen clinics; past that the model
-> needs revisiting. Request a quota increase before you get close.
+Reserved and unusable: `www`, `admin`, `app`, `api`.
 
 ---
 
-## 1. Create the Firebase project
-
-1. Firebase console → **Add project** → name it, note the project id.
-2. **Firestore Database** → Create → **production mode** → region `eur3` (or
-   match the other tenants). Production mode matters: default-deny is what the
-   rules in this repo assume.
-3. **Authentication** → Get started → enable:
-   - **Email/Password** — staff sign-in
-   - **Anonymous** — the parent portal depends on this; without it parents cannot log in at all
-4. **Storage** → Get started → same region.
-5. **Cloud Messaging** → Web configuration → **Generate key pair**. Copy the
-   Web Push certificate — this is `NEXT_PUBLIC_FIREBASE_VAPID_KEY`.
-
-   > VAPID keys are **per project**. A key from another tenant will not work.
-   > (`.env.demoonly` had no key of its own for a long time and silently
-   > inherited the live project's, which is why demo push never worked.)
-   >
-   > The FCM service worker is generated per tenant at build time from
-   > `public/firebase-messaging-sw.template.js` — it used to hardcode the live
-   > project, so every tenant's worker initialised against `tempo-app-2` and
-   > rejected its own push messages. Nothing to do here; just never hardcode
-   > config into the generated file.
-
-6. **Project settings → General → Your apps → Web app** → register one. Copy the
-   config block; those six values are the `NEXT_PUBLIC_FIREBASE_*` variables.
-7. **Project settings → Service accounts → Generate new private key**. This JSON,
-   minified onto one line, becomes `FIREBASE_SERVICE_ACCOUNT`. It is a full-admin
-   credential — treat it like a password, never commit it, never prefix it
-   `NEXT_PUBLIC_`.
-
----
-
-## 2. Deploy rules, indexes and functions
-
-From the repo root, targeting the new project explicitly:
-
-```bash
-firebase deploy --only firestore:rules,firestore:indexes,storage --project tempo-clinicx
-firebase deploy --only functions --project tempo-clinicx
-```
-
-This ships `firestore.rules`, `firestore.indexes.json`, `storage.rules` and the
-three Cloud Functions (`createTeamMember`, `migrateTeamMember`,
-`sendPushNotification`, all `us-central1`).
-
-> **The functions deploy usually fails the first time on a brand-new project**
-> with `PERMISSION_DENIED ... gcf-artifacts ... artifactregistry.repositories.get`.
-> The Cloud Functions service agent is provisioned while that same command runs,
-> so it isn't ready yet. **Just run it again** — the second attempt succeeds.
->
-> Afterwards set an image cleanup policy, or container images accumulate and bill:
-> ```bash
-> firebase functions:artifacts:setpolicy --project tempo-clinicx --force
-> ```
-
-**Rules and indexes are per project and do not sync.** Every future change to
-`firestore.rules` or `firestore.indexes.json` must be deployed to *every* tenant.
-This is the single easiest thing to forget, and the failure mode is a tenant
-silently missing a security fix.
-
-### Storage CORS
-
-```bash
-gsutil cors set cors.json gs://tempo-clinicx.firebasestorage.app
-```
-
-If `gsutil` is unavailable (it ships with the Google Cloud SDK and breaks when its
-bundled Python is missing), use the JSON API instead:
+## 1. Create the database
 
 ```bash
 TOKEN=$(gcloud auth application-default print-access-token)
-curl -X PATCH "https://storage.googleapis.com/storage/v1/b/tempo-clinicx.firebasestorage.app"   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json"   -d "{\"cors\": $(cat cors.json)}"
+curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"type":"FIRESTORE_NATIVE","locationId":"eur3","concurrencyMode":"PESSIMISTIC"}' \
+  "https://firestore.googleapis.com/v1/projects/tempo-app-2/databases?databaseId=clinic-<label>"
 ```
 
-> `cors.json` currently allows `"origin": ["*"]`. Consider narrowing it to the
-> tenant's own subdomain — session videos and voice notes live in this bucket.
+`eur3` keeps clinical data in the EU, matching the others.
 
----
-
-## 3. Bootstrap the database
-
-A fresh project has no services, no programmes and no clinic identity, so the
-app renders but is unusable. Preview first, then apply:
+Then deploy rules and indexes to **every** database — they are per database and
+do not sync:
 
 ```bash
-node scripts/bootstrap-tenant.mjs --project=tempo-clinicx --name="Clinic X" --dry-run
-node scripts/bootstrap-tenant.mjs --project=tempo-clinicx --name="Clinic X" --yes
+npm run test:rules
+node scripts/deploy-rules.mjs --project=tempo-app-2
 ```
 
-Writes `system_settings/config` (clinic identity, invoice series, VAT, account
-limits), the 10-service Romanian catalogue with rates, and 16 starter ABA
-programmes. It refuses to run against a project that already has clients or team
-members, so it cannot overwrite a working clinic.
+## 2. Create the Storage bucket
 
-Authentication uses your `gcloud` Application Default Credentials, so make sure
-the signed-in account has access to the new project.
+A GCS bucket in the EU, then registered with Firebase so rules apply and the SDK
+can address it. CORS is restricted to the clinic's own origin.
 
----
-
-## 4. Create the first admin
-
-The bootstrap script cannot do this — it writes Firestore, and this needs an Auth
-user whose UID becomes the document id.
-
-1. Firebase console → Authentication → **Add user** (email + temporary password).
-2. Copy the generated **UID**.
-3. Firestore → create `team_members/{UID}`:
-
-```json
-{
-  "name": "Admin Name",
-  "email": "admin@clinic.ro",
-  "role": "Admin",
-  "language": "ro",
-  "inviteStatus": "active",
-  "isActive": true,
-  "baseSalary": 0
-}
+```bash
+# create, EU, uniform access, CORS for https://<label>.tempoapp.ro + localhost
+# then: POST .../v1beta/projects/tempo-app-2/buckets/tempo-app-2-<label>:addFirebase
 ```
 
-The document id **must** equal the Auth UID — `AuthContext` looks the user up by
-`team_members/{uid}`, and a mismatch shows as a signed-in user with no role, who
-then bounces back to the login page. (`migrateTeamMember` exists to repair
-exactly this when it happens.)
+`scripts/` has no single command for this yet — the pattern used for the existing
+three is in `docs/cutover-runbook.md`. Afterwards, add the bucket to the
+`storage` array in `firebase.json` and deploy:
 
-Once this admin can sign in, every further team member should be added through
-the app's Team page, which calls `createTeamMember` and keeps Auth and Firestore
-in step.
+```bash
+firebase deploy --only storage --project tempo-app-2
+```
 
----
+> **Order matters.** Deploy storage rules only *after* step 4 writes the
+> membership mirrors. The rules deny everything until a mirror exists, so the
+> reverse order locks the clinic out of every document, video and voice note.
 
-## 5. Deploy the app
+## 3. Seed the clinic
 
-Today each tenant is **its own Vercel project** pointing at the same repo.
+```bash
+node scripts/bootstrap-tenant.mjs --project=tempo-app-2 --database=clinic-<label> --yes
+```
 
-1. Vercel → New Project → import this repository.
-2. Environment variables (Production **and** Preview):
+Settings, service catalogue and starter programmes. Then create the first Admin:
+add them in Firebase Auth on `tempo-app-2` and write their `team_members/{uid}`
+document in the new database with the right `role`.
 
-   | Variable | Value |
-   |---|---|
-   | `NEXT_PUBLIC_FIREBASE_API_KEY` | from step 1.6 |
-   | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | from step 1.6 |
-   | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | `tempo-clinicx` |
-   | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | from step 1.6 |
-   | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | from step 1.6 |
-   | `NEXT_PUBLIC_FIREBASE_APP_ID` | from step 1.6 |
-   | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | from step 1.5 |
-   | `ANTHROPIC_API_KEY` | only if this tenant gets Mira |
-   | `FIREBASE_SERVICE_ACCOUNT` | from step 1.7, minified to one line |
-   | `NEXT_PUBLIC_APP_ENV` | omit — `demo` only for the demo tenant |
+Auth is **shared across the platform** — one account, one password, and the same
+person can be staff at several clinics.
 
-   `npm run build` reads these from the Vercel environment. Locally it refuses to
-   run without an explicit tenant (`npm run build:demo` / `build:prod`) rather
-   than defaulting to a project.
+## 4. Register the tenant
 
-3. Add the domain `clinicx.tempoapp.ro` in Vercel, and the DNS record it asks for.
-4. Firebase console → **Authentication → Settings → Authorized domains** → add
-   `clinicx.tempoapp.ro`. Sign-in fails with an unhelpful error without this.
+```bash
+node scripts/register-tenant.mjs --project=tempo-app-2 \
+  --tenant=<label> --name="Clinic X" --yes
+```
 
----
+Writes `tenants/<label>` plus a `tenant_members/{bucket}__{uid}` mirror for every
+staff member, into the `(default)` control plane. Storage authorisation depends
+on these, because Storage rules cannot read a named database.
 
-## 6. Verify before handing over
+Re-run it whenever staff are added — or let it be, since parent mirrors refresh
+themselves on every portal login.
 
-- [ ] Staff sign-in works, and the sidebar matches the admin role
-- [ ] Settings → Billing config: CUI, address, IBAN, invoice series filled in
-- [ ] Settings → Limits: max clients / team members set (0 = unlimited)
-- [ ] Create a test client → an access code is generated → `client_codes/{CODE}` appears
-- [ ] Parent portal: that code logs in and shows the child
-- [ ] Create a calendar event, mark attendance, score a programme
-- [ ] Billing page shows the session and computes a total
-- [ ] If SmartBill is in scope: credentials saved and a test invoice syncs
-- [ ] If Mira is in scope: `/api/assistant/health` is healthy and a question answers
-- [ ] Push notifications register (needs HTTPS and the tenant's own VAPID key)
-- [ ] Delete the test client and event
+## 5. Point the hostname at the platform
 
----
+Add the domain to the **`tempo-app-2`** Vercel project (not a new one):
 
-## The constraint that decides when to automate
+```bash
+node scripts/vercel-move-domain.mjs --domain=<label>.tempoapp.ro \
+  --from=<current-project> --to=tempo-app-2 --yes   # only if it already exists
+```
 
-The obvious next step is the bridge model — one deployment serving
-`*.tempoapp.ro`, tenants resolved at request time. On Vercel that is cheap for
-everything the **browser** does.
+For a brand-new hostname, add it in the Vercel dashboard, then create the DNS
+record at the registrar:
 
-The catch is the **server** side. `src/lib/firebaseAdmin.ts` reads a single
-`FIREBASE_SERVICE_ACCOUNT` from the environment, and the AI routes
-(`/api/assistant/*`) and SmartBill sync depend on it. On one deployment serving
-several tenants, those routes would authenticate against whichever project that
-one credential belongs to — regardless of which clinic made the request.
+```
+<label>.tempoapp.ro    CNAME    cname.vercel-dns.com
+```
 
-So Phase 1 of the plan **cannot ship alone** unless the additional tenants launch
-without Mira and without SmartBill. Phase 2 (per-request tenant → Admin app
-routing) is what makes a shared deployment safe, and it is the part where a
-routing mistake means one clinic reading another clinic's children's clinical
-records. It needs an explicit isolation test before it goes anywhere near
-production.
+Once `*.tempoapp.ro` is wildcarded, this step disappears for future clinics.
 
-Until then, silo model: another Firebase project, another Vercel project, and
-remember to deploy rules to both.
+## 6. Give the clinic its Mira key
 
----
+Each clinic pays for its own usage, so each gets its own Anthropic key. On the
+`tempo-app-2` Vercel project add:
 
-## Per-tenant vs shared
+```
+ANTHROPIC_API_KEY_<LABEL>
+```
 
-| Per tenant (repeat every time) | Shared (one place) |
-|---|---|
-| Firebase project, Firestore, Auth, Storage, FCM | Application source code |
-| Security rules, indexes, Cloud Functions deploy | `firestore.rules`, `firestore.indexes.json` as files |
-| VAPID key, service account | — |
-| Vercel project, env vars, domain | The Git repository |
-| `system_settings/config`, services, programmes | The bootstrap script's defaults |
-| Client access codes, all clinical data | — |
-| SmartBill credentials | The SmartBill integration code |
+**Then redeploy.** Vercel binds environment variables at build time — a running
+deployment cannot see a variable added after it built, and the symptom is
+identical to a wrong key. Without one, Mira answers `ai_unavailable` and the rest
+of the app is unaffected.
+
+## 7. Brand it and set what they bought
+
+Sign in as Superadmin **on the clinic's own subdomain**:
+
+- **Settings → Branding** — upload their logo. It replaces our mark everywhere,
+  including the signed-out login screen and the parent portal.
+- **Settings → Evaluation access** — switch off any protocol they have not
+  bought. Disabled protocols are denied at the rules layer, so existing
+  evaluations are genuinely hidden. With all five off, the tab says evaluations
+  are coming soon.
+
+Both default to "everything on, our branding", so skipping this step is safe.
 
 ---
 
-*Last updated: August 2026 — silo model, Vercel hosting.*
+## Verify before handing over
+
+```bash
+npm run test:isolation      # tenant mapping, Firestore rules, Storage rules
+```
+
+Then on the real hostname:
+
+- `https://<label>.tempoapp.ro/api/assistant/health/` reports
+  `tenant=<label>`, `projectId=tempo-app-2`, `anthropic=ok`
+- sign in · client list · a calendar week · upload a document · a parent login
+  with an access code
+
+The parent flow is worth testing properly, because an access code is the only
+credential a parent has and what it unlocks is a child's clinical record:
+
+```bash
+node scripts/test-parent-link.mjs --base=https://<label>.tempoapp.ro \
+  --database=clinic-<label> --bucket=tempo-app-2-<label> \
+  --code=<a real code> --client=<its client id>
+```
+
+Use a test client, never a real child.
+
+---
+
+## The mistakes worth naming
+
+- **Deploying storage rules before the mirrors exist** locks the clinic out of
+  all media. Mirrors first, always.
+- **Forgetting to redeploy after adding an env var.** It looks exactly like a
+  wrong value.
+- **Changing a clinic's Firebase config on an old Vercel project.** The old
+  per-clinic projects still exist with builds disabled. Editing one changes
+  nothing; the platform project is the only one that serves traffic.
+- **Assuming rules propagate.** Four databases, four deploys — use
+  `scripts/deploy-rules.mjs`.
+- **Reusing a label that differs from the hostname.** Everything is derived from
+  the hostname; a mismatch is a clinic staring at an empty app.

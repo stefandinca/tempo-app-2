@@ -1,4 +1,11 @@
 # TempoApp Rebuild - Master Project Schedule
+
+> ⚠️ **STALE — ARCHIVED.** This document is kept for reference and is no longer
+> maintained. It may describe a version of the product or its infrastructure that
+> no longer exists. **Verify against the code before trusting anything here.**
+> Current documentation lives in `documentation/`.
+
+
 ## Project Roadmap & Sprint Plan
 
 **Project Manager:** Senior PM

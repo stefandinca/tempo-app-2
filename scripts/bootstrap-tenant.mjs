@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 /**
- * Bootstraps a NEW tenant's Firestore: the documents a fresh Firebase project
- * needs before the app is usable at all.
+ * Bootstraps a NEW clinic's Firestore: the documents it needs before the app is
+ * usable at all.
  *
- *   node scripts/bootstrap-tenant.mjs --project=clinic-x --name="Clinic X" --dry-run
- *   node scripts/bootstrap-tenant.mjs --project=clinic-x --name="Clinic X" --yes
+ *   node scripts/bootstrap-tenant.mjs --project=tempo-app-2 \
+ *     --database=clinic-x --name="Clinic X" --dry-run
+ *   node scripts/bootstrap-tenant.mjs --project=tempo-app-2 \
+ *     --database=clinic-x --name="Clinic X" --yes
+ *
+ * `--database` is REQUIRED for a real clinic. Every clinic now lives in its own
+ * database inside one project, and omitting it would write the service catalogue
+ * and starter programmes into `(default)` — the control plane, which holds no
+ * clinical data and belongs to no clinic.
  *
  * Writes:
  *   system_settings/config   clinic identity, invoice series, VAT, account limits
@@ -32,6 +39,7 @@ const args = Object.fromEntries(
 );
 
 const PROJECT = args.project;
+const DATABASE = args.database || "(default)";
 const CLINIC = args.name || "Centru de terapie";
 const DRY_RUN = !!args["dry-run"];
 const FORCE = !!args.force;
@@ -46,7 +54,15 @@ const C = {
 
 if (!PROJECT) {
   console.error(`\n${C.red("✗ --project=<firebase-project-id> is required")}\n`);
-  console.error(`  node scripts/bootstrap-tenant.mjs --project=clinic-x --name="Clinic X" --dry-run\n`);
+  console.error(`  node scripts/bootstrap-tenant.mjs --project=tempo-app-2 --database=clinic-x --name="Clinic X" --dry-run\n`);
+  process.exit(1);
+}
+// Writing a clinic's catalogue into the control plane is silent and wrong, so
+// (default) has to be asked for rather than fallen into.
+if (DATABASE === "(default)" && !args["allow-default"]) {
+  console.error(`\n${C.red("✗ --database=clinic-<label> is required")}`);
+  console.error(`  Each clinic lives in its own database; (default) is the control plane.`);
+  console.error(`  Pass --allow-default only if you genuinely mean the control plane.\n`);
   process.exit(1);
 }
 if (!DRY_RUN && !args.yes) {
@@ -132,11 +148,12 @@ function configDoc(clinicName) {
 // Opts out of the demo allowlist deliberately: bootstrapping a new tenant means
 // targeting a project this repo has never heard of. The guard here is instead
 // that the project must be empty (checked below).
-const db = new Db(PROJECT, { allowAnyProject: true });
+const db = new Db(PROJECT, { allowAnyProject: true, database: DATABASE });
 db.dryRun = DRY_RUN;
 
 console.log(`\n${C.bold("TempoApp tenant bootstrap")}`);
 console.log(`  project : ${C.bold(PROJECT)}${DRY_RUN ? C.dim("  (DRY RUN — no writes)") : ""}`);
+console.log(`  database: ${C.bold(DATABASE)}`);
 console.log(`  clinic  : ${CLINIC}\n`);
 
 let existingClients, existingTeam;

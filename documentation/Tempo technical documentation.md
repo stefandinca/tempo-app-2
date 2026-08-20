@@ -1,6 +1,6 @@
 # TempoApp - Comprehensive Technical Documentation
 
-> **Version**: 2.2 (Production)  |  **Last Updated**: August 2026  |  **Platform**: Next.js 14 + Firebase v10, deployed on Vercel  |  **Status**: Production-ready. Voice feedback + session videos shipped; parent login via `client_codes` lookup; the Mira AI assistant is live (§27); tenancy is the silo model with a second clinic pending (§28)
+> **Version**: 2.2 (Production)  |  **Last Updated**: August 2026  |  **Platform**: Next.js 14 + Firebase v10, deployed on Vercel  |  **Status**: Production-ready. Voice feedback + session videos shipped; parent login via `client_codes` lookup; the Mira AI assistant is live (§27); all clinics share one Firebase and one Vercel project, split by a database and bucket per clinic (§28)
 
 ---
 
@@ -849,7 +849,7 @@ Events can be configured as recurring with a configurable end date. Recurrence c
 
 ## 10.6 Session Media — Voice Feedback & Videos (Shipped)
 
-Therapists can record audio voice notes and video clips from the EventDetailPanel and optionally share them with parents. Full specs (archived, still accurate): `documentation/old documentation/voice-feedback.md` and `documentation/old documentation/video-recording.md`.
+Therapists can record audio voice notes and video clips from the EventDetailPanel and optionally share them with parents. Full specs (archived, still accurate): `documentation/archive/voice-feedback.md` and `documentation/archive/video-recording.md`.
 
 | Aspect | Voice Feedback | Session Videos |
 | --- | --- | --- |
@@ -1331,9 +1331,11 @@ explicitly and refuses to guess (§28.2).
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev:demo` / `dev:live` | Dev server against `tempo-app-demo` / `tempo-app-2` |
-| `npm run dev` | **Fails** — a default would silently target the live clinic |
-| `npm run build:demo` / `build:prod` | Production build for the named tenant |
+| `npm run dev:demo` / `dev:livebetterlife` / `dev:diaconumaria` | Dev server as that clinic's host |
+| `npm run dev` | **Fails** — a default would silently target a live clinic |
+| `npm run build:demo` / `build:livebetterlife` | Production build as that clinic's host |
+| `npm run test:isolation` | Tenant mapping + Firestore rules + Storage rules |
+| `npm run test:parent-link` | Parent sign-in, end to end against a running build |
 | `npm run build` | Build using the ambient environment — the Vercel path |
 | `npm run check:env` | Print the resolved tenant/project without running anything |
 | `npm run start` | Start production server |
@@ -1429,7 +1431,7 @@ Onboarding a new tenant: `documentation/new-tenant-runbook.md`.
 - Parent auth: login moved to `/client_codes/{CODE}` lookup (no `clients` queries pre-auth); fixed permission errors and double-login; duplicate parent notifications from stale UIDs
 - Notifications: read status persists with optimistic updates
 
-> 📋 Full bug audit: `documentation/old documentation/bugreport.md` (61 catalogued bugs)
+> 📋 Full bug audit: `documentation/archive/bugreport.md` (61 catalogued bugs)
 
 ---
 
@@ -1467,7 +1469,7 @@ SMARTBILL_TOKEN                   # SmartBill API token
 
 | File | Purpose |
 | --- | --- |
-| `.env.demo` / `.env.live` | Per-tenant configuration, selected explicitly (§28.2) |
+| `.env.platform` (or `.env.live`) | The one Firebase config for every clinic. The tenant is the HOST, not the credentials (§28.2) |
 | `.env.local` | Local overrides (never committed) |
 | `.env.disabled-was-live` | The retired always-loaded `.env`; kept only as a rollback |
 | Vercel dashboard | The real source of environment for deployed builds |
@@ -1556,40 +1558,174 @@ Prompt caching on the system prompt and the conversation prefix; usage accumulat
 
 # 28. Tenancy & Deployment Model
 
+**Cut over 20 August 2026.** Every clinic runs from **one Firebase project**
+(`tempo-app-2`) and **one Vercel project** (also `tempo-app-2`), separated by a
+Firestore database and a Storage bucket. Both are derived from the hostname the
+request arrived on.
+
 ## 28.1 Current tenants
 
-| Tenant | Firebase project | Status |
+| Clinic | Hostname | Database | Storage bucket |
+| --- | --- | --- | --- |
+| Live Better Life | `livebetterlife.tempoapp.ro` | `clinic-livebetterlife` | `tempo-app-2-livebetterlife` |
+| Diaconu Maria | `diaconumaria.tempoapp.ro` | `clinic-diaconumaria` | `tempo-app-2-diaconumaria` |
+| Demo | `demo.tempoapp.ro` | `clinic-demo` | `tempo-app-2-demo` |
+
+`tempoapp.ro` and `www` are the marketing site — a **different repository**
+(`tempo-web`) on its own Vercel project. Never touch it from here.
+
+The old per-clinic Firebase projects (`tempo-app-demo`, `tempo-diaconumaria`) and
+the old Vercel projects (`tempo-demo`, `tempo-livebetterlife`,
+`tempo-app-diaconumaria`) still exist with builds disabled. They are rollback
+targets and hold no live traffic.
+
+## 28.2 How a tenant is resolved
+
+`src/lib/tenant.ts` is the whole of it, and it is a **security boundary** — a
+hostname resolved one label too generously hands one clinic another clinic's
+records, and nothing in the UI would look wrong.
+
+| Hostname | Database | Bucket |
 | --- | --- | --- |
-| Live Better Life | `tempo-app-2` | Production |
-| Demo | `tempo-app-demo` | Sales/demo, seeded with mock data |
-| Clinic #2 | — | Pending onboarding |
+| `<clinic>.tempoapp.ro` | `clinic-<clinic>` | `tempo-app-2-<clinic>` |
+| apex, `www`, `admin`, `app`, `api` | `(default)` | platform bucket |
+| `localhost`, `*.vercel.app` | `(default)` | platform bucket |
+| malformed or unknown label | `(default)` | platform bucket |
 
-**Silo model:** one Firebase project *and* one Vercel project per tenant. Strong isolation; onboarding and deploys are manual and repeated per tenant.
+Unknown hosts fall back to `(default)` — the control plane, which holds no
+clinical records and whose rules deny clients outright. Failing closed to an
+empty database beats guessing a tenant.
 
-## 28.2 Selecting a tenant locally
+`src/lib/firebase.ts` binds the `db` and `storage` singletons from that answer at
+module load, so the 68 files importing `db` need to know nothing about tenancy.
+API routes resolve per request instead, via `tenantDatabaseFromRequest`.
 
-`.env` used to be loaded on every run and carried the live project, so `npm run dev` talked to production. Tenant selection is now explicit via `scripts/tenant-env.mjs`:
+Covered by `npm run test:tenant` — 46 assertions over hostname shapes, including
+the hostile ones.
 
-| Command | Targets |
+## 28.3 Per-clinic configuration comes from the host
+
+One deployment cannot hold three values for one environment variable, so
+anything that differs per clinic is resolved at request time:
+
+| Was | Now |
 | --- | --- |
-| `npm run dev:demo` / `build:demo` | `.env.demo` → `tempo-app-demo` |
-| `npm run dev:live` / `build:prod` | `.env.live` → `tempo-app-2` |
-| `npm run dev` | **Fails** — no default, by design |
-| `npm run build` | Inherits the environment (this is the Vercel path) |
+| `NEXT_PUBLIC_APP_ENV=demo` | `isDemoHost(hostname)` |
+| `ANTHROPIC_API_KEY` | `ANTHROPIC_API_KEY_<TENANT>`, falling back to the unsuffixed name |
 
-The launcher verifies the resolved project matches the requested tenant, prints it (red for live), and warns when `NEXT_PUBLIC_FIREBASE_VAPID_KEY`, `ANTHROPIC_API_KEY` or `FIREBASE_SERVICE_ACCOUNT` are absent.
+`IS_DEMO` is **false during prerender**, because there is no hostname. That is
+safe only because every consumer renders behind a client-side gate — the login
+page returns a spinner while auth resolves, and the dashboard components mount
+after it. A component that renders `IS_DEMO` into server-sent markup would
+hydrate into different content on the demo host.
 
-## 28.3 Onboarding a tenant
+`NEXT_PUBLIC_TENANT_HOST` overrides the hostname, which is how a local dev server
+reaches a clinic at all: `localhost` otherwise resolves to the control plane and
+renders an empty app.
 
-`documentation/new-tenant-runbook.md` is the full runbook. `scripts/bootstrap-tenant.mjs` takes an empty project to a usable clinic (settings, service catalogue, starter programmes).
+## 28.4 The control plane — the `(default)` database
 
-Rules, indexes and Cloud Functions are **per project and do not sync** — every change to `firestore.rules` or `firestore.indexes.json` must be deployed to every tenant.
+Storage rules **cannot read a named Firestore database**. This was proven by
+runtime spike, and the failure mode is silent: a named-database read compiles,
+deploys, and then denies everything with no error. So Storage authorisation
+resolves against mirrors in `(default)`:
 
-## 28.4 Why a single deployment is not live yet
+| Collection | Contents | Rules |
+| --- | --- | --- |
+| `tenants/{tenantId}` | `{ databaseId, bucket, name, status }` | Superadmin read |
+| `tenant_members/{bucket}__{uid}` | `{ tenantId, role }` | `if false` |
+| `tenant_parents/{bucket}__{uid}` | `{ tenantId, clientIds }` | `if false` |
 
-`src/lib/firebaseAdmin.ts` reads one `FIREBASE_SERVICE_ACCOUNT`. On a single deployment serving several subdomains, the AI routes and SmartBill sync would authenticate against that one project regardless of which clinic made the request.
+The mirrors are keyed **`{bucket}__{uid}`, not `{uid}`**. One person can work at
+several clinics — a Superadmin works at all of them — and a uid-keyed document
+could name only one bucket, so registering a second clinic would silently revoke
+their access to the first.
 
-So Phase 1 of `multi-tenant-implementation-plan.md` (wildcard domain + runtime tenant resolution) **cannot ship alone** unless the extra tenants launch without Mira and SmartBill. Phase 2 — per-request tenant → Admin app routing — is what makes a shared deployment safe, and a mistake there means one clinic reading another clinic's clinical records. It needs an explicit isolation test.
+`firestore.get` inside Storage rules is a **privileged read that bypasses
+Firestore rules**, which is why the mirrors can be locked to `if false` and still
+be usable from there.
+
+Staff mirrors are written by `scripts/register-tenant.mjs`. Parent mirrors are
+written by `/api/parent/link`, because anonymous uids are per-device and change
+on every new session.
+
+## 28.5 Storage
+
+One bucket per clinic. The bucket *is* the tenant, so `storage.rules` reduces to
+one lookup against the `{bucket}` wildcard, and one rules file serves every
+clinic. Object paths are unchanged.
+
+`firebase.json` lists the per-clinic buckets. The platform bucket
+(`tempo-app-2.firebasestorage.app`) is deliberately absent while it still holds
+Live Better Life's original objects; the new rules would deny everything there.
+
+Buckets are in the **EU** with CORS restricted to their own clinic's origin plus
+localhost — the platform bucket's `origin: ["*"]` was never carried over.
+
+Verified by `npm run test:storage-rules` — 29 assertions against the real buckets
+with real end-user tokens, including both directions of the cross-tenant check.
+
+## 28.6 Deploying rules
+
+Rules are **per database and do not sync**. Use the script, never a bare
+`firebase deploy`:
+
+```bash
+npm run test:rules                                  # 43 cases, deploys nothing
+node scripts/deploy-rules.mjs --project=tempo-app-2 # all four databases
+firebase deploy --only storage --project tempo-app-2
+```
+
+`npm run test:isolation` runs the tenant, Firestore and Storage suites together.
+
+## 28.7 Onboarding a clinic
+
+See `documentation/new-tenant-runbook.md`. A new clinic is now a database, a
+bucket, a registry entry and a DNS record — **no new Firebase project, and no new
+Vercel project**.
+
+## 28.8 Things that are ours, not the clinic's
+
+Set by a Superadmin, per clinic, from that clinic's own subdomain:
+
+| Feature | Where | Stored |
+| --- | --- | --- |
+| Which evaluation protocols the clinic has | Settings → Evaluation access | `system_settings/evaluation_access` |
+| The clinic's logo | Settings → Branding | `system_settings/branding` + `branding/` in its bucket |
+
+Both are **opt-out**: a clinic with no document has everything enabled and our
+branding. An allowlist would have switched every protocol off for every clinic
+the moment the rules deployed.
+
+Writes are Superadmin-only — an Admin runs the clinic but does not decide what
+the clinic bought, or how it is branded. Disabling a protocol denies the reads at
+the rules layer, so previous evaluations are genuinely hidden rather than merely
+unlinked; with all five disabled the evaluations tab says they are coming soon,
+and the assessment card and the parent portal's evaluations tab disappear.
+
+`system_settings/branding` is **world-readable on purpose**: the logo renders on
+the login and password-reset screens, before anyone signs in. It holds a URL to an
+image that is public by nature and nothing else.
+
+## 28.9 Bug reports
+
+`/api/report-bug` — reachable from the sidebar and the mobile menu, open to any
+staff role. Reports go to `bug_reports` in **one** database so they can be read
+together, and are then emailed through Resend. The write happens first and the
+email is best-effort: if Resend is unreachable or unconfigured, the report is
+still stored and the response says whether the email went. Browsers cannot write
+the collection at all, so a clinic cannot forge a report against another clinic.
+
+## 28.10 What still needs a human
+
+- `*.tempoapp.ro` needs a `CNAME cname.vercel-dns.com` at the registrar. DNS for
+  the domain is external to Vercel, so the wildcard reports `misconfigured` until
+  then. Nothing depends on it — every clinic has its own record — it only removes
+  the DNS step for future clinics.
+- `RESEND_FROM` must name a sender verified in the Resend account. The default,
+  `bugs@tempoapp.ro`, is rejected until `tempoapp.ro` is verified.
+- The platform bucket and `(default)`'s clinic data are still the rollback
+  target. Purge them only once the new arrangement has settled.
 
 ---
 
