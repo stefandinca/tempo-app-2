@@ -53,25 +53,21 @@ node scripts/deploy-rules.mjs --project=tempo-app-2
 
 ## 2. Create the Storage bucket
 
-A GCS bucket in the EU, then registered with Firebase so rules apply and the SDK
-can address it. CORS is restricted to the clinic's own origin.
-
 ```bash
-# create, EU, uniform access, CORS for https://<label>.tempoapp.ro + localhost
-# then: POST .../v1beta/projects/tempo-app-2/buckets/tempo-app-2-<label>:addFirebase
+node scripts/create-tenant-bucket.mjs --project=tempo-app-2 --tenant=<label> --yes
 ```
 
-`scripts/` has no single command for this yet — the pattern used for the existing
-three is in `docs/cutover-runbook.md`. Afterwards, add the bucket to the
-`storage` array in `firebase.json` and deploy:
+Creates the bucket in the EU with uniform access, restricts CORS to
+`https://<label>.tempoapp.ro`, registers it with Firebase so rules apply, and adds
+it to the `storage` array in `firebase.json`. Idempotent — safe to re-run, and it
+never touches an existing bucket's contents.
 
-```bash
-firebase deploy --only storage --project tempo-app-2
-```
+The name is `tempo-app-2-<label>`, matching `tenantBucket()` in
+`src/lib/tenant.ts`. That is not cosmetic: the app derives the bucket from the
+hostname at runtime, so a different name means the app writes to one bucket while
+the rules authorise another.
 
-> **Order matters.** Deploy storage rules only *after* step 4 writes the
-> membership mirrors. The rules deny everything until a mirror exists, so the
-> reverse order locks the clinic out of every document, video and voice note.
+Storage rules are deployed in step 4, **not here** — see the warning there.
 
 ## 3. Seed the clinic
 
@@ -100,6 +96,16 @@ on these, because Storage rules cannot read a named database.
 Re-run it whenever staff are added — or let it be, since parent mirrors refresh
 themselves on every portal login.
 
+Now, and only now, deploy the storage rules:
+
+```bash
+firebase deploy --only storage --project tempo-app-2
+```
+
+> **This order matters.** The rules deny everything until the mirrors above
+> exist. Deploying them first locks the clinic out of every document, video and
+> voice note it has.
+
 ## 5. Point the hostname at the platform
 
 Add the domain to the **`tempo-app-2`** Vercel project (not a new one):
@@ -116,7 +122,12 @@ record at the registrar:
 <label>.tempoapp.ro    CNAME    cname.vercel-dns.com
 ```
 
-Once `*.tempoapp.ro` is wildcarded, this step disappears for future clinics.
+This step does **not** go away. `*.tempoapp.ro` is added to the project and its
+DNS record exists, but Vercel cannot issue a wildcard certificate for it: that
+needs a DNS-01 challenge, which requires Vercel to control the zone. `tempoapp.ro`
+runs on hostico nameservers, alongside the MX records for mail, so moving it is
+not worth a convenience. Verified 20 Aug 2026 — an arbitrary subdomain resolves
+to Vercel and then fails the TLS handshake.
 
 ## 6. Give the clinic its Mira key
 

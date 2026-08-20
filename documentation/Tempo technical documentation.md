@@ -1727,10 +1727,15 @@ the collection at all, so a clinic cannot forge a report against another clinic.
 
 ## 28.10 What still needs a human
 
-- `*.tempoapp.ro` needs a `CNAME cname.vercel-dns.com` at the registrar. DNS for
-  the domain is external to Vercel, so the wildcard reports `misconfigured` until
-  then. Nothing depends on it — every clinic has its own record — it only removes
-  the DNS step for future clinics.
+- **The wildcard domain does not work, and cannot as things stand.** The
+  `*.tempoapp.ro` CNAME exists and resolves to Vercel, but a wildcard TLS
+  certificate needs a DNS-01 challenge, which requires Vercel to control the zone.
+  DNS is at hostico (`serviceType: external`), so Vercel reports
+  `acceptedChallenges: []` and issues nothing; an arbitrary subdomain resolves and
+  then fails the TLS handshake. Moving the nameservers to Vercel would fix it but
+  means recreating the MX records that carry mail for the domain. Nothing depends
+  on the wildcard — each clinic has its own record — so the per-clinic record in
+  the onboarding runbook stays.
 - `RESEND_FROM` must name a sender verified in the Resend account. The default,
   `bugs@tempoapp.ro`, is rejected until `tempoapp.ro` is verified.
 - The platform bucket and `(default)`'s clinic data are still the rollback
