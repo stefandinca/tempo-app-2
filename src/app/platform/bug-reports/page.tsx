@@ -19,12 +19,12 @@ export default function PlatformBugReportsPage() {
   const { success, error: toastError } = useToast();
   const [reports, setReports] = useState<BugReport[]>([]);
   const [loading, setLoading] = useState(true);
-  // Per-row in-flight guard. Without this, two rapid clicks on the same row
-  // fire two concurrent PATCHes; if the first fails after the second has
-  // already committed server-side, the first request's rollback restores the
-  // pre-first-click snapshot and silently discards the second's committed
-  // state. Serialising to one request per row keeps the wholesale-snapshot
-  // rollback in cycleStatus safe.
+  // Per-row in-flight guard. Every state transition cycleStatus makes —
+  // optimistic update and rollback alike — touches only the clicked row's
+  // entry via a functional map, never a whole-array snapshot. That is what
+  // lets two different rows be updated concurrently without one's rollback
+  // clobbering the other's committed change; this set only exists to stop
+  // the SAME row from firing a second PATCH while its first is in flight.
   const [pending, setPending] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -40,14 +40,13 @@ export default function PlatformBugReportsPage() {
   async function cycleStatus(report: BugReport) {
     if (pending.has(report.id)) return;
     const status = NEXT_STATUS[report.status] || "triaged";
-    const previous = reports;
     setPending((p) => new Set(p).add(report.id));
     setReports((rs) => rs.map((r) => (r.id === report.id ? { ...r, status } : r)));
     try {
       await platformPatch("/api/platform/bug-reports", { id: report.id, status });
       success(t("platform.bug_reports.updated", { defaultValue: "Status updated." }));
     } catch {
-      setReports(previous);
+      setReports((rs) => rs.map((r) => (r.id === report.id ? { ...r, status: report.status } : r)));
       toastError(t("platform.bug_reports.update_failed", { defaultValue: "Could not update." }));
     } finally {
       setPending((p) => {
