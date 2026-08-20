@@ -62,13 +62,14 @@ const TENANTS = {
   demo: { host: "demo.tempoapp.ro", label: "Demo" },
   livebetterlife: { host: "livebetterlife.tempoapp.ro", label: "LIVE — Live Better Life (real clinic data)" },
   diaconumaria: { host: "diaconumaria.tempoapp.ro", label: "LIVE — Diaconu Maria (real clinic data)" },
+  aicaa: { host: "aicaa.tempoapp.ro", label: "LIVE — Academia lui Alex (real clinic data)" },
 };
 
 /** Old name for a tenant, kept working so existing muscle memory does not break. */
 const ALIASES = { live: "livebetterlife" };
 
 /** Tenants holding real client records — flagged red and warned about. */
-const PRODUCTION_TENANTS = new Set(["livebetterlife", "diaconumaria"]);
+const PRODUCTION_TENANTS = new Set(["livebetterlife", "diaconumaria", "aicaa"]);
 
 /**
  * One project means one set of Firebase credentials, so there is one env file

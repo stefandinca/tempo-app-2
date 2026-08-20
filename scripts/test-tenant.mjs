@@ -54,6 +54,7 @@ const DATABASE_CASES = [
   ["diaconumaria.tempoapp.ro", "clinic-diaconumaria"],
   ["livebetterlife.tempoapp.ro", "clinic-livebetterlife"],
   ["demo.tempoapp.ro", "clinic-demo"],
+  ["aicaa.tempoapp.ro", "clinic-aicaa"],
   ["DiaconuMaria.TempoApp.ro", "clinic-diaconumaria"],   // case is not significant
   ["diaconumaria.tempoapp.ro:3000", "clinic-diaconumaria"], // a port is not part of the host
   ["clinic-with-hyphens.tempoapp.ro", "clinic-clinic-with-hyphens"],
@@ -91,6 +92,7 @@ const BUCKET_CASES = [
   ["diaconumaria.tempoapp.ro", "tempo-app-2-diaconumaria"],
   ["livebetterlife.tempoapp.ro", "tempo-app-2-livebetterlife"],
   ["demo.tempoapp.ro", "tempo-app-2-demo"],
+  ["aicaa.tempoapp.ro", "tempo-app-2-aicaa"],
 
   // Everything that is not a clinic keeps the project's own bucket.
   ["tempoapp.ro", PLATFORM_BUCKET],
@@ -113,6 +115,7 @@ const LABEL_CASES = [
   ["diaconumaria.tempoapp.ro", "diaconumaria"],
   ["livebetterlife.tempoapp.ro", "livebetterlife"],
   ["demo.tempoapp.ro", "demo"],
+  ["aicaa.tempoapp.ro", "aicaa"],
   ["tempoapp.ro", ""],
   ["www.tempoapp.ro", ""],
   ["localhost", ""],
