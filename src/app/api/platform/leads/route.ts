@@ -43,12 +43,32 @@ export async function GET(req: NextRequest) {
     // collection passed 500, a lead who filled in the form would simply never
     // appear, while the client-side sort made the page look complete.
     //
-    // orderBy is well defined here because login/page.tsx is the only writer
-    // and always sets `createdAt: serverTimestamp()`: every document holds a
-    // Timestamp, and every document HAS the field, which an orderBy requires
-    // (it silently drops documents that lack it). The JS sort below is kept as
-    // a stabiliser — toISO() has normalised the value by then, so a row ever
-    // written with an ISO string instead still lands in the right place.
+    // What makes orderBy safe here is that every document HAS `createdAt` —
+    // an orderBy silently DROPS documents that lack the field, which would
+    // hide a lead completely. login/page.tsx is the only writer and always
+    // sets it.
+    //
+    // It does NOT follow that they all hold a Timestamp. `potential_clients`
+    // is in migrate-tenant.mjs's TOP_LEVEL list, and that REST layer decodes
+    // timestampValue to a string and re-encodes it as stringValue (see
+    // scripts/demo-seed/firestore.mjs). Measured 21 Aug 2026: 27 of 30
+    // documents carry an ISO string, only 3 a Timestamp.
+    //
+    // Firestore orders by TYPE before value, so `desc` returns every string
+    // ahead of every Timestamp regardless of date. Two consequences, both
+    // currently harmless and neither silent:
+    //   - Display order is correct anyway: the JS sort below re-sorts on
+    //     toISO()-normalised values, which is why it is kept rather than
+    //     removed as redundant.
+    //   - The TRUNCATION boundary is not chronological. Past PAGE rows the
+    //     cut would fall by type first, so Timestamp-dated leads would be the
+    //     ones lost. At 30 of 500 nothing is cut, and the `total` returned
+    //     below drives a banner that says so when it ever is.
+    //
+    // Backfilling the strings to Timestamps would remove the second caveat.
+    // bug_reports has no equivalent problem: it is not in TOP_LEVEL, and its
+    // sole writer stores an ISO string, so that collection is genuinely
+    // uniform.
     const [snap, total] = await Promise.all([
       db.collection("potential_clients").orderBy("createdAt", "desc").limit(PAGE).get(),
       countOf(db, "potential_clients"),
