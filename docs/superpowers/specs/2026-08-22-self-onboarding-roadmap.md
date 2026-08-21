@@ -126,15 +126,105 @@ page** — otherwise a user who closes the tab after paying gets no clinic.
   clinical records; we are the processor. Today that relationship is established
   per clinic, by a human. Self-serve replaces that with a checkbox, and that
   needs legal input. **Treat as a launch blocker.**
-- Cancellation, retention and deletion. A cancelled clinic still has a database
-  and a bucket of clinical records; how long they live is a legal question.
+- Cancellation, retention and deletion — specified below in §5.
 - Decide Mira: per-clinic Anthropic keys (today) or a shared key with per-tenant
   metering. The metering already exists, so the shared key removes a manual step
   from every onboarding.
 
 ---
 
-## 5. What this is not
+## 5. Squatting, abandoned trials, and retention
+
+Self-serve makes signup free, and anything free gets taken. Three related
+problems with three different answers.
+
+### What a signup actually costs
+
+Each one permanently consumes **a Firestore database, a Storage bucket, a Vercel
+domain and a label**. All four are finite per project — confirm the current
+database quota before launch, because it becomes the effective signup ceiling.
+A squatter does not cost disk; it costs a slot, and the label costs it forever
+(see §5.4).
+
+### 5.1 Prevent squats at the door
+
+Cheaper than any reclamation policy:
+
+- **A card on file for the trial.** Stripe supports trial-with-card. This is the
+  single most effective measure — squatters do not enter card details — and it
+  is standard practice, not a hostile one.
+- **Provision on a verified payment intent, not on form submit.** If the
+  subdomain only exists once someone has proven they are real, most of this
+  never happens.
+- Email verification before any resource is created.
+- Rate limits per IP, email and card.
+- A blocklist plus manual review for names reading as another organisation.
+
+### 5.2 The ladder after a trial ends
+
+Day 30 read-only already works and needs no new mechanism — a trial is a term
+licence, and the rules enforce it. What follows is the part that does not exist:
+
+| When | What happens |
+|---|---|
+| Day 30 | Read-only. Banner in-app, first email. |
+| Day 60 | Second and third notices. Export made available. |
+| Day 90 | Deletion, per §5.3. |
+
+Notices at 30/60/80; deletion at 90. Sooner on request, always.
+
+### 5.3 Retention branches on whether real records exist
+
+This is the decision that matters, and it is legal rather than operational.
+
+**No client records** — a squat, or a trial nobody used. Delete everything at
+**day 60**. Reclaim at **day 30** if nobody ever signed in: there is nothing to
+protect and no controller relationship in practice.
+
+**Real clinical records.** These cannot be unilaterally deleted. The clinic is
+the data controller for children's clinical records and we are the processor;
+on end of service the controller chooses **return or deletion**. So: notice,
+a real export, and deletion at **day 90** unless they instruct otherwise.
+
+"Deleted" means deleted from Firestore and Storage. **Backups are the real
+horizon** — the DPA should name the retention window rather than implying
+deletion is instant.
+
+### 5.4 A label that held real data is never reused
+
+Parents keep bookmarks. Access codes travel by email and on paper. Staff have
+saved logins. Reassigning `clinicx.tempoapp.ro` sends all of that to **a
+different clinic's login page** — a parent typing their child's access code into
+an organisation that has never heard of them.
+
+So `tenants/{label}` becomes a tombstone rather than being deleted, and
+availability checks treat any existing document as taken. One tiny document per
+departed clinic removes a whole class of accident.
+
+A label that never held client records may be released after a 90-day
+cooling-off.
+
+### 5.5 What has to be built
+
+In order, because each depends on the last:
+
+1. **Make `tenants.status` load-bearing.** It is read in three places today and
+   every one of them only *displays* it — a clinic marked "suspended" keeps
+   working perfectly. Every stage above depends on it meaning something.
+2. **Lifecycle dates on the tenant** — `readOnlyAt`, `notifiedAt`, `deleteAfter`
+   — so the policy is data a scheduled job reads rather than a calendar
+   reminder someone keeps.
+3. **Export before delete.** "Return or deletion" cannot be honoured without the
+   return half, and JSON per collection is not what a controller means by it.
+4. **An offboarding script.** None exists; onboarding is scripted end to end and
+   the reverse is a human deleting a database by hand at speed. Designed in
+   `docs/superpowers/specs/2026-08-22-tenant-offboarding-design.md`, including
+   the trap that Auth is shared — deleting a clinic must never delete a person
+   who works at another one.
+
+---
+
+## 6. What this is not
 
 Not a commitment to ship self-serve. Phase 1 is worth doing on its own merits and
 should not wait on a decision about phases 3 and 4. If self-serve never happens,
