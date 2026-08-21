@@ -36,7 +36,12 @@
  * failing, which is a far worse outcome than refusing to run.
  */
 import { Db } from "./demo-seed/firestore.mjs";
-import { buildLicence, licenceMirror, DEFAULT_GRACE_DAYS } from "../src/lib/platform/licence.ts";
+import {
+  buildLicence,
+  licenceMirror,
+  configLimitsFor,
+  DEFAULT_GRACE_DAYS,
+} from "../src/lib/platform/licence.ts";
 import { clinicDatabaseId } from "../src/lib/platform/labels.ts";
 
 // Every existing clinic is on enterprise: they were onboarded by hand, before
@@ -195,9 +200,22 @@ for (const { label, name, databaseId } of resolved) {
   if (registryOk) {
     try {
       const clinicDb = databaseHandle(PROJECT, databaseId);
-      await clinicDb.commit([clinicDb.mergeWrite("system_settings/licence", licenceMirror(built))]);
+      // The mirror rules read, and the seat/client caps the app enforces —
+      // written together, because a tier recorded without its limits means the
+      // console shows one thing and the clinic enforces another. mergeWrite is
+      // required on config: it also holds legalEntities and the SmartBill
+      // credentials.
+      await clinicDb.commit([
+        clinicDb.mergeWrite("system_settings/licence", licenceMirror(built)),
+        clinicDb.mergeWrite("system_settings/config", configLimitsFor(built.tier)),
+      ]);
       mirrored = true;
+      const cfg = configLimitsFor(built.tier);
       console.log(`  ${C.green("✓")} ${DRY ? "would mirror" : "mirrored"} ${databaseId}/system_settings/licence`);
+      console.log(
+        `  ${C.green("✓")} ${DRY ? "would set" : "set"} limits: ` +
+          `${cfg.maxActiveClients || "unlimited"} clients, ${cfg.maxActiveTeamMembers || "unlimited"} seats`,
+      );
     } catch (e) {
       console.log(`  ${C.yellow("!")} mirror failed — clinic stays unrestricted until this is retried: ${e.message}`);
     }

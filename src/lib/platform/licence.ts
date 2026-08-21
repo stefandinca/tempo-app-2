@@ -79,6 +79,35 @@ export function limitsFor(tier: unknown): TierLimits {
   return isTier(tier) ? TIER_LIMITS[tier] : TIER_LIMITS.enterprise;
 }
 
+/**
+ * A tier's limits in the shape `system_settings/config` already stores, which
+ * is what the app actually enforces against — `AddClientModal`,
+ * `TeamMemberModal`, `ClientCard` and `ClientProfileHeader` all read these two
+ * fields and block when the count would exceed them.
+ *
+ * **Two conventions for "unlimited" meet here, and they are not the same value.**
+ * A tier says `null`; the config says `0`, because every enforcement site is
+ * written `if (max > 0)`. Getting this backwards in either direction is severe
+ * and silent: mapping unlimited to a literal `null` would make `null > 0` false
+ * and read as unlimited by luck rather than intent, while mapping a real limit
+ * to 0 would switch enforcement off for a clinic that is meant to have a cap.
+ * One function, one test, one place to be wrong.
+ *
+ * `maxUsers` becomes `maxActiveTeamMembers` because that is the field name the
+ * clinic settings page has always used. The count behind it already excludes
+ * the platform Superadmin, so our own account never consumes a clinic's seat.
+ */
+export function configLimitsFor(tier: unknown): {
+  maxActiveClients: number;
+  maxActiveTeamMembers: number;
+} {
+  const lim = limitsFor(tier);
+  return {
+    maxActiveClients: lim.maxActiveClients ?? 0,
+    maxActiveTeamMembers: lim.maxUsers ?? 0,
+  };
+}
+
 type LicencePlan = "lifetime" | "term";
 
 export interface LicenceInput {

@@ -1,12 +1,17 @@
 /**
  * Sets a clinic's licence.
  *
- * TWO WRITES, AND THE ORDER IS THE SAFETY PROPERTY.
+ * THREE WRITES, AND THE ORDER IS THE SAFETY PROPERTY.
  *
  *   1. `tenants/{id}.licence` in the control plane — the source of truth.
  *   2. `system_settings/licence` in the clinic's own database — the mirror
  *      Firestore rules actually enforce against, because a rule cannot read
  *      another database.
+ *   3. `system_settings/config` in the same database — the tier's seat and
+ *      client limits, in the shape the app has always enforced against. The
+ *      licence decides WHETHER a clinic can write; the tier decides HOW MUCH
+ *      it can hold, and those are enforced by different mechanisms: rules for
+ *      the first, the client for the second.
  *
  * Registry FIRST, mirror second. If the mirror write fails after the registry
  * succeeded, the console shows a licence that is not yet enforced: the clinic
@@ -21,7 +26,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
 import { tenantIdentity } from "@/lib/platform/counts";
-import { buildLicence, licenceMirror, DEFAULT_TIER, type LicenceInput } from "@/lib/platform/licence";
+import {
+  buildLicence,
+  licenceMirror,
+  configLimitsFor,
+  DEFAULT_TIER,
+  type LicenceInput,
+} from "@/lib/platform/licence";
 
 import { logPlatformActivity } from "@/lib/platform/activity";
 
@@ -101,19 +112,46 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       console.error("[platform/licence] mirror failed:", String(e?.message || e));
     }
 
+    // 3. The tier's limits, in the shape the app already enforces against.
+    //    system_settings/config is where maxActiveClients and
+    //    maxActiveTeamMembers have always lived, and AddClientModal,
+    //    TeamMemberModal, ClientCard and ClientProfileHeader read them today —
+    //    so writing them here is what makes choosing a tier actually mean
+    //    something, rather than recording a word.
+    //
+    //    merge:true is not optional: that document also holds legalEntities and
+    //    the SmartBill integration credentials, and a plain set() would delete
+    //    a clinic's billing configuration on a licence change.
+    //
+    //    Best effort, like the mirror, and for the same reason: failing here
+    //    leaves the clinic on its previous limits, which is the direction where
+    //    a clinic keeps working.
+    let limitsApplied = true;
+    try {
+      await adminDb(databaseId)
+        .collection("system_settings")
+        .doc("config")
+        .set(configLimitsFor(built.tier), { merge: true });
+    } catch (e: any) {
+      limitsApplied = false;
+      console.error("[platform/licence] limits write failed:", String(e?.message || e));
+    }
+
     await logPlatformActivity(databaseId, {
       type: "licence_updated",
       targetName: t.name || params.id,
       caller: { uid: gate.caller.uid, name: gate.caller.name },
       metadata: {
         plan: built.plan,
+        tier: built.tier,
         expiresAt: built.expiresAt,
         graceDays: built.graceDays,
         mirrored,
+        limitsApplied,
       },
     });
 
-    return NextResponse.json({ licence: built, mirrored });
+    return NextResponse.json({ licence: built, mirrored, limitsApplied });
   } catch (e: any) {
     console.error("[platform/licence] failed:", String(e?.message || e));
     return NextResponse.json({ error: "server_error" }, { status: 500 });

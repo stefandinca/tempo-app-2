@@ -116,10 +116,25 @@ kept in step by hand, so if you change the pricing page, say so.
 | `clinic` (sold as *Clinică*) | 179 EUR/mo | 20 | unlimited |
 | `enterprise` | contact | unlimited | unlimited |
 
-**Limits are not enforced yet.** The tier is stored and mirrored into the
-clinic, and the console can set it, but nothing counts users or clients
-against it. So a Starter signup today gets a working clinic with no ceiling.
-Do not promise enforcement on the pricing page before it exists.
+**Limits ARE enforced.** Setting a tier writes `maxActiveClients` and
+`maxActiveTeamMembers` into the clinic's `system_settings/config`, which the app
+has always enforced against: `AddClientModal` and `TeamMemberModal` refuse to go
+over, and `ClientCard` / `ClientProfileHeader` refuse to reactivate an archived
+client past the cap. So a Starter signup really does stop at 30 clients and one
+seat.
+
+Two things to know about how that behaves:
+
+- **`0` means unlimited**, not "none allowed" — every enforcement site is
+  written `if (max > 0)`. A tier's `null` is translated to `0` in one place,
+  `configLimitsFor` in `src/lib/platform/licence.ts`.
+- **It is enforced in the client, not in the rules.** A determined user with the
+  console open could exceed a cap. That is a commercial limit, not a security
+  boundary, and it is worth being clear which one it is — the licence *expiry*
+  is enforced in Firestore rules and cannot be bypassed that way.
+
+The seat count already excludes the platform Superadmin, so our own account
+never consumes a clinic's seat.
 
 **Two things the pricing page implies that the platform does not encode.**
 The Professional bullet reads *"Portal Părinți Inclus"*, which implies Starter

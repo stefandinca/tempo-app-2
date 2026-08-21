@@ -55,14 +55,23 @@ export default function LicenceEditor({
   async function doSave() {
     setSaving(true);
     try {
-      await platformPut<{ mirrored: boolean }>(`/api/platform/clinics/${tenantId}/licence`, {
+      await platformPut<{ mirrored: boolean; limitsApplied: boolean }>(`/api/platform/clinics/${tenantId}/licence`, {
         plan,
         tier,
         expiresAt: plan === "term" && expiresAt ? new Date(expiresAt).toISOString() : null,
         graceDays: Number(graceDays),
         notes,
       }).then((r) => {
-        if (!r.mirrored) {
+        if (!r.limitsApplied) {
+          // The tier was recorded but the clinic's seat and client caps were
+          // not updated, so it is still enforcing whatever it had before. Worth
+          // its own message: "licence saved" would be true and misleading.
+          toastError(
+            t("platform.licence.limits_not_applied", {
+              defaultValue: "Saved, but the tier limits did not reach the clinic.",
+            }),
+          );
+        } else if (!r.mirrored) {
           // Saved, but the rules are not enforcing it yet. Say so — a licence
           // that looks set and is not enforced is the worst of both.
           toastError(

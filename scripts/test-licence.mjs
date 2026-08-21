@@ -24,6 +24,7 @@ import {
   TIERS,
   TIER_LIMITS,
   limitsFor,
+  configLimitsFor,
 } from "../src/lib/platform/licence.ts";
 
 const C = {
@@ -393,6 +394,21 @@ check(
   Object.keys(TIER_LIMITS).every((t) => TIERS.includes(t)),
   true,
 );
+
+// The tier -> system_settings/config mapping. Two conventions for
+// "unlimited" meet here: a tier says null, the config says 0, because every
+// enforcement site is written . Both directions are asserted
+// because both are severe and silent — null would read as unlimited by luck,
+// and a real limit turned into 0 would switch enforcement off entirely.
+check("unlimited becomes 0, not null", configLimitsFor("enterprise").maxActiveClients, 0);
+check("unlimited seats become 0 too", configLimitsFor("enterprise").maxActiveTeamMembers, 0);
+check("a real client cap is carried through", configLimitsFor("starter").maxActiveClients, 30);
+check("maxUsers becomes maxActiveTeamMembers", configLimitsFor("starter").maxActiveTeamMembers, 1);
+check("a mixed tier keeps both halves", configLimitsFor("clinic").maxActiveTeamMembers, 20);
+check("clinic has no client ceiling", configLimitsFor("clinic").maxActiveClients, 0);
+// An unreadable tier must not silently cap a clinic at zero, which would
+// read as "unlimited" here but only by accident of the same 0.
+check("an unknown tier maps to unlimited", configLimitsFor("nonsense").maxActiveClients, 0);
 
 if (failures.length) {
   console.log(`${C.red(`✗ ${failures.length} failed`)}, ${passed} passed\n`);

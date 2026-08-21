@@ -612,7 +612,8 @@
       "team_usage_unlimited": "{{current}} membri echipă activi (nelimitat)",
       "save_success": "Limitele contului au fost salvate cu succes",
       "save_error": "Eroare la salvarea limitelor contului",
-      "active_database": "Baza de date activă"
+      "active_database": "Baza de date activă",
+      "tier_note": "Acestea sunt stabilite de planul clinicii. Modificările de aici se aplică imediat, dar sunt înlocuite la următoarea salvare a planului."
     },
     "evaluation_access": {
       "title": "Acces la evaluări",
@@ -2717,7 +2718,8 @@
       "past_expiry_message": "Echipa acestui centru a depășit deja perioada de grație ({{date}}) și va deveni doar-vizualizare imediat ce se salvează. Continuați?",
       "past_expiry_confirm": "Salvează oricum",
       "tier": "Plan",
-      "tier_limits": "{{users}} utilizatori · {{clients}} clienți"
+      "tier_limits": "{{users}} utilizatori · {{clients}} clienți",
+      "limits_not_applied": "Salvat, dar limitele planului nu au ajuns la clinică."
     },
     "leads": {
       "name": "Nume",

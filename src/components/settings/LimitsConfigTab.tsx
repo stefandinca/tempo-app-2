@@ -75,6 +75,21 @@ export default function LimitsConfigTab() {
         </div>
       </div>
 
+      {/*
+        These two numbers are also written by the platform console whenever a
+        clinic's tier is set, derived from what the clinic bought. Editing them
+        here still works and takes effect immediately — it is how a clinic gets
+        a temporary allowance without changing what it pays — but the next tier
+        save overwrites it. Saying so beats someone discovering it when their
+        careful adjustment silently reverts.
+      */}
+      <p className="text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg px-3 py-2">
+        {t("settings.limits.tier_note", {
+          defaultValue:
+            "These are set from the clinic's plan. Changes here apply now, but are replaced the next time the plan is saved.",
+        })}
+      </p>
+
       {/* Limits Inputs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Max Active Clients */}

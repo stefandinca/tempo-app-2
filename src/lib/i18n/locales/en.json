@@ -608,7 +608,8 @@
       "team_usage_unlimited": "{{current}} active team members (unlimited)",
       "save_success": "Account limits saved successfully",
       "save_error": "Failed to save account limits",
-      "active_database": "Active database"
+      "active_database": "Active database",
+      "tier_note": "These are set from the clinic's plan. Changes here apply now, but are replaced the next time the plan is saved."
     },
     "evaluation_access": {
       "title": "Evaluation access",
@@ -2712,7 +2713,8 @@
       "past_expiry_message": "Staff at this clinic are already past their grace period ({{date}}) and will be read-only as soon as this saves. Continue?",
       "past_expiry_confirm": "Save anyway",
       "tier": "Tier",
-      "tier_limits": "{{users}} users · {{clients}} clients"
+      "tier_limits": "{{users}} users · {{clients}} clients",
+      "limits_not_applied": "Saved, but the tier limits did not reach the clinic."
     },
     "leads": {
       "name": "Name",
