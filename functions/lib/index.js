@@ -456,7 +456,29 @@ function fcmTokenOwnershipTrigger(databaseId) {
             .collection("fcm_tokens")
             .where("token", "==", token)
             .get();
-        const stale = holders.docs.filter((d) => d.id !== uid);
+        // Delete only registrations OLDER than this one — never "everyone except
+        // me". Two accounts signing in close together produce two concurrent
+        // invocations, and a cold start can delay the first past the second. With
+        // mutual deletion each handler then deletes the other and the token ends
+        // up owned by nobody: observed in testing, both fixtures vanished.
+        // Comparing timestamps makes the operation ordered, so whichever handler
+        // runs last still converges on the newest registration.
+        const stamp = (data) => {
+            const v = data?.updatedAt ?? data?.createdAt;
+            if (v && typeof v.toMillis === "function")
+                return v.toMillis();
+            const parsed = Date.parse(String(v));
+            return Number.isNaN(parsed) ? 0 : parsed;
+        };
+        const mine = stamp(after.data());
+        const stale = holders.docs.filter((d) => {
+            if (d.id === uid)
+                return false;
+            const theirs = stamp(d.data());
+            // Identical timestamps mean a genuine tie; break it on document id so
+            // exactly one of the two handlers deletes and one survives.
+            return theirs === mine ? d.id < uid : theirs < mine;
+        });
         if (!stale.length)
             return;
         const batch = db.batch();
