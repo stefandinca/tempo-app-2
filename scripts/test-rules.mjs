@@ -24,9 +24,14 @@ const src = readFileSync("firestore.rules", "utf8");
 const token = execSync("gcloud auth application-default print-access-token").toString().trim();
 const D = "/databases/(default)/documents";
 
-const member = (uid, role) => [
+/**
+ * A staff member. `fields` merges extra document fields in — notably
+ * `isActive`. Omitting it models the members who predate the field, which is
+ * most of them, and which must still mean active.
+ */
+const member = (uid, role, fields = {}) => [
   { function: "exists", args: [{ exact_value: `${D}/team_members/${uid}` }], result: { value: true } },
-  { function: "get", args: [{ exact_value: `${D}/team_members/${uid}` }], result: { value: { data: { role } } } },
+  { function: "get", args: [{ exact_value: `${D}/team_members/${uid}` }], result: { value: { data: { role, ...fields } } } },
 ];
 const client = (id, data) => [
   { function: "get", args: [{ exact_value: `${D}/clients/${id}` }], result: { value: { data } } },
@@ -217,6 +222,31 @@ const cases = [
   // getDoc() on a thread that does not exist yet before creating it.
   ["get on a NON-EXISTENT thread still succeeds", "ALLOW", "get", `${D}/threads/thread_t1_t9`,
     { uid: "t1" }, [], null, MISSING_DOC],
+
+  // --- deactivation actually revoking access ---
+  // `isActive` was written by the team UI and read by nothing that controls
+  // access, so switching a member off left them with every permission their
+  // role carries. Each pair below changes ONLY isActive, so a DENY can come
+  // from nothing else.
+  ["deactivated therapist writes a client evaluation", "DENY", "create", `${D}/clients/c1/evaluations/e1`,
+    { uid: "t1" }, [...member("t1", "Therapist", { isActive: false }), ...evalAccess(null)], { scores: {} }],
+  ["ACTIVE therapist writes a client evaluation", "ALLOW", "create", `${D}/clients/c1/evaluations/e1`,
+    { uid: "t1" }, [...member("t1", "Therapist", { isActive: true }), ...evalAccess(null)], { scores: {} }],
+  ["deactivated admin edits a client", "DENY", "update", `${D}/clients/c1`,
+    { uid: "a1" }, member("a1", "Admin", { isActive: false }),
+    { name: "Y", parentUids: [] }, { name: "X", parentUids: [] }],
+  // Fact 1, measured in live Better Life: the platform account is a Superadmin
+  // carrying isActive: false. Gating isSuperadmin() would lock the platform out
+  // of the largest live clinic, so it is deliberately ungated and the
+  // isSuperadmin() disjunct sits outside isAdmin()'s isActiveMember() clause.
+  ["deactivated SUPERADMIN still edits a client", "ALLOW", "update", `${D}/clients/c1`,
+    { uid: "s1" }, member("s1", "Superadmin", { isActive: false }),
+    { name: "Y", parentUids: [] }, { name: "X", parentUids: [] }],
+  // Fact 2, measured in demo: 5 members carry no isActive field at all.
+  // Missing must mean active or a whole clinic freezes the moment this deploys.
+  ["member with NO isActive field still edits a client", "ALLOW", "update", `${D}/clients/c1`,
+    { uid: "c2" }, member("c2", "Coordinator"),
+    { name: "Y", parentUids: [] }, { name: "X", parentUids: [] }],
 ];
 
 const testCases = cases.map(([, expectation, method, path, auth, mocks, resource, before]) => ({

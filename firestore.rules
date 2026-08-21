@@ -18,20 +18,41 @@ service cloud.firestore {
              (getRole() == role || getRole() == role.lower());
     }
     
+    // A member switched off in the team UI keeps their role string, so the role
+    // helpers alone still let them in. Missing means active: most existing
+    // members predate the field, and defaulting a missing value to "inactive"
+    // would lock out an entire clinic on deploy.
+    //
+    // This reads the same team_members document hasRole() already reads, and
+    // repeated access to one path inside a single evaluation is cached, so it
+    // costs no additional document read.
+    function isActiveMember() {
+      return isSignedIn() &&
+             exists(/databases/$(database)/documents/team_members/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/team_members/$(request.auth.uid))
+               .data.get('isActive', true) != false;
+    }
+
+    // Deliberately NOT gated on isActiveMember(). A live clinic's platform
+    // account is a Superadmin carrying isActive: false, and gating this would
+    // lock the platform out of it. A Superadmin is not deactivatable by this
+    // mechanism.
     function isSuperadmin() {
       return hasRole('Superadmin') || hasRole('superadmin');
     }
 
+    // The isSuperadmin() disjunct sits OUTSIDE the isActiveMember() conjunction
+    // on purpose — see the note on isSuperadmin(). Do not re-bracket this.
     function isAdmin() {
-      return hasRole('Admin') || hasRole('admin') || isSuperadmin();
+      return ((hasRole('Admin') || hasRole('admin')) && isActiveMember()) || isSuperadmin();
     }
-    
+
     function isCoordinator() {
-      return hasRole('Coordinator') || hasRole('coordinator');
+      return (hasRole('Coordinator') || hasRole('coordinator')) && isActiveMember();
     }
-    
+
     function isTherapist() {
-      return hasRole('Therapist') || hasRole('therapist');
+      return (hasRole('Therapist') || hasRole('therapist')) && isActiveMember();
     }
     
     function isParent(clientId) {

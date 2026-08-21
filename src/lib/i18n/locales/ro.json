@@ -1887,7 +1887,8 @@
     "or": "sau",
     "sign_in_with_google": "Continuă cu Google",
     "google_not_authorized": "Acest cont Google nu este înregistrat ca membru al echipei. Contactați administratorul.",
-    "account_needs_migration": "Contul dvs. trebuie actualizat. Contactați administratorul pentru migrare."
+    "account_needs_migration": "Contul dvs. trebuie actualizat. Contactați administratorul pentru migrare.",
+    "account_deactivated": "Contul dvs. a fost dezactivat. Contactați administratorul."
   },
   "auth_action": {
     "title": "Setează Parola",

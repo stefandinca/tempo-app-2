@@ -56,8 +56,19 @@ export async function requireStaffRole(
   try {
     const snap = await adminDb(databaseId).collection("team_members").doc(uid).get();
     if (!snap.exists) return { ok: false, status: 403, error: "not_staff" };
-    const member = snap.data() as { role?: string; name?: string };
+    const member = snap.data() as { role?: string; name?: string; isActive?: boolean };
     const role = String(member.role || "").toLowerCase();
+
+    // A member switched off in the team UI used to keep full API access. Only an
+    // explicit `false` denies: most existing members have no isActive field at
+    // all, and treating a missing value as inactive would lock out whole
+    // clinics. Superadmin is exempt — a live clinic's platform account carries
+    // isActive: false, and gating it there would lock the platform out.
+    // A distinct code, not insufficient_role, so the reason reads plainly in logs.
+    if (role !== "superadmin" && member.isActive === false) {
+      return { ok: false, status: 403, error: "deactivated" };
+    }
+
     const allowed = allowedRoles.map((r) => r.toLowerCase());
     if (role !== "superadmin" && !allowed.includes(role)) {
       return { ok: false, status: 403, error: "insufficient_role" };

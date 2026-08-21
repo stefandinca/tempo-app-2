@@ -56,6 +56,8 @@ export default function LoginPage() {
       setError(t('auth.google_not_authorized'));
     } else if (authError === "account_needs_migration") {
       setError(t('auth.account_needs_migration'));
+    } else if (authError === "account_deactivated") {
+      setError(t('auth.account_deactivated'));
     }
   }, [authError, t]);
 

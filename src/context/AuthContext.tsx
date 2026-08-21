@@ -84,6 +84,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (docSnap.exists()) {
             const data = docSnap.data();
             console.log("[Auth Debug] team_members data:", { role: data.role, name: data.name, inviteStatus: data.inviteStatus });
+
+            // A member switched off in the team UI must not land in the
+            // dashboard. Only an explicit `false` denies — most existing
+            // members have no isActive field, and treating a missing value as
+            // inactive would lock out a whole clinic. Superadmin is exempt: a
+            // live clinic's platform account carries isActive: false.
+            //
+            // This is inside the onSnapshot callback deliberately, so an admin
+            // deactivating someone mid-session signs them out rather than
+            // waiting for their next login.
+            if (String(data.role || "").toLowerCase() !== "superadmin" && data.isActive === false) {
+              setAuthError("account_deactivated");
+              setUserData(null);
+              setUserRole(null);
+              setLoading(false);
+              await firebaseSignOut(auth);
+              return;
+            }
+
             setUserData(data);
             // Normalize role to capitalized format (e.g., 'superadmin' → 'Superadmin')
             // This ensures all role checks in the app work regardless of DB capitalization
