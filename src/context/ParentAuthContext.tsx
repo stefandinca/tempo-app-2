@@ -13,7 +13,9 @@ interface ParentAuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   authenticateWithCode: (clientId: string, clientName: string, clientCode: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  // `keepPushRegistration` is for the idle timeout only — see the comment on
+  // the implementation. Callers signing out on purpose omit it.
+  signOut: (opts?: { keepPushRegistration?: boolean }) => Promise<void>;
 }
 
 const ParentAuthContext = createContext<ParentAuthContextType | undefined>(undefined);
@@ -135,18 +137,24 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
     }
   }, []);
 
-  const signOut = useCallback(async () => {
+  const signOut = useCallback(async (opts?: { keepPushRegistration?: boolean }) => {
     try {
       // One call drops this uid from every client it was linked to and clears
       // its Storage mirror, while the token is still valid.
       const signingOut = auth.currentUser;
       if (signingOut) await unlinkParent(signingOut);
 
-      // Same reason, for push: an FCM token belongs to the browser rather than
-      // the account, so leaving the registration behind means this phone keeps
-      // receiving notifications naming this child after the parent has signed
-      // out. Best effort — it must not block signing out.
-      if (signingOut) {
+      // An FCM token belongs to the browser rather than the account, so leaving
+      // the registration behind means this phone keeps receiving notifications
+      // naming this child after the parent has signed out.
+      //
+      // But only when they MEANT to sign out. The 30-minute idle timer below
+      // calls this too, and a parent who put their phone down has not asked to
+      // stop being told about their child — for most parents push is the only
+      // thing they use the portal for, and clearing it here would silence them
+      // half an hour after every visit. Best effort either way: it must not
+      // block signing out.
+      if (signingOut && !opts?.keepPushRegistration) {
         try {
           await deleteDoc(doc(db, "fcm_tokens", signingOut.uid));
         } catch (err) {
@@ -185,7 +193,9 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       idleTimerRef.current = setTimeout(() => {
         console.log("[ParentAuth] Idle timeout reached. Signing out...");
-        signOut();
+        // Keep the push registration: an idle timeout is the app's decision,
+        // not the parent's, and losing notifications is not what it is for.
+        signOut({ keepPushRegistration: true });
       }, IDLE_TIMEOUT_MS);
     };
 
