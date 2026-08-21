@@ -1,5 +1,5 @@
-import { collection, addDoc, Timestamp, writeBatch, doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import {
   Notification,
   NotificationType,
@@ -25,23 +25,71 @@ interface CreateNotificationParams {
 }
 
 /**
- * Create a single notification in Firestore
+ * Send notifications through the platform, which writes them AND pushes them in
+ * one request.
+ *
+ * WHY THIS IS NOT A FIRESTORE WRITE ANY MORE
+ * Push used to come from a Firestore trigger, and a v2 trigger binds to exactly
+ * one database named at deploy time. Under one database per clinic that meant a
+ * pair of function registrations per clinic and a `firebase deploy` to onboard
+ * one — the only thing in the whole onboarding path needing a source edit, and
+ * the reason a clinic cannot provision itself. See
+ * docs/superpowers/specs/2026-08-22-trigger-removal-spike.md.
+ *
+ * Creating and pushing in one request also closes a gap rather than moving it:
+ * a client that wrote the document and then called a send endpoint would, if
+ * the browser died in between, leave a notification nobody is told about.
+ *
+ * Failure is deliberately swallowed. Every caller here is doing something else
+ * — saving an event, generating an invoice, adding a team member — and a
+ * notification that cannot be delivered must never fail that work. It is logged
+ * and the caller continues.
  */
-export async function createNotification(params: CreateNotificationParams): Promise<string> {
-  const notificationData = {
-    ...params,
-    createdAt: Timestamp.now(),
-    read: false
-  };
+async function postNotifications(
+  notifications: CreateNotificationParams[],
+): Promise<string[]> {
+  const user = auth.currentUser;
+  if (!user) {
+    console.warn("[NotificationService] No signed-in user; skipping notifications");
+    return [];
+  }
 
-  console.log("[NotificationService] Creating notification:", notificationData);
-  const docRef = await addDoc(collection(db, "notifications"), notificationData);
-  console.log("[NotificationService] Created notification with ID:", docRef.id);
-  return docRef.id;
+  try {
+    const res = await fetch("/api/notifications/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${await user.getIdToken()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ notifications }),
+    });
+    if (!res.ok) {
+      console.error("[NotificationService] Send failed:", res.status, await res.text());
+      return [];
+    }
+    const { results } = (await res.json()) as {
+      results: { id: string | null; pushed: boolean; error?: string }[];
+    };
+    const failed = results.filter((r) => !r.id);
+    if (failed.length) {
+      console.error("[NotificationService] Rejected:", failed.map((f) => f.error).join(", "));
+    }
+    return results.map((r) => r.id).filter((id): id is string => !!id);
+  } catch (err) {
+    console.error("[NotificationService] Send threw:", err);
+    return [];
+  }
+}
+
+/** Create one notification and push it. Returns "" if it could not be created. */
+export async function createNotification(params: CreateNotificationParams): Promise<string> {
+  const [id] = await postNotifications([params]);
+  return id || "";
 }
 
 /**
- * Create multiple notifications in a batch (more efficient for multiple recipients)
+ * Create several at once. The route caps a batch at 50, which is well above
+ * anything here — the largest real caller notifies one clinic's admins.
  */
 export async function createNotificationsBatch(
   notifications: CreateNotificationParams[]
@@ -50,23 +98,7 @@ export async function createNotificationsBatch(
     console.log("[NotificationService] No notifications to create (empty array)");
     return;
   }
-
-  console.log("[NotificationService] Creating batch of", notifications.length, "notifications");
-  console.log("[NotificationService] Recipients:", notifications.map(n => n.recipientId));
-
-  const batch = writeBatch(db);
-
-  notifications.forEach((params) => {
-    const docRef = doc(collection(db, "notifications"));
-    batch.set(docRef, {
-      ...params,
-      createdAt: Timestamp.now(),
-      read: false
-    });
-  });
-
-  await batch.commit();
-  console.log("[NotificationService] Batch committed successfully");
+  await postNotifications(notifications);
 }
 
 // ============================================

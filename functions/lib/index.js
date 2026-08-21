@@ -336,6 +336,26 @@ function pushNotificationTrigger(databaseId) {
             return;
         }
         const notification = snapshot.data();
+        // Written by /api/notifications, which sent its own push already.
+        //
+        // This exists for the cutover, and only for the cutover. Both paths are
+        // live at once while notifications move off Firestore triggers, and
+        // without this marker every notification would be pushed TWICE — the
+        // route sends it, then this trigger fires on the document the route just
+        // wrote and sends it again. Confirmed in the logs during the spike; the
+        // test device received two.
+        //
+        // The alternative orderings are both worse: deleting the triggers first
+        // leaves a window with no push at all, and switching the client first
+        // gives every user duplicates until the triggers go.
+        //
+        // DELETE THIS, and the registrations below, once the client no longer
+        // writes notifications directly. See
+        // docs/superpowers/specs/2026-08-22-trigger-removal-spike.md.
+        if (notification.pushVia === "api") {
+            console.log("Skipping: already pushed by the API route");
+            return;
+        }
         const recipientId = notification.recipientId;
         if (!recipientId) {
             console.log("No recipientId found in notification");
