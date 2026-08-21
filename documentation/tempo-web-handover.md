@@ -12,9 +12,16 @@ else here is already true.
 
 ## 1. What you are building
 
-A visitor at `tempoapp.ro` should be able to: choose a plan, pay, name their
-clinic, and end up signed in at `<label>.tempoapp.ro` with a working, empty
-clinic and themselves as its Admin.
+A visitor at `tempoapp.ro` should be able to: choose a plan, **enter a card**,
+name their clinic, and end up signed in at `<label>.tempoapp.ro` with a working,
+empty clinic and themselves as its Admin.
+
+**Nothing is charged for 30 days.** The card is taken up front as the trial's
+entry requirement — it is the most effective defence against subdomain
+squatting, since every signup permanently consumes a database, a bucket, a
+hostname and a label. So this is card-on-file-then-provision, not
+pay-then-provision; an earlier draft described the latter and some of its
+phrasing survived longer than it should have.
 
 Payment is mocked for now. Everything else in this document is real.
 
@@ -28,7 +35,7 @@ Payment is mocked for now. Everything else in this document is real.
 | `clinicName` | free text | Display name only. Changeable later. |
 | `adminEmail` | a real mailbox | Becomes a platform-wide Firebase Auth account. |
 | `adminName` | free text | Shown to the clinic's own staff and parents. |
-| `plan` | `term` \| `lifetime` | Drives the licence. `term` defaults to 12 months. |
+| `plan` | `term` \| `lifetime` | Almost always `term`. **Send no duration** — provisioning applies the tier's `trialDays`. See §3a. |
 | `tier` | one of the `id` values from the catalogue | What they chose. Send the `id`, never the display name — see §3a. |
 
 ### The label deserves its own screen
@@ -59,7 +66,7 @@ they type.
 
 ---
 
-## 3. The one call you need from the platform
+## 3. The calls you need from the platform
 
 **This endpoint does not exist yet. Build against a mock.** The shape is fixed;
 the implementation is the platform's side of this handover.
@@ -79,8 +86,8 @@ Public, rate-limited. Called as the user types.
 
 ### `POST /api/provision/clinic`
 
-Called **after** payment succeeds. Idempotent on `paymentRef` — if you retry,
-you get the same clinic back rather than a second one.
+Called once checkout is **confirmed server-side** — never from the return URL
+alone, which can be visited without paying. Idempotent on `signupRef`.
 
 ```json
 {
@@ -90,9 +97,32 @@ you get the same clinic back rather than a second one.
   "adminName": "Maria Ionescu",
   "plan": "term",
   "tier": "professional",
-  "paymentRef": "<your payment id — the idempotency key>"
+  "signupRef": "sg_<uuid you generate before checkout>",
+  "dpa": { "version": "1.0", "acceptedAt": "2026-08-22T09:14:00.000Z" }
 }
 ```
+
+**Idempotency: only success is sticky.**
+
+| Previous outcome for this `signupRef` | Behaviour |
+|---|---|
+| Succeeded | Returns the same clinic. Inputs ignored. |
+| Failed | May be retried, **including with a different label**. |
+| In flight | Returns the in-flight `provisionId`. Poll it. |
+
+That middle row is the recovery path when a label is rejected after the card has
+been taken: they pick another and you retry under the same key. No second card,
+no second signup.
+
+`signupRef` is yours, generated at the start of signup — not the Stripe
+subscription id, which does not exist until checkout completes and so cannot key
+a retry of a failed provision. It was called `paymentRef` in an earlier draft,
+which implied a completed charge; nothing is charged for 30 days.
+
+`dpa` is the click-through acceptance, copied onto the tenant because the
+controller relationship lives there. **Version and timestamp only** — an IP
+address would be personal data needing its own lawful basis, collected to prove
+compliance.
 
 ```json
 { "status": "accepted", "provisionId": "prov_abc123" }
@@ -116,9 +146,41 @@ deleting the moment it stops being needed.
   "status": "provisioning" | "ready" | "failed",
   "step": "database" | "rules" | "bucket" | "seed" | "register" | "hostname" | "admin",
   "url": "https://clinicx.tempoapp.ro",
+  "trialEndsAt": "2026-09-21T00:00:00.000Z",
   "error": null
 }
 ```
+
+`trialEndsAt` is `null` until the licence exists and populated by the time
+`status` is `ready`. Show it from here rather than computing `now + trialDays`:
+provisioning takes minutes, so the two clocks are not the same clock, and the
+licence is the one the app enforces.
+
+### `POST /api/provision/checkout-session`
+
+**The platform owns Stripe** — `tempo-web` holds no Stripe key and runs no
+webhook. The subscription *is* the licence, and splitting licence state across a
+repo boundary would put two copies of it a missed webhook apart.
+
+```json
+{ "tier": "professional", "signupRef": "sg_...", "adminEmail": "...",
+  "successUrl": "...", "cancelUrl": "..." }
+→ { "sessionUrl": "https://checkout.stripe.com/...", "sessionId": "cs_..." }
+```
+
+```
+GET /api/provision/checkout-session/{sessionId}
+→ { "confirmed": true, "subscriptionId": "sub_...", "tier": "professional",
+    "signupRef": "sg_..." }
+```
+
+The POST returns a **session**, not a subscription: Stripe creates the
+subscription when the session completes, so there is nothing to hand back yet.
+The subscription id appears on the GET once `confirmed`.
+
+`successUrl` and `cancelUrl` are validated against an allowlist of tempoapp.ro
+paths, so do not send a dynamic one. An open redirect on a checkout flow is
+worth more to a phisher than most bugs.
 
 ## 3a. Read the pricing catalogue from Firestore — do not hardcode it
 
@@ -135,8 +197,8 @@ GET https://firestore.googleapis.com/v1/projects/tempo-app-2/databases/(default)
 already on a public page, and nothing about a clinic, a person or a child is in
 it. Verified anonymous: this document returns 200 while `tenants/…` returns 403.
 Use the Firebase JS SDK if you prefer; same document, same rule. A JSON copy is
-also served from `https://superadmin.tempoapp.ro/api/platform/tiers` if the REST
-shape is inconvenient.
+also served from `https://superadmin.tempoapp.ro/api/platform/tiers/` — with the
+trailing slash, it 308s without one — if the REST shape is inconvenient.
 
 Each entry:
 
@@ -169,7 +231,9 @@ customer is right to be annoyed. Reading removes the possibility.
 All tiers except Enterprise get **30 free days**. A trial is not a separate
 mechanism: it is a normal term licence expiring in 30 days, so it ends exactly
 the way a lapsed subscription ends — the clinic goes **read-only**, keeps every
-record, and loses nothing. Nothing is deleted, ever, by an expiry.
+record, and loses nothing. **An expiry never deletes anything.** Deletion is a
+separate schedule with its own notices — see §8a — and it never follows from a
+licence lapsing on its own.
 
 **A card is taken up front.** It is the single most effective defence against
 subdomain squatting — every signup permanently consumes a database, a bucket, a
@@ -251,9 +315,11 @@ So the flow after payment is:
 3. Show a "setting up your clinic" screen and poll the status endpoint.
 4. On `ready`, send them to `https://<label>.tempoapp.ro` — and **also email the
    link**, because people close tabs.
-5. On `failed`, do not ask them to sign up again. Show a support contact and the
-   `provisionId`. They have paid; a second signup would take a second payment
-   and burn the label.
+5. On `failed`, do not ask them to sign up again. Retry under the same
+   `signupRef` — a failed provision is not sticky, and a rejected label can be
+   replaced on the retry (see §3). A fresh signup would create a second
+   subscription and burn a second label. If the retry also fails, show a support
+   contact and the `provisionId`.
 
 Do not redirect optimistically before `ready`. The hostname does not serve a
 certificate until it is attached, and the browser shows a TLS handshake failure,
@@ -267,7 +333,13 @@ The platform runs **one Firebase Auth pool** shared by every clinic. One person,
 one account, one password, possibly staff at several clinics.
 
 - `tempo-web` must **not** create Firebase Auth accounts, and must not hold
-  Firebase credentials for `tempo-app-2`.
+  credentials that reach Firebase Auth or any clinic database.
+  It does already hold a service account for `api/lead.js`, IAM-conditioned to
+  the `clinic-demo` database alone so the contact form can write `leads`. That
+  is fine and predates this work — an earlier draft said "no Firebase
+  credentials" flatly, which read as though that code were a violation and
+  invited someone to "fix" it. The rule is about Auth and clinic data, not about
+  Firebase.
 - The provisioning endpoint creates the Admin account and triggers the invite.
 - The user sets their password on the platform, not on the marketing site.
 
@@ -311,12 +383,14 @@ Mock now, but leave the seam in the right place: **provisioning is triggered by
 a confirmed payment, server-side, not by the browser reaching a success page.**
 A user who closes the tab after paying must still get their clinic.
 
-With Stripe that means the webhook triggers provisioning and the success page
-only polls status. If you wire the browser to trigger it, you will be debugging
-missing clinics for paying customers.
+**The platform runs that webhook, not you** (§3). Your success page confirms the
+session server-side and polls provisioning status; it never triggers
+provisioning from the browser, and it never trusts the return URL, which can be
+visited without paying.
 
-`paymentRef` is the idempotency key. Webhooks retry; a retry must not create a
-second clinic or a second charge.
+`signupRef` is the idempotency key throughout — checkout session, provisioning,
+and any retry. Webhooks retry by design; a retry must never produce a second
+clinic or a second subscription.
 
 ---
 
@@ -347,17 +421,20 @@ belong there rather than in a modal nobody reads.
 
 Listed so you know they are tracked and not forgotten:
 
-- Trial before payment, or payment first? The licence system supports both — a
-  `term` licence with a short expiry is a trial.
 - Who signs the data processing agreement, and when? Each clinic is the data
   controller for children's clinical records and the platform is the processor.
   Self-serve means a click-through DPA at signup rather than one signed per
   clinic. **This is a launch blocker, not a nice-to-have** — get legal input
-  before the flow goes live.
-- What happens at the end of a term licence: read-only (what the rules do today),
-  a grace period (14 days today), then what?
-- Refunds and deletion. A clinic that cancels has a database and a bucket of
-  clinical records. Retention is a legal question, not a technical one.
+  before the flow goes live. You send `dpa: { version, acceptedAt }`; what that
+  version *says* is the open part.
+- Refunds. Deletion and retention are answered in §8a; refunds are not, and they
+  interact with a card taken 30 days before the first charge.
+- **The database ceiling is 100 per project, 5 used.** Not a question — a number
+  worth knowing, because it is the hard cap on self-serve signups and every
+  squat consumes one until it is offboarded.
+
+Answered elsewhere and removed from this list: trial-before-payment (§3a), and
+what happens when a term licence ends (§3a and §8a together).
 
 ---
 

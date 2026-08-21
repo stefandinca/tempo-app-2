@@ -162,7 +162,13 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     maxUsers: 1,
     maxActiveClients: 30,
     tagline: "Pentru practicieni independenți",
-    features: ["1 Utilizator (Proprietar)", "Până la 30 clienți activi", "Toate evaluările incluse"],
+    // "Programe terapeutice nelimitate", NOT "Toate evaluările incluse". The
+    // latter was transcribed from tempo-web/dist/index.html, which was stale;
+    // the live site says the former. The difference is not cosmetic: ABLLS-R,
+    // VB-MAPP, Portage and CARS are licensed instruments, and a blanket claim
+    // that every evaluation is included reads as a licensing claim the product
+    // cannot back. tempoapp.ro removed that wording deliberately.
+    features: ["1 Utilizator (Proprietar)", "Până la 30 clienți activi", "Programe terapeutice nelimitate"],
     ctaLabel: "Alege Starter",
     popular: false,
     trialDays: 30,
