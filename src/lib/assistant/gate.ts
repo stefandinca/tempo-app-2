@@ -52,9 +52,18 @@ export async function requireStaffWithConsent(req: NextRequest, databaseId?: str
     // Staff role (the role comes from the verified user, NOT the request body).
     const memberSnap = await db.collection("team_members").doc(uid).get();
     if (!memberSnap.exists) return { ok: false, status: 403, error: "not_staff" };
-    const member = memberSnap.data() as { role?: string; name?: string };
+    const member = memberSnap.data() as { role?: string; name?: string; isActive?: boolean };
     const role = String(member.role || "").toLowerCase();
     if (!STAFF_ROLES.has(role)) return { ok: false, status: 403, error: "not_staff" };
+
+    // Deactivating a member has to revoke Mira too, not just Firestore. This
+    // path sends client data to Anthropic, so it is the last one that should
+    // outlive an offboarding. Superadmin is exempt for the same reason as in
+    // serverAuth.ts: a live clinic carries a platform account with
+    // isActive: false. Missing means active — most members predate the field.
+    if (role !== "superadmin" && member.isActive === false) {
+      return { ok: false, status: 403, error: "deactivated" };
+    }
 
     // Consent.
     const consentSnap = await db.collection("user_consents").doc(uid).get();
