@@ -177,7 +177,21 @@ export function useChatActions() {
     // 1. Add message to subcollection
     await addDoc(collection(db, "threads", threadId, "messages"), messageData);
 
-    // 2. Update thread's last message and updatedAt, and unarchive for sender only
+    // 2. Update thread's last message and updatedAt, and bring the conversation
+    //    back for EVERYONE.
+    //
+    //    This used to remove only the sender from archivedBy, leaving the
+    //    recipient archived. The effect was that archiving a thread was
+    //    permanent from the archiver's side: the other party kept replying,
+    //    those replies were never surfaced, and because createOrGetThread
+    //    returns the existing deterministic thread rather than making a new
+    //    one, starting a fresh conversation with that person was impossible
+    //    too. Archiving one conversation silently ended contact.
+    //
+    //    A new message means the conversation is live again, so it should
+    //    reappear for whoever archived it — the same thing a mailbox does when
+    //    a filed thread gets a reply. Archiving stays a way to tidy a finished
+    //    conversation, not a way to stop hearing from someone.
     await updateDoc(doc(db, "threads", threadId), {
       lastMessage: {
         text: text.trim(),
@@ -186,7 +200,7 @@ export function useChatActions() {
         readBy: [(isParent && clientId) ? clientId : user.uid]
       },
       updatedAt: serverTimestamp(),
-      archivedBy: arrayRemove((isParent && clientId) ? clientId : user.uid) // Only unarchive for sender, recipient stays archived
+      archivedBy: []
     });
 
     // 3. Trigger notification
@@ -311,6 +325,17 @@ export function useChatActions() {
         // Ensure current user is in participants array
         if (!threadData.participants.includes(user.uid)) {
           updates.participants = arrayUnion(user.uid);
+          needsUpdate = true;
+        }
+
+        // Deliberately opening this conversation is itself an un-archive.
+        // Thread ids are deterministic, so "start a chat" with someone you have
+        // archived returns this thread rather than creating another one — and
+        // without this the caller got back an id that their own sidebar filters
+        // out, which reads as the button doing nothing.
+        const myArchiveKey = (isParent && clientId) ? clientId : user.uid;
+        if ((threadData.archivedBy || []).includes(myArchiveKey)) {
+          updates.archivedBy = arrayRemove(myArchiveKey);
           needsUpdate = true;
         }
 
