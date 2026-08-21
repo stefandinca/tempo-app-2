@@ -37,8 +37,12 @@ messaging.onBackgroundMessage(function(payload) {
 
   const notificationOptions = {
     body: body,
-    icon: `${baseUrl}/icons/icon-192.svg`,
-    badge: `${baseUrl}/icons/icon-192.svg`,
+    // Raster, not SVG. The Notification API does not render SVG — Chrome
+    // substitutes a blank image, which is why these showed a white square.
+    // `badge` is the small monochrome glyph the platform tints, so it points
+    // at the transparent one; using the brand square there draws a blob.
+    icon: `${baseUrl}/icons/icon-192.png`,
+    badge: `${baseUrl}/icons/badge-96.png`,
     data: {
       url: url,
       notificationId: notificationId

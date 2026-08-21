@@ -29,6 +29,15 @@ export const metadata: Metadata = {
   title: "TempoApp - Therapy Management",
   description: "Modern management for therapy centers",
   manifest: "/manifest.json",
+  // Raster only. SVG is not reliably used for the home-screen icon, and the
+  // Notification API ignores it outright — see scripts/generate-icons.mjs.
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
