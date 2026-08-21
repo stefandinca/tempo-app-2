@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import { useTranslation } from "react-i18next";
-import { Building2, Bug, UserPlus, Sparkles, Activity } from "lucide-react";
+import { Building2, Bug, UserPlus, Sparkles, Activity, Tags } from "lucide-react";
 
 const ITEMS = [
   { href: "/platform", icon: Building2, key: "clinics", label: "Clinics" },
   { href: "/platform/bug-reports", icon: Bug, key: "bug_reports", label: "Bug reports" },
   { href: "/platform/leads", icon: UserPlus, key: "leads", label: "Leads" },
   { href: "/platform/ai-usage", icon: Sparkles, key: "ai_usage", label: "Mira spend" },
+  { href: "/platform/tiers", icon: Tags, key: "tiers", label: "Pricing" },
   { href: "/platform/health", icon: Activity, key: "health", label: "Health" },
 ];
 

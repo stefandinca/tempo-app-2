@@ -114,6 +114,23 @@ service cloud.firestore {
       allow read: if isSuperadmin();
       allow write: if false;
     }
+
+    // The pricing catalogue: tier names, prices, promises and limits.
+    //
+    // WORLD-READABLE, deliberately and unusually for this file. The marketing
+    // site at tempoapp.ro renders its pricing cards straight from this
+    // document, and its visitors are anonymous and not signed in to anything.
+    // Everything in it is already published on a public web page — nothing
+    // about a clinic, a person or a child is here, and nothing should ever be
+    // added that is.
+    //
+    // Writes go through /api/platform/tiers with the Admin SDK, as the rest of
+    // the control plane does, so a browser cannot edit what every clinic is
+    // sold.
+    match /platform_tiers/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
     match /tenant_members/{memberUid} {
       allow read, write: if false;
     }

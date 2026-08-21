@@ -2652,7 +2652,8 @@
       "bug_reports": "Bug reports",
       "leads": "Leads",
       "ai_usage": "Mira spend",
-      "health": "Health"
+      "health": "Health",
+      "tiers": "Pricing"
     },
     "clinics": {
       "name": "Clinic",
@@ -2755,6 +2756,26 @@
       "error": "Error",
       "empty": "No clinics registered.",
       "load_error": "Could not load clinic health."
+    },
+    "tiers": {
+      "title": "Pricing",
+      "subtitle": "Read by the pricing page and used to cap each clinic. Changing a limit applies to a clinic the next time its plan is saved, not immediately.",
+      "saved": "Pricing updated.",
+      "save_failed": "Could not save pricing.",
+      "load_error": "Could not load pricing.",
+      "label": "Name",
+      "tagline": "Tagline",
+      "price": "EUR / month",
+      "price_hint": "Empty = on request",
+      "trial": "Trial days",
+      "trial_hint": "0 = no trial",
+      "max_users": "Max users",
+      "max_clients": "Max active clients",
+      "unlimited_hint": "Empty = unlimited",
+      "features": "Card bullets",
+      "features_hint": "One per line. These sell — they do not enforce anything.",
+      "cta": "Button label",
+      "popular": "Popular badge"
     }
   }
 }

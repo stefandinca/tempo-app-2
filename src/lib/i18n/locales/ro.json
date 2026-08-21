@@ -2657,7 +2657,8 @@
       "bug_reports": "Raportări",
       "leads": "Lead-uri",
       "ai_usage": "Costuri Mira",
-      "health": "Stare"
+      "health": "Stare",
+      "tiers": "Prețuri"
     },
     "clinics": {
       "name": "Centru",
@@ -2760,6 +2761,26 @@
       "error": "Eroare",
       "empty": "Niciun centru înregistrat.",
       "load_error": "Nu s-a putut încărca starea centrelor."
+    },
+    "tiers": {
+      "title": "Prețuri",
+      "subtitle": "Sunt citite de pagina de prețuri și limitează fiecare clinică. O limită modificată se aplică unei clinici la următoarea salvare a planului, nu imediat.",
+      "saved": "Prețuri actualizate.",
+      "save_failed": "Prețurile nu au putut fi salvate.",
+      "load_error": "Prețurile nu au putut fi încărcate.",
+      "label": "Denumire",
+      "tagline": "Descriere scurtă",
+      "price": "EUR / lună",
+      "price_hint": "Gol = la cerere",
+      "trial": "Zile de test",
+      "trial_hint": "0 = fără perioadă de test",
+      "max_users": "Utilizatori maxim",
+      "max_clients": "Clienți activi maxim",
+      "unlimited_hint": "Gol = nelimitat",
+      "features": "Puncte pe card",
+      "features_hint": "Câte unul pe rând. Acestea vând — nu impun nimic.",
+      "cta": "Text buton",
+      "popular": "Etichetă Popular"
     }
   }
 }

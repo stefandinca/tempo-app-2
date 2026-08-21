@@ -14,12 +14,14 @@
 export const DEFAULT_GRACE_DAYS = 14;
 
 /**
- * The tier vocabulary lives HERE, not in ./tiers.ts, because this file must
- * import nothing — scripts/test-licence.mjs loads it with plain Node, which
+ * Tiers live in this file rather than one of their own because this file must
+ * import nothing: `scripts/test-licence.mjs` loads it with plain Node, which
  * cannot resolve an extensionless relative import, and TypeScript refuses the
- * explicit .ts extension that would fix it. ./tiers.ts holds the commercial
- * detail (prices, user and client limits) and re-exports these, so callers
- * still have one import to reach for and nothing is defined twice.
+ * explicit `.ts` extension that would fix it. A separate `tiers.ts` was written
+ * first and did not survive contact with that constraint.
+ *
+ * So this is the licence AND the commercial model: what a clinic bought, what
+ * that costs, what it promises, what it limits, and when it stops.
  */
 export type Tier = "starter" | "professional" | "clinic" | "enterprise";
 
@@ -41,6 +43,59 @@ export interface TierLimits {
   maxUsers: number | null;
   /** Active clients. null = unlimited. */
   maxActiveClients: number | null;
+  /** The line under the name on the pricing card. */
+  tagline: string;
+  /** The bullets on the card. Free text — these sell, they do not enforce. */
+  features: string[];
+  /** The button label on the card. */
+  ctaLabel: string;
+  /** Draws the "Popular" badge. At most one tier should carry it. */
+  popular: boolean;
+  /**
+   * Free trial length in days. 0 means no trial — Enterprise is quoted and
+   * negotiated, so it does not get one.
+   */
+  trialDays: number;
+}
+
+/**
+ * A trial gets NO grace period, unlike a paid licence.
+ *
+ * The default 14-day grace exists so a clinic whose card fails, or whose
+ * renewal is sitting in someone's inbox, does not go read-only over a
+ * weekend — it protects a paying customer from an administrative gap. A trial
+ * has no such gap to protect: nothing was owed and nothing failed. Applying the
+ * usual grace would quietly turn a 30-day trial into 44.
+ */
+export const TRIAL_GRACE_DAYS = 0;
+
+/**
+ * The licence a clinic starts a trial on: term, expiring after the tier's
+ * trial length, with no grace.
+ *
+ * Deliberately not a distinct "trial" plan. A trial and a lapsed subscription
+ * should end the same way — read-only, records intact, nothing deleted — and
+ * the rules already do exactly that for a term licence whose grace has passed.
+ * Inventing a second mechanism would mean two things to keep correct and two
+ * ways to accidentally lock a clinic out of a child's file.
+ */
+export function buildTrialLicence(
+  tier: Tier,
+  updatedBy: string,
+  now: number = Date.now(),
+): LicenceRecord | { error: string } {
+  const days = limitsFor(tier).trialDays;
+  if (!days) return { error: "tier_has_no_trial" };
+  return buildLicence(
+    {
+      plan: "term",
+      tier,
+      expiresAt: new Date(now + days * 86400000).toISOString(),
+      graceDays: TRIAL_GRACE_DAYS,
+      notes: `${days}-day trial`,
+    },
+    updatedBy,
+  );
 }
 
 /**
@@ -57,13 +112,144 @@ export interface TierLimits {
  * "none allowed" the way 0 can.
  */
 export const TIER_LIMITS: Record<Tier, TierLimits> = {
-  starter: { label: "Starter", monthlyEur: 49, maxUsers: 1, maxActiveClients: 30 },
-  professional: { label: "Professional", monthlyEur: 99, maxUsers: 5, maxActiveClients: 100 },
-  // Sold as "Clinică". The key stays ASCII because it travels through ids,
-  // payloads and env-shaped places where a diacritic is a liability.
-  clinic: { label: "Clinică", monthlyEur: 179, maxUsers: 20, maxActiveClients: null },
-  enterprise: { label: "Enterprise", monthlyEur: null, maxUsers: null, maxActiveClients: null },
+  starter: {
+    label: "Starter",
+    monthlyEur: 49,
+    maxUsers: 1,
+    maxActiveClients: 30,
+    tagline: "Pentru practicieni independenți",
+    features: ["1 Utilizator (Proprietar)", "Până la 30 clienți activi", "Toate evaluările incluse"],
+    ctaLabel: "Alege Starter",
+    popular: false,
+    trialDays: 30,
+  },
+  professional: {
+    label: "Professional",
+    monthlyEur: 99,
+    maxUsers: 5,
+    maxActiveClients: 100,
+    tagline: "Pentru clinici în creștere",
+    features: ["Până la 5 utilizatori", "Până la 100 clienți activi", "Portal Părinți Inclus"],
+    ctaLabel: "Alege Professional",
+    popular: true,
+    trialDays: 30,
+  },
+  clinic: {
+    // Sold as "Clinică". The key stays ASCII because it travels through ids,
+    // payloads and env-shaped places where a diacritic is a liability.
+    label: "Clinică",
+    monthlyEur: 179,
+    maxUsers: 20,
+    maxActiveClients: null,
+    tagline: "Pentru centre mari",
+    features: ["Până la 20 utilizatori", "Clienți nelimitați", "Suport Prioritar"],
+    ctaLabel: "Alege Clinică",
+    popular: false,
+    trialDays: 30,
+  },
+  enterprise: {
+    label: "Enterprise",
+    monthlyEur: null,
+    maxUsers: null,
+    maxActiveClients: null,
+    tagline: "Soluții personalizate",
+    features: ["Utilizatori nelimitați", "Funcționalități custom", "Manager dedicat"],
+    ctaLabel: "Contactează-ne",
+    popular: false,
+    trialDays: 0,
+  },
 };
+
+/**
+ * The catalogue as it is published for anyone to read — the shape
+ * `platform_tiers/catalogue` stores and the marketing site renders from.
+ *
+ * The numbers and the copy are the SAME record, deliberately. The pricing card
+ * says "Până la 30 clienți activi" and the platform caps the clinic at 30
+ * because both come from this one entry; keeping the sales copy and the
+ * enforced limit in separate places is how a site promises 100 and an app
+ * stops at 30.
+ */
+export interface TierCatalogueEntry extends TierLimits {
+  id: Tier;
+}
+
+/** What gets published when nothing has been edited yet. */
+export function defaultCatalogue(): TierCatalogueEntry[] {
+  return TIERS.map((id) => ({ id, ...TIER_LIMITS[id] }));
+}
+
+/**
+ * Validate and normalise an edited catalogue before it is stored.
+ *
+ * Returns `{ error }` rather than throwing, like `buildLicence`, so the API
+ * route maps it straight to a 400. A malformed catalogue must never be stored:
+ * it is read by an anonymous marketing page that has no way to complain, and
+ * its numbers cap real clinics.
+ */
+export function buildCatalogue(
+  input: unknown,
+): TierCatalogueEntry[] | { error: string } {
+  if (!Array.isArray(input)) return { error: "not_an_array" };
+
+  const byId = new Map<Tier, TierCatalogueEntry>();
+  for (const raw of input) {
+    const e = raw as Partial<TierCatalogueEntry>;
+    if (!isTier(e?.id)) return { error: "invalid_tier" };
+    if (byId.has(e.id)) return { error: "duplicate_tier" };
+
+    const label = String(e.label ?? "").trim();
+    if (!label) return { error: "label_required" };
+
+    // A price or a limit that is present but not a number is refused rather
+    // than coerced: Number("") is 0, and 0 means UNLIMITED downstream, so
+    // coercion here would silently uncap a paid tier.
+    const num = (v: unknown): number | null | undefined => {
+      if (v === null || v === undefined || v === "") return null;
+      const n = Number(v);
+      return Number.isFinite(n) && n >= 0 ? n : undefined;
+    };
+    const trialDays = num(e.trialDays);
+    const monthlyEur = num(e.monthlyEur);
+    const maxUsers = num(e.maxUsers);
+    const maxActiveClients = num(e.maxActiveClients);
+    if (
+      monthlyEur === undefined ||
+      maxUsers === undefined ||
+      maxActiveClients === undefined ||
+      trialDays === undefined
+    ) {
+      return { error: "invalid_number" };
+    }
+
+    const features = Array.isArray(e.features)
+      ? e.features.map((f) => String(f ?? "").trim()).filter(Boolean).slice(0, 12)
+      : [];
+
+    byId.set(e.id, {
+      id: e.id,
+      label,
+      monthlyEur,
+      maxUsers,
+      maxActiveClients,
+      tagline: String(e.tagline ?? "").trim(),
+      features,
+      ctaLabel: String(e.ctaLabel ?? "").trim(),
+      popular: !!e.popular,
+      // null here means "not set", which for a trial means none.
+      trialDays: trialDays ?? 0,
+    });
+  }
+
+  // Every tier must be present. A catalogue missing one would render a pricing
+  // page with a gap, and leave any clinic already on that tier with no entry to
+  // read its limits from.
+  for (const t of TIERS) if (!byId.has(t)) return { error: "missing_tier" };
+
+  // Returned in TIERS order rather than the order they arrived, so the pricing
+  // page renders cheapest-first without having to sort.
+  return TIERS.map((t) => byId.get(t)!);
+}
 
 /**
  * Limits for a tier, falling back to the most permissive rather than the most

@@ -29,7 +29,7 @@ Payment is mocked for now. Everything else in this document is real.
 | `adminEmail` | a real mailbox | Becomes a platform-wide Firebase Auth account. |
 | `adminName` | free text | Shown to the clinic's own staff and parents. |
 | `plan` | `term` \| `lifetime` | Drives the licence. `term` defaults to 12 months. |
-| `tier` | `starter` \| `professional` \| `clinic` \| `enterprise` | What they bought. Drives the limits — see the table below. |
+| `tier` | `starter` \| `professional` \| `clinic` \| `enterprise` | What they chose. **Not sent as free text — see §3a.** |
 
 ### The label deserves its own screen
 
@@ -103,18 +103,63 @@ you get the same clinic back rather than a second one.
 }
 ```
 
-### The tiers, and what they limit
+## 3a. Read the pricing catalogue from Firestore — do not hardcode it
 
-Transcribed from the pricing section on 22 Aug 2026. The authoritative copy
-in the platform is `TIER_LIMITS` in `src/lib/platform/licence.ts`; the two are
-kept in step by hand, so if you change the pricing page, say so.
+**The pricing cards should render from platform data, not from markup.** Names,
+taglines, prices, bullets, button labels, the "Popular" badge, the trial length
+and the enforced limits all live in one document, editable from the platform
+console at `superadmin.tempoapp.ro/platform/tiers`.
 
-| Tier | Price | Users | Active clients |
-|---|---|---|---|
-| `starter` | 49 EUR/mo | 1 | 30 |
-| `professional` | 99 EUR/mo | 5 | 100 |
-| `clinic` (sold as *Clinică*) | 179 EUR/mo | 20 | unlimited |
-| `enterprise` | contact | unlimited | unlimited |
+```
+GET https://firestore.googleapis.com/v1/projects/tempo-app-2/databases/(default)/documents/platform_tiers/catalogue
+```
+
+**World-readable, deliberately and with no credentials** — it is pricing, it is
+already on a public page, and nothing about a clinic, a person or a child is in
+it. Verified anonymous: this document returns 200 while `tenants/…` returns 403.
+Use the Firebase JS SDK if you prefer; same document, same rule. A JSON copy is
+also served from `https://superadmin.tempoapp.ro/api/platform/tiers` if the REST
+shape is inconvenient.
+
+Each entry:
+
+| Field | Meaning |
+|---|---|
+| `id` | `starter` \| `professional` \| `clinic` \| `enterprise` — the stable key. Never render it. |
+| `label` | Display name, e.g. *Clinică* |
+| `tagline` | The line under the name |
+| `monthlyEur` | Price, or `null` meaning "on request" |
+| `features[]` | The card bullets. **These sell; they enforce nothing.** |
+| `ctaLabel` | Button text |
+| `popular` | Draws the badge |
+| `trialDays` | Free trial length. `0` on Enterprise |
+| `maxUsers` / `maxActiveClients` | The enforced limits. `null` = unlimited |
+
+Today that reads: starter 49 EUR (1 user, 30 clients), professional 99 (5, 100,
+popular), clinic 179 (20, unlimited), enterprise on request. All three paid
+tiers carry a 30-day trial.
+
+**Why read it rather than copy it.** These same numbers cap the clinic. If the
+page says 100 clients and the catalogue says 30, the clinic stops at 30 and the
+customer is right to be annoyed. Reading removes the possibility.
+
+**The `id` is the contract; everything else is editable.** Someone renaming
+*Clinică* in the console must not break your page, so key on `id` and render
+`label`.
+
+### The trial
+
+All tiers except Enterprise get **30 free days**. A trial is not a separate
+mechanism: it is a normal term licence expiring in 30 days, so it ends exactly
+the way a lapsed subscription ends — the clinic goes **read-only**, keeps every
+record, and loses nothing. Nothing is deleted, ever, by an expiry.
+
+One difference from a paid licence, and it is deliberate: a trial carries **no
+grace period**. Paid licences get 14 days of grace so a failed card does not
+take a clinic down over a weekend; a trial has no such gap to protect, and
+applying the same grace would quietly make 30 days into 44.
+
+### How limits actually bite
 
 **Limits ARE enforced.** Setting a tier writes `maxActiveClients` and
 `maxActiveTeamMembers` into the clinic's `system_settings/config`, which the app

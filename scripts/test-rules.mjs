@@ -199,6 +199,18 @@ const cases = [
       name: "A".repeat(500), email: "ana@example.com", phone: "0700000000", clinic: "Centrul Ana",
     }],
 
+  // --- pricing catalogue ---
+  // World-readable on purpose: the marketing site renders its pricing cards
+  // from this document and its visitors are signed in to nothing. Asserted
+  // explicitly because a public read in this file is otherwise a red flag,
+  // and because the write side is what actually needs holding shut.
+  ["a signed-out visitor reads the pricing catalogue", "ALLOW", "get", `${D}/platform_tiers/catalogue`,
+    null, [], null, { tiers: [] }],
+  ["an admin cannot edit the pricing catalogue", "DENY", "update", `${D}/platform_tiers/catalogue`,
+    { uid: "a1" }, member("a1", "Admin"), { tiers: [] }, { tiers: [] }],
+  ["a superadmin cannot edit it from a browser either", "DENY", "update", `${D}/platform_tiers/catalogue`,
+    { uid: "s1" }, member("s1", "Superadmin"), { tiers: [] }, { tiers: [] }],
+
   // --- chat threads ---
   // A thread document is not just a pointer: it carries lastMessage.text,
   // participantDetails and clientId. `allow get: if isSignedIn()` therefore

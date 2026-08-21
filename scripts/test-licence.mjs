@@ -25,6 +25,10 @@ import {
   TIER_LIMITS,
   limitsFor,
   configLimitsFor,
+  buildTrialLicence,
+  buildCatalogue,
+  defaultCatalogue,
+  TRIAL_GRACE_DAYS,
 } from "../src/lib/platform/licence.ts";
 
 const C = {
@@ -409,6 +413,30 @@ check("clinic has no client ceiling", configLimitsFor("clinic").maxActiveClients
 // An unreadable tier must not silently cap a clinic at zero, which would
 // read as "unlimited" here but only by accident of the same 0.
 check("an unknown tier maps to unlimited", configLimitsFor("nonsense").maxActiveClients, 0);
+
+// A trial is a term licence, not a fourth plan: it has to end exactly the way
+// a lapsed subscription ends, and the rules already do that.
+const TRIAL_NOW = Date.parse("2026-08-22T00:00:00.000Z");
+const trial = buildTrialLicence("professional", "u", TRIAL_NOW);
+check("a trial is a term licence", trial.plan, "term");
+check("a trial expires after the tier trial length", trial.expiresAt, new Date(TRIAL_NOW + 30 * 86400000).toISOString());
+// THE POINT: no grace. The default 14 days would quietly make a 30-day trial
+// run for 44, and enforcement is keyed off graceEndsAtMillis, not the expiry.
+check("a trial carries no grace", trial.graceDays, TRIAL_GRACE_DAYS);
+check("a trial enforces on day 30, not day 44", trial.graceEndsAtMillis, TRIAL_NOW + 30 * 86400000);
+check("enterprise has no trial to give", buildTrialLicence("enterprise", "u", TRIAL_NOW).error, "tier_has_no_trial");
+
+// The catalogue the marketing site reads and the console edits.
+const cat = defaultCatalogue();
+check("the catalogue covers every tier", cat.length, TIERS.length);
+check("a rebuilt catalogue is accepted", Array.isArray(buildCatalogue(cat)), true);
+check("a catalogue missing a tier is refused", buildCatalogue(cat.slice(1)).error, "missing_tier");
+check("a catalogue with a duplicate tier is refused", buildCatalogue([...cat, cat[0]]).error, "duplicate_tier");
+check("a nameless tier is refused", buildCatalogue(cat.map((c, i) => (i ? c : { ...c, label: "" }))).error, "label_required");
+// Refused rather than coerced: Number("") is 0, and 0 means UNLIMITED
+// downstream, so coercing here would silently uncap a paid tier.
+check("a non-numeric limit is refused", buildCatalogue(cat.map((c, i) => (i ? c : { ...c, maxUsers: "lots" }))).error, "invalid_number");
+check("an empty limit means unlimited", buildCatalogue(cat.map((c, i) => (i ? c : { ...c, maxUsers: "" })))[0].maxUsers, null);
 
 if (failures.length) {
   console.log(`${C.red(`✗ ${failures.length} failed`)}, ${passed} passed\n`);
