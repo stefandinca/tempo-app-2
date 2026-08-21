@@ -4,6 +4,7 @@
 import { cert, getApps, initializeApp, type App, type ServiceAccount } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getMessaging } from "firebase-admin/messaging";
 
 export type ServiceAccountSource = "json" | "base64";
 
@@ -75,3 +76,11 @@ export const adminDb = (databaseId?: string) =>
   databaseId && databaseId !== "(default)"
     ? getFirestore(getAdminApp(), databaseId)
     : getFirestore(getAdminApp());
+
+/**
+ * Admin FCM handle. Messaging is project-wide rather than per database — a
+ * device token identifies a browser installation, not a clinic — so this takes
+ * no database id. Which clinic a push belongs to is decided by which database
+ * the token was read from.
+ */
+export const adminMessaging = () => getMessaging(getAdminApp());
