@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
 import { countOf, tenantIdentity } from "@/lib/platform/counts";
-import { DEFAULT_GRACE_DAYS } from "@/lib/platform/licence";
+import { DEFAULT_GRACE_DAYS, DEFAULT_TIER } from "@/lib/platform/licence";
 import type { ClinicDetail } from "@/lib/platform/types";
 
 export const runtime = "nodejs";
@@ -69,6 +69,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     // unused here, for Task 7's drift comparison against the registry.
     const registryLicence = (t?.licence ?? null) as {
       plan?: string;
+      tier?: string;
       expiresAt?: string | null;
       graceDays?: number;
       notes?: string;
@@ -88,6 +89,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       licence: registryLicence
         ? {
             plan: registryLicence.plan || "unknown",
+            // Licences written before tiers existed carry none. Reporting the
+            // default rather than an empty string means the editor opens on a
+            // real choice instead of an unselected control, and it matches
+            // what the API would store if saved untouched.
+            tier: String(registryLicence.tier || DEFAULT_TIER),
             expiresAt: registryLicence.expiresAt ?? null,
             graceDays: Number(registryLicence.graceDays ?? DEFAULT_GRACE_DAYS),
             notes: String(registryLicence.notes || ""),

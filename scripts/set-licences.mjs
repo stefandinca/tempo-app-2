@@ -39,11 +39,15 @@ import { Db } from "./demo-seed/firestore.mjs";
 import { buildLicence, licenceMirror, DEFAULT_GRACE_DAYS } from "../src/lib/platform/licence.ts";
 import { clinicDatabaseId } from "../src/lib/platform/labels.ts";
 
+// Every existing clinic is on enterprise: they were onboarded by hand, before
+// tiers were sold, and none of them agreed to a user or client ceiling. Putting
+// a real clinic on a tier it never bought would cap it the moment limits start
+// being enforced.
 const LICENCES = {
-  livebetterlife: { plan: "lifetime", expiresAt: null },
-  demo:           { plan: "lifetime", expiresAt: null },
-  diaconumaria:   { plan: "term", expiresAt: "2027-08-20T00:00:00.000Z" },
-  aicaa:          { plan: "term", expiresAt: "2027-08-20T00:00:00.000Z" },
+  livebetterlife: { plan: "lifetime", tier: "enterprise", expiresAt: null },
+  demo:           { plan: "lifetime", tier: "enterprise", expiresAt: null },
+  diaconumaria:   { plan: "term", tier: "enterprise", expiresAt: "2027-08-20T00:00:00.000Z" },
+  aicaa:          { plan: "term", tier: "enterprise", expiresAt: "2027-08-20T00:00:00.000Z" },
 };
 
 /** Who `updatedBy` names on a script-written licence, as opposed to a console admin's uid. */
@@ -160,7 +164,7 @@ const results = [];
 for (const { label, name, databaseId } of resolved) {
   const cfg = LICENCES[label];
   const built = buildLicence(
-    { plan: cfg.plan, expiresAt: cfg.expiresAt, graceDays: DEFAULT_GRACE_DAYS, notes: "" },
+    { plan: cfg.plan, tier: cfg.tier, expiresAt: cfg.expiresAt, graceDays: DEFAULT_GRACE_DAYS, notes: "" },
     ACTOR,
   );
   if ("error" in built) {
@@ -170,6 +174,7 @@ for (const { label, name, databaseId } of resolved) {
 
   console.log(`${C.bold(name)} ${C.dim(`(${label} -> ${databaseId})`)}`);
   console.log(`  plan            : ${built.plan}`);
+  console.log(`  tier            : ${built.tier}`);
   console.log(`  expires         : ${built.expiresAt ? `${built.expiresAt}  ${C.dim(`(${humanDate(Date.parse(built.expiresAt))})`)}` : "never"}`);
   console.log(`  graceEndsAtMillis: ${built.graceEndsAtMillis === null ? "null" : built.graceEndsAtMillis}  ${C.dim(`-> ${humanDate(built.graceEndsAtMillis)}`)}`);
 

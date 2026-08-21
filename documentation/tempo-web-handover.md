@@ -20,7 +20,7 @@ Payment is mocked for now. Everything else in this document is real.
 
 ---
 
-## 2. The five things you must collect
+## 2. The six things you must collect
 
 | Field | Constraint | Why it matters |
 |---|---|---|
@@ -29,6 +29,7 @@ Payment is mocked for now. Everything else in this document is real.
 | `adminEmail` | a real mailbox | Becomes a platform-wide Firebase Auth account. |
 | `adminName` | free text | Shown to the clinic's own staff and parents. |
 | `plan` | `term` \| `lifetime` | Drives the licence. `term` defaults to 12 months. |
+| `tier` | `starter` \| `professional` \| `clinic` \| `enterprise` | What they bought. Drives the limits — see the table below. |
 
 ### The label deserves its own screen
 
@@ -82,6 +83,7 @@ you get the same clinic back rather than a second one.
   "adminEmail": "owner@clinicx.ro",
   "adminName": "Maria Ionescu",
   "plan": "term",
+  "tier": "professional",
   "paymentRef": "<your payment id — the idempotency key>"
 }
 ```
@@ -100,6 +102,33 @@ you get the same clinic back rather than a second one.
   "error": null
 }
 ```
+
+### The tiers, and what they limit
+
+Transcribed from the pricing section on 22 Aug 2026. The authoritative copy
+in the platform is `TIER_LIMITS` in `src/lib/platform/licence.ts`; the two are
+kept in step by hand, so if you change the pricing page, say so.
+
+| Tier | Price | Users | Active clients |
+|---|---|---|---|
+| `starter` | 49 EUR/mo | 1 | 30 |
+| `professional` | 99 EUR/mo | 5 | 100 |
+| `clinic` (sold as *Clinică*) | 179 EUR/mo | 20 | unlimited |
+| `enterprise` | contact | unlimited | unlimited |
+
+**Limits are not enforced yet.** The tier is stored and mirrored into the
+clinic, and the console can set it, but nothing counts users or clients
+against it. So a Starter signup today gets a working clinic with no ceiling.
+Do not promise enforcement on the pricing page before it exists.
+
+**Two things the pricing page implies that the platform does not encode.**
+The Professional bullet reads *"Portal Părinți Inclus"*, which implies Starter
+has no parent portal, and the Starter bullet reads *"Toate evaluările incluse"*,
+which implies evaluations everywhere. Only the user and client numbers were
+encoded, because those are stated as numbers. **If the parent portal really is
+meant to be a Professional feature, that needs saying explicitly** — it is a
+whole surface of the product, and inferring it from a marketing bullet is how
+a paying clinic loses something it thought it had.
 
 ---
 

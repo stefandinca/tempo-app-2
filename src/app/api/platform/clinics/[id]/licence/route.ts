@@ -21,7 +21,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError, clinicDatabaseId } from "@/lib/platform/gate";
 import { tenantIdentity } from "@/lib/platform/counts";
-import { buildLicence, licenceMirror, type LicenceInput } from "@/lib/platform/licence";
+import { buildLicence, licenceMirror, DEFAULT_TIER, type LicenceInput } from "@/lib/platform/licence";
+
 import { logPlatformActivity } from "@/lib/platform/activity";
 
 export const runtime = "nodejs";
@@ -53,6 +54,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const built = buildLicence(
     {
       plan: body.plan as LicenceInput["plan"],
+      // Defaulted rather than required, so a caller written before tiers
+      // existed still saves a valid licence instead of 400ing. buildLicence
+      // rejects a tier that is present but unrecognised.
+      tier: (body.tier ?? DEFAULT_TIER) as LicenceInput["tier"],
       expiresAt: body.expiresAt ?? null,
       graceDays: Number(body.graceDays),
       notes: String(body.notes || ""),

@@ -28,7 +28,9 @@ export interface ClinicDetail extends ClinicSummary {
    * An intersection on the detail type only: ClinicSummary.licence stays the
    * narrower shape the list screen needs.
    */
-  licence: (NonNullable<ClinicSummary["licence"]> & { graceDays: number; notes: string }) | null;
+  licence:
+    | (NonNullable<ClinicSummary["licence"]> & { graceDays: number; notes: string; tier: string })
+    | null;
 }
 
 export interface BugReport {

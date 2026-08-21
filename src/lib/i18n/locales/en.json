@@ -2710,7 +2710,9 @@
       "not_mirrored": "Saved, but not yet enforced on the clinic. Check Health.",
       "past_expiry_title": "Expiry date is in the past",
       "past_expiry_message": "Staff at this clinic are already past their grace period ({{date}}) and will be read-only as soon as this saves. Continue?",
-      "past_expiry_confirm": "Save anyway"
+      "past_expiry_confirm": "Save anyway",
+      "tier": "Tier",
+      "tier_limits": "{{users}} users · {{clients}} clients"
     },
     "leads": {
       "name": "Name",

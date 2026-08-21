@@ -6,9 +6,12 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 import { useConfirm } from "@/context/ConfirmContext";
 import { platformPut } from "@/lib/platform/clientApi";
+import { TIERS, TIER_LIMITS, isTier, DEFAULT_TIER, type Tier } from "@/lib/platform/licence";
 
 export interface LicenceValue {
   plan: string;
+  /** What the clinic bought. See TIER_LIMITS in lib/platform/licence.ts. */
+  tier: string;
   expiresAt: string | null;
   graceDays: number;
   notes: string;
@@ -46,6 +49,7 @@ export default function LicenceEditor({
   const [expiresAt, setExpiresAt] = useState((value?.expiresAt || "").slice(0, 10));
   const [graceDays, setGraceDays] = useState(String(value?.graceDays ?? 14));
   const [notes, setNotes] = useState(value?.notes || "");
+  const [tier, setTier] = useState<Tier>(isTier(value?.tier) ? value.tier : DEFAULT_TIER);
   const [saving, setSaving] = useState(false);
 
   async function doSave() {
@@ -53,6 +57,7 @@ export default function LicenceEditor({
     try {
       await platformPut<{ mirrored: boolean }>(`/api/platform/clinics/${tenantId}/licence`, {
         plan,
+        tier,
         expiresAt: plan === "term" && expiresAt ? new Date(expiresAt).toISOString() : null,
         graceDays: Number(graceDays),
         notes,
@@ -118,6 +123,58 @@ export default function LicenceEditor({
             {t(`platform.licence.plan_${p}`, { defaultValue: p === "term" ? "Term" : "Lifetime" })}
           </button>
         ))}
+      </div>
+
+      {/*
+        An override, not a setting. Once billing exists the payment processor
+        decides the tier and this becomes the exception path — Enterprise is
+        "contact for a quote" and will always be set by hand, and comping or
+        correcting an account needs somewhere to happen. Every change here is
+        attributed and logged (updatedBy, notes, platform activity), which is
+        what makes a manual override safe to keep.
+
+        The limits are shown rather than described so the consequence of the
+        choice is on screen: picking Starter for a clinic with eight therapists
+        is a decision somebody should see, not discover.
+      */}
+      <div>
+        <span className="block text-xs text-neutral-500 mb-2">
+          {t("platform.licence.tier", { defaultValue: "Tier" })}
+        </span>
+        <div className="flex flex-wrap gap-2">
+          {TIERS.map((tv) => {
+            const lim = TIER_LIMITS[tv];
+            const users = lim.maxUsers === null ? "∞" : lim.maxUsers;
+            const clients = lim.maxActiveClients === null ? "∞" : lim.maxActiveClients;
+            return (
+              <button
+                key={tv}
+                onClick={() => setTier(tv)}
+                aria-pressed={tier === tv}
+                className={
+                  "px-3 py-2 min-h-[44px] rounded-lg text-left " +
+                  (tier === tv
+                    ? "bg-primary-500 text-white"
+                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300")
+                }
+              >
+                <span className="block text-sm font-semibold">{lim.label}</span>
+                <span
+                  className={
+                    "block text-[11px] " +
+                    (tier === tv ? "text-white/80" : "text-neutral-500 dark:text-neutral-400")
+                  }
+                >
+                  {t("platform.licence.tier_limits", {
+                    defaultValue: "{{users}} users · {{clients}} clients",
+                    users,
+                    clients,
+                  })}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {plan === "term" && (

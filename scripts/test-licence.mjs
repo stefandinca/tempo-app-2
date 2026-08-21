@@ -17,7 +17,14 @@
  */
 import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
-import { buildLicence, DEFAULT_GRACE_DAYS } from "../src/lib/platform/licence.ts";
+import {
+  buildLicence,
+  licenceMirror,
+  DEFAULT_GRACE_DAYS,
+  TIERS,
+  TIER_LIMITS,
+  limitsFor,
+} from "../src/lib/platform/licence.ts";
 
 const C = {
   red: (s) => `\x1b[31m${s}\x1b[0m`,
@@ -43,14 +50,14 @@ function check(what, actual, expected) {
 console.log(`\n${C.bold("licence maths")}\n`);
 
 const lifetime = buildLicence(
-  { plan: "lifetime", expiresAt: null, graceDays: DEFAULT_GRACE_DAYS, notes: "" },
+  { plan: "lifetime", tier: "professional", expiresAt: null, graceDays: DEFAULT_GRACE_DAYS, notes: "" },
   "uid1",
 );
 check("a lifetime licence never expires", lifetime.graceEndsAtMillis, null);
 check("a lifetime licence keeps no expiry date", lifetime.expiresAt, null);
 
 const term = buildLicence(
-  { plan: "term", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 14, notes: "" },
+  { plan: "term", tier: "professional", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 14, notes: "" },
   "uid1",
 );
 check(
@@ -59,28 +66,28 @@ check(
   Date.parse("2027-08-20T00:00:00.000Z") + 14 * 86400000,
 );
 check("zero grace means the expiry itself",
-  buildLicence({ plan: "term", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 0, notes: "" }, "u").graceEndsAtMillis,
+  buildLicence({ plan: "term", tier: "professional", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 0, notes: "" }, "u").graceEndsAtMillis,
   Date.parse("2027-08-20T00:00:00.000Z"));
 
 console.log(`\n${C.bold("refusals — a bad licence must never be stored")}\n`);
 
 check("a term licence with no date is refused",
-  buildLicence({ plan: "term", expiresAt: null, graceDays: 14, notes: "" }, "u").error,
+  buildLicence({ plan: "term", tier: "professional", expiresAt: null, graceDays: 14, notes: "" }, "u").error,
   "expiry_required");
 check("an unparseable date is refused",
-  buildLicence({ plan: "term", expiresAt: "not a date", graceDays: 14, notes: "" }, "u").error,
+  buildLicence({ plan: "term", tier: "professional", expiresAt: "not a date", graceDays: 14, notes: "" }, "u").error,
   "invalid_expiry");
 check("negative grace is refused",
-  buildLicence({ plan: "term", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: -1, notes: "" }, "u").error,
+  buildLicence({ plan: "term", tier: "professional", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: -1, notes: "" }, "u").error,
   "invalid_grace");
 check("an unknown plan is refused",
-  buildLicence({ plan: "forever", expiresAt: null, graceDays: 14, notes: "" }, "u").error,
+  buildLicence({ plan: "forever", tier: "professional", expiresAt: null, graceDays: 14, notes: "" }, "u").error,
   "invalid_plan");
 check("a lifetime licence ignores any date it is handed",
-  buildLicence({ plan: "lifetime", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 14, notes: "" }, "u").expiresAt,
+  buildLicence({ plan: "lifetime", tier: "professional", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 14, notes: "" }, "u").expiresAt,
   null);
 check("notes over 2000 characters are refused",
-  buildLicence({ plan: "lifetime", expiresAt: null, graceDays: 14, notes: "x".repeat(2001) }, "u").error,
+  buildLicence({ plan: "lifetime", tier: "professional", expiresAt: null, graceDays: 14, notes: "x".repeat(2001) }, "u").error,
   "notes_too_long");
 
 // ---------------------------------------------------------------------------
@@ -344,7 +351,49 @@ if (out.issues?.length) console.error("Rule issues:", JSON.stringify(out.issues)
   }
 });
 
-console.log("");
+console.log(`\n${C.bold("tiers")}\n`);
+
+// A tier that is present but unrecognised must be refused rather than stored:
+// the mirror is what limits will eventually be enforced from, so a junk value
+// there is a clinic limited to nothing anybody chose.
+check(
+  "an unrecognised tier is refused",
+  buildLicence({ plan: "lifetime", tier: "platinum", expiresAt: null, graceDays: 14, notes: "" }, "u").error,
+  "invalid_tier",
+);
+check(
+  "a missing tier is refused",
+  buildLicence({ plan: "lifetime", expiresAt: null, graceDays: 14, notes: "" }, "u").error,
+  "invalid_tier",
+);
+
+const tiered = buildLicence(
+  { plan: "term", tier: "clinic", expiresAt: "2027-08-20T00:00:00.000Z", graceDays: 14, notes: "" },
+  "u",
+);
+check("the tier is kept on the record", tiered.tier, "clinic");
+// It has to reach the mirror too, or a clinic cannot read its own limits
+// without a control-plane round trip it has no permission to make.
+check("the tier reaches the mirror", licenceMirror(tiered).tier, "clinic");
+
+// Unlimited is null everywhere, never 0 — 0 reads as "none allowed".
+check("enterprise has no user ceiling", TIER_LIMITS.enterprise.maxUsers, null);
+check("starter allows one user", TIER_LIMITS.starter.maxUsers, 1);
+check("professional caps clients at 100", TIER_LIMITS.professional.maxActiveClients, 100);
+
+// Falls back to the MOST permissive, deliberately: an unreadable tier is our
+// bug, and the cost of guessing wrong is asymmetric.
+check("an unknown tier falls back to the most permissive", limitsFor("nonsense").maxUsers, null);
+
+// The two files are kept in step by hand, so assert they at least agree on
+// which tiers exist. Nothing here can assert the PRICES are current.
+check("every tier has limits defined", TIERS.every((t) => !!TIER_LIMITS[t]), true);
+check(
+  "no limits are defined for a tier that does not exist",
+  Object.keys(TIER_LIMITS).every((t) => TIERS.includes(t)),
+  true,
+);
+
 if (failures.length) {
   console.log(`${C.red(`✗ ${failures.length} failed`)}, ${passed} passed\n`);
   failures.forEach((f) => console.log(`  ${C.red("-")} ${f}`));
