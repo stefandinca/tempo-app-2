@@ -336,17 +336,33 @@ export function useChatActions() {
       // Firestore rules via isParent(clientId) check.
       const initialParticipants = [user.uid, otherUser.id];
 
-      await setDoc(threadRef, {
+      // Firestore rejects `undefined` outright, and ChatParticipant has three
+      // optional fields, so a caller-supplied participant carrying an explicit
+      // `undefined` fails the whole write. Dropping absent keys is what the
+      // document should have looked like anyway.
+      const withoutUndefined = <T extends Record<string, any>>(o: T): T =>
+        Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as T;
+
+      const threadData: Record<string, any> = {
         participants: initialParticipants,
         participantDetails: {
-          [user.uid]: currentUserParticipant,
-          [otherUser.id]: otherUser
+          [user.uid]: withoutUndefined(currentUserParticipant),
+          [otherUser.id]: withoutUndefined(otherUser)
         },
-        clientId: targetClientId || undefined,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         archivedBy: []
-      });
+      };
+
+      // Omit the field entirely rather than writing undefined. This used to be
+      // `clientId: targetClientId || undefined`, which threw on every
+      // staff-to-staff thread — targetClientId is "" whenever the other party
+      // is not a parent, and "" || undefined is undefined. Threads without a
+      // clientId are legitimate and 28 of them already exist; they simply have
+      // no field, which is what the rules test for.
+      if (targetClientId) threadData.clientId = targetClientId;
+
+      await setDoc(threadRef, threadData);
 
       return threadId;
     } catch (err: any) {

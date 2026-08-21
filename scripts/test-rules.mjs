@@ -222,6 +222,19 @@ const cases = [
   // getDoc() on a thread that does not exist yet before creating it.
   ["get on a NON-EXISTENT thread still succeeds", "ALLOW", "get", `${D}/threads/thread_t1_t9`,
     { uid: "t1" }, [], null, MISSING_DOC],
+  // 28 of 44 real threads carry NO clientId field at all — every staff-to-staff
+  // one. That is not the same as `clientId: null`: dereferencing a field that is
+  // absent is an ERROR in rules, not a null, so these prove the participant
+  // check short-circuits before the clientId branch is ever reached. Thread
+  // creation without a clientId was broken in the client for months
+  // (`clientId: targetClientId || undefined`, which Firestore rejects), so
+  // these documents are about to start appearing again.
+  ["participant gets a thread with NO clientId field", "ALLOW", "get", `${D}/threads/thread_t1_t2`,
+    { uid: "t1" }, [], null,
+    { participants: ["t1", "t2"], lastMessage: { text: "secret" } }],
+  ["non-participant gets a thread with NO clientId field", "DENY", "get", `${D}/threads/thread_t1_t2`,
+    { uid: "u9" }, [], null,
+    { participants: ["t1", "t2"], lastMessage: { text: "secret" } }],
 
   // --- deactivation actually revoking access ---
   // `isActive` was written by the team UI and read by nothing that controls
