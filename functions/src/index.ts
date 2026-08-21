@@ -6,7 +6,7 @@ import * as functionsV1 from "firebase-functions/v1";
 // v2 because a trigger has to name the NAMED Firestore database it watches.
 // v1 triggers only ever fire on (default), so under one database per clinic
 // push silently stopped for everyone. One registration per clinic, below.
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { onDocumentCreated, onDocumentWritten } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
 
@@ -452,3 +452,86 @@ export const sendPushNotificationLivebetterlife = pushNotificationTrigger("clini
 export const sendPushNotificationDiaconumaria = pushNotificationTrigger("clinic-diaconumaria");
 export const sendPushNotificationDemo = pushNotificationTrigger("clinic-demo");
 export const sendPushNotificationAicaa = pushNotificationTrigger("clinic-aicaa");
+
+// ============================================================
+// FCM TOKEN OWNERSHIP
+// ============================================================
+/**
+ * One browser has exactly ONE FCM token, and it belongs to the browser, not to
+ * whoever is signed in. So when a second account signs in on the same device,
+ * the client writes that same token under a second uid — and until now nothing
+ * removed the first.
+ *
+ * Measured 21 Aug 2026 at clinic-livebetterlife: 46 registrations across 14
+ * real devices, one token held by 12 different accounts. Because notification
+ * bodies name children ("session with X", "X marked as absent"), a push meant
+ * for one recipient was delivered to whoever happened to be using that browser
+ * — including, in three cases, accounts belonging to different families.
+ *
+ * The invariant enforced here: a token has exactly one owner, the account that
+ * most recently signed in on that device. That is the only model a single
+ * browser can support. It does mean a device receives notifications only for
+ * the account currently signed into it, which is the correct trade — the
+ * alternative is one identity seeing another identity's notifications.
+ *
+ * This lives server-side because a browser cannot do it: the rules stop one
+ * user deleting another user's token document, and they should. An Admin-SDK
+ * endpoint would also work but would need its own auth path for anonymous
+ * parent sessions; a trigger needs none.
+ *
+ * Residual: if this function errors on a given write, that duplicate survives
+ * and no later write of the SAME token will retry it (see the unchanged-token
+ * guard below). scripts/cleanup-fcm-tokens.mjs reconciles in bulk.
+ */
+function fcmTokenOwnershipTrigger(databaseId: string) {
+  return onDocumentWritten(
+    {
+      document: "fcm_tokens/{uid}",
+      database: databaseId,
+      region: "us-central1",
+    },
+    async (event) => {
+      const after = event.data?.after;
+      // A delete — including the ones this function performs below. Returning
+      // here is what stops it recursing.
+      if (!after?.exists) return;
+
+      const token = after.data()?.token;
+      if (!token || typeof token !== "string") return;
+
+      // The client re-registers on every load, rewriting the same token with a
+      // fresh updatedAt. Only a CHANGE of token can create a duplicate, so
+      // there is nothing to reconcile otherwise.
+      const before = event.data?.before;
+      if (before?.exists && before.data()?.token === token) return;
+
+      const uid = event.params.uid;
+      const db = getFirestore(databaseId);
+      const holders = await db
+        .collection("fcm_tokens")
+        .where("token", "==", token)
+        .get();
+
+      const stale = holders.docs.filter((d) => d.id !== uid);
+      if (!stale.length) return;
+
+      const batch = db.batch();
+      stale.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+
+      console.log(
+        `Token now owned by ${uid} in ${databaseId}; removed ${stale.length} ` +
+          `stale registration(s): ${stale.map((d) => d.id).join(", ")}`,
+      );
+    },
+  );
+}
+
+// One per clinic, for the same reason as the push triggers above: a v2 trigger
+// binds to one named database at deploy time. ADDING A CLINIC MEANS ADDING A
+// LINE HERE.
+export const fcmTokenOwnershipLivebetterlife = fcmTokenOwnershipTrigger("clinic-livebetterlife");
+export const fcmTokenOwnershipDiaconumaria = fcmTokenOwnershipTrigger("clinic-diaconumaria");
+export const fcmTokenOwnershipDemo = fcmTokenOwnershipTrigger("clinic-demo");
+export const fcmTokenOwnershipAicaa = fcmTokenOwnershipTrigger("clinic-aicaa");
+

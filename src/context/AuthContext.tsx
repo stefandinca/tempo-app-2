@@ -12,7 +12,7 @@ import {
   updatePassword
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, onSnapshot, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc, deleteDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import i18n from "@/lib/i18n";
 
@@ -205,6 +205,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     setAuthError(null);
+
+    // Drop this device from push before the credentials go away. An FCM token
+    // belongs to the browser, not the account, so a signed-out phone otherwise
+    // keeps receiving this account notifications until somebody else signs in
+    // on it. Best effort: failing to clear it must not block signing out, and
+    // the ownership trigger in functions/src/index.ts reassigns the token
+    // anyway the moment the next account registers it.
+    const leaving = auth.currentUser;
+    if (leaving) {
+      try {
+        await deleteDoc(doc(db, "fcm_tokens", leaving.uid));
+      } catch (err) {
+        console.error("[AuthContext] Could not clear the push token on sign-out:", err);
+      }
+    }
+
     await firebaseSignOut(auth);
     router.push("/login");
   }, [router]);

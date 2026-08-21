@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { User, onAuthStateChanged, signInAnonymously, signOut as firebaseSignOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, deleteDoc } from "firebase/firestore";
 import { linkParent, unlinkParent } from "@/lib/parentLink";
 
 interface ParentAuthContextType {
@@ -140,6 +141,18 @@ export function ParentAuthProvider({ children }: { children: React.ReactNode }) 
       // its Storage mirror, while the token is still valid.
       const signingOut = auth.currentUser;
       if (signingOut) await unlinkParent(signingOut);
+
+      // Same reason, for push: an FCM token belongs to the browser rather than
+      // the account, so leaving the registration behind means this phone keeps
+      // receiving notifications naming this child after the parent has signed
+      // out. Best effort — it must not block signing out.
+      if (signingOut) {
+        try {
+          await deleteDoc(doc(db, "fcm_tokens", signingOut.uid));
+        } catch (err) {
+          console.error("[ParentAuth] Could not clear the push token on sign-out:", err);
+        }
+      }
 
       // Clear session storage and localStorage
       sessionStorage.removeItem("parent_uid");
