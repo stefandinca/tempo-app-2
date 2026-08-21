@@ -59,15 +59,53 @@ export interface TierLimits {
 }
 
 /**
- * A trial gets NO grace period, unlike a paid licence.
+ * WHY a licence is ending, which is what decides whether it gets grace.
  *
- * The default 14-day grace exists so a clinic whose card fails, or whose
- * renewal is sitting in someone's inbox, does not go read-only over a
- * weekend — it protects a paying customer from an administrative gap. A trial
- * has no such gap to protect: nothing was owed and nothing failed. Applying the
- * usual grace would quietly turn a 30-day trial into 44.
+ * Grace is not a property of the plan. It is an apology for an administrative
+ * gap, and it only makes sense when there was one:
+ *
+ *   - `trial_ended`   — the trial ran out and nothing was set up to follow it.
+ *                       Nothing was owed and nothing failed. No grace.
+ *   - `cancelled`     — they chose to leave, before or at the period end.
+ *                       Nothing failed. No grace. Extending it would be
+ *                       ignoring a decision they made deliberately.
+ *   - `payment_failed`— the card declined. THIS is the case the 14 days exist
+ *                       for: a real customer, still wanting the service, whose
+ *                       card expired or whose bank blocked a foreign charge.
+ *
+ * An earlier version of this file argued that trials never get grace because "a
+ * trial has no card to fail". That stopped being true the moment a card is
+ * taken up front: a trial can now end all three ways, and only one of them is
+ * anybody's fault. Enforcement reads `graceEndsAtMillis` and nothing else, so
+ * this distinction has to be made when the licence is written — by whichever
+ * webhook learns the outcome — rather than inferred later from a record where
+ * a cancellation and a decline look identical.
  */
-export const TRIAL_GRACE_DAYS = 0;
+export type LicenceEndReason = "trial_ended" | "cancelled" | "payment_failed";
+
+export const END_REASON_GRACE_DAYS: Record<LicenceEndReason, number> = {
+  trial_ended: 0,
+  cancelled: 0,
+  payment_failed: DEFAULT_GRACE_DAYS,
+};
+
+/**
+ * The grace a licence should carry given why it is ending.
+ *
+ * Unknown reasons get the GENEROUS answer, deliberately, and for the same
+ * reason the licence fails open: an unrecognised value is our bug, and the cost
+ * is asymmetric. Too much grace means a clinic keeps working slightly longer
+ * than it paid for. Too little means a therapist cannot record a session
+ * because a webhook we did not anticipate arrived on a Friday.
+ */
+export function graceDaysForEnd(reason: unknown): number {
+  return reason === "trial_ended" || reason === "cancelled"
+    ? 0
+    : DEFAULT_GRACE_DAYS;
+}
+
+/** Kept as a name for the trial case; grace belongs to the reason now. */
+export const TRIAL_GRACE_DAYS = END_REASON_GRACE_DAYS.trial_ended;
 
 /**
  * The licence a clinic starts a trial on: term, expiring after the tier's
@@ -91,7 +129,13 @@ export function buildTrialLicence(
       plan: "term",
       tier,
       expiresAt: new Date(now + days * 86400000).toISOString(),
-      graceDays: TRIAL_GRACE_DAYS,
+      // The trial's own end is "it ran out" — no grace. If a card is on file
+      // and later declines, the payment webhook rewrites this licence with
+      // endReason "payment_failed", and grace applies then. Which of the three
+      // outcomes it is only becomes knowable on day 30, so this is the safe
+      // default rather than a prediction.
+      graceDays: graceDaysForEnd("trial_ended"),
+      endReason: "trial_ended",
       notes: `${days}-day trial`,
     },
     updatedBy,
@@ -304,6 +348,13 @@ export interface LicenceInput {
   expiresAt: string | null;
   graceDays: number;
   notes: string;
+  /**
+   * Why this licence ends, when that is known. Drives grace via
+   * `graceDaysForEnd`, and is what lets a cancellation be told from a decline
+   * later — from the clinic's side those are identical, and support cannot
+   * distinguish them without it.
+   */
+  endReason?: LicenceEndReason | null;
 }
 
 export interface LicenceRecord extends LicenceInput {
@@ -342,6 +393,9 @@ export function buildLicence(
 
   const base = {
     tier: input.tier,
+    // null rather than undefined: Firestore drops undefined, and "we do not
+    // know why this ends" is a real state worth storing rather than a gap.
+    endReason: input.endReason ?? null,
     graceDays: input.graceDays,
     notes,
     updatedAt: new Date().toISOString(),
@@ -375,6 +429,10 @@ export function licenceMirror(record: LicenceRecord) {
     // round trip. Rules do not read it today — tier limits are not enforced
     // yet — but the value has to be present before anything can start.
     tier: record.tier,
+    // Mirrored so the clinic's own read-only banner can say WHICH it was.
+    // "Your trial ended" and "your card was declined" need different words and
+    // lead to different buttons.
+    endReason: record.endReason ?? null,
     expiresAt: record.expiresAt,
     graceEndsAtMillis: record.graceEndsAtMillis,
     updatedAt: record.updatedAt,

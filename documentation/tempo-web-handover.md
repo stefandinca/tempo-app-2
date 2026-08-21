@@ -29,7 +29,7 @@ Payment is mocked for now. Everything else in this document is real.
 | `adminEmail` | a real mailbox | Becomes a platform-wide Firebase Auth account. |
 | `adminName` | free text | Shown to the clinic's own staff and parents. |
 | `plan` | `term` \| `lifetime` | Drives the licence. `term` defaults to 12 months. |
-| `tier` | `starter` \| `professional` \| `clinic` \| `enterprise` | What they chose. **Not sent as free text — see §3a.** |
+| `tier` | one of the `id` values from the catalogue | What they chose. Send the `id`, never the display name — see §3a. |
 
 ### The label deserves its own screen
 
@@ -44,7 +44,13 @@ Validate all four of these client-side, and again server-side:
    back to the control plane and the clinic gets an app with nothing in it.
 2. **Reserved names:** `www`, `admin`, `app`, `api`, `superadmin`. These resolve
    to the platform rather than to a clinic.
-3. **Not already taken.** Needs a platform call — see §3.
+3. **Not already taken.** Needs a platform call — see §3. "Taken" includes
+   labels belonging to clinics that no longer exist: a label that ever held
+   client records is retired permanently, because parents keep bookmarks and
+   access codes travel by email, and reissuing one would point a parent at a
+   different clinic's login page with their child's code in hand. Treat it as
+   simply unavailable — **do not** add a helpful "this one was released" hint,
+   because it never is.
 4. **Nothing that reads as another organisation.** `nhs`, `mayo`, a competitor's
    name. Worth a manual review queue rather than a blocklist.
 
@@ -91,6 +97,17 @@ you get the same clinic back rather than a second one.
 ```json
 { "status": "accepted", "provisionId": "prov_abc123" }
 ```
+
+`tier` is the catalogue `id` the visitor picked — `starter`, `professional`,
+`clinic` or `enterprise` — not the label they saw. The platform validates it
+against the catalogue and rejects anything else, so a renamed tier cannot break
+provisioning and a hand-crafted request cannot invent a plan.
+
+**When real payment lands, stop sending it.** The tier should be derived
+server-side from the price the customer actually paid, because that is the only
+version of "what they bought" that cannot disagree with the invoice. Sending it
+from the browser is a stopgap for the mocked-payment phase, and it is worth
+deleting the moment it stops being needed.
 
 ### `GET /api/provision/clinic/{provisionId}`
 
@@ -154,10 +171,36 @@ mechanism: it is a normal term licence expiring in 30 days, so it ends exactly
 the way a lapsed subscription ends — the clinic goes **read-only**, keeps every
 record, and loses nothing. Nothing is deleted, ever, by an expiry.
 
-One difference from a paid licence, and it is deliberate: a trial carries **no
-grace period**. Paid licences get 14 days of grace so a failed card does not
-take a clinic down over a weekend; a trial has no such gap to protect, and
-applying the same grace would quietly make 30 days into 44.
+**A card is taken up front.** It is the single most effective defence against
+subdomain squatting — every signup permanently consumes a database, a bucket, a
+hostname and a label, and people who will not enter card details do not take
+those. It is also ordinary practice, not a hostile one.
+
+### The three ways a trial ends — they are not the same
+
+Taking a card means day 30 has three outcomes, and the platform treats them
+differently:
+
+| Outcome | What happens | Grace |
+|---|---|---|
+| Card charges | Converts to a paid subscription. No interruption at all. | n/a |
+| Cancelled before day 30 | Read-only on day 30. They chose this. | **None** |
+| Card declines | Read-only, but this is the case grace exists for. | **14 days** |
+
+Grace is not a property of the plan — it is an apology for an administrative
+gap, and only the declined card is one. A customer who still wants the service
+and whose bank blocked a foreign charge should not lose access over a weekend.
+Someone who cancelled made a decision, and extending it would be ignoring them.
+
+**This is why the platform needs to be told which happened.** From the clinic's
+side a cancellation and a decline look identical — the licence simply expired.
+The licence record carries an `endReason` (`trial_ended`, `cancelled`,
+`payment_failed`) that decides the grace and lets the clinic's own banner say
+*"your card was declined"* rather than *"your trial ended"*. Those need
+different words and lead to different buttons.
+
+**Whichever webhook learns the outcome must set it.** It cannot be inferred
+afterwards from a record where the two look the same.
 
 ### How limits actually bite
 
@@ -274,6 +317,29 @@ missing clinics for paying customers.
 
 `paymentRef` is the idempotency key. Webhooks retry; a retry must not create a
 second clinic or a second charge.
+
+---
+
+## 8a. What the site has to say, not just do
+
+Two of these are legal text, not UI, and they are easy to leave until launch
+week when they are the slowest thing to get right.
+
+- **Retention, on the Privacy page.** An unused trial is deleted 60 days after
+  it lapses, or 30 if nobody ever signed in. A clinic that entered real client
+  records is never deleted unilaterally — they choose return or deletion, with
+  notices at 30/60/80 days and deletion at 90 unless they say otherwise. And
+  "deleted" means deleted from the live systems; backups roll off on their own
+  schedule, which the text should name rather than imply is instant.
+- **The subdomain is permanent, in the Terms.** Not just a hint on the form.
+  It cannot be renamed, and a subdomain that ever held client records is
+  retired for good rather than reissued — see §2.
+- **The trial terms.** 30 days, card taken up front, what happens on each of
+  the three endings above. If the page says "cancel any time" it should also
+  say that cancelling means read-only at the period end, not deletion.
+
+The site already links *Confidențialitate* and *Termeni și Condiții*; these
+belong there rather than in a modal nobody reads.
 
 ---
 

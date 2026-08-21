@@ -117,6 +117,17 @@ The largest single chunk and the one furthest from existing code.
 **Provisioning is triggered by the webhook, not by the browser reaching a success
 page** — otherwise a user who closes the tab after paying gets no clinic.
 
+**A card is taken up front, including for the trial** (§5.1). That decision
+reaches further than the signup form: it means day 30 has three outcomes rather
+than one, and the platform has to be told which. A card that charges converts
+silently; a cancellation ends the licence with no grace, because they chose it;
+a decline ends it **with** the 14 days, because that is the administrative gap
+grace exists for. From the clinic's side the last two are identical — the
+licence simply expired — so the webhook that learns the outcome must record it.
+`LicenceEndReason` on the licence carries it, `graceDaysForEnd` derives the
+grace from it, and the mirrored copy lets the clinic's own banner say which it
+was. Unknown reasons err generous, like everything else here.
+
 ### Phase 4 — Safety and posture
 
 - Label validation, reserved names and a review queue for names that read as

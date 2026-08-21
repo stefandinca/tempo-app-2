@@ -29,6 +29,8 @@ import {
   buildCatalogue,
   defaultCatalogue,
   TRIAL_GRACE_DAYS,
+  graceDaysForEnd,
+  DEFAULT_GRACE_DAYS as GRACE,
 } from "../src/lib/platform/licence.ts";
 
 const C = {
@@ -437,6 +439,24 @@ check("a nameless tier is refused", buildCatalogue(cat.map((c, i) => (i ? c : { 
 // downstream, so coercing here would silently uncap a paid tier.
 check("a non-numeric limit is refused", buildCatalogue(cat.map((c, i) => (i ? c : { ...c, maxUsers: "lots" }))).error, "invalid_number");
 check("an empty limit means unlimited", buildCatalogue(cat.map((c, i) => (i ? c : { ...c, maxUsers: "" })))[0].maxUsers, null);
+
+// Grace belongs to WHY a licence ends, not to which plan it was. With a card
+// on file a trial can end three ways and only one of them is anybody fault,
+// so the three have to be distinguishable — from the clinic side a
+// cancellation and a decline are identical.
+check("a trial that just ran out gets no grace", graceDaysForEnd("trial_ended"), 0);
+check("a deliberate cancellation gets no grace", graceDaysForEnd("cancelled"), 0);
+check("a declined card DOES get grace", graceDaysForEnd("payment_failed"), GRACE);
+// Unknown reasons get the GENEROUS answer, like the licence failing open: an
+// unrecognised value is our bug, and too little grace stops a therapist
+// recording a session.
+check("an unknown reason errs generous", graceDaysForEnd("who knows"), GRACE);
+check("a missing reason errs generous", graceDaysForEnd(undefined), GRACE);
+check("the trial licence names its own reason", trial.endReason, "trial_ended");
+check("the reason reaches the mirror", licenceMirror(trial).endReason, "trial_ended");
+// A licence written without one stores null rather than dropping the field:
+// Firestore discards undefined, and "not known" is a real state.
+check("an unstated reason is stored as null", tiered.endReason, null);
 
 if (failures.length) {
   console.log(`${C.red(`✗ ${failures.length} failed`)}, ${passed} passed\n`);

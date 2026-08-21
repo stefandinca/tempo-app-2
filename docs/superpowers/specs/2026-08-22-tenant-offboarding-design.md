@@ -161,8 +161,13 @@ codebase:
 
 ## 8. Open questions
 
-- **Who authorises deletion?** A Superadmin in the console, or two people? For a
-  database holding children's clinical records, a second pair of eyes is cheap.
+- ~~Who authorises deletion?~~ **Decided 22 Aug 2026: a Superadmin, single
+  authoriser.** The safety comes from the gates in §2 rather than from a second
+  person — the 24-hour `status: "deleting"` cooling-off, the mandatory dry run,
+  and the abort-if-nonempty default. Those are checks a second reviewer would
+  mostly be re-reading anyway, and a two-person rule that is inconvenient gets
+  worked around rather than followed. If the volume of deletions ever makes
+  this routine, revisit it: routine is exactly when the gates stop being read.
 - **Holding page.** Removing the Vercel domain gives a TLS handshake failure,
   which reads as broken rather than closed. A short-lived static page saying the
   clinic is no longer active would be kinder, and is a small amount of work.
