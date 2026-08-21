@@ -54,6 +54,9 @@ const evalAccess = (disabled) => [
  * that reaches licenceActive() without this mock fails for the wrong reason.
  * Licence enforcement itself is asserted in scripts/test-licence.mjs.
  */
+/** Pass as the `before` document when the case is about a document that does NOT exist. */
+const MISSING_DOC = null;
+
 const noLicence = [
   { function: "exists", args: [{ exact_value: `${D}/system_settings/licence` }], result: { value: false } },
   { function: "get", args: [{ exact_value: `${D}/system_settings/licence` }], result: { value: { data: {} } } },
@@ -190,6 +193,30 @@ const cases = [
       source: "demo_platform_entry", consent: true, createdAt: "2026-08-19T10:00:00Z",
       name: "A".repeat(500), email: "ana@example.com", phone: "0700000000", clinic: "Centrul Ana",
     }],
+
+  // --- chat threads ---
+  // A thread document is not just a pointer: it carries lastMessage.text,
+  // participantDetails and clientId. `allow get: if isSignedIn()` therefore
+  // handed the latest message of every conversation to any session — and
+  // anonymous auth backs the parent portal, so "any session" meant anybody.
+  // Thread ids are deterministic (thread_{a}_{b}, sorted) and team_public is
+  // listable, so no guessing was needed for the staff-to-staff ones.
+  ["participant gets their own thread", "ALLOW", "get", `${D}/threads/thread_t1_t2`,
+    { uid: "t1" }, [], null,
+    { participants: ["t1", "t2"], clientId: null, lastMessage: { text: "secret" } }],
+  ["parent gets the thread for their own client", "ALLOW", "get", `${D}/threads/thread_c1_t1`,
+    { uid: "p1" }, client("c1", { parentUids: ["p1"] }), null,
+    { participants: ["t1"], clientId: "c1", lastMessage: { text: "secret" } }],
+  ["unrelated signed-in user gets a thread they are not in", "DENY", "get", `${D}/threads/thread_t1_t2`,
+    { uid: "u9" }, [], null,
+    { participants: ["t1", "t2"], clientId: null, lastMessage: { text: "secret" } }],
+  ["anonymous gets a staff-to-staff thread", "DENY", "get", `${D}/threads/thread_t1_t2`,
+    { uid: "anon" }, [{ function: "exists", args: [{ exact_value: `${D}/team_members/anon` }], result: { value: false } }],
+    null, { participants: ["t1", "t2"], clientId: null, lastMessage: { text: "secret" } }],
+  // The one that proves chat creation still works: createOrGetThread calls
+  // getDoc() on a thread that does not exist yet before creating it.
+  ["get on a NON-EXISTENT thread still succeeds", "ALLOW", "get", `${D}/threads/thread_t1_t9`,
+    { uid: "t1" }, [], null, MISSING_DOC],
 ];
 
 const testCases = cases.map(([, expectation, method, path, auth, mocks, resource, before]) => ({
@@ -201,7 +228,11 @@ const testCases = cases.map(([, expectation, method, path, auth, mocks, resource
     path, method, time: "2026-08-19T10:00:00Z",
     ...(resource ? { resource: { data: resource } } : {}),
   },
-  ...(before ? { resource: { data: before } } : {}),
+  // An explicit MISSING_DOC (null) is a document that does not exist, so the
+  // rules see `resource == null`. It has to be sent as an explicit JSON null:
+  // omitting the field entirely makes `resource` an ERROR value in the test
+  // API, and even reading it to compare against null then fails the case.
+  ...(before === MISSING_DOC ? { resource: MISSING_DOC } : before ? { resource: { data: before } } : {}),
   functionMocks: [...mocks, ...noLicence],
 }));
 

@@ -422,9 +422,20 @@ service cloud.firestore {
     }
 
     match /threads/{threadId} {
-      // Allow reading any thread document (including non-existent ones for existence checks)
-      // This prevents permission errors when checking if a thread exists with getDoc()
-      allow get: if isSignedIn();
+      // `get` is as restricted as `list`: a thread document carries
+      // lastMessage.text, participantDetails and clientId, so a permissive get
+      // published real message content to any signed-in session — and anonymous
+      // auth backs the parent portal, so that meant anybody.
+      //
+      // `resource == null` is what keeps createOrGetThread working: it checks
+      // existence with getDoc() before creating (useChat.ts:264), and a
+      // non-existent document carries nothing to leak. A caller can still learn
+      // WHETHER a thread exists; it can no longer learn anything that is in it.
+      allow get: if isSignedIn() && (
+        resource == null ||
+        request.auth.uid in resource.data.participants ||
+        (resource.data.clientId != null && isParent(resource.data.clientId))
+      );
 
       // List threads: only show threads user is part of
       allow list: if isSignedIn() && (
