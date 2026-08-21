@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Search, Loader2 } from "lucide-react";
-import { useTeamMembers } from "@/hooks/useCollections";
+import { useTeamMembers, useTeamPublic } from "@/hooks/useCollections";
 import { useAnyAuth } from "@/hooks/useAnyAuth";
 import { useParentAuthOptional } from "@/context/ParentAuthContext";
 import { useClient } from "@/hooks/useClient";
@@ -25,14 +25,22 @@ export default function NewChatModal({ isOpen, onClose, onStartChat }: NewChatMo
   // For staff: use DataContext (teamMembers, clients)
   // For parents: use direct hooks (teamMembers only)
   const dataContext = useData();
-  const { data: directTeamMembers, loading: teamLoading } = useTeamMembers();
+  // Parents must read team_public, not team_members. /team_members is
+  // staff-only (it carries e-mail, phone and salary), so for an anonymous
+  // parent session this hook returned nothing and the modal showed
+  // "no contacts" rather than an error — the collection's own doc comment says
+  // to use useTeamPublic anywhere in the parent portal. Staff keep the richer
+  // list from DataContext below.
+  const { data: publicTeam, loading: publicLoading } = useTeamPublic();
+  const { data: directTeamMembers, loading: directLoading } = useTeamMembers();
+  const teamLoading = isStaff ? directLoading : publicLoading;
 
   const [searchQuery, setSearchQuery] = useState("");
 
   if (!isOpen) return null;
 
   // Handle both staff (DataContext available) and parent (DataContext undefined)
-  const team = isStaff ? (dataContext?.teamMembers?.data || []) : (directTeamMembers || []);
+  const team = isStaff ? (dataContext?.teamMembers?.data || []) : (publicTeam || []);
   const allClients = isStaff ? (dataContext?.clients?.data || []) : [];
 
   const filteredTeam = team.filter(member => {

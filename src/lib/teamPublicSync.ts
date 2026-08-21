@@ -1,5 +1,6 @@
 import { db } from "@/lib/firebase";
 import { doc, setDoc, deleteDoc } from "firebase/firestore";
+import { isPlatformStaff } from "@/lib/roles";
 
 /**
  * Keeps the /team_public/{uid} mirror in sync with /team_members.
@@ -42,6 +43,15 @@ export function toTeamPublic(member: any): TeamPublicFields {
 
 export async function syncTeamPublic(uid: string, member: any): Promise<void> {
   try {
+    // The platform Superadmin is not clinic staff and must never be mirrored:
+    // this collection is readable by every signed-in session, anonymous parents
+    // included, so mirroring them publishes the name and role of an account the
+    // clinic is not supposed to know exists. If a mirror already exists it is
+    // removed rather than left behind.
+    if (isPlatformStaff(member)) {
+      await deleteDoc(doc(db, "team_public", uid));
+      return;
+    }
     await setDoc(doc(db, "team_public", uid), toTeamPublic(member));
   } catch (err) {
     // Non-fatal: the staff record is the source of truth. A stale mirror shows a

@@ -183,12 +183,18 @@ export const createTeamMember = functionsV1.https.onRequest(async (req, res) => 
   // /team_members is staff-only because it carries e-mail, phone and salary;
   // parents still need a therapist's name/initials/colour. Keep this minimal —
   // anything added here is visible to every anonymous session.
-  await firestore.collection("team_public").doc(authUser.uid).set({
-    name: memberData.name,
-    initials: memberData.initials,
-    color: memberData.color,
-    role: memberData.role,
-  });
+  //
+  // The platform Superadmin is never mirrored: they are not clinic staff, and
+  // publishing their name and role to every anonymous parent session is exactly
+  // the leak the roster filter exists to prevent.
+  if (String(memberData.role || "").toLowerCase() !== "superadmin") {
+    await firestore.collection("team_public").doc(authUser.uid).set({
+      name: memberData.name,
+      initials: memberData.initials,
+      color: memberData.color,
+      role: memberData.role,
+    });
+  }
 
   console.log(`Team member created: ${authUser.uid} (${normalizedEmail}) in ${databaseId} by ${caller.uid}`);
 

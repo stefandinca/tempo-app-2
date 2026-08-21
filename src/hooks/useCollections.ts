@@ -123,7 +123,16 @@ export interface TeamPublicMember {
  * carries e-mail, phone and salary.
  */
 export function useTeamPublic() {
-  return useCollection<TeamPublicMember>("team_public", [orderBy("name", "asc")], 100);
+  const all = useCollection<TeamPublicMember>("team_public", [orderBy("name", "asc")], 100);
+  // The same filter useTeamMembers applies, for the same reason — and it
+  // matters more here. team_public is readable by every signed-in session
+  // including anonymous parents, so without this the platform Superadmin was
+  // listed to parents by name and role, which is exactly the account a clinic
+  // is not supposed to know exists. syncTeamPublic no longer mirrors them, but
+  // this stays as the second line: a document written before that, or by hand,
+  // must still not surface.
+  const data = useMemo(() => all.data.filter((m) => !isPlatformStaff(m as any)), [all.data]);
+  return { ...all, data };
 }
 
 export function useServices() {

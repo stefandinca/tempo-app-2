@@ -93,7 +93,9 @@ export default function ChatView({ thread, onBack }: ChatViewProps) {
     if (!phone) {
       setIsCalling(true);
       try {
-        if (otherUser.role === 'Parent' && otherUser.clientId) {
+        // clientId, not role: role is a translated display string, so comparing
+        // it against 'Parent' fails on a Romanian UI. Only parents carry one.
+        if (otherUser.clientId) {
           // Fetch from clients collection
           const clientSnap = await getDoc(doc(db, "clients", otherUser.clientId));
           if (clientSnap.exists()) {

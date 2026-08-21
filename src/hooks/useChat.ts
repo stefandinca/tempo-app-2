@@ -211,8 +211,10 @@ export function useChatActions() {
           }
 
           // Only include clientId if RECIPIENT is parent (not sender)
-          // This prevents parents from seeing notifications meant for staff
-          const recipientIsParent = otherUser.role === 'Parent';
+          // This prevents parents from seeing notifications meant for staff.
+          // Detected by clientId rather than by role, because role is a
+          // translated display string here — see the note in createOrGetThread.
+          const recipientIsParent = !!otherUser.clientId;
           const notificationClientId = recipientIsParent
             ? (threadData.clientId || otherUser.clientId)
             : undefined;
@@ -238,7 +240,15 @@ export function useChatActions() {
   const createOrGetThread = async (otherUser: ChatParticipant) => {
     if (!user) return null;
 
-    const targetClientId = isParent ? (parentAuth?.clientId || "") : (otherUser.role === 'Parent' ? otherUser.clientId : "");
+    // Keyed off clientId, NOT off role. NewChatModal sets a participant's role
+    // from t("chat.role_parent"), so on a Romanian UI it reads "Părinte" and a
+    // comparison against the literal 'Parent' silently fails — the thread then
+    // gets no clientId, and parents list their threads by clientId precisely
+    // because their anonymous uid changes every session. The result was a
+    // thread the parent could never see, created without an error.
+    // Only parent participants carry clientId, so its presence is the reliable
+    // signal and it does not depend on the display language.
+    const targetClientId = isParent ? (parentAuth?.clientId || "") : (otherUser.clientId || "");
 
     console.log("[useChat] Starting chat with:", otherUser.id, "role:", otherUser.role, "targetClientId:", targetClientId);
 
