@@ -199,6 +199,21 @@ const cases = [
       name: "A".repeat(500), email: "ana@example.com", phone: "0700000000", clinic: "Centrul Ana",
     }],
 
+  // --- fcm tokens ---
+  // Registration moved to /api/fcm-token because taking ownership of a token
+  // means deleting whoever held it before, which a client cannot do. Clients
+  // keep read and delete so sign-out can unregister a device.
+  ["a user removes their own token on sign-out", "ALLOW", "delete", `${D}/fcm_tokens/t1`,
+    { uid: "t1" }, member("t1", "Therapist"), null, { token: "abc" }],
+  ["a user reads their own token", "ALLOW", "get", `${D}/fcm_tokens/t1`,
+    { uid: "t1" }, member("t1", "Therapist"), null, { token: "abc" }],
+  ["a user can no longer WRITE their own token from the browser", "DENY", "create", `${D}/fcm_tokens/t1`,
+    { uid: "t1" }, member("t1", "Therapist"), { token: "abc" }],
+  ["nor update it", "DENY", "update", `${D}/fcm_tokens/t1`,
+    { uid: "t1" }, member("t1", "Therapist"), { token: "new" }, { token: "abc" }],
+  ["a user cannot touch someone else's token", "DENY", "delete", `${D}/fcm_tokens/t2`,
+    { uid: "t1" }, member("t1", "Therapist"), null, { token: "abc" }],
+
   // --- pricing catalogue ---
   // World-readable on purpose: the marketing site renders its pricing cards
   // from this document and its visitors are signed in to nothing. Asserted

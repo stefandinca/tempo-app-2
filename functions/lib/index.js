@@ -1,18 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fcmTokenOwnershipAicaa = exports.fcmTokenOwnershipDemo = exports.fcmTokenOwnershipDiaconumaria = exports.fcmTokenOwnershipLivebetterlife = exports.migrateTeamMember = exports.createTeamMember = void 0;
+exports.migrateTeamMember = exports.createTeamMember = void 0;
 // v1 API explicitly: firebase-functions 7 makes the bare import v2. These two
 // HTTP functions stay on v1 so their public URLs do not change — the
 // /api/cloud-functions proxy builds them as
 // https://{region}-{project}.cloudfunctions.net/{name}, a v1 URL shape.
 const functionsV1 = require("firebase-functions/v1");
-// v2 because a trigger has to name the NAMED Firestore database it watches —
-// v1 triggers only ever fire on (default). That constraint is why push left
-// this file entirely (see PUSH NOTIFICATIONS below); token ownership still
-// needs it, so it is still one registration per clinic down there.
-const firestore_1 = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
-const firestore_2 = require("firebase-admin/firestore");
+const firestore_1 = require("firebase-admin/firestore");
 admin.initializeApp();
 /**
  * Every clinic has its own Firestore database, derived from the hostname by
@@ -98,7 +93,7 @@ exports.createTeamMember = functionsV1.https.onRequest(async (req, res) => {
         sendError(res, 400, "INVALID_ARGUMENT", "Missing or malformed X-Tempo-Database header.");
         return;
     }
-    const firestore = (0, firestore_2.getFirestore)(databaseId);
+    const firestore = (0, firestore_1.getFirestore)(databaseId);
     // 2. Verify caller is Admin/Superadmin — in THAT clinic, which is what makes
     // trusting the header above safe: naming another clinic fails right here.
     const callerDoc = await firestore.collection("team_members").doc(caller.uid).get();
@@ -216,7 +211,7 @@ exports.migrateTeamMember = functionsV1.https.onRequest(async (req, res) => {
         sendError(res, 400, "INVALID_ARGUMENT", "Missing or malformed X-Tempo-Database header.");
         return;
     }
-    const firestore = (0, firestore_2.getFirestore)(databaseId);
+    const firestore = (0, firestore_1.getFirestore)(databaseId);
     // 2. Verify caller is Superadmin — in that clinic.
     const callerDoc = await firestore.collection("team_members").doc(caller.uid).get();
     if (!callerDoc.exists) {
@@ -332,98 +327,34 @@ exports.migrateTeamMember = functionsV1.https.onRequest(async (req, res) => {
  * docs/superpowers/specs/2026-08-22-trigger-removal-spike.md
  */
 // ============================================================
-// FCM TOKEN OWNERSHIP
+// FCM TOKEN OWNERSHIP — REMOVED, deliberately
 // ============================================================
 /**
- * One browser has exactly ONE FCM token, and it belongs to the browser, not to
- * whoever is signed in. So when a second account signs in on the same device,
- * the client writes that same token under a second uid — and until now nothing
- * removed the first.
+ * Token registration and ownership now happen in /api/fcm-token.
  *
- * Measured 21 Aug 2026 at clinic-livebetterlife: 46 registrations across 14
- * real devices, one token held by 12 different accounts. Because notification
- * bodies name children ("session with X", "X marked as absent"), a push meant
- * for one recipient was delivered to whoever happened to be using that browser
- * — including, in three cases, accounts belonging to different families.
+ * A token belongs to the browser rather than the account, so registering one
+ * has to also take it away from whichever account held it before. A client
+ * cannot do that — the rules stop one user deleting another user's
+ * registration, and they should — so this was a Firestore trigger.
  *
- * The invariant enforced here: a token has exactly one owner, the account that
- * most recently signed in on that device. That is the only model a single
- * browser can support. It does mean a device receives notifications only for
- * the account currently signed into it, which is the correct trade — the
- * alternative is one identity seeing another identity's notifications.
+ * It worked, but a v2 trigger binds to one database named at deploy time, which
+ * meant a registration per clinic and a functions deploy to onboard one. With
+ * push already moved, this was the last thing in the onboarding path that
+ * required editing this file.
  *
- * This lives server-side because a browser cannot do it: the rules stop one
- * user deleting another user's token document, and they should. An Admin-SDK
- * endpoint would also work but would need its own auth path for anonymous
- * parent sessions; a trigger needs none.
+ * The route is also simpler than the trigger was. The trigger had to survive
+ * two concurrent invocations racing each other — its first version deleted
+ * "everyone except me" and two accounts signing in together annihilated each
+ * other's registrations, leaving the token owned by nobody. One request that
+ * writes and then clears older holders has no such race. The timestamp
+ * ordering is kept anyway, so a second browser registering milliseconds later
+ * wins rather than collides.
  *
- * Residual: if this function errors on a given write, that duplicate survives
- * and no later write of the SAME token will retry it (see the unchanged-token
- * guard below). scripts/cleanup-fcm-tokens.mjs reconciles in bulk.
+ * firestore.rules now denies create/update on fcm_tokens from any client, so
+ * this cannot quietly regress to a direct write.
+ *
+ * ADDING A CLINIC NO LONGER TOUCHES THIS FILE AT ALL.
+ *
+ * docs/superpowers/specs/2026-08-22-trigger-removal-spike.md
  */
-function fcmTokenOwnershipTrigger(databaseId) {
-    return (0, firestore_1.onDocumentWritten)({
-        document: "fcm_tokens/{uid}",
-        database: databaseId,
-        region: "us-central1",
-    }, async (event) => {
-        const after = event.data?.after;
-        // A delete — including the ones this function performs below. Returning
-        // here is what stops it recursing.
-        if (!after?.exists)
-            return;
-        const token = after.data()?.token;
-        if (!token || typeof token !== "string")
-            return;
-        // The client re-registers on every load, rewriting the same token with a
-        // fresh updatedAt. Only a CHANGE of token can create a duplicate, so
-        // there is nothing to reconcile otherwise.
-        const before = event.data?.before;
-        if (before?.exists && before.data()?.token === token)
-            return;
-        const uid = event.params.uid;
-        const db = (0, firestore_2.getFirestore)(databaseId);
-        const holders = await db
-            .collection("fcm_tokens")
-            .where("token", "==", token)
-            .get();
-        // Delete only registrations OLDER than this one — never "everyone except
-        // me". Two accounts signing in close together produce two concurrent
-        // invocations, and a cold start can delay the first past the second. With
-        // mutual deletion each handler then deletes the other and the token ends
-        // up owned by nobody: observed in testing, both fixtures vanished.
-        // Comparing timestamps makes the operation ordered, so whichever handler
-        // runs last still converges on the newest registration.
-        const stamp = (data) => {
-            const v = data?.updatedAt ?? data?.createdAt;
-            if (v && typeof v.toMillis === "function")
-                return v.toMillis();
-            const parsed = Date.parse(String(v));
-            return Number.isNaN(parsed) ? 0 : parsed;
-        };
-        const mine = stamp(after.data());
-        const stale = holders.docs.filter((d) => {
-            if (d.id === uid)
-                return false;
-            const theirs = stamp(d.data());
-            // Identical timestamps mean a genuine tie; break it on document id so
-            // exactly one of the two handlers deletes and one survives.
-            return theirs === mine ? d.id < uid : theirs < mine;
-        });
-        if (!stale.length)
-            return;
-        const batch = db.batch();
-        stale.forEach((d) => batch.delete(d.ref));
-        await batch.commit();
-        console.log(`Token now owned by ${uid} in ${databaseId}; removed ${stale.length} ` +
-            `stale registration(s): ${stale.map((d) => d.id).join(", ")}`);
-    });
-}
-// One per clinic, for the same reason as the push triggers above: a v2 trigger
-// binds to one named database at deploy time. ADDING A CLINIC MEANS ADDING A
-// LINE HERE.
-exports.fcmTokenOwnershipLivebetterlife = fcmTokenOwnershipTrigger("clinic-livebetterlife");
-exports.fcmTokenOwnershipDiaconumaria = fcmTokenOwnershipTrigger("clinic-diaconumaria");
-exports.fcmTokenOwnershipDemo = fcmTokenOwnershipTrigger("clinic-demo");
-exports.fcmTokenOwnershipAicaa = fcmTokenOwnershipTrigger("clinic-aicaa");
 //# sourceMappingURL=index.js.map

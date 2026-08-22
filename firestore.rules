@@ -423,7 +423,25 @@ service cloud.firestore {
     }
 
     match /fcm_tokens/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      // Reading and REMOVING your own registration stays a client operation:
+      // sign-out clears it, and a device that cannot unregister itself keeps
+      // receiving notifications for an account nobody is signed into.
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+
+      // Creating one does NOT. A token belongs to the browser rather than the
+      // account, so registering it has to also take it away from whichever
+      // account held it before — and a client cannot do that, because this very
+      // rule stops one user deleting another user's document.
+      //
+      // Left as a client write, a second account signing in on a shared device
+      // silently ends up holding the same token as the first, and since
+      // notification bodies name children, a push meant for one recipient
+      // reaches whoever is using that browser. That is not hypothetical: 47
+      // registrations across 14 real devices, one token held by 12 accounts.
+      //
+      // /api/fcm-token writes it with the Admin SDK and clears the older
+      // holders in the same request.
+      allow create, update: if false;
     }
 
     // AI consent: each user owns their own consent record.

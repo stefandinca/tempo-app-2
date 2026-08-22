@@ -131,18 +131,34 @@ export function NotificationProvider({
         console.log("[NotificationContext] Token retrieved:", token ? "Yes (hidden)" : "No");
         
         if (token) {
-          // Save token to firestore
-          console.log("[NotificationContext] Saving token to Firestore for user:", user.uid);
-          await setDoc(doc(db, 'fcm_tokens', user.uid), {
-             token,
-             userId: user.uid,
-             updatedAt: Timestamp.now(),
-             platform: 'web',
-             userAgent: navigator.userAgent
-          }, { merge: true });
-          
-          console.log('FCM Token generated and saved');
-          setPushError(null); // Success
+          // Registered through the platform rather than written directly.
+          //
+          // A token belongs to the BROWSER, not the account, so signing in as
+          // someone else on the same device leaves both accounts holding it —
+          // and a browser cannot clean that up, because the rules stop one user
+          // deleting another user's registration. The route takes ownership
+          // with the Admin SDK in the same request that stores it.
+          //
+          // This used to be a per-clinic Firestore trigger, which worked but
+          // meant adding a clinic required editing functions/src/index.ts and
+          // deploying. See
+          // docs/superpowers/specs/2026-08-22-trigger-removal-spike.md.
+          console.log("[NotificationContext] Registering token for user:", user.uid);
+          const res = await fetch('/api/fcm-token/', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${await user.getIdToken()}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token, platform: 'web', userAgent: navigator.userAgent }),
+          });
+          if (!res.ok) {
+            console.error('[NotificationContext] Token registration failed:', res.status);
+            setPushError('Could not register this device for notifications');
+          } else {
+            console.log('FCM Token generated and registered');
+            setPushError(null); // Success
+          }
         } else {
             setPushError("No token received from FCM");
         }
