@@ -36,7 +36,25 @@ function bad(error: string, status = 400, extra: Record<string, unknown> = {}) {
   return NextResponse.json({ error, ...extra }, { status });
 }
 
+/**
+ * An unhandled throw in a route handler becomes a 500 with an EMPTY body, which
+ * tells whoever is looking exactly nothing — it reads as "the platform is down"
+ * when the truth was a missing Firestore index. That cost two debugging rounds
+ * on this endpoint alone, so nothing here is allowed to escape unnamed.
+ */
 export async function POST(req: NextRequest) {
+  try {
+    return await handlePost(req);
+  } catch (e) {
+    console.error("[provision/clinic] unhandled:", (e as Error)?.message, (e as Error)?.stack);
+    return NextResponse.json(
+      { error: "internal", detail: String((e as Error)?.message).slice(0, 300) },
+      { status: 500 },
+    );
+  }
+}
+
+async function handlePost(req: NextRequest) {
   const denied = requireSignupToken(req);
   if (denied) return denied;
 
@@ -87,14 +105,16 @@ export async function POST(req: NextRequest) {
 
   // --- idempotency -----------------------------------------------------------
 
-  const prior = await db
-    .collection("provisions")
-    .where("signupRef", "==", signupRef)
-    .orderBy("createdAt", "desc")
-    .limit(5)
-    .get();
+  // Filtered in Firestore, sorted here. A `where` plus an `orderBy` on another
+  // field needs a composite index the control plane does not have — and the
+  // failure is an unhandled 500 with an empty body, which reads as "the
+  // platform is broken" rather than "add an index". The same mistake cost the
+  // cron pass earlier the same day.
+  const prior = await db.collection("provisions").where("signupRef", "==", signupRef).limit(20).get();
 
-  const records = prior.docs.map((d) => ({ id: d.id, ...(d.data() as ProvisionRecord) }));
+  const records = prior.docs
+    .map((d) => ({ id: d.id, ...(d.data() as ProvisionRecord) }))
+    .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
   const ready = records.find((r) => r.status === "ready");
   if (ready) {
     return NextResponse.json(
