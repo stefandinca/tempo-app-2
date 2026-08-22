@@ -5,6 +5,15 @@
 
 Round 2 is first; Round 1 is kept below unchanged, for the record.
 
+**Where answers get superseded, the original stays and the correction sits above
+it in a quote block.** Editing an answer to look as though it was always right
+destroys the only record of why the other side built what they built. R1 is the
+one this has happened to so far.
+
+**Anything decided in direct session-to-session messages is folded back here.**
+The documents remain the record of truth — they outlive both sessions, and no
+decision should live only in a conversation Stefan would have to reconstruct.
+
 ---
 
 ## Round 2
@@ -19,6 +28,13 @@ just answered here.
 ---
 
 ### R1. Build the per-endpoint switch. It will not be wasted.
+
+> **Superseded the same day, and the switch matters more, not less.**
+> `checkout-session` and its confirm endpoint **landed** — live and verified in
+> production. `provision/clinic` did not, and that half of the answer stands.
+> So the two groups below are now genuinely on different timelines rather than
+> merely predicted to be, which is exactly the case the per-endpoint switch was
+> built for. The original answer follows unchanged.
 
 `checkout-session` and `provision/clinic` are not landing this week.
 
