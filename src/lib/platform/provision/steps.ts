@@ -352,9 +352,14 @@ async function ensureAuthorizedDomain(host: string): Promise<void> {
 async function stepHostname(ctx: ProvisionContext): Promise<void> {
   const token = (process.env.VERCEL_API_TOKEN || "").trim();
   const project = (process.env.VERCEL_PROJECT_ID || "").trim();
-  if (!token || !project) {
-    throw new Error("VERCEL_API_TOKEN / VERCEL_PROJECT_ID are not set");
-  }
+  // Named individually. "A or B is not set" sends whoever reads it to check
+  // both, and the same ambiguity two layers down already cost a round of
+  // debugging on this endpoint.
+  const missing = [
+    !token && "VERCEL_API_TOKEN",
+    !project && "VERCEL_PROJECT_ID",
+  ].filter(Boolean);
+  if (missing.length) throw new Error(`${missing.join(" and ")} not set`);
   const team = (process.env.VERCEL_TEAM_ID || "").trim();
   const q = team ? `?teamId=${encodeURIComponent(team)}` : "";
   const host = hostFor(ctx.label);
