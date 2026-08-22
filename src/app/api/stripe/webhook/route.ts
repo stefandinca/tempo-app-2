@@ -26,7 +26,9 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
+import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { toMillis } from "@/lib/timestamps";
 import { stripe, webhookSecrets, verifyEvent, isHandled } from "@/lib/platform/stripe";
 import {
   buildLicence,
@@ -46,6 +48,15 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const ACTOR = "stripe:webhook";
+
+/**
+ * How long a claimed-but-unfinished event is assumed to be in flight.
+ *
+ * Longer than any handler here can take, so a concurrent delivery is never
+ * mistaken for a dead one; short enough that a delivery whose function died
+ * mid-handle is recoverable by Stripe's own retry rather than by a person.
+ */
+const CLAIM_TTL_MS = 120_000;
 
 export async function POST(req: NextRequest) {
   // The RAW body, before any parsing. req.json() would verify against a
@@ -105,6 +116,7 @@ export async function POST(req: NextRequest) {
   const db = adminDb();
   const seen = db.collection("stripe_events").doc(event.id);
 
+  let claimed = true;
   try {
     // Claimed with `create`, which fails if the id already exists. A read then
     // a write would let two concurrent deliveries of the same event both see
@@ -117,9 +129,48 @@ export async function POST(req: NextRequest) {
       handled: isHandled(event.type),
     });
   } catch {
-    // Already recorded: a duplicate delivery, or a retry of one we finished.
-    // 200 so Stripe stops retrying.
-    return NextResponse.json({ received: true, duplicate: true });
+    claimed = false;
+  }
+
+  // A CLAIM IS NOT AN OUTCOME, and treating the two as the same made this
+  // endpoint's own recovery path impossible.
+  //
+  // The claim is written BEFORE the event is handled. So a delivery that
+  // claimed the id and then failed — a Firestore blip, a cold start that timed
+  // out, a bug since fixed — left a document saying "seen" and a sale that was
+  // never recorded. Every later delivery hit `create` failing and returned 200
+  // `duplicate`, INCLUDING a human pressing Resend in the Stripe dashboard to
+  // recover exactly that event. The one deliberate act available to fix it was
+  // the one thing guaranteed to do nothing.
+  //
+  // So a repeat delivery is now decided by what the prior attempt ACHIEVED:
+  //   ok === true          really handled. Do nothing, and say so.
+  //   still in flight      another delivery is working it right now. 409 so
+  //                        Stripe retries rather than us running it twice —
+  //                        which is the property the claim exists to protect.
+  //   finished, not ok     it failed. Handle it again; every handler here is a
+  //                        merge or a licence rewrite, so a second pass is
+  //                        idempotent.
+  //   claim gone stale     the delivery that claimed it never came back at all.
+  //                        Same treatment as a recorded failure.
+  if (!claimed) {
+    const prior = (await seen.get()).data() || {};
+    if (prior.ok === true) {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
+    const claimedAt = toMillis(prior.receivedAt as never) ?? 0;
+    if (!prior.processedAt && Date.now() - claimedAt < CLAIM_TTL_MS) {
+      // Not 200: 200 tells Stripe this event is finished with, and it is not.
+      return NextResponse.json({ received: false, in_flight: true }, { status: 409 });
+    }
+
+    console.warn(`[stripe/webhook] re-handling ${event.id} (${event.type}) after an unfinished attempt`);
+    await seen
+      .set({ retriedAt: new Date(), attempts: FieldValue.increment(1) }, { merge: true })
+      .catch(() => {
+        /* The retry matters more than the count of retries. */
+      });
   }
 
   if (!isHandled(event.type)) {
