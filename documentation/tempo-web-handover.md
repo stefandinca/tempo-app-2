@@ -50,9 +50,14 @@ platform, and you read the confirmation back. All three verified against real
 Stripe — session creation, idempotent reuse, and the confirm endpoint, plus a
 real signed test event through the webhook.
 
+**Provisioning is built too**, and five of its seven steps are verified against
+a real clinic that was created and inspected: database, rules, indexes, bucket,
+seed, tenant registration and licence. `hostname` and `admin` wait on a Vercel
+API token (§9) and have not run.
+
 The one hop nobody has done yet is a human typing a card into the hosted page
-and a clinic coming out the other end. That waits on `provision/clinic`, which
-is still the mocked one (§3), and on test-mode being finished (§9).
+and a clinic coming out the other end. That waits on those last two steps and on
+test mode being finished (§9).
 
 ---
 
@@ -97,12 +102,17 @@ they type.
 
 ## 3. The calls you need from the platform
 
-**Three of these are live now** — `check-label`, `checkout-session` and its
-confirm endpoint. The Stripe webhook is live too; you never call it, but you
-depend on what it writes (§8).
+**All of them are deployed** — `check-label`, `checkout-session` and its confirm
+endpoint, `provision/clinic` and its status endpoint. The Stripe webhook is live
+too; you never call it, but you depend on what it writes (§8).
 
-**Still mocked:** `provision/clinic` and its status endpoint. The shape below is
-fixed; the implementation is the platform's side of this handover.
+**Deployed is not the same as verified, and the difference is stated per
+endpoint rather than rounded up.** `check-label`, both checkout endpoints and the
+webhook have been exercised by real requests. `provision/clinic` has built a real
+clinic through five of its seven steps; `hostname` and `admin` have never run,
+because `hostname` needs a Vercel API token that is not yet set (§9). Do not
+switch the provisioning group to live until that is closed — a customer who got
+five steps in would have a database, a licence, and no way to log in.
 
 ### Calling the live endpoints
 
@@ -758,6 +768,10 @@ Listed so you know they are tracked and not forgotten:
 - **The database ceiling is 100 per project, 5 used.** Not a question — a number
   worth knowing, because it is the hard cap on self-serve signups and every
   squat consumes one until it is offboarded.
+- **`VERCEL_API_TOKEN` is not set**, so provisioning stops at `hostname` — the
+  step that attaches the clinic's subdomain to the Vercel project and triggers
+  its TLS certificate. Everything before it works; nothing after it has run.
+  This is the single thing standing between a paid signup and a working clinic.
 - **Test mode is one env var short.** Test Products and Prices now exist,
   mirroring live and stamped with the tier, so `"mode": "test"` is wired all the
   way through — it just needs `STRIPE_SECRET_KEY_TEST` set on our side. Until
