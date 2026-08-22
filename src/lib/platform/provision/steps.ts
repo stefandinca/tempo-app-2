@@ -116,6 +116,19 @@ async function stepDatabase(ctx: ProvisionContext): Promise<void> {
   } catch (e) {
     // A database created between our GET and our POST is success, not failure.
     if (e instanceof GcpError && e.reason === "ALREADY_EXISTS") return;
+
+    // Firestore reserves a deleted database id for a couple of minutes, and
+    // says so: "Database ID 'clinic-x' is not available … Please retry in 119
+    // seconds." That is a wait, not a failure — but it arrives as a 400, so it
+    // was being classified as `internal` and offered to the customer as
+    // "contact support" for a condition that clears itself.
+    //
+    // Reachable in production, not only in testing: a label freed by
+    // offboarding and re-provisioned, or a failed provision retried quickly
+    // after its half-built database was removed.
+    if (/not available|retry in \d+ second/i.test(String((e as Error)?.message))) {
+      throw new StepIncomplete("database id still reserved from a recent delete");
+    }
     throw e;
   }
 

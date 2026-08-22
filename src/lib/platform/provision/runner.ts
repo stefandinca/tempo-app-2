@@ -70,6 +70,12 @@ export function classify(e: unknown): ProvisionErrorCode {
   }
   const msg = String((e as Error)?.message || "");
   if (/ETIMEDOUT|ECONNRESET|ENOTFOUND|fetch failed|socket hang up/i.test(msg)) return "transient";
+  // Google sometimes says plainly that the condition clears on its own —
+  // "Please retry in 119 seconds" for a database id still reserved from a
+  // recent delete. Taking it at its word costs nothing; ignoring it offers
+  // somebody a support queue for a wait. A backstop: the database step already
+  // turns this specific case into a wait rather than a failure.
+  if (/retry in \d+ second|try again later|temporarily unavailable/i.test(msg)) return "transient";
   return "internal";
 }
 
