@@ -864,6 +864,37 @@ One secret, two places. Rotating it means changing both **at the same time** —
 there is no overlap window, and a rotation that updates one side gives every
 signup a `401` until the other catches up.
 
+### Who tells the customer when provisioning fails
+
+**tempo-web does. The platform never writes to the customer about a signup.**
+
+Two alerts exist and they cover different things:
+
+- **tempo-web**, from the catch, in the same second something throws. Covers
+  every failure it can observe, and is the only one that reaches the customer.
+- **The platform**, from a scheduled check, within fifteen minutes. Looks for
+  the CONDITION — a confirmed payment with no clinic — so it notices failures
+  that raise no event at all: a return journey that never ran, an outage
+  between two writes, a confirmation arriving only through the webhook. It
+  emails the OPERATOR only.
+
+A failure that both throws and stays stranded produces both, about fifteen
+minutes apart. That is deliberate: the second one says it is *still* broken,
+which is the more actionable message.
+
+**The rule that will get broken by good intentions:** adding a customer email
+to the platform side. It would arrive with no context in front of somebody
+already reading tempo-web's message about the same failure. Recorded in both
+repos for that reason.
+
+This split exists because on 22 Aug a real signup was confirmed with a live
+subscription and never provisioned. Both systems knew; neither could reach
+anybody; it was found by hand forty minutes later while looking for something
+else. Nothing was hard to find — nobody was looking, and the system was built
+so that only the customer could have looked.
+
+---
+
 ### What replaces the shared token when there is a second consumer
 
 There is one consumer today, so a shared bearer token is proportionate. It stops

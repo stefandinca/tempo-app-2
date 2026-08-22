@@ -23,6 +23,24 @@
  * sees and already writes to them on a failure it can observe; a second message
  * from a different system would arrive without context and could contradict it.
  * What was missing was not a customer email — it was anyone knowing at all.
+ *
+ * **Do not add a customer email here.** It is the change somebody will make
+ * while being helpful, and it lands in front of a person already reading the
+ * marketing site's own message about the same failure. That boundary is
+ * recorded on both sides deliberately.
+ *
+ * TWO ALERTS FOR ONE FAILURE IS CORRECT, NOT A BUG
+ * A failure that both throws and stays unprovisioned produces two: the
+ * marketing site's, from its catch, in the same second; and this one, from the
+ * condition, about fifteen minutes later. That is not duplication worth
+ * suppressing. The first says something broke; the second says it is STILL
+ * broken a quarter of an hour on, which is the more actionable of the two.
+ *
+ * Suppressing it would also mean this system reasoning about the other's
+ * internal state to decide whether to speak — the coupling that makes both
+ * unreliable. If it ever does become noise, the fix belongs here rather than
+ * there, because only a scheduled check can know whether the situation
+ * persisted.
  */
 import { adminDb } from "@/lib/firebaseAdmin";
 
