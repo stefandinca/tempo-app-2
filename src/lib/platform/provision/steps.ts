@@ -444,7 +444,69 @@ async function stepAdmin(ctx: ProvisionContext): Promise<void> {
     .doc(`${bucket}__${uid}`)
     .set({ tenantId: ctx.label, role: "Admin" }, { merge: true });
 
+  await addPlatformSuperadmins(ctx.label, databaseId, bucket);
   await sendAdminInvite(ctx);
+}
+
+/**
+ * Give the platform's own Superadmins a way into the new clinic.
+ *
+ * Roles are per clinic: the app and the rules both read `team_members/{uid}`
+ * from the CLINIC's database, so a platform Superadmin with no document there
+ * is simply not a member and cannot open the app. Every hand-onboarded clinic
+ * has this record; it was added by a human each time, and the runbook never
+ * mentioned it — so self-onboarding would have produced the first clinics
+ * nobody at the platform could enter, discovered the first time support was
+ * needed.
+ *
+ * Read from the control plane rather than a configured email, so it stays
+ * correct when the set of Superadmins changes and there is no second list to
+ * forget to update.
+ *
+ * `isActive: false` deliberately: the rules and AuthContext both exempt
+ * Superadmin from that check, so access is unaffected, and a customer opening
+ * their team page should not find the platform operator listed among their
+ * staff. That matches how the oldest live clinic already carries it.
+ */
+async function addPlatformSuperadmins(
+  label: string,
+  databaseId: string,
+  bucket: string,
+): Promise<void> {
+  const control = adminDb();
+  const supers = await control.collection("team_members").where("role", "in", ["Superadmin", "superadmin"]).get();
+  if (supers.empty) {
+    // Not fatal. A clinic nobody at the platform can enter is a support
+    // problem; a clinic that failed to provision is a customer problem, and
+    // this is the wrong one to trade for the other.
+    console.error(`[provision] ${label}: no platform Superadmin found in the control plane`);
+    return;
+  }
+
+  const clinic = adminDb(databaseId);
+  for (const doc of supers.docs) {
+    const s = doc.data();
+    await clinic
+      .collection("team_members")
+      .doc(doc.id)
+      .set(
+        {
+          uid: doc.id,
+          name: s?.name || "Platform",
+          email: s?.email || "",
+          role: "Superadmin",
+          isActive: false,
+          createdAt: new Date().toISOString(),
+        },
+        { merge: true },
+      );
+    // Storage rules cannot read a named database, so without this mirror a
+    // Superadmin can open the app and then fail to load a single document.
+    await control
+      .collection("tenant_members")
+      .doc(`${bucket}__${doc.id}`)
+      .set({ tenantId: label, role: "Superadmin" }, { merge: true });
+  }
 }
 
 /**
