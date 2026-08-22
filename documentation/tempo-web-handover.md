@@ -650,6 +650,24 @@ Your signup form collects an email; it does not create a login.
 An empty clinic with: settings, a starter service catalogue and starter
 programmes; one Admin (them); a licence; no clients, no staff, no data.
 
+### They have no password yet — say so on the success screen
+
+The Admin account is created **without one**, matching how every other invite in
+the app works, and provisioning sends a Firebase password-reset email whose link
+lands them on their own clinic's login page.
+
+So the success screen should tell them to check their email for a link to set
+their password. **Add that they can also go straight to the clinic and use
+"forgot password" with the same address** — the invite is deliberately
+non-fatal, so a bounced or delayed email leaves a clinic that is complete and
+still enterable. That one sentence covers the failure without anyone contacting
+support.
+
+This was missed once: the account was created and nobody was invited, which
+would have reported `ready` with a URL nobody could get past. Complete, correct
+and unusable is a worse outcome than a clean failure, because every screen says
+it worked.
+
 **Not** included, and worth saying on the "you're all set" screen:
 
 - **Their logo.** Uploaded by us from the platform console, or by them once
