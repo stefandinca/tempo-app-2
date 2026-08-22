@@ -259,3 +259,75 @@ In order, because each depends on the last:
 Not a commitment to ship self-serve. Phase 1 is worth doing on its own merits and
 should not wait on a decision about phases 3 and 4. If self-serve never happens,
 the platform still loses a per-clinic deploy and a silent failure mode.
+
+---
+
+## 7. What this build actually got wrong — a shape worth naming
+
+Written 22 Aug 2026, the day self-onboarding was finished and verified end to
+end, jointly by whoever was working on this repo and whoever was working on
+`tempo-web`. Six real defects were found. None was caught by a test, a review, a
+typecheck or a lint, and none would have been.
+
+**They all had the same shape: something that passes every check, throws nothing,
+and is unusable — or worse, convincing — to the person at the end of it.**
+
+1. `orderBy` silently dropping documents missing the ordered field, which would
+   have made some provisions invisible to the runner: never built, never failed,
+   never queued, and an empty queue from every angle.
+2. A poller that spun forever on a status nobody handled — an anxious customer
+   watching a spinner with no end.
+3. A harness constant that counted nothing and read as protection.
+4. A Stripe **product** id where the code matched a **price** id, on every paid
+   tier. First real payment would have resolved the tier to nothing, and an
+   unknown tier fails open: a Starter customer silently granted unlimited
+   everything, on a correct-looking invoice.
+5. An Admin account created with no password and no invite. Provisioning would
+   have reported `ready` with a working URL to somebody who could not get in.
+   Complete, correct, and unusable.
+6. Self-serve opening on one variable while checkout required two — so a
+   half-configured deploy would have put a real customer through a *mocked*
+   payment screen and a *mocked* provisioning run, and told them their clinic
+   was ready. Nothing exists, nothing throws.
+
+### The three that matter most were not coding mistakes
+
+Fallback-to-mock was correct when there was one variable and became dangerous
+when a second arrived. "No transactional email provider exists" was true until
+Resend was added for bug reports, and was then repeated confidently enough that
+nobody checked. The invite depending on somebody remembering worked fine while a
+human ran onboarding, and stopped working the day provisioning became automatic.
+
+**Each was right when it was decided, and quietly stopped being true.** There is
+no wrong line to fail a test on, which is why "test harder" and "review more
+carefully" would have caught none of them.
+
+The habit that would: **when a second variable, consumer, or automated caller
+arrives, go back and ask what the first decision was deciding.** Not a checklist
+— a moment of deliberate re-reading at the point where a system gains a
+dependency it did not have before.
+
+### Two structural defences that did work
+
+- **Assert the end state, not the steps.** `advance()` used to treat "seven step
+  functions returned" as success. It now re-reads the clinic and refuses `ready`
+  while the licence, its mirror, an Admin, the membership mirror, or the Mira
+  key is missing. A step returning cleanly is evidence about the step.
+  Its honest limit is worth stating too: it would still have passed the invite
+  bug, because a user with no password is a user. Verifying existence is not
+  verifying usability.
+- **Make the system object rather than rely on memory.** Provisioning refuses to
+  ship a clinic whose plan promises Mira when no key is configured, and
+  `/platform/health` shows whether a signup can complete at all. Depending on a
+  human to remember an environment variable is not a control.
+
+### And the finding about how they were found
+
+The two worst — the fake payment screen and the account with no password — were
+each found by **the other side asking a question**, not by review, tests, or
+either party re-reading their own code. In both cases the code did exactly what
+its author intended, and the intent was the bug. Neither author would have
+caught their own.
+
+That is an argument for having a second party with a different vantage point,
+rather than for anyone being more careful.
