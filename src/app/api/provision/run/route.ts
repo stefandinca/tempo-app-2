@@ -65,6 +65,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorised" }, { status: 401 });
   }
 
+  // Stamped BEFORE any work, so the record answers "is the scheduler alive"
+  // rather than "did the last pass succeed". A pass that found nothing to do
+  // still proves the scheduler is running, which is the question that went
+  // unanswered for hours today.
+  await beat("provision-runner");
+
   let ids: string[];
   try {
     ids = await pending();

@@ -34,6 +34,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorised" }, { status: 401 });
   }
 
+  // Before the work, not after: a pass that sent nothing because nothing was
+  // due still proves this job is alive. Stamping only on success would make the
+  // healthy case — most days — indistinguishable from the job never running,
+  // which is the exact failure this heartbeat exists to catch.
+  await beat("licence-notices");
+
   try {
     const results = await runNotices();
     const sent = results.filter((r) => r.sent).length;
