@@ -331,7 +331,9 @@ the endpoint refuses with `409 already_confirmed` rather than opening another.
 **`"mode": "test"` runs the whole thing on a test card.** Optional, defaults to
 live. Only a token holder can ask for it, so it is not an abuse surface. It
 needs `STRIPE_SECRET_KEY_TEST` on our side, which is still outstanding (§9) —
-until then it returns `500`.
+until then it returns `503 price_unavailable`, verified rather than assumed. No
+record is written on that path, so a failed test-mode call leaves nothing behind
+to clean up.
 
 **What the session is created with**, so you do not have to guess: subscription
 mode, `trial_period_days` from the tier's `trialDays`, `payment_method_collection:
