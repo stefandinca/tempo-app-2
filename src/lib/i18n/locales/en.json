@@ -2748,6 +2748,10 @@
       "total_partial": "excludes clinics whose spend could not be read ({{n}}): {{names}}"
     },
     "health": {
+        "schedules": "Scheduled jobs",
+        "schedules_hint": "A job that stops running is silent. This is the only place it shows.",
+        "never_ran": "never run",
+        "ago": "{{n}} min ago",
         "selfonboarding": "Self-onboarding readiness",
         "can_provision": "Can create clinics",
         "cannot_provision": "Cannot complete a signup",

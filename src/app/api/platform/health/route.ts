@@ -10,6 +10,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { requireSuperadmin, platformError } from "@/lib/platform/gate";
 import { tenantIdentity } from "@/lib/platform/counts";
 import { anthropicKeyFor } from "@/lib/assistant/anthropic";
+import { heartbeats } from "@/lib/platform/heartbeat";
 import type { ClinicHealth } from "@/lib/platform/types";
 
 export const runtime = "nodejs";
@@ -125,8 +126,17 @@ export async function GET(req: NextRequest) {
       stripeTest: !!process.env.STRIPE_SECRET_KEY_TEST,
     };
 
+    // Whether the scheduled jobs are actually running. Twice in one day a job
+    // was registered, listed by its platform, and never executed — and both
+    // times nothing could tell, because a job that never runs looks exactly
+    // like one with nothing to do. Silence is the success case, so absence of
+    // work is indistinguishable from absence of the worker unless something
+    // records the difference.
+    const schedules = await heartbeats();
+
     return NextResponse.json({
       health,
+      schedules,
       provisioning: {
         ...provisioning,
         // The single question somebody actually wants answered.

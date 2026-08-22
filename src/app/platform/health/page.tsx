@@ -21,6 +21,7 @@ export default function PlatformHealthPage() {
   const { error: toastError } = useToast();
   const [health, setHealth] = useState<ClinicHealth[]>([]);
   const [config, setConfig] = useState<Record<string, boolean> | null>(null);
+  const [schedules, setSchedules] = useState<{ name: string; label: string; lastRunAt: string | null; ageMinutes: number | null; healthy: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
   // A toast is transient; this is not. On the screen whose entire job is
   // telling you something is broken, a failed fetch must not fall through to
@@ -29,8 +30,8 @@ export default function PlatformHealthPage() {
 
   useEffect(() => {
     let cancelled = false;
-    platformGet<{ health: ClinicHealth[]; provisioning?: Record<string, boolean> }>("/api/platform/health")
-      .then((d) => { if (!cancelled) { setHealth(d.health); setConfig(d.provisioning ?? null); } })
+    platformGet<{ health: ClinicHealth[]; provisioning?: Record<string, boolean>; schedules?: { name: string; label: string; lastRunAt: string | null; ageMinutes: number | null; healthy: boolean }[] }>("/api/platform/health")
+      .then((d) => { if (!cancelled) { setHealth(d.health); setConfig(d.provisioning ?? null); setSchedules(d.schedules ?? []); } })
       .catch((e) => {
         console.error("[platform/health] failed to load:", e);
         if (cancelled) return;
@@ -106,6 +107,32 @@ export default function PlatformHealthPage() {
               <li key={k} className="flex items-center justify-between text-sm">
                 <span className="text-neutral-600 dark:text-neutral-300">{label}</span>
                 <Flag ok={!!config[k]} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {schedules.length > 0 && (
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4">
+          <h2 className="font-bold text-neutral-900 dark:text-white mb-1">
+            {t("platform.health.schedules", { defaultValue: "Scheduled jobs" })}
+          </h2>
+          {/* A job that never runs looks exactly like one with nothing to do. */}
+          <p className="text-xs text-neutral-500 mb-3">
+            {t("platform.health.schedules_hint", { defaultValue: "A job that stops running is silent. This is the only place it shows." })}
+          </p>
+          <ul className="space-y-1.5">
+            {schedules.map((s) => (
+              <li key={s.name} className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-neutral-600 dark:text-neutral-300">{s.label}</span>
+                <span className="flex items-center gap-2">
+                  <span className={s.healthy ? "text-xs text-neutral-500" : "text-xs font-semibold text-error-600 dark:text-error-400"}>
+                    {s.lastRunAt === null
+                      ? t("platform.health.never_ran", { defaultValue: "never run" })
+                      : t("platform.health.ago", { defaultValue: "{{n}} min ago", n: s.ageMinutes })}
+                  </span>
+                  <Flag ok={s.healthy} />
+                </span>
               </li>
             ))}
           </ul>

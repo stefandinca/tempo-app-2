@@ -9,7 +9,9 @@
  * the plan triggers cron jobs roughly daily whatever the expression says, so
  * provisioning silently only advanced while somebody was polling this endpoint
  * by hand. A scheduled job that does not run looks exactly like one with
- * nothing to do. The vercel.json entry stays as a harmless second trigger.
+ * nothing to do — so vercel.json no longer declares any crons at all, because
+ * leaving them there implied they worked. Every schedule lives in Cloud
+ * Scheduler, and each job stamps a heartbeat that /platform/health displays.
  *
  * PROGRESS-BOUNDED, NOT STEP-BOUNDED. An earlier version did one step per pass,
  * which meant one step per MINUTE once a real scheduler was calling it — six of
@@ -25,6 +27,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { advance, pending } from "@/lib/platform/provision/runner";
 import { signupTokenConfigured } from "@/lib/platform/signupAuth";
 import { checkStranded } from "@/lib/platform/stranded";
+import { beat } from "@/lib/platform/heartbeat";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

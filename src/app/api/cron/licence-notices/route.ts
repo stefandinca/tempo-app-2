@@ -12,6 +12,7 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { runNotices } from "@/lib/platform/notices";
+import { beat } from "@/lib/platform/heartbeat";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

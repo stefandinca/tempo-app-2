@@ -2753,6 +2753,10 @@
       "total_partial": "nu include centrele ale căror costuri nu au putut fi citite ({{n}}): {{names}}"
     },
     "health": {
+        "schedules": "Sarcini programate",
+        "schedules_hint": "O sarcină care se oprește nu anunță nimic. Aici este singurul loc unde se vede.",
+        "never_ran": "nu a rulat niciodată",
+        "ago": "acum {{n}} min",
         "selfonboarding": "Pregătire înregistrare automată",
         "can_provision": "Poate crea clinici",
         "cannot_provision": "Nu poate finaliza o înregistrare",
