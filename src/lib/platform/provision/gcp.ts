@@ -91,8 +91,12 @@ export async function gcp<T = unknown>(
 
   if (!res.ok) {
     const err = (parsed as { error?: { message?: string; status?: string } }).error;
+    // The call is named in the message. "The caller does not have permission"
+    // is true of a dozen different calls in a provisioning step, and without
+    // knowing which one it is a guessing game about which permission to grant.
+    const where = `${init.method || "GET"} ${new URL(url).host}${new URL(url).pathname}`;
     throw new GcpError(
-      err?.message || text.slice(0, 300) || res.statusText,
+      `${where}: ${err?.message || text.slice(0, 200) || res.statusText}`,
       res.status,
       err?.status || "",
     );
