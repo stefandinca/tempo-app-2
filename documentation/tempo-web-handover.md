@@ -2,9 +2,11 @@
 
 **For:** whoever builds the signup and payment flow in the `tempo-web` repo.
 **Written:** 22 Aug 2026, against the platform as it actually runs today.
-**Revised:** 22 Aug 2026, later the same day — Stripe went in. Read the changelog
-below before re-reading the rest; two of the changes alter code you may already
-have written.
+**Revised:** 22 Aug 2026 — twice. The Stripe revision, then the commerce
+revision. Read the changelog below before re-reading the rest.
+
+**Revision 3 in one line: `checkout-session` and its confirm endpoint are LIVE.
+Stop mocking them.** They need a bearer token — see §3.
 
 This describes the contract between the marketing site and the platform. It is
 written so the signup flow can be built and finished **before** the platform's
@@ -21,8 +23,11 @@ else here is already true.
 | `checkout-session` body | `tier`, `signupRef`, `adminEmail` | **Carries the whole signup** — §2's fields plus `label` and the DPA acceptance. The platform writes the record; you stop writing Firestore (§3) |
 | Mira on the pricing page | "do not promise it" | **Settled** — shared key, and `miraEnabled` per tier says who gets it. Starter does not (§3a, §7) |
 | Provisioning | "one step needs a Cloud Functions deploy" | **No longer true** — the per-clinic triggers are gone (§4) |
+| `checkout-session` + confirm | "not landing this week" | **Live now.** Both verified in production against real Stripe (§3) |
+| Calling them | unspecified | **`Authorization: Bearer <token>`, server-side only** (§3) |
 
-Everything else stands.
+Everything else stands. `provision/clinic` and its status endpoint are still the
+mocked ones — that answer has not changed.
 
 ---
 
@@ -39,13 +44,15 @@ hostname and a label. So this is card-on-file-then-provision, not
 pay-then-provision; an earlier draft described the latter and some of its
 phrasing survived longer than it should have.
 
-**Payment is half-real now.** The platform's Stripe webhook is live: it verifies
-signatures, refuses forgeries, survives duplicate deliveries, and writes a
-`signups/{signupRef}` record when a checkout session completes — end-to-end
-verified against a real Stripe test event, not just deployed. What does *not*
-exist yet is the endpoint that **creates** the checkout session, and the one
-that reads that record back to you. Keep mocking those two; everything they
-will return is specified in §3 and §8.
+**Payment is real.** The whole commerce path now exists and runs in production:
+you create a session, the visitor pays, Stripe's signed webhook tells the
+platform, and you read the confirmation back. All three verified against real
+Stripe — session creation, idempotent reuse, and the confirm endpoint, plus a
+real signed test event through the webhook.
+
+The one hop nobody has done yet is a human typing a card into the hosted page
+and a clinic coming out the other end. That waits on `provision/clinic`, which
+is still the mocked one (§3), and on test-mode being finished (§9).
 
 ---
 
@@ -90,11 +97,31 @@ they type.
 
 ## 3. The calls you need from the platform
 
-Most of these do not exist yet — build against a mock. The shape is fixed; the
-implementation is the platform's side of this handover.
+**Three of these are live now** — `check-label`, `checkout-session` and its
+confirm endpoint. The Stripe webhook is live too; you never call it, but you
+depend on what it writes (§8).
 
-**Two exceptions are live:** `check-label` below, and the Stripe webhook — which
-you never call, but whose output you depend on (§8).
+**Still mocked:** `provision/clinic` and its status endpoint. The shape below is
+fixed; the implementation is the platform's side of this handover.
+
+### Calling the live endpoints
+
+`check-label` is public. The other two are **not**, and take a bearer token:
+
+```
+Authorization: Bearer <PROVISION_API_TOKEN>
+```
+
+**Server-side only.** A token in client JavaScript is a public token with extra
+steps, and these create Stripe objects and write records provisioning acts on.
+The token is a shared secret rather than a Firebase credential because there is
+no user yet — creating one is the *end* of this flow. What is being
+authenticated is your server, not a person.
+
+| Response | Meaning |
+|---|---|
+| `401 unauthorised` | Wrong or missing token |
+| `503 not_configured` | The platform has no token set. Ours to fix, not yours — never rotate on this |
 
 ### `POST /api/provision/check-label` — **LIVE, stop mocking it**
 
@@ -254,7 +281,11 @@ every clinic consumes one, so this means we have run out of room. It is
 provisioning takes minutes, so the two clocks are not the same clock, and the
 licence is the one the app enforces.
 
-### `POST /api/provision/checkout-session`
+### `POST /api/provision/checkout-session` — **LIVE, stop mocking it**
+
+```
+https://superadmin.tempoapp.ro/api/provision/checkout-session/
+```
 
 **The platform owns Stripe** — `tempo-web` holds no Stripe key and runs no
 webhook. The subscription *is* the licence, and splitting licence state across a
@@ -291,6 +322,42 @@ Only those three go to Stripe. The clinic details and the DPA acceptance stay
 here: Stripe metadata is capped at 500 characters per value, and neither is
 Stripe's business.
 
+**Retrying is safe, and returns the same session.** Call it twice with one
+`signupRef` and the second response carries `"reused": true` with the original
+`sessionId` — a visitor who reloads has not changed their mind, and a second
+session is how one signup becomes two subscriptions. Once payment is confirmed
+the endpoint refuses with `409 already_confirmed` rather than opening another.
+
+**`"mode": "test"` runs the whole thing on a test card.** Optional, defaults to
+live. Only a token holder can ask for it, so it is not an abuse surface. It
+needs `STRIPE_SECRET_KEY_TEST` on our side, which is still outstanding (§9) —
+until then it returns `500`.
+
+**What the session is created with**, so you do not have to guess: subscription
+mode, `trial_period_days` from the tier's `trialDays`, `payment_method_collection:
+always` (a card even though the trial charges nothing — the whole anti-squatting
+argument rests on it), `locale: ro`, and Stripe's default 24-hour expiry.
+
+| Error | Status | What it means |
+|---|---|---|
+| `invalid_signup_ref` | 400 | Not `[A-Za-z0-9_-]{8,64}` |
+| `invalid_tier` | 400 | Not one of the four catalogue ids |
+| `invalid_label` | 400 | Malformed or reserved — same rule as `check-label` |
+| `invalid_email`, `invalid_clinic_name`, `invalid_admin_name`, `invalid_plan` | 400 | Missing or empty |
+| `dpa_required` | 400 | `version` and `acceptedAt` are both required |
+| `invalid_return_url` | 400 | Not an allowed origin — see below |
+| `tier_not_purchasable` | 400 | The tier has no `stripePriceId`. Enterprise, or a half-configured tier |
+| `already_confirmed` | 409 | This signup is paid. Do not open another session |
+| `stripe_error` | 502 | Stripe refused. Retry is reasonable |
+| `price_unavailable` | 503 | Configured price is missing at Stripe. Ours to fix |
+
+**Return URLs are matched by origin**, not prefix: `https://tempoapp.ro` and
+`https://www.tempoapp.ro`, extendable for local development via an environment
+variable on our side — ask and it is one line. A prefix check would also accept
+`https://tempoapp.ro.evil.com`, and an open redirect on a checkout flow is worth
+more to a phisher than most bugs, because the victim is already expecting to
+type card details on a page we sent them to.
+
 ```
 GET /api/provision/checkout-session/{signupRef}
 → { "confirmed": true, "subscriptionId": "sub_...", "customerId": "cus_...",
@@ -312,6 +379,11 @@ Before `confirmed` is true, expect `{ "confirmed": false }` and keep polling —
 same reasoning and same shape as provisioning status in §4. A completed payment
 whose webhook has not landed yet is normal and usually sub-second, but it is
 never instantaneous.
+
+**`404 not_found` is a different answer from `confirmed: false`, and the
+difference matters.** `confirmed: false` means we have a signup and are waiting
+for Stripe — keep polling. `404` means we have never seen this `signupRef`, so
+the create call never succeeded and polling will never resolve. Start over.
 
 `successUrl` and `cancelUrl` are validated against an allowlist of tempoapp.ro
 paths, so do not send a dynamic one. An open redirect on a checkout flow is
@@ -548,10 +620,10 @@ programmes; one Admin (them); a licence; no clients, no staff, no data.
 
 ---
 
-## 8. Payment — the webhook half is live
+## 8. Payment — all of it is live
 
-Mock the two endpoints in §3, but the seam behind them is now real, so build
-against how it actually behaves rather than a guess.
+Nothing here is mocked any more. This section describes what actually runs, so
+build against it rather than a guess.
 
 **Provisioning is triggered by a confirmed payment, server-side, not by the
 browser reaching a success page.** A user who closes the tab after paying must
@@ -651,11 +723,13 @@ Listed so you know they are tracked and not forgotten:
 - **The database ceiling is 100 per project, 5 used.** Not a question — a number
   worth knowing, because it is the hard cap on self-serve signups and every
   squat consumes one until it is offboarded.
-- **Test-mode prices do not exist yet.** The catalogue holds one Stripe price id
-  per tier and those are live-mode ids, so a test-mode checkout session cannot
-  be created from them. It does not block you — the platform owns session
-  creation and will sort it — but it means "the whole flow end to end on a test
-  card" is not yet possible, and nobody should plan a demo around it.
+- **Test mode is one env var short.** Test Products and Prices now exist,
+  mirroring live and stamped with the tier, so `"mode": "test"` is wired all the
+  way through — it just needs `STRIPE_SECRET_KEY_TEST` set on our side. Until
+  then that flag returns 500. Nobody should plan a demo on a test card until
+  this is done, and it will be done before launch: the first card through this
+  flow should not be a real customer's, on something that consumes a permanent
+  database slot on success.
 
 Answered since the first draft and removed from this list: trial-before-payment
 (§3a), what happens when a term licence ends (§3a and §8a together), and whether
