@@ -24,6 +24,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { advance, pending } from "@/lib/platform/provision/runner";
 import { signupTokenConfigured } from "@/lib/platform/signupAuth";
+import { checkStranded } from "@/lib/platform/stranded";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -75,7 +76,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  if (!ids.length) return NextResponse.json({ advanced: 0, results: [] });
+  if (!ids.length) {
+    // NOT an early exit. A stranded signup never entered the queue, so an empty
+    // queue is the most likely state in which one exists.
+    return NextResponse.json({ advanced: 0, results: [], stranded: await strandedCheck() });
+  }
 
   // Sequential, not parallel. These steps talk to Google's control plane, which
   // rate-limits, and a burst of database creations is the one thing most likely
@@ -114,5 +119,24 @@ export async function GET(req: NextRequest) {
     if (Date.now() >= DEADLINE) break;
   }
 
-  return NextResponse.json({ advanced: results.length, results }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json(
+    { advanced: results.length, results, stranded: await strandedCheck() },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+}
+
+/**
+ * Look for paid signups with no clinic. Never fatal.
+ *
+ * A clinic being built matters more than an alert about one that is not, so a
+ * failure here is logged and swallowed rather than allowed to fail the pass
+ * that is doing the actual work.
+ */
+async function strandedCheck(): Promise<{ found: number; alerted: boolean }> {
+  try {
+    return await checkStranded();
+  } catch (e) {
+    console.error("[provision/run] stranded check failed:", (e as Error)?.message);
+    return { found: 0, alerted: false };
+  }
 }
