@@ -4,6 +4,10 @@
     {
       "path": "/api/provision/run",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/licence-notices",
+      "schedule": "0 8 * * *"
     }
   ]
 }
