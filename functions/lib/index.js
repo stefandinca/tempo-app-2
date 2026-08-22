@@ -1,14 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fcmTokenOwnershipAicaa = exports.fcmTokenOwnershipDemo = exports.fcmTokenOwnershipDiaconumaria = exports.fcmTokenOwnershipLivebetterlife = exports.sendPushNotificationAicaa = exports.sendPushNotificationDemo = exports.sendPushNotificationDiaconumaria = exports.sendPushNotificationLivebetterlife = exports.migrateTeamMember = exports.createTeamMember = void 0;
+exports.fcmTokenOwnershipAicaa = exports.fcmTokenOwnershipDemo = exports.fcmTokenOwnershipDiaconumaria = exports.fcmTokenOwnershipLivebetterlife = exports.migrateTeamMember = exports.createTeamMember = void 0;
 // v1 API explicitly: firebase-functions 7 makes the bare import v2. These two
 // HTTP functions stay on v1 so their public URLs do not change — the
 // /api/cloud-functions proxy builds them as
 // https://{region}-{project}.cloudfunctions.net/{name}, a v1 URL shape.
 const functionsV1 = require("firebase-functions/v1");
-// v2 because a trigger has to name the NAMED Firestore database it watches.
-// v1 triggers only ever fire on (default), so under one database per clinic
-// push silently stopped for everyone. One registration per clinic, below.
+// v2 because a trigger has to name the NAMED Firestore database it watches —
+// v1 triggers only ever fire on (default). That constraint is why push left
+// this file entirely (see PUSH NOTIFICATIONS below); token ownership still
+// needs it, so it is still one registration per clinic down there.
 const firestore_1 = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 const firestore_2 = require("firebase-admin/firestore");
@@ -304,128 +305,32 @@ exports.migrateTeamMember = functionsV1.https.onRequest(async (req, res) => {
     res.status(200).json({ result: { uid: authUser.uid, migrated: true } });
 });
 // ============================================================
-// sendPushNotification — Firestore trigger (v2), one per clinic
+// PUSH NOTIFICATIONS — REMOVED, deliberately
 // ============================================================
 /**
- * A Firestore trigger binds to exactly ONE database at deploy time — the v2
- * `database` option is a plain string with no wildcard, and v1 triggers only
- * ever fire on `(default)`. Under one database per clinic, push therefore has
- * to be registered once per clinic.
+ * Push is sent by /api/notifications, not from here.
  *
- * Until it was, push did nothing for anyone. The single registration watched
- * `(default)`, which no clinic writes notifications to, so every send was a
- * no-op that logged nothing and failed nowhere.
+ * A v2 Firestore trigger binds to exactly ONE database, named at deploy time,
+ * so under one database per clinic this file needed a registration per clinic
+ * and a `firebase deploy --only functions` to onboard one. That made it the
+ * only step in the whole onboarding path requiring a source edit, and the
+ * reason a clinic could not provision itself.
  *
- * ADDING A CLINIC MEANS ADDING A LINE BELOW and redeploying functions. The list
- * cannot be derived: registration happens at deploy time, long before any
- * request carries a hostname. A missing entry is silent, which is precisely how
- * this went unnoticed — so the onboarding runbook names this file at the step
- * that creates the database.
+ * It also failed silently when forgotten: in-app notifications kept working and
+ * only push went missing, which reads as users having declined notifications
+ * rather than as a deployment gap. The onboarding runbook had to carry a
+ * warning about exactly that.
+ *
+ * The API route writes the notification and sends the push in one request, so
+ * there is no window where one exists without the other. Verified in production
+ * before these were removed: a real message produced a notification marked
+ * `pushVia: "api"` with `pushedAt` set, delivered to a real device, while this
+ * trigger logged that it was skipping it.
+ *
+ * ADDING A CLINIC NO LONGER TOUCHES THIS FILE.
+ *
+ * docs/superpowers/specs/2026-08-22-trigger-removal-spike.md
  */
-function pushNotificationTrigger(databaseId) {
-    return (0, firestore_1.onDocumentCreated)({
-        document: "notifications/{notificationId}",
-        database: databaseId,
-        region: "us-central1",
-    }, async (event) => {
-        // v2 delivers the snapshot on event.data, and it is optional — a delete
-        // racing the create can fire the trigger with nothing attached.
-        const snapshot = event.data;
-        if (!snapshot) {
-            console.log("No snapshot on event; nothing to send");
-            return;
-        }
-        const notification = snapshot.data();
-        // Written by /api/notifications, which sent its own push already.
-        //
-        // This exists for the cutover, and only for the cutover. Both paths are
-        // live at once while notifications move off Firestore triggers, and
-        // without this marker every notification would be pushed TWICE — the
-        // route sends it, then this trigger fires on the document the route just
-        // wrote and sends it again. Confirmed in the logs during the spike; the
-        // test device received two.
-        //
-        // The alternative orderings are both worse: deleting the triggers first
-        // leaves a window with no push at all, and switching the client first
-        // gives every user duplicates until the triggers go.
-        //
-        // DELETE THIS, and the registrations below, once the client no longer
-        // writes notifications directly. See
-        // docs/superpowers/specs/2026-08-22-trigger-removal-spike.md.
-        if (notification.pushVia === "api") {
-            console.log("Skipping: already pushed by the API route");
-            return;
-        }
-        const recipientId = notification.recipientId;
-        if (!recipientId) {
-            console.log("No recipientId found in notification");
-            return;
-        }
-        // The token lives in the SAME clinic database as the notification that
-        // triggered this. admin.firestore() here would read the control plane.
-        const tokenDoc = await (0, firestore_2.getFirestore)(databaseId)
-            .collection("fcm_tokens")
-            .doc(recipientId)
-            .get();
-        if (!tokenDoc.exists) {
-            console.log(`No FCM token found for user ${recipientId} in ${databaseId}`);
-            return;
-        }
-        const tokenData = tokenDoc.data();
-        const fcmToken = tokenData?.token;
-        if (!fcmToken) {
-            console.log(`Token document exists but no token field for user ${recipientId}`);
-            return;
-        }
-        const title = notification.title || "New Notification";
-        const body = notification.message || "You have a new update";
-        const url = notification.actions?.[0]?.route || "/parent/dashboard";
-        console.log(`Sending push (${databaseId}): title="${title}", body="${body}", url="${url}"`);
-        // Data-only message - service worker will handle display
-        // IMPORTANT: Do NOT include 'notification' field or 'fcmOptions.link'
-        // as these cause the browser to auto-display a notification
-        const payload = {
-            data: {
-                title: title,
-                body: body,
-                url: url,
-                notificationId: event.params.notificationId,
-                type: notification.type || "general",
-                category: notification.category || "system",
-            },
-            // Web push - only set headers, no notification-triggering options
-            webpush: {
-                headers: {
-                    Urgency: "high",
-                },
-            },
-            // Android specific (for future mobile support)
-            android: {
-                priority: "high",
-            },
-            token: fcmToken,
-        };
-        try {
-            const response = await admin.messaging().send(payload);
-            console.log("Successfully sent push notification:", response);
-            return;
-        }
-        catch (error) {
-            console.error("Error sending push notification:", error);
-            // If token is invalid, remove it
-            if (error.code === "messaging/registration-token-not-registered" ||
-                error.code === "messaging/invalid-registration-token") {
-                await tokenDoc.ref.delete();
-                console.log(`Invalid token deleted for user ${recipientId}`);
-            }
-            return;
-        }
-    });
-}
-exports.sendPushNotificationLivebetterlife = pushNotificationTrigger("clinic-livebetterlife");
-exports.sendPushNotificationDiaconumaria = pushNotificationTrigger("clinic-diaconumaria");
-exports.sendPushNotificationDemo = pushNotificationTrigger("clinic-demo");
-exports.sendPushNotificationAicaa = pushNotificationTrigger("clinic-aicaa");
 // ============================================================
 // FCM TOKEN OWNERSHIP
 // ============================================================
