@@ -27,7 +27,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { stripe, webhookSecret, isHandled } from "@/lib/platform/stripe";
+import { stripe, webhookSecrets, verifyEvent, isHandled } from "@/lib/platform/stripe";
 import {
   buildLicence,
   licenceMirror,
@@ -62,18 +62,21 @@ export async function POST(req: NextRequest) {
   // debugging to re-copy a secret that was never the problem — the env var was
   // simply absent. A missing key is 500 because it IS our fault, and Stripe
   // retrying a 500 is the behaviour we want once the var is added.
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+  if (!process.env.STRIPE_SECRET_KEY || !webhookSecrets().length) {
     console.error(
       "[stripe/webhook] not configured:",
       !process.env.STRIPE_SECRET_KEY ? "STRIPE_SECRET_KEY missing" : "",
-      !process.env.STRIPE_WEBHOOK_SECRET ? "STRIPE_WEBHOOK_SECRET missing" : "",
+      !webhookSecrets().length ? "no STRIPE_WEBHOOK_SECRET (or _TEST)" : "",
     );
     return NextResponse.json({ error: "not_configured" }, { status: 500 });
   }
 
   let event: Stripe.Event;
   try {
-    event = stripe().webhooks.constructEvent(raw, signature, webhookSecret());
+    // Tries every configured secret, so a test-mode event verifies without
+    // disarming live. Which one matched tells us the mode; event.livemode is
+    // then trustworthy because it came from a verified payload.
+    event = verifyEvent(raw, signature);
   } catch (e: unknown) {
     // 400, not 500. A bad signature is a request we are right to refuse, and
     // telling Stripe it was our fault would make it retry a payload that will
@@ -136,9 +139,9 @@ async function handle(event: Stripe.Event): Promise<void> {
     case "customer.subscription.deleted":
       return onSubscriptionDeleted(event.data.object as Stripe.Subscription);
     case "invoice.payment_succeeded":
-      return onPaymentSucceeded(event.data.object as Stripe.Invoice);
+      return onPaymentSucceeded(event.data.object as Stripe.Invoice, event.livemode);
     case "invoice.payment_failed":
-      return onPaymentFailed(event.data.object as Stripe.Invoice);
+      return onPaymentFailed(event.data.object as Stripe.Invoice, event.livemode);
   }
 }
 
@@ -218,13 +221,13 @@ async function onSubscriptionDeleted(sub: Stripe.Subscription): Promise<void> {
 }
 
 /** Renewal paid. Extend to the new period end, and clear any decline. */
-async function onPaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
+async function onPaymentSucceeded(invoice: Stripe.Invoice, livemode: boolean): Promise<void> {
   const subId = subscriptionIdOf(invoice);
   if (!subId) return;
   const tenant = await tenantForSubscription(subId);
   if (!tenant) return;
 
-  const sub = await stripe().subscriptions.retrieve(subId);
+  const sub = await stripe(livemode).subscriptions.retrieve(subId);
   const periodEnd = currentPeriodEnd(sub);
   if (!periodEnd) return;
 
@@ -241,13 +244,13 @@ async function onPaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
  * who still wants the service, whose card expired or whose bank blocked a
  * foreign charge. Not a cancellation, and it must not be treated as one.
  */
-async function onPaymentFailed(invoice: Stripe.Invoice): Promise<void> {
+async function onPaymentFailed(invoice: Stripe.Invoice, livemode: boolean): Promise<void> {
   const subId = subscriptionIdOf(invoice);
   if (!subId) return;
   const tenant = await tenantForSubscription(subId);
   if (!tenant) return;
 
-  const sub = await stripe().subscriptions.retrieve(subId);
+  const sub = await stripe(livemode).subscriptions.retrieve(subId);
   await writeLicence(tenant, {
     tier: await tierForSubscription(sub),
     // Expires now; the grace below is what actually keeps them working.

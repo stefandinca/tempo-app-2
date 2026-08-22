@@ -13,32 +13,86 @@
  */
 import Stripe from "stripe";
 
-let cached: Stripe | null = null;
-
 /**
- * Throws rather than returning null when the key is missing, because every
- * caller is in the middle of taking somebody's money and a silent no-op is the
- * worst possible outcome there.
+ * BOTH MODES ARE LIVE AT ONCE, and that is deliberate.
+ *
+ * One Vercel project serves this app, so live and test traffic arrive at the
+ * same URL. Stripe keeps them completely separate: a test-mode event is signed
+ * with the TEST endpoint's secret and its objects are only readable with a test
+ * key. Holding a single pair of variables would mean swapping them to test
+ * anything and swapping them back afterwards — and the failure when somebody
+ * forgets is silent, in production, on money.
+ *
+ * So there are two pairs, and the second is optional:
+ *
+ *   STRIPE_SECRET_KEY          / STRIPE_WEBHOOK_SECRET          (live)
+ *   STRIPE_SECRET_KEY_TEST     / STRIPE_WEBHOOK_SECRET_TEST     (test, optional)
+ *
+ * Verification tries each configured secret; whichever validates tells us which
+ * mode the event came from, and the matching key reads its objects. That order
+ * matters — you cannot know the mode before verifying, because knowing it means
+ * parsing a payload you have not yet decided to trust.
  */
-export function stripe(): Stripe {
-  if (cached) return cached;
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) {
-    throw new Error("STRIPE_SECRET_KEY is not set");
-  }
+const clients = new Map<string, Stripe>();
+
+function client(key: string): Stripe {
+  const hit = clients.get(key);
+  if (hit) return hit;
   // No apiVersion pin: the account's default is used, which is what the
   // dashboard and the CLI also use. Pinning here and forgetting means the
   // webhook and the dashboard disagree about object shapes after an upgrade.
-  cached = new Stripe(key);
-  return cached;
+  const made = new Stripe(key);
+  clients.set(key, made);
+  return made;
 }
 
-export function webhookSecret(): string {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!secret) {
-    throw new Error("STRIPE_WEBHOOK_SECRET is not set");
+/**
+ * The API client for a given mode. Throws rather than returning null, because
+ * every caller is in the middle of taking somebody's money and a silent no-op
+ * is the worst outcome available.
+ */
+export function stripe(livemode = true): Stripe {
+  const key = livemode
+    ? process.env.STRIPE_SECRET_KEY
+    : process.env.STRIPE_SECRET_KEY_TEST || process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    throw new Error(livemode ? "STRIPE_SECRET_KEY is not set" : "STRIPE_SECRET_KEY_TEST is not set");
   }
-  return secret;
+  return client(key);
+}
+
+/** Every signing secret configured, live first. */
+export function webhookSecrets(): string[] {
+  return [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_WEBHOOK_SECRET_TEST]
+    .map((s) => (s || "").trim())
+    .filter(Boolean);
+}
+
+/**
+ * Verify against whichever configured secret validates.
+ *
+ * Trying both is not a weakening: each attempt is the same HMAC check against a
+ * secret only Stripe knows, so a payload that verifies under either really did
+ * come from Stripe. What it buys is being able to exercise the integration in
+ * test mode without disarming live.
+ */
+export function verifyEvent(raw: string, signature: string): Stripe.Event {
+  const secrets = webhookSecrets();
+  if (!secrets.length) throw new Error("no webhook secret configured");
+
+  let last: unknown;
+  for (const secret of secrets) {
+    try {
+      return client(process.env.STRIPE_SECRET_KEY || "sk_unused").webhooks.constructEvent(
+        raw,
+        signature,
+        secret,
+      );
+    } catch (e) {
+      last = e;
+    }
+  }
+  throw last;
 }
 
 /** Events the platform acts on. Anything else is recorded and ignored. */
