@@ -93,3 +93,95 @@ export async function heartbeats(now = Date.now()): Promise<Heartbeat[]> {
     };
   });
 }
+
+/**
+ * Tell somebody when a scheduled job has stopped.
+ *
+ * A heartbeat shown on a screen is still "believed to be running" until
+ * somebody opens the screen, and nobody will open it on 14 September to check
+ * that a trial warning went out. The failure this exists for is precisely a job
+ * everyone believed was running, so displaying it is not enough — it has to
+ * arrive uninvited.
+ *
+ * EACH JOB WATCHES THE OTHERS. There is no separate watchdog, because a
+ * watchdog on the same schedule as the thing it watches dies with it. The
+ * minute-by-minute runner notices the daily job going quiet within hours; the
+ * daily job notices the runner. What that cannot catch is every schedule
+ * stopping at once — a GCP-wide outage, or the whole project losing its
+ * scheduler — which is loud in other ways and is not the failure that has
+ * actually happened twice.
+ *
+ * Once per day per job, so a job that has been dead for a week does not send a
+ * thousand emails and get filtered.
+ */
+export async function alertIfStale(now = Date.now()): Promise<{ stale: string[]; alerted: boolean }> {
+  const beats = await heartbeats(now);
+  const stale = beats.filter((b) => !b.healthy);
+  if (!stale.length) return { stale: [], alerted: false };
+
+  const db = adminDb();
+  const ref = db.collection("platform_meta").doc(DOC);
+  let alerts: Record<string, unknown> = {};
+  try {
+    const snap = await ref.get();
+    alerts = (snap.data()?.staleAlerts as Record<string, unknown>) || {};
+  } catch {
+    /* If it cannot be read, err towards sending rather than staying silent. */
+  }
+
+  const DAY = 24 * 60 * 60 * 1000;
+  const due = stale.filter((b) => {
+    const last = Date.parse(String(alerts[b.name] || ""));
+    return !Number.isFinite(last) || now - last > DAY;
+  });
+  if (!due.length) return { stale: stale.map((s) => s.name), alerted: false };
+
+  console.error("[heartbeat] scheduled jobs not running:", due.map((d) => d.name).join(", "));
+
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { stale: stale.map((s) => s.name), alerted: false };
+  const to = process.env.PLATFORM_ALERT_TO || process.env.BUG_REPORT_TO || "stefan.dinca07@gmail.com";
+  const from = process.env.RESEND_FROM || "TempoApp <bugs@tempoapp.ro>";
+
+  const rows = due
+    .map(
+      (b) =>
+        `<li><strong>${b.label}</strong> — ${b.lastRunAt ? `last ran ${b.ageMinutes} minutes ago` : "has never run"}</li>`,
+    )
+    .join("");
+
+  const html =
+    `<div style="font-family:system-ui,sans-serif;font-size:14px;line-height:1.5">` +
+    `<p><strong>A scheduled job has stopped running.</strong></p><ul>${rows}</ul>` +
+    `<p>Check the Cloud Scheduler jobs in <code>europe-west1</code>. ` +
+    `Provisioning stalls without the runner; trial-expiry warnings do not send without the notices job, ` +
+    `which means a card can be charged with no notice.</p>` +
+    `<p style="color:#666;font-size:12px">Sent at most once a day per job.</p>` +
+    `</div>`;
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to, subject: "TempoApp: a scheduled job has stopped", html }),
+    });
+    if (!res.ok) {
+      console.error("[heartbeat] Resend rejected:", res.status);
+      return { stale: stale.map((s) => s.name), alerted: false };
+    }
+  } catch (e) {
+    console.error("[heartbeat] Resend unreachable:", (e as Error)?.message);
+    return { stale: stale.map((s) => s.name), alerted: false };
+  }
+
+  await ref
+    .set(
+      { staleAlerts: { ...alerts, ...Object.fromEntries(due.map((d) => [d.name, new Date(now).toISOString()])) } },
+      { merge: true },
+    )
+    .catch(() => {
+      /* Recording must never be what stops the next alert. */
+    });
+
+  return { stale: stale.map((s) => s.name), alerted: true };
+}

@@ -12,7 +12,7 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { runNotices } from "@/lib/platform/notices";
-import { beat } from "@/lib/platform/heartbeat";
+import { beat, alertIfStale } from "@/lib/platform/heartbeat";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,6 +39,15 @@ export async function GET(req: NextRequest) {
   // healthy case — most days — indistinguishable from the job never running,
   // which is the exact failure this heartbeat exists to catch.
   await beat("licence-notices");
+
+  // The reverse of the runner's check: this notices if the minute-by-minute job
+  // has stopped. Slower to fire, but it is the only thing watching the watcher,
+  // and provisioning stalling silently is what happened this morning.
+  try {
+    await alertIfStale();
+  } catch (e) {
+    console.error("[licence-notices] stale-schedule check failed:", (e as Error)?.message);
+  }
 
   try {
     const results = await runNotices();

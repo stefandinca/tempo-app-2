@@ -27,7 +27,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { advance, pending } from "@/lib/platform/provision/runner";
 import { signupTokenConfigured } from "@/lib/platform/signupAuth";
 import { checkStranded } from "@/lib/platform/stranded";
-import { beat } from "@/lib/platform/heartbeat";
+import { beat, alertIfStale } from "@/lib/platform/heartbeat";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -142,6 +142,19 @@ export async function GET(req: NextRequest) {
  * that is doing the actual work.
  */
 async function strandedCheck(): Promise<{ found: number; alerted: boolean }> {
+  // Each job watches the others. This one runs every minute, so it is what
+  // notices the daily notices job going quiet — within hours rather than in
+  // September, when a card is charged with no warning.
+  //
+  // There is no separate watchdog process, because a watchdog on the same
+  // schedule as the thing it watches dies with it. What this cannot catch is
+  // every schedule stopping at once; that is a different, louder failure.
+  try {
+    await alertIfStale();
+  } catch (e) {
+    console.error("[provision/run] stale-schedule check failed:", (e as Error)?.message);
+  }
+
   try {
     return await checkStranded();
   } catch (e) {
