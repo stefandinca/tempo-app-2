@@ -5,13 +5,14 @@
 **Revised:** 22 Aug 2026 — twice. The Stripe revision, then the commerce
 revision. Read the changelog below before re-reading the rest.
 
-**Revision 3 in one line: `checkout-session` and its confirm endpoint are LIVE.
-Stop mocking them.** They need a bearer token — see §3.
+**In one line: every platform endpoint in this document is live and has been
+exercised by a real request.** Nothing here is mocked any more. They need a
+bearer token — see §3.
 
-This describes the contract between the marketing site and the platform. It is
-written so the signup flow can be built and finished **before** the platform's
-provisioning endpoint exists — mock the calls described in §3 and everything
-else here is already true.
+This describes the contract between the marketing site and the platform. It was
+written so the signup flow could be built before provisioning existed; that is
+no longer a caveat, but the per-endpoint wording is kept because it is what made
+the gaps visible while they were still open.
 
 ### What changed in this revision
 
@@ -25,7 +26,7 @@ else here is already true.
 | Provisioning | "one step needs a Cloud Functions deploy" | **No longer true** — the per-clinic triggers are gone (§4) |
 | `checkout-session` + confirm | "not landing this week" | **Live now.** Both verified in production against real Stripe (§3) |
 | Calling them | unspecified | **`Authorization: Bearer <token>`, server-side only** (§3) |
-| `provision/clinic` | mocked | **Built.** Five of seven steps verified against a real clinic; `hostname` and `admin` await a Vercel token (§4) |
+| `provision/clinic` | mocked | **Live and fully verified.** All seven steps built a real clinic end to end, which was then torn down (§4) |
 
 Everything else stands.
 
@@ -50,14 +51,13 @@ platform, and you read the confirmation back. All three verified against real
 Stripe — session creation, idempotent reuse, and the confirm endpoint, plus a
 real signed test event through the webhook.
 
-**Provisioning is built too**, and five of its seven steps are verified against
-a real clinic that was created and inspected: database, rules, indexes, bucket,
-seed, tenant registration and licence. `hostname` and `admin` wait on a Vercel
-API token (§9) and have not run.
+**Provisioning is live and all seven steps are verified**, by a real request that
+created a real clinic: database, rules, indexes, bucket, seed, tenant record,
+licence, subdomain — which served HTTP 200 over a real certificate — and the
+Admin account with its invitation actually sent. That clinic was then torn down.
 
-The one hop nobody has done yet is a human typing a card into the hosted page
-and a clinic coming out the other end. That waits on those last two steps and on
-test mode being finished (§9).
+The one hop nobody has done yet is a human typing a card into the hosted page.
+That waits on test mode (§9), not on the platform.
 
 ---
 
@@ -106,13 +106,11 @@ they type.
 endpoint, `provision/clinic` and its status endpoint. The Stripe webhook is live
 too; you never call it, but you depend on what it writes (§8).
 
-**Deployed is not the same as verified, and the difference is stated per
-endpoint rather than rounded up.** `check-label`, both checkout endpoints and the
-webhook have been exercised by real requests. `provision/clinic` has built a real
-clinic through five of its seven steps; `hostname` and `admin` have never run,
-because `hostname` needs a Vercel API token that is not yet set (§9). Do not
-switch the provisioning group to live until that is closed — a customer who got
-five steps in would have a database, a licence, and no way to log in.
+**Every one has now been exercised by a real request**, and the wording stays per
+endpoint rather than rounded up because that is how the gaps stayed visible while
+they existed. `check-label`, both checkout endpoints and the webhook were verified
+earlier; `provision/clinic` built a real clinic through all seven steps and it was
+torn down afterwards.
 
 ### Calling the live endpoints
 
@@ -786,10 +784,6 @@ Listed so you know they are tracked and not forgotten:
 - **The database ceiling is 100 per project, 5 used.** Not a question — a number
   worth knowing, because it is the hard cap on self-serve signups and every
   squat consumes one until it is offboarded.
-- **`VERCEL_API_TOKEN` is not set**, so provisioning stops at `hostname` — the
-  step that attaches the clinic's subdomain to the Vercel project and triggers
-  its TLS certificate. Everything before it works; nothing after it has run.
-  This is the single thing standing between a paid signup and a working clinic.
 - **Test mode is one env var short.** Test Products and Prices now exist,
   mirroring live and stamped with the tier, so `"mode": "test"` is wired all the
   way through — it just needs `STRIPE_SECRET_KEY_TEST` set on our side. Until
@@ -815,10 +809,10 @@ there rather than guessing; the whole point is that these fail silently.
 
 | Variable | Missing means | Set? |
 |---|---|---|
-| `VERCEL_API_TOKEN` | Provisioning stops at `hostname`, step six of seven | **No — needed** |
+| `VERCEL_API_TOKEN` | Provisioning stops at `hostname`, step six of seven | Yes |
 | `VERCEL_PROJECT_ID` | Same step, same failure | Yes |
 | `VERCEL_TEAM_ID` | Same, on a team account | Yes |
-| `ANTHROPIC_API_KEY` | Provisioning **refuses** any tier that promises Mira | **No — needed** |
+| `ANTHROPIC_API_KEY` | Provisioning **refuses** any tier that promises Mira | Yes |
 | `PROVISION_API_TOKEN` | Both signup endpoints answer `503 not_configured` | Yes |
 | `CRON_SECRET` | The queue never drains and no expiry notice is sent | Yes |
 | `RESEND_API_KEY` | No trial-conversion warning; cards charged unannounced | Yes |
