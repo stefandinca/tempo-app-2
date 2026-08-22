@@ -34,6 +34,7 @@ import {
   configLimitsFor,
   graceDaysForEnd,
   tierForPriceId,
+  isTier,
   defaultCatalogue,
   DEFAULT_GRACE_DAYS,
   type LicenceEndReason,
@@ -160,25 +161,38 @@ async function onCheckoutCompleted(session: Stripe.Checkout.Session): Promise<vo
     return;
   }
 
-  await adminDb()
-    .collection("signups")
-    .doc(signupRef)
-    .set(
-      {
-        signupRef,
-        stripeSessionId: session.id,
-        stripeSubscriptionId: typeof session.subscription === "string" ? session.subscription : null,
-        stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-        adminEmail: session.customer_details?.email ?? null,
-        tier: session.metadata?.tier ?? null,
-        label: session.metadata?.label ?? null,
-        confirmedAt: new Date(),
-        // Provisioning has not run. The endpoint that will consume this is the
-        // one that flips it.
-        provisioned: false,
-      },
-      { merge: true },
-    );
+  // The payment trail. These fields are ours alone — nothing else writes them,
+  // so they are always safe to set.
+  const update: Record<string, unknown> = {
+    signupRef,
+    stripeSessionId: session.id,
+    stripeSubscriptionId: typeof session.subscription === "string" ? session.subscription : null,
+    stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
+    confirmedAt: new Date(),
+  };
+
+  // These are also written by /api/provision/checkout-session, from a signup
+  // body far richer than Stripe metadata. So they are filled in only when the
+  // draft is ABSENT or the field is missing — never overwritten with a null.
+  //
+  // Writing `adminEmail: session.customer_details?.email ?? null` unconditionally
+  // would erase the address the visitor actually typed whenever Stripe omitted
+  // customer_details, and it would erase it on a *merge*, which is the shape of
+  // data loss nobody notices until provisioning has no one to invite.
+  const fill = (key: string, value: unknown) => {
+    if (value !== null && value !== undefined && value !== "") update[key] = value;
+  };
+  fill("adminEmail", session.customer_details?.email);
+  fill("tier", session.metadata?.tier);
+  fill("label", session.metadata?.label);
+
+  // Only on first write. The draft sets it at session creation, and provisioning
+  // flips it to true — so re-asserting false here could undo a completed
+  // provision if a duplicate event ever slipped past the stripe_events guard.
+  const ref = adminDb().collection("signups").doc(signupRef);
+  if (!(await ref.get()).exists) update.provisioned = false;
+
+  await ref.set(update, { merge: true });
 }
 
 /**
@@ -303,13 +317,30 @@ async function tenantForSubscription(subscriptionId: string): Promise<string | n
  * disagree with the invoice.
  */
 async function tierForSubscription(sub: Stripe.Subscription): Promise<Tier | null> {
-  const priceId = sub.items?.data?.[0]?.price?.id;
-  if (!priceId) return null;
+  const price = sub.items?.data?.[0]?.price;
+  if (!price) return null;
 
+  // FIRST CHOICE: the tier stamped on the Price itself, in Stripe.
+  //
+  // This is the same answer as the catalogue lookup below when both are right,
+  // and it survives two cases the catalogue cannot. It works in test mode,
+  // where the catalogue's ids are live-mode and match nothing. And it cannot
+  // drift, because there is no second copy to fall out of step — the price and
+  // the tier travel together in one object.
+  //
+  // The catalogue drifting is not hypothetical: it held Stripe PRODUCT ids
+  // where this code matches PRICE ids, on every paid tier, and nothing noticed
+  // because nothing reads that field until a subscription exists.
+  const stamped = price.metadata?.tier;
+  if (isTier(stamped)) return stamped;
+
+  // FALLBACK: match the price id against the catalogue. Still correct for any
+  // Price created before stamping, which is why this is a fallback rather than
+  // a deletion.
   const snap = await adminDb().collection("platform_tiers").doc("catalogue").get();
   const stored = snap.exists ? (snap.data()?.tiers as TierCatalogueEntry[] | undefined) : undefined;
   const catalogue = Array.isArray(stored) && stored.length ? stored : defaultCatalogue();
-  return tierForPriceId(catalogue, priceId);
+  return tierForPriceId(catalogue, price.id);
 }
 
 /**
