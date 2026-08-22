@@ -834,6 +834,26 @@ host's TLS certificate. Two things worth deciding rather than defaulting:
   rejected — expired, revoked, or not scoped to the team that owns …"*. If you
   set an expiry, record the date somewhere it will be seen.
 
+### Setting a variable is not enough — Vercel binds them at BUILD time
+
+**A variable added after the last build is invisible to the running deployment.**
+Nothing errors. The code reads `process.env.X`, gets `undefined`, and takes
+whatever branch it takes for "not configured" — which for a well-written fallback
+is the *mock*.
+
+This bit both sides on the same afternoon. On `tempo-web` it meant the live
+`check-label` was still answering from the mock, cheerfully telling visitors that
+a taken subdomain was available. On the platform it meant `"mode": "test"` kept
+returning `503 price_unavailable` for twenty minutes after the key was set.
+
+**After setting any variable, force a rebuild** — an empty commit, or Vercel's
+Redeploy on the newest deployment. And check the deployment's age against the
+variable's: if the deploy is older, it cannot see it.
+
+This is the same shape as everything else in §7 of the roadmap. The variable is
+present, the dashboard says so, every check passes, and the running code disagrees
+with all of it.
+
 ### On tempo-web
 
 | Variable | Value |
