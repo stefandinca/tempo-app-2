@@ -51,22 +51,27 @@ npm run test:rules
 node scripts/deploy-rules.mjs --project=tempo-app-2
 ```
 
-### Register the database for push notifications
+### Push notifications need nothing — this step is gone
 
-A Firestore trigger watches exactly one database, named at deploy time, so push
-has to be registered per clinic. Add a line to `functions/src/index.ts`:
+**Removed 22 Aug 2026.** There is no longer anything to register, and
+`functions/src/index.ts` is not touched when adding a clinic.
 
-```ts
-export const sendPushNotification<Label> = pushNotificationTrigger("clinic-<label>");
-```
+Push used to come from a Firestore trigger, and a v2 trigger binds to exactly
+one database named at deploy time — so every clinic needed a line here and a
+`firebase deploy --only functions`. It was the only step in this runbook that
+required editing source, and it failed **silently** when forgotten: the clinic's
+notifications still appeared in the app, because the bell and the page read
+Firestore directly, and only the push half went missing. That reads as users
+having declined notifications rather than as a deployment gap, and this section
+used to carry a warning saying so.
 
-then `firebase deploy --only functions --project tempo-app-2`.
+`/api/notifications` now writes the notification and sends the push in one
+request, and `/api/fcm-token` registers a device and takes ownership of its
+token. Both derive the clinic from the hostname, like everything else in the
+app, so a new clinic works the moment its database exists.
 
-**Nothing warns you if you skip this.** The clinic's notifications still appear
-in the app — the bell, the dropdown, the page all read Firestore directly — and
-only the *push* half is missing, so it looks like users disabled notifications
-rather than like a deployment gap. Verify by creating a notification for a user
-with a registered device and watching the function's logs.
+Nothing to do. Kept as a heading because anyone following an older copy of this
+runbook will come looking for it.
 
 ## 2. Create the Storage bucket
 

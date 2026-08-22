@@ -104,7 +104,32 @@ effort and a device may be offline. What changes is that the failure moves from
 
 ---
 
-## State
+## Outcome — shipped 22 Aug 2026
+
+All four steps of the migration order below were executed, in that order, and
+each was verified in production before the next began. Both trigger families are
+gone: `functions/src/index.ts` has zero per-clinic registrations, and only
+`createTeamMember` and `migrateTeamMember` remain deployed.
+
+The migration order earned itself. Step 3 — a real notification from the
+deployed app, checked by the owner on a real device — is the only thing that
+exercised the client calling the route, and it is exactly the link step 4 makes
+irreversible. Typecheck, lint and a production build all passed on code whose
+client half nothing had run.
+
+Two things the work found that this document did not predict:
+
+- **A parent messaging staff would have broken.** That notification deliberately
+  carries no `clientId`, so it does not surface in the parent portal — and the
+  route's first authorisation rule required parents to supply one. Every
+  parent-to-staff chat notification would have been rejected, silently. Caught
+  by calling the real route with a real parent token, not by any static check.
+- **Token ownership had to move too.** This document scoped the spike to push,
+  but `fcmTokenOwnership` was equally per-clinic, so removing only push would
+  have left the onboarding path still requiring a source edit — the very thing
+  the exercise existed to eliminate.
+
+## State *(at the time of the spike)*
 
 `src/app/api/notifications/route.ts` exists, is typechecked, lint-clean, and
 **is not wired to anything** — `notificationService` still writes directly and

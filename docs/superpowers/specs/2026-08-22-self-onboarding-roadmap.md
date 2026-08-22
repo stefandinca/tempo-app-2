@@ -78,7 +78,26 @@ deployment gap.
 Ordered so each is independently useful and nothing is wasted if the next is
 deferred.
 
-### Phase 1 — Remove the trigger dependency  *(the unlock)*
+### Phase 1 — Remove the trigger dependency  *(the unlock)* — **DONE 22 Aug 2026**
+
+`functions/src/index.ts` now has **zero per-clinic registrations**. Only
+`createTeamMember` and `migrateTeamMember` remain deployed, and neither is
+per-clinic. Adding a clinic no longer touches that file or requires a functions
+deploy.
+
+Push moved to `/api/notifications` (writes and sends in one request) and token
+ownership to `/api/fcm-token` (registers and takes ownership in one request).
+`firestore.rules` now denies client create/update on `fcm_tokens`, so
+registration cannot regress to a direct write and reintroduce the token
+collisions.
+
+Verified in production at each step rather than at the end: a real message from
+the deployed app delivered a push while the trigger logged that it was skipping
+it; the triggers were deleted only after that; the route was then called again
+with nothing deployed and still delivered. Ownership handover was tested against
+the live route with two accounts and one token.
+
+*Original plan below, kept for the reasoning.*
 
 Move push sending, and FCM token ownership, out of per-clinic Firestore triggers
 into the platform's API layer.
