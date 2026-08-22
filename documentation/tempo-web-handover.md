@@ -2,11 +2,27 @@
 
 **For:** whoever builds the signup and payment flow in the `tempo-web` repo.
 **Written:** 22 Aug 2026, against the platform as it actually runs today.
+**Revised:** 22 Aug 2026, later the same day — Stripe went in. Read the changelog
+below before re-reading the rest; two of the changes alter code you may already
+have written.
 
 This describes the contract between the marketing site and the platform. It is
 written so the signup flow can be built and finished **before** the platform's
-provisioning endpoint exists — mock the one call described in §3 and everything
+provisioning endpoint exists — mock the calls described in §3 and everything
 else here is already true.
+
+### What changed in this revision
+
+| | Then | Now |
+|---|---|---|
+| Stripe webhook | "the platform will run one" | **Live and verified.** Signature-checked, idempotent, handling five events (§8) |
+| Payment confirmation | shape sketched | **The record is real** — `signups/{signupRef}`, written by the webhook, field-by-field in §8 |
+| The confirm call | keyed by `sessionId` | **keyed by `signupRef`** — you already hold it, and it is the one id that survives a retry (§3) |
+| `checkout-session` body | `tier`, `signupRef`, `adminEmail` | **`label` added** — the webhook records it and provisioning needs it (§3) |
+| Mira on the pricing page | "do not promise it" | **Settled** — shared key, and `miraEnabled` per tier says who gets it. Starter does not (§3a, §7) |
+| Provisioning | "one step needs a Cloud Functions deploy" | **No longer true** — the per-clinic triggers are gone (§4) |
+
+Everything else stands.
 
 ---
 
@@ -23,7 +39,13 @@ hostname and a label. So this is card-on-file-then-provision, not
 pay-then-provision; an earlier draft described the latter and some of its
 phrasing survived longer than it should have.
 
-Payment is mocked for now. Everything else in this document is real.
+**Payment is half-real now.** The platform's Stripe webhook is live: it verifies
+signatures, refuses forgeries, survives duplicate deliveries, and writes a
+`signups/{signupRef}` record when a checkout session completes — end-to-end
+verified against a real Stripe test event, not just deployed. What does *not*
+exist yet is the endpoint that **creates** the checkout session, and the one
+that reads that record back to you. Keep mocking those two; everything they
+will return is specified in §3 and §8.
 
 ---
 
@@ -69,8 +91,10 @@ they type.
 ## 3. The calls you need from the platform
 
 Most of these do not exist yet — build against a mock. The shape is fixed; the
-implementation is the platform's side of this handover. **`check-label` is the
-exception: it is live.**
+implementation is the platform's side of this handover.
+
+**Two exceptions are live:** `check-label` below, and the Stripe webhook — which
+you never call, but whose output you depend on (§8).
 
 ### `POST /api/provision/check-label` — **LIVE, stop mocking it**
 
@@ -163,6 +187,10 @@ version of "what they bought" that cannot disagree with the invoice. Sending it
 from the browser is a stopgap for the mocked-payment phase, and it is worth
 deleting the moment it stops being needed.
 
+That derivation now exists — the webhook resolves the tier from the
+subscription's Stripe price (§8) — so this field is on its way out. Keep sending
+it while payment is mocked; expect a later revision to drop it from this body.
+
 ### `GET /api/provision/clinic/{provisionId}`
 
 ```json
@@ -226,19 +254,38 @@ repo boundary would put two copies of it a missed webhook apart.
 
 ```json
 { "tier": "professional", "signupRef": "sg_...", "adminEmail": "...",
+  "label": "sunrise",
   "successUrl": "...", "cancelUrl": "..." }
 → { "sessionUrl": "https://checkout.stripe.com/...", "sessionId": "cs_..." }
 ```
 
+**`label` is new in this revision, and it is required.** The platform puts
+`signupRef` on the session as `client_reference_id`, and `tier` + `label` into
+its metadata — that is the only channel by which they reach the webhook, which
+is what actually records the sale. A session created without a label produces a
+confirmed payment that nobody can match to a subdomain.
+
 ```
-GET /api/provision/checkout-session/{sessionId}
-→ { "confirmed": true, "subscriptionId": "sub_...", "tier": "professional",
-    "signupRef": "sg_..." }
+GET /api/provision/checkout-session/{signupRef}
+→ { "confirmed": true, "subscriptionId": "sub_...", "customerId": "cus_...",
+    "tier": "professional", "label": "sunrise", "provisioned": false }
 ```
+
+**Keyed by `signupRef`, not `sessionId`** — changed in this revision. You
+generate `signupRef` before checkout and hold it across the whole flow,
+including a retry after a session you never saw complete. The webhook writes its
+record under that key too (§8), so one id addresses the sale from both ends. The
+sessionId only exists once the POST returns, which is exactly the moment a
+crashed tab loses it.
 
 The POST returns a **session**, not a subscription: Stripe creates the
 subscription when the session completes, so there is nothing to hand back yet.
 The subscription id appears on the GET once `confirmed`.
+
+Before `confirmed` is true, expect `{ "confirmed": false }` and keep polling —
+same reasoning and same shape as provisioning status in §4. A completed payment
+whose webhook has not landed yet is normal and usually sub-second, but it is
+never instantaneous.
 
 `successUrl` and `cancelUrl` are validated against an allowlist of tempoapp.ro
 paths, so do not send a dynamic one. An open redirect on a checkout flow is
@@ -275,10 +322,18 @@ Each entry:
 | `popular` | Draws the badge |
 | `trialDays` | Free trial length. `0` on Enterprise |
 | `maxUsers` / `maxActiveClients` | The enforced limits. `null` = unlimited |
+| `miraEnabled` | Whether the tier includes Mira, the AI assistant. **Enforced**, unlike `features[]` |
+| `stripePriceId` | Platform internals. Never render it; empty means not purchasable |
 
-Today that reads: starter 49 EUR (1 user, 30 clients), professional 99 (5, 100,
-popular), clinic 179 (20, unlimited), enterprise on request. All three paid
-tiers carry a 30-day trial.
+Today that reads: starter 49 EUR (1 user, 30 clients, **no Mira**), professional
+99 (5, 100, Mira, popular), clinic 179 (20, unlimited, Mira), enterprise on
+request. All three paid tiers carry a 30-day trial.
+
+**`miraEnabled` is the one capability flag that bites.** The bullets in
+`features[]` sell but enforce nothing; this one is checked server-side before
+any clinic data reaches Anthropic, so a Starter clinic clicking Mira gets a
+refusal. Render the AI bullet from `miraEnabled`, not from a hardcoded list, or
+the page will promise Starter something the platform will deny.
 
 **Why read it rather than copy it.** These same numbers cap the clinic. If the
 page says 100 clients and the catalogue says 30, the clinic stops at 30 and the
@@ -367,8 +422,13 @@ This is the part most likely to be got wrong, so it is worth being blunt.
 
 Creating a clinic means creating a Firestore database, deploying rules to it,
 creating a Storage bucket, seeding, registering the tenant, attaching the
-hostname and issuing a TLS certificate. **Minutes, not milliseconds**, and today
-one step still needs a deploy of the platform's Cloud Functions.
+hostname and issuing a TLS certificate. **Minutes, not milliseconds.**
+
+An earlier draft said one step still needed a deploy of the platform's Cloud
+Functions. **That is no longer true** — the per-clinic Firestore triggers were
+removed on 22 Aug and `functions/src/index.ts` now has zero per-clinic
+registrations, which is what made self-serve provisioning possible at all. The
+remaining minutes are Google's and Vercel's, not a human's.
 
 So the flow after payment is:
 
@@ -431,28 +491,77 @@ programmes; one Admin (them); a licence; no clients, no staff, no data.
 
 - **Their logo.** Uploaded by us from the platform console, or by them once
   branding is self-serve.
-- **Mira, the AI assistant.** Needs a per-clinic Anthropic key today. Either it
-  is off at launch, or the platform moves to a shared key with per-tenant
-  metering (the metering already exists). That is an open platform decision —
-  do not promise Mira on the signup page until it is settled.
+- **Mira, the AI assistant — settled since the first draft, which said not to
+  promise it.** You may now promise it, to the tiers that have it. The platform
+  uses one shared Anthropic key with per-tenant metering, and access is gated on
+  the tier's `miraEnabled` (§3a): Starter no, everything above yes. The gate is
+  server-side and runs before consent, so a Starter clinic is refused rather
+  than sent to a consent toggle that would not help. The clinic still has to
+  accept the AI consent notice once before anything is sent.
 - **Push notifications.** Work per browser once someone grants permission.
 
 ---
 
-## 8. Payment, when it stops being mocked
+## 8. Payment — the webhook half is live
 
-Mock now, but leave the seam in the right place: **provisioning is triggered by
-a confirmed payment, server-side, not by the browser reaching a success page.**
-A user who closes the tab after paying must still get their clinic.
+Mock the two endpoints in §3, but the seam behind them is now real, so build
+against how it actually behaves rather than a guess.
 
-**The platform runs that webhook, not you** (§3). Your success page confirms the
-session server-side and polls provisioning status; it never triggers
-provisioning from the browser, and it never trusts the return URL, which can be
-visited without paying.
+**Provisioning is triggered by a confirmed payment, server-side, not by the
+browser reaching a success page.** A user who closes the tab after paying must
+still get their clinic. Your success page confirms server-side and polls; it
+never triggers provisioning from the browser, and it never trusts the return
+URL, which can be visited without paying — that is the whole reason the webhook
+exists.
 
-`signupRef` is the idempotency key throughout — checkout session, provisioning,
-and any retry. Webhooks retry by design; a retry must never produce a second
-clinic or a second subscription.
+**The platform runs that webhook, not you.** `tempo-web` holds no Stripe key and
+receives no Stripe traffic. Splitting licence state across a repo boundary would
+put two copies of it one missed webhook apart.
+
+### What it records, and what you will read
+
+On `checkout.session.completed` the webhook writes one document,
+`signups/{signupRef}`, in the platform's control plane:
+
+| Field | From | Note |
+|---|---|---|
+| `signupRef` | `client_reference_id` | The key. Missing = the sale is recorded but not actionable |
+| `stripeSessionId` | the session | |
+| `stripeSubscriptionId` | the session | `null` until Stripe creates it |
+| `stripeCustomerId` | the session | |
+| `adminEmail` | `customer_details.email` | Who becomes Admin |
+| `tier` / `label` | session **metadata** | Which is why §3 now requires `label` |
+| `confirmedAt` | server time | |
+| `provisioned` | always `false` here | Flipped by `/api/provision/clinic`, which does not exist yet |
+
+The document is **closed to anonymous reads** — Firestore rules deny `signups`
+outright, unlike the pricing catalogue. You reach it only through the confirm
+endpoint in §3. That is deliberate: it holds an email address and a payment
+trail, and `signupRef` would otherwise be a guessable key to someone else's.
+
+### Properties you can rely on
+
+- **Verified before believed.** The raw body is checked against the
+  `Stripe-Signature` header. An unverified payload is refused with 400 and never
+  parsed for meaning. Confirmed live: a forged request gets 400.
+- **Duplicates are survivable.** Stripe delivers at-least-once by design. Every
+  event id is claimed in `stripe_events` with a create-if-absent write *before*
+  it is handled, so a redelivery does nothing. `signupRef` is the idempotency
+  key on your side for the same reason — a retry must never produce a second
+  clinic or a second subscription.
+- **Five events are handled**, everything else is recorded and ignored:
+  `checkout.session.completed`, `customer.subscription.updated`,
+  `customer.subscription.deleted`, `invoice.payment_succeeded`,
+  `invoice.payment_failed`. The last is the one the 14-day grace exists for.
+- **Test and live run at the same URL simultaneously.** One Vercel project
+  serves both, so the endpoint verifies against whichever configured secret
+  matches and uses the matching mode's key. Practically: platform-side testing
+  cannot disarm live payments, and neither of us has to swap secrets.
+- **What the subscription says wins.** The tier is resolved from the
+  subscription's Stripe price, not from what the browser sent, because the price
+  is the only version of "what did they buy?" that cannot disagree with the
+  invoice. An unrecognised price resolves to *nothing* rather than a default —
+  the platform refuses to guess a plan.
 
 ---
 
@@ -494,9 +603,15 @@ Listed so you know they are tracked and not forgotten:
 - **The database ceiling is 100 per project, 5 used.** Not a question — a number
   worth knowing, because it is the hard cap on self-serve signups and every
   squat consumes one until it is offboarded.
+- **Test-mode prices do not exist yet.** The catalogue holds one Stripe price id
+  per tier and those are live-mode ids, so a test-mode checkout session cannot
+  be created from them. It does not block you — the platform owns session
+  creation and will sort it — but it means "the whole flow end to end on a test
+  card" is not yet possible, and nobody should plan a demo around it.
 
-Answered elsewhere and removed from this list: trial-before-payment (§3a), and
-what happens when a term licence ends (§3a and §8a together).
+Answered since the first draft and removed from this list: trial-before-payment
+(§3a), what happens when a term licence ends (§3a and §8a together), and whether
+Mira can be advertised (§3a and §7 — yes, per tier).
 
 ---
 
@@ -504,6 +619,9 @@ what happens when a term licence ends (§3a and §8a together).
 
 - Onboarding steps, in order, with the failure modes: `documentation/new-tenant-runbook.md`
 - Label to database/bucket derivation: `src/lib/tenant.ts`
+- The webhook, and why each property is there: `src/app/api/stripe/webhook/route.ts`
+- Tiers, limits, trials, grace periods, price-to-tier: `src/lib/platform/licence.ts`
+  (imports nothing, so `npm run test:licence` exercises it directly — 112 assertions)
 - Tenancy design: `docs/superpowers/specs/2026-08-19-multi-database-tenancy-design.md`
 - The roadmap this handover belongs to: `docs/superpowers/specs/2026-08-22-self-onboarding-roadmap.md`
 
