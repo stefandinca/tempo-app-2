@@ -18,6 +18,30 @@ export const DEFAULT_DATABASE_ID = "(default)";
 const RESERVED = new Set(["", "www", "admin", "app", "api", "localhost", "superadmin"]);
 
 /**
+ * Firestore database ids are lowercase alphanumeric with hyphens, and cannot
+ * start or end with one. Two characters minimum.
+ */
+export const LABEL_PATTERN = /^[a-z0-9][a-z0-9-]{0,48}[a-z0-9]$/;
+
+/**
+ * Why a label cannot be used, or null if the shape is fine.
+ *
+ * Exported so the signup pre-check and the runtime resolution below cannot
+ * drift apart. They must agree exactly: a label the pre-check accepts and
+ * resolution then rejects is a clinic provisioned onto a hostname that resolves
+ * to the control plane — an app with nothing in it, and no error anywhere.
+ *
+ * Says nothing about whether the label is TAKEN. That needs the registry, which
+ * this file cannot read.
+ */
+export function labelProblem(label: string): "reserved" | "invalid" | null {
+  const l = String(label || "").toLowerCase();
+  if (RESERVED.has(l)) return "reserved";
+  if (!LABEL_PATTERN.test(l)) return "invalid";
+  return null;
+}
+
+/**
  * Strips a trailing `:port` from a `Host` header value.
  *
  * `host.split(":")[0]` is wrong for an IPv6 literal: `Host` brackets those
@@ -67,12 +91,11 @@ export function resolveDatabaseId(hostname: string): string {
     return DEFAULT_DATABASE_ID;
   }
 
+  // Same check the signup pre-check runs, deliberately shared rather than
+  // repeated: a label accepted there and rejected here would be a clinic
+  // provisioned onto a hostname that silently resolves to the control plane.
   const label = parts[0];
-  if (RESERVED.has(label)) return DEFAULT_DATABASE_ID;
-
-  // Firestore database ids are lowercase alphanumeric with hyphens, and cannot
-  // start or end with one. Anything else is not a tenant we recognise.
-  if (!/^[a-z0-9][a-z0-9-]{0,48}[a-z0-9]$/.test(label)) return DEFAULT_DATABASE_ID;
+  if (labelProblem(label)) return DEFAULT_DATABASE_ID;
 
   return `clinic-${label}`;
 }

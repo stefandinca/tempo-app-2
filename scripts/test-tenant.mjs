@@ -17,6 +17,7 @@
  */
 import {
   resolveDatabaseId,
+  labelProblem,
   resolveStorageBucket,
   tenantBucket,
   tenantIdFromHostname,
@@ -176,6 +177,45 @@ check(
   ),
   false,
 );
+
+
+console.log(`\n${C.bold("label availability — shared with the signup pre-check")}\n`);
+
+// labelProblem() is what /api/provision/check-label answers with AND what
+// resolveDatabaseId() gates on. They must agree exactly: a label the signup
+// form accepts and resolution then rejects is a clinic provisioned onto a
+// hostname that silently resolves to the control plane.
+const LABEL_PROBLEM_CASES = [
+  ["clinicx", null],
+  ["ab", null],
+  ["clinic-with-hyphens", null],
+  ["", "reserved"],
+  ["www", "reserved"],
+  ["admin", "reserved"],
+  ["api", "reserved"],
+  ["superadmin", "reserved"],
+  ["localhost", "reserved"],
+  ["a", "invalid"],
+  ["-leading", "invalid"],
+  ["trailing-", "invalid"],
+  ["UPPER", null],
+  ["under_score", "invalid"],
+  ["has space", "invalid"],
+  ["x".repeat(60), "invalid"],
+];
+for (const [label, expected] of LABEL_PROBLEM_CASES) {
+  check(`labelProblem("${label.slice(0, 22)}")`.padEnd(44), labelProblem(label), expected);
+}
+
+// The two must never disagree. A label with no problem has to resolve to a
+// clinic database, and one with a problem must not.
+const AGREE = LABEL_PROBLEM_CASES.every(([label, expected]) => {
+  const resolved = resolveDatabaseId(`${label}.tempoapp.ro`);
+  return expected === null
+    ? resolved === `clinic-${label.toLowerCase()}`
+    : resolved === DEFAULT_DATABASE_ID;
+});
+check("check-label and resolution agree on every case".padEnd(44), AGREE, true);
 
 if (failures.length) {
   console.log(`\n${C.red(`✗ ${failures.length} failure(s)`)}`);
