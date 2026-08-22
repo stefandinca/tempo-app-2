@@ -433,6 +433,65 @@ async function stepAdmin(ctx: ProvisionContext): Promise<void> {
     .collection("tenant_members")
     .doc(`${bucket}__${uid}`)
     .set({ tenantId: ctx.label, role: "Admin" }, { merge: true });
+
+  await sendAdminInvite(ctx);
+}
+
+/**
+ * Let the new Admin in.
+ *
+ * The account is created with NO password — the same pattern `createTeamMember`
+ * uses — so without this the clinic is complete, correct, and impossible to log
+ * into. It would report `ready` with a URL the customer cannot get past.
+ *
+ * Uses Firebase's own reset email rather than a transactional email provider,
+ * because there is no provider wired into this platform and `sendPasswordResetEmail`
+ * is already how every other invite in the app works. Same mechanism, same
+ * template, nothing new to configure.
+ *
+ * NON-FATAL, deliberately. A clinic that exists but whose welcome email bounced
+ * is recoverable by the customer from the login page's own "forgot password" —
+ * failing the whole provision over it would throw away a working clinic to
+ * report a problem the customer can already solve. But it is recorded, because
+ * silently not inviting somebody looks identical to inviting them.
+ */
+async function sendAdminInvite(ctx: ProvisionContext): Promise<void> {
+  const key = (process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "").trim();
+  const host = hostFor(ctx.label);
+
+  let sent = false;
+  let problem = "";
+  try {
+    if (!key) throw new Error("NEXT_PUBLIC_FIREBASE_API_KEY is not set");
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${encodeURIComponent(key)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestType: "PASSWORD_RESET",
+          email: ctx.adminEmail,
+          // Land them on their OWN clinic afterwards, not the platform's default
+          // auth domain. `register` added this host to the authorised domains
+          // before this step runs, which is what makes the link legal.
+          continueUrl: `https://${host}/login`,
+        }),
+      },
+    );
+    if (!res.ok) throw new Error(`${res.status} ${(await res.text()).slice(0, 200)}`);
+    sent = true;
+  } catch (e) {
+    problem = String((e as Error)?.message || e).slice(0, 300);
+    console.error(`[provision] invite to ${ctx.adminEmail} failed:`, problem);
+  }
+
+  await adminDb()
+    .collection("provisions")
+    .doc(ctx.provisionId)
+    .set({ inviteSent: sent, inviteError: sent ? null : problem }, { merge: true })
+    .catch(() => {
+      /* Recording the outcome must never be what fails the clinic. */
+    });
 }
 
 // ---------------------------------------------------------------------------
