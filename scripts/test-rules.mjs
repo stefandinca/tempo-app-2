@@ -214,6 +214,20 @@ const cases = [
   ["a user cannot touch someone else's token", "DENY", "delete", `${D}/fcm_tokens/t2`,
     { uid: "t1" }, member("t1", "Therapist"), null, { token: "abc" }],
 
+  // --- stripe bookkeeping ---
+  // Money's audit trail and a pending signup's personal data. Written only by
+  // the webhook with the Admin SDK; no browser has any business here.
+  ["a superadmin cannot read stripe events", "DENY", "get", `${D}/stripe_events/evt_1`,
+    { uid: "s1" }, member("s1", "Superadmin"), null, { type: "x" }],
+  ["a signed-out visitor cannot read stripe events", "DENY", "get", `${D}/stripe_events/evt_1`,
+    null, [], null, { type: "x" }],
+  ["nobody can forge a stripe event", "DENY", "create", `${D}/stripe_events/evt_2`,
+    { uid: "s1" }, member("s1", "Superadmin"), { type: "x" }],
+  ["a superadmin cannot read a pending signup", "DENY", "get", `${D}/signups/sg_1`,
+    { uid: "s1" }, member("s1", "Superadmin"), null, { adminEmail: "a@b.c" }],
+  ["nobody can forge a signup", "DENY", "create", `${D}/signups/sg_2`,
+    { uid: "a1" }, member("a1", "Admin"), { adminEmail: "a@b.c" }],
+
   // --- pricing catalogue ---
   // World-readable on purpose: the marketing site renders its pricing cards
   // from this document and its visitors are signed in to nothing. Asserted

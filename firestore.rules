@@ -115,6 +115,25 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Stripe delivers at-least-once, so every event id is recorded before it is
+    // handled and a second delivery of the same id does nothing. Written only by
+    // /api/stripe/webhook with the Admin SDK.
+    //
+    // Closed to every client. Default-deny would cover it, but this collection
+    // is the audit trail for money and deserves a rule someone can read rather
+    // than an absence they have to infer.
+    match /stripe_events/{eventId} {
+      allow read, write: if false;
+    }
+
+    // A confirmed checkout waiting to be provisioned: subscription id, customer
+    // id, and the email somebody typed into a signup form. Personal data, and
+    // the record that decides whether a clinic gets created — so no browser
+    // reads it and no browser writes it.
+    match /signups/{signupRef} {
+      allow read, write: if false;
+    }
+
     // The pricing catalogue: tier names, prices, promises and limits.
     //
     // WORLD-READABLE, deliberately and unusually for this file. The marketing
