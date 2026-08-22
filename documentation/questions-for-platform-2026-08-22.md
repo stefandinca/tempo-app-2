@@ -1,257 +1,147 @@
 # Questions for the platform, from the tempo-web signup build
 
-**From:** whoever is building clinic signup in `tempo-web`
-**Against:** `docs/tempo-web-handover.md` as of 22 Aug 2026, and the design in
-`docs/superpowers/specs/2026-08-22-clinic-signup-design.md`
+**Round 2**, against `docs/tempo-web-handover.md` as revised 22 Aug (the Stripe revision).
 
-The handover is good and most of it needs nothing. These are the places where
-building against it means guessing, plus a few corrections that need no reply.
+Round 1 is fully answered and the answers were good enough that three of them changed the
+code rather than just unblocking it. The resolved list is at the bottom for the record.
 
-Nothing here blocks scaffolding — every platform call is mocked behind one
-module. What they block is the mock being the *right shape*, so the swap to real
-calls is a base URL rather than a rewrite.
+This round is shorter. Most of what the revision introduced needs no discussion, only work
+on our side, so that work is listed separately below and does not need a reply. The
+questions are the places where the revision leaves two defensible readings.
 
 ---
 
-## A. These decide the shape of the code
+## What we are changing on our side, no reply needed
 
-### A1. Who owns the Stripe account?
+Listed so you do not spend answers on things already decided.
 
-The largest one. It decides three things at once: whether `tempo-web` holds a
-Stripe key, who creates the Checkout session, and whether `tier` is sent in the
-provisioning payload or derived from the price paid.
-
-**The tempo-web design assumes the platform owns it,** for one reason: the
-subscription *is* the licence. `trialing`, `active`, `past_due` and `canceled`
-map one-to-one onto licence states the platform already owns and enforces.
-Owning Stripe in the marketing site would put licence state there and relay it
-across a repo boundary on every webhook. It also keeps `tempo-web` clear of
-handover §5 and §6, and cancellation and card updates have to live in-app
-anyway, where the user is authenticated.
-
-But handover §8 still reads as though tempo-web runs the webhook — that section
-was written for the pay-first flow, and may just be stale.
-
-**Confirm or push back.** If the platform owns it, A2 follows. If tempo-web
-owns it, say so and we will scope the key handling and PCI surface here instead.
-
-### A2. If the platform owns Stripe: the Checkout session contract
-
-Assuming A1 lands platform-side, we need one more endpoint. Proposed shape, tell
-us what is wrong with it:
-
-```
-POST /api/provision/checkout-session
-{ "tier": "professional", "signupRef": "sg_...", "adminEmail": "...",
-  "successUrl": "...", "cancelUrl": "..." }
-→ { "sessionUrl": "https://checkout.stripe.com/...", "subscriptionId": "sub_..." }
-
-GET /api/provision/checkout-session/{id}
-→ { "confirmed": true, "subscriptionId": "sub_...", "tier": "professional" }
-```
-
-The `GET` matters: **we will not trust the Stripe return URL.** A return URL is
-just a URL and can be visited directly without paying, so the return handler
-confirms server-side before it calls provisioning. If the platform's webhook is
-the only confirmation path, say so and we will poll for the resulting state
-instead.
-
-### A3. Does provisioning apply `trialDays`, or must we send a duration?
-
-Handover §2 says `plan: term` "defaults to 12 months". §3a says every paid tier
-carries `trialDays: 30`. The provisioning payload has no duration field.
-
-**If provisioning defaults to 12 months and nothing carries the trial length, a
-trial signup silently gets a free year.**
-
-Which is it: does provisioning look up `trialDays` from `tier`, or should we
-send an explicit `termDays`? Either is fine; we need to know which.
-
-### A4. What is the idempotency key when nothing has been charged?
-
-`paymentRef` is specified as required and as the key. With a card on file and
-nothing charged for 30 days, there is no payment id at provisioning time.
-
-The Stripe subscription id looks like the natural key — stable, present from the
-moment the trialing subscription exists, one per clinic. Is that right? And is
-the field being renamed to something like `requestRef`, so it stops implying a
-completed payment?
-
-**What should we send today, while payment is mocked?**
-
-### A5. Can a failed provision be retried with a *different* label?
-
-Handover §3 says the call is idempotent on `paymentRef`: "if you retry, you get
-the same clinic back rather than a second one." But a **failed** attempt produced
-no clinic.
-
-This matters because of the ordering. The card is taken at step 4 and
-provisioning runs after it, so a label rejected at provisioning is a rejection
-*after* the customer has handed over a card. Handover §4 rightly says not to
-make them sign up again — that would burn a second label and a second card.
-
-So the recovery is: let them pick a new label and retry under the same key.
-**Does that work, or does the idempotency layer return the original failure?**
-If it cannot, we need a different answer for that branch and would like your
-suggestion.
-
-### A6. Does `check-label` already know about retired labels?
-
-Handover §2 now says "taken" includes labels of clinics that no longer exist,
-permanently, for the bookmark and access-code reason.
-
-**Is that live in `check-label` today, or still to build?** If it is not, a
-retired label passes the check and gets rejected at provisioning — which is the
-A5 branch, after the card. Ordering makes this worse than it looks.
-
-### A7. Where does the trial end date come from?
-
-The "you're all set" screen wants to show when the trial ends. The status
-endpoint returns `status`, `step`, `url` and `error` — no date.
-
-We can compute `now + trialDays`, but the authoritative date is the licence's,
-and provisioning takes minutes. **Can the status response include `trialEndsAt`
-once the licence exists?** Otherwise the screen shows a date that can disagree
-with the app.
+- **`check-label` goes real.** Verified live from here: `aicaa` taken, `brandnewclinic`
+  available, `www` reserved. We stop mocking it. We treat a `503` as "could not check", which
+  leaves the visitor able to continue rather than blocking them, and never as available.
+- **`label` added to the `checkout-session` POST.** We were not sending it. Without it the
+  webhook records a sale nobody can match to a subdomain, which is the worst kind of missing
+  field because everything looks fine until reconciliation.
+- **Confirm re-keyed to `signupRef`.** We were confirming by `sessionId`, held only on our
+  own document. Your reasoning is right: a crashed tab loses the session id at exactly the
+  moment it matters, and `signupRef` survives.
+- **`{ "confirmed": false }` becomes a poll, not a failure.** We currently treat an
+  unconfirmed session as a dead end and redirect. It is normal and usually sub-second.
+- **`recovery` replaces `errorCode` as the branch**, with an unrecognised or missing value
+  falling to `support`. Already done, in the round-1 answer.
+- **Mira comes off our withheld list** and the AI bullet renders per tier.
+- **Two harness assertions** so these cannot regress quietly: that `label` is present in
+  every checkout-session body we build, and that no tier renders an AI bullet its
+  `miraEnabled` does not justify.
 
 ---
 
-### A8. The failure response needs a machine-readable reason
+## Round 2 questions
 
-**Found by building against the mock, which hid it.** This is the one that matters most in
-this round.
+### R1. How should we consume a live `check-label` while the rest of §3 is still mocked?
 
-When provisioning fails because the label was taken, the flow lets the customer pick a new
-address and retries under the same `signupRef`, which is the behaviour A5 confirmed. That
-recovery exists so somebody who has already handed over a card is not asked to start again.
+Right now one environment variable, `PLATFORM_API_BASE`, switches every platform call
+between the mock and the real thing. With `check-label` live and the other four endpoints
+not, that switch has no correct position: unset mocks a live endpoint, set points four calls
+at 404s.
 
-But handover section 3's status response is:
+Our plan is to make `check-label` always real once a base URL is configured, and keep the
+rest behind the mock until you say otherwise, with one flag per endpoint group. Before we
+build that: **is the rest of §3 close enough that a per-endpoint switch is wasted effort?**
+If `checkout-session` and `provision/clinic` land this week we would rather wait and flip
+everything at once than carry a switch we delete immediately.
 
-```json
-{ "status": "failed", "step": "register", "url": null, "error": null }
-```
+### R2. Are the two `signups` records deliberate?
 
-`error` is prose. There is no field saying *why* it failed, so nothing can distinguish "the
-subdomain collided, offer a new one" from "the database could not be created, this needs a
-human". Our mock invented an `errorCode`, we built the recovery on it, and the whole path
-would have gone dead the day the real API arrived, silently, for exactly the customers who
-had already paid.
+Your webhook writes `signups/{signupRef}` in the platform's control plane. We already write
+`signups/{signupRef}` in `tempo-app-2/clinic-demo`, same key, different database.
 
-**Please add a machine-readable reason to the failure response.** Something like:
+They are not duplicates in content: ours holds the label, clinic and admin details and the
+DPA acceptance, all captured *before* checkout; yours holds the payment trail, captured
+after. Together they are the whole story and neither is complete alone.
 
-```json
-{ "status": "failed", "step": "register", "errorCode": "label_taken", "error": "..." }
-```
+But two records with the same name and the same key in one project is the kind of thing that
+reads as an accident later. **Is the split intentional, and should it stay?** Two things
+would change our answer:
 
-with `label_taken` distinguished from everything else. The prose `error` stays useful for
-support; the code is what the flow branches on.
+- If your record is meant to become the single one, we would stop writing ours and send the
+  DPA and clinic details through `checkout-session` metadata instead, so it is all in one
+  place from the first write.
+- If ours is meant to stay, we would like a different collection name on our side to make
+  the distinction obvious. `signup_drafts` reads accurately: ours exists before there is a
+  sale and can be abandoned.
 
-**In the meantime we have relaxed our side**: a `failed` provision with no recognisable
-reason also offers the new-address path, on the grounds that if the label was not the cause
-the retry fails the same way and is bounded at three attempts. That is a workaround, not a
-design. It means a customer whose provisioning failed for an unrelated reason is invited to
-change their address for no benefit.
+### R3. Should an empty `stripePriceId` remove a tier from self-serve?
 
----
+§3a says empty means not purchasable. We currently decide what is self-serve from
+`monthlyEur` and `trialDays`, which is what an earlier revision gave us.
 
-## B. These block launch, not the build
+Those can disagree: a tier with a price and a trial but no `stripePriceId` would render a
+buy button that cannot produce a checkout session. **Should `stripePriceId` be part of the
+self-serve test**, and is it authoritative when it disagrees with the other two? We would
+rather have one rule than three that agree by luck.
 
-### B1. What is the Firestore database ceiling on `tempo-app-2`?
+### R4. `miraEnabled` or `features[]` — which wins for the AI bullet?
 
-Every clinic permanently consumes a database, a bucket, a hostname and a label.
-**That ceiling is the hard cap on self-serve signups** and should be a known
-number before the flow goes live rather than discovered at it.
+§3a says render the AI bullet from `miraEnabled`, not from a hardcoded list. Today the
+catalogue's `features[]` and `miraEnabled` agree: Starter has neither, the others have both.
 
-`tempo-app-2` holds 5 databases today. We could not read the quota — the Cloud
-Quotas API is not enabled on the project:
+They can drift, and only one is enforced. **Do you want us to render the bullet from
+`miraEnabled` and ignore `features[]` for that one line, or to keep rendering `features[]`
+verbatim and treat a disagreement as a build failure?** We lean towards the second, because
+it surfaces the drift to whoever caused it instead of silently papering over it, and because
+`features[]` is where the wording lives. Either is easy; we want the same answer as you.
 
-```
-gcloud services enable cloudquotas.googleapis.com --project tempo-app-2
-```
+### R5. When do test-mode prices arrive?
 
-If it is low, it changes the launch plan, not the code.
+§9 says the catalogue holds live-mode price ids, so a test-mode session cannot be created
+from them, and a card-to-clinic run is therefore not yet possible.
 
-### B2. Confirm the lifecycle emails are yours and are planned
+That does not block the build, and we are not asking you to hurry. We are asking **whether
+it lands before launch**, because if it does not, the first time a real card touches this
+flow will be a real customer's, and we would rather that not be the case for something that
+consumes a permanent database slot on success.
 
-Nothing in tempo-web can send these, because the platform holds both the licence
-and the subscription — and nothing in tempo-web's design will surface their
-absence, which is why they are named here:
+### R6. Does `quota_exhausted` need anything from our side?
 
-- trial ending, before day 30
-- card declined, during the 14-day grace
-- the retention notices at 30, 60 and 80 days
+You said it is `support` and should page you. We will show the support panel and the
+`provisionId` like any other `support` recovery.
 
-The first is the single biggest lever on trial conversion.
+**Is there anything we should do beyond that?** A distinct message seems right, since "we
+have run out of room" is our fault and not the customer's, and the usual wording implies
+they did something wrong. But if a distinct message would leak capacity information you
+would rather not publish, say so and we will keep it generic.
 
-### B3. Is the Starter bullet in the catalogue intentional?
+### R7. How long should we poll an unconfirmed checkout before giving up?
 
-`platform_tiers/catalogue` gives Starter the bullet **"Toate evaluările
-incluse"**. The live site says **"Programe terapeutice nelimitate"**. Every other
-price, limit and bullet matches exactly — this is the only divergence.
+`{ "confirmed": false }` means keep polling, usually sub-second. But a visitor who opens
+checkout and abandons it produces the same response forever.
 
-The catalogue wins the moment tempo-web renders from it, so this ships silently
-unless someone decides otherwise.
-
-Flagging it rather than just changing it because tempoapp.ro removed claims
-about assessment protocols the product holds no licence for, and a blanket "all
-evaluations included" sits close to that line. `tempo-web`'s build-time copy
-check will start scanning catalogue strings for exactly those terms, so this is
-also a heads-up that **a tier edit in the console can fail a tempo-web build**.
-
-### B4. Should the DPA consent record live on the tenant?
-
-tempo-web records `{ version, acceptedAt }` against the signup when the
-click-through DPA is accepted. But the controller relationship lives on the
-tenant, not on a marketing-site record.
-
-**Do you want it copied onto the tenant at provisioning?** If so, add it to the
-payload. Deliberately no IP address — a version and a timestamp make it
-evidence; an IP adds personal data that would then need justifying.
+We hold the session open for one hour before letting the same email start again, and offer a
+"continue payment" button meanwhile. **Is an hour sensible against how long a Stripe
+Checkout session actually stays valid?** If sessions expire sooner, our window is telling
+people to resume something Stripe has already closed.
 
 ---
 
-## C. Corrections — no reply needed, just fixes to the handover
+## Round 1, resolved
 
-1. **§5 says tempo-web "must not hold Firebase credentials for `tempo-app-2`".**
-   `api/lead.js` does, and has since before this work: a service account
-   IAM-conditioned to the `clinic-demo` database alone, used to write the
-   contact form's `leads`. Read as intended — no Auth credentials, no reach into
-   clinic databases — there is no conflict. But the sentence as written says
-   otherwise, and someone will eventually "fix" the code to match it. Worth
-   narrowing to name Auth and clinic databases. *(Raised twice now.)*
+Recorded so it is not re-litigated.
 
-2. **§1, §4 and §8 still describe pay-then-provision.** The shape is now
-   card-on-file-then-provision with nothing charged for 30 days. §4's "They have
-   paid; a second signup would take a second payment" is the one most likely to
-   mislead.
+**Answered and built:** Stripe ownership (platform, A1); the Checkout contract, since revised
+again (A2); `trialDays` looked up rather than sent, which was a real bug worth catching (A3);
+`signupRef` as the idempotency key (A4); retry-with-a-different-label after a failed provision
+(A5); `check-label` consulting tombstones, now live (A6); `trialEndsAt` on the status response
+(A7); and `errorCode` plus `recovery` on failures, where your two-field answer was better than
+the one field we asked for (A8).
 
-3. **§9 still lists "trial before payment, or payment first?" as open.** §3a
-   answers it. Same for "what happens at the end of a term licence", which §3a
-   and §8a now answer together.
+**Answered and noted:** the 100-database ceiling with 5 used (B1); lifecycle emails confirmed
+yours and unbuilt (B2); the Starter bullet corrected in the catalogue (B3); the DPA record
+going onto the tenant (B4).
 
-4. **§3a's "Nothing is deleted, ever, by an expiry" reads as absolute** and sits
-   a few paragraphs from §8a's deletion schedule. Both are true — expiry does not
-   delete, retention does — but one clause saying so would stop them looking
-   like a contradiction.
+**Corrections all applied** (C1 to C6), including §5's credentials line, which we had raised
+three times and which now says what it meant.
 
-5. **§3's heading still says "The one call you need from the platform"** while
-   describing three endpoints, a fourth source in §3a, and a fifth if A1 lands
-   platform-side.
-
-6. **The closing line was deleted in the latest revision:** *"If anything here
-   disagrees with the code, the code is right and this document is stale — say
-   so and it gets fixed."* That sentence is what makes the document safe to
-   correct against reality. Looks accidental; worth restoring.
-
----
-
-## What we verified rather than assumed
-
-So you know which claims have been checked from this side:
-
-- `platform_tiers/catalogue` returns **200 anonymously**; `documents/tenants` on
-  the same database returns **403**. The world-readable boundary holds.
-- The JSON mirror at `superadmin.tempoapp.ro/api/platform/tiers` **308s without
-  a trailing slash**. Worth adding the slash in §3a.
-- The catalogue matches the live site on all four prices, all limits, and 11 of
-  12 bullets. The twelfth is B3.
+**One correction still outstanding from round 1:** the round-1 answer said handover §3 carried
+the failure contract before it did. This revision has landed it, so the gap is closed, but the
+sequence is worth noting because we built against the answers document on the strength of that
+sentence.

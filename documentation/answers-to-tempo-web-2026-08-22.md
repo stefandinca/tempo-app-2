@@ -1,7 +1,210 @@
 # Answers: platform → tempo-web signup build
 
 **Replying to:** `documentation/questions-for-platform-2026-08-22.md`
-**Date:** 22 Aug 2026
+**Date:** 22 Aug 2026 — Round 1 in the morning, Round 2 after the Stripe revision.
+
+Round 2 is first; Round 1 is kept below unchanged, for the record.
+
+---
+
+## Round 2
+
+**Replying to:** the Round 2 questions, 22 Aug 2026 (14:41).
+
+One of these — R2 — found a real problem, and not the one it was asking about.
+Two others (R3, R4) are places where my own wording in the handover was
+ambiguous enough to produce the disagreement; both are corrected in the doc, not
+just answered here.
+
+---
+
+### R1. Build the per-endpoint switch. It will not be wasted.
+
+`checkout-session` and `provision/clinic` are not landing this week.
+
+The honest ordering: `provision/clinic` is the larger piece and the one that
+must be transactional-or-verified, because the failure that matters is a
+database created but rules not yet deployed — a window where a clinic's records
+sit with no rules over them. Reaching `ready` in that state must be impossible,
+so a partial failure has to roll back or halt loudly. That is not an endpoint you
+rush to unblock a switch.
+
+`checkout-session` is small and is next, but it is now slightly larger than it
+was this morning — see R2.
+
+So: **one flag per endpoint group, two groups is enough.** Commerce
+(`check-label`, `checkout-session`) and provisioning. `check-label` real
+whenever a base URL is configured, exactly as you proposed.
+
+Your `503` handling is right and I want to underline why, because it is the
+opposite of the instinct: a registry we cannot reach means we do not know
+whether the label is free, and refusing the visitor punishes them for our
+outage. Continue, and let provisioning re-check — it always does, and it can
+still reject (§6). Never treat unknown as available, which you already do not.
+
+---
+
+### R2. Not deliberate — and the split is not the problem. Stop writing Firestore.
+
+You are writing `signups/{signupRef}` into `tempo-app-2/clinic-demo`. That is a
+clinic's own database. §6 says `tempo-web` never writes Firestore directly, with
+`leads` the single exception, and this is why: a prospective clinic's admin
+email and DPA acceptance are now sitting inside an *existing* clinic's records.
+Demo is a demo, so nothing is harmed today — but the same code against a real
+tenant puts strangers' personal data in that clinic's database, and there is no
+correct clinic to pick for clinic number six. There is no right database for
+that write, which is the tell that the write does not belong there.
+
+`firestore.rules` denies `signups` read and write outright in every clinic
+database, so those writes are either failing silently or going through
+credentials the marketing site should not be holding. Worth checking which
+before anything else here.
+
+**The fix removes work from your side rather than adding it.** One record, in
+the control plane, written by the platform:
+
+- You send the clinic and admin details and the DPA acceptance in the
+  `checkout-session` POST body.
+- The platform writes `signups/{signupRef}` itself, at session creation.
+- The webhook **merges** the payment trail into that same document.
+- `provision/clinic` reads it.
+
+One key, one record, one writer. You delete a Firestore dependency and a
+collection.
+
+Not through Stripe metadata, to answer your first bullet directly: metadata is
+capped at 500 characters per value, and a DPA acceptance and a clinic's contact
+details are not Stripe's business. Stripe carries only what Stripe needs to hand
+back — `signupRef` as `client_reference_id`, `tier` and `label` in metadata.
+
+The expanded body is in §3 of the revised handover. Your second bullet —
+`signup_drafts` for a record that exists before there is a sale — is a good
+name, and it stays available if you decide you want a funnel record of your own
+in your own storage. That is your business and you should not need our
+permission for it. Just not in our Firestore.
+
+---
+
+### R3. `stripePriceId` is the rule. One test, not three.
+
+Purchasable means **a checkout session can be created**, and the only field that
+determines that is `stripePriceId`. `monthlyEur` is what the card displays;
+`trialDays` is licence policy. Neither can produce a session.
+
+So: `canCheckout = Boolean(stripePriceId)`. When it disagrees with the other
+two, it wins, and the tier renders as "on request" rather than showing a buy
+button that cannot work.
+
+This is enforced from both ends — `checkout-session` will refuse a tier with no
+price id rather than construct a broken session — so the two sides cannot drift
+into disagreeing about what is for sale.
+
+The failure mode this creates is worth naming: someone clearing a price id in
+the console silently removes that tier from self-serve. That is the right
+direction to fail (a missing buy button is visible; a buy button that 500s is
+not), and the console now validates the field, for a reason R5 gets to.
+
+---
+
+### R4. `features[]` wins for the wording. My §3a was ambiguous — I have fixed it.
+
+Your instinct is right and mine was badly phrased. §3a said "render the AI
+bullet from `miraEnabled`, not from a hardcoded list." I meant *do not hardcode
+the bullets in markup*. It reads as *derive the bullet text from the boolean*,
+which is not what I want.
+
+**Render `features[]` verbatim.** It is the wording, it is bilingual, and it is
+where a human edits what the card says. `miraEnabled` is enforcement — checked
+server-side before any clinic data reaches Anthropic — and it is not a source of
+copy.
+
+On treating a disagreement as a build failure: keep the assertion, but know what
+it can and cannot catch. `features[]` is edited at runtime in the console, so a
+build-time check only catches drift that existed when you built. Someone editing
+the catalogue on a Tuesday afternoon breaks nothing you can see. It is a canary,
+not a guarantee — worth having, not worth trusting.
+
+**The real check belongs where the edit happens**, and that is mine to build:
+the tiers console should refuse to save a catalogue whose Mira bullet
+contradicts `miraEnabled`, the same way it now refuses a malformed price id.
+That puts the error in front of the person who caused it, in the second they
+cause it. Tracked on my side.
+
+---
+
+### R5. Before launch, and before any real card. You are right to ask.
+
+Yes. "The first card through this flow is a customer's" is not an acceptable
+state for something that consumes a permanent database slot on success, and
+your framing of it is the argument.
+
+What has to happen: test-mode Products and Prices mirroring the live three, and
+a way for tier resolution to work in both modes. The catalogue holds one price
+id per tier, which is live-mode, so the plan is to stop depending on that field
+for the reverse lookup — tag each Stripe Price with `metadata.tier` in both
+modes and resolve the tier from the price itself. That is mode-independent, and
+it removes a whole class of drift where the catalogue and Stripe disagree about
+what a price sells.
+
+That class is not hypothetical. **Today the catalogue held Stripe *product* ids
+where the code matches *price* ids** — all three purchasable tiers. Nothing
+complained, because nothing reads that field until a subscription exists. On the
+first real payment the tier would have resolved to nothing, and an unknown tier
+falls open to the most permissive limits: a Starter customer silently granted
+unlimited users and clients, with a correct-looking invoice. Found, fixed, and
+the catalogue now refuses a non-`price_` id at the door.
+
+Both halves of the test-mode webhook are already live and verified against a
+real Stripe test event, so this is the remaining piece rather than the whole
+thing.
+
+---
+
+### R6. Distinct message, no numbers.
+
+Show a distinct message. You are right that the generic wording implies the
+visitor did something wrong, and this one is entirely ours.
+
+Say that we cannot create new clinics right now and that we have been notified —
+not how much room is left, and not a number. Not because capacity is a secret
+worth much, but because a published ceiling is an invitation to test it, and
+because the number will be stale by the time anyone reads it.
+
+Two things beyond the support panel:
+
+- **Do not offer a retry that loops.** `quota_exhausted` will not clear in the
+  next thirty seconds. Take their email and tell them we will write when there
+  is room; that is a better outcome for them than a button that fails again.
+- **Keep the `provisionId` visible**, as with any `support` recovery. It is what
+  makes a support conversation short.
+
+It does page us. `recoveryFor` also falls back to `support` for any code it does
+not recognise, so a future error you have never seen still lands somewhere a
+human looks.
+
+---
+
+### R7. An hour is safe. Stripe's default is 24 hours.
+
+Checked against a real session rather than from memory: created
+`11:21:57Z`, expires `2026-08-23T11:21:57Z` — **24 hours exactly**, which is
+both the default and the maximum Stripe allows.
+
+So your hour sits well inside it and your "continue payment" button will not
+offer to resume something Stripe has already closed.
+
+One improvement so the two windows cannot drift: **the platform will set
+`expires_at` explicitly rather than relying on the default.** If you want the
+session to die when your hold expires, say the word and I will set it to an
+hour; if you would rather a visitor who steps away for the afternoon can still
+finish, leave it at 24 and extend your hold instead. My preference is the
+second — an abandoned checkout costs nothing, and a customer returning after
+lunch to a dead link costs a sale — but the hold is yours and either is one
+line.
+
+---
+
+## Round 1
 
 Good questions. Three of them found things that were wrong rather than
 unspecified — A3, B3 and most of section C. Those are fixed, not just answered.

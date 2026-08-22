@@ -18,7 +18,7 @@ else here is already true.
 | Stripe webhook | "the platform will run one" | **Live and verified.** Signature-checked, idempotent, handling five events (§8) |
 | Payment confirmation | shape sketched | **The record is real** — `signups/{signupRef}`, written by the webhook, field-by-field in §8 |
 | The confirm call | keyed by `sessionId` | **keyed by `signupRef`** — you already hold it, and it is the one id that survives a retry (§3) |
-| `checkout-session` body | `tier`, `signupRef`, `adminEmail` | **`label` added** — the webhook records it and provisioning needs it (§3) |
+| `checkout-session` body | `tier`, `signupRef`, `adminEmail` | **Carries the whole signup** — §2's fields plus `label` and the DPA acceptance. The platform writes the record; you stop writing Firestore (§3) |
 | Mira on the pricing page | "do not promise it" | **Settled** — shared key, and `miraEnabled` per tier says who gets it. Starter does not (§3a, §7) |
 | Provisioning | "one step needs a Cloud Functions deploy" | **No longer true** — the per-clinic triggers are gone (§4) |
 
@@ -150,6 +150,14 @@ alone, which can be visited without paying. Idempotent on `signupRef`.
 }
 ```
 
+**Yes, this repeats most of the `checkout-session` body, and that is deliberate.**
+The two are not the same statement. `checkout-session` records what was *sold*,
+frozen at the moment money was committed. This one is the instruction to *build*,
+and it is authoritative at build time — which is exactly what makes the recovery
+path below work: a label rejected by provisioning can be replaced on the retry
+without touching the sale, the subscription, or the record of what they bought.
+If provisioning simply re-read the signup record, a bad label would be permanent.
+
 **Idempotency: only success is sticky.**
 
 | Previous outcome for this `signupRef` | Behaviour |
@@ -253,17 +261,35 @@ webhook. The subscription *is* the licence, and splitting licence state across a
 repo boundary would put two copies of it a missed webhook apart.
 
 ```json
-{ "tier": "professional", "signupRef": "sg_...", "adminEmail": "...",
-  "label": "sunrise",
+{ "signupRef": "sg_...", "tier": "professional", "label": "sunrise",
+  "clinicName": "Sunrise ABA", "adminEmail": "...", "adminName": "...",
+  "plan": "term",
+  "dpa": { "version": "1.0", "acceptedAt": "2026-08-22T14:05:00.000Z" },
   "successUrl": "...", "cancelUrl": "..." }
 → { "sessionUrl": "https://checkout.stripe.com/...", "sessionId": "cs_..." }
 ```
 
-**`label` is new in this revision, and it is required.** The platform puts
-`signupRef` on the session as `client_reference_id`, and `tier` + `label` into
-its metadata — that is the only channel by which they reach the webhook, which
-is what actually records the sale. A session created without a label produces a
-confirmed payment that nobody can match to a subdomain.
+**This body carries the whole signup, not just the payment.** It is everything
+from §2 plus the DPA acceptance. The platform writes it to `signups/{signupRef}`
+when it creates the session, and the webhook later merges the payment trail into
+that same document (§8). One key, one record, one writer.
+
+That last part matters: **`tempo-web` never writes this record itself.** §6 says
+the marketing site does not write Firestore, and a signup draft is not an
+exception — a prospective clinic has no database of its own yet, and putting it
+in some existing clinic's database means a real tenant holding a stranger's
+email and DPA acceptance. The absence of a correct database to write it to is
+the signal that the write belongs on this side of the boundary. Keeping a funnel
+record in your *own* storage is entirely your call and needs no permission.
+
+**`label` is required.** The platform puts `signupRef` on the session as
+`client_reference_id`, and `tier` + `label` into its metadata — that is the only
+channel by which they reach the webhook. A session created without a label
+produces a confirmed payment that nobody can match to a subdomain.
+
+Only those three go to Stripe. The clinic details and the DPA acceptance stay
+here: Stripe metadata is capped at 500 characters per value, and neither is
+Stripe's business.
 
 ```
 GET /api/provision/checkout-session/{signupRef}
@@ -332,8 +358,28 @@ request. All three paid tiers carry a 30-day trial.
 **`miraEnabled` is the one capability flag that bites.** The bullets in
 `features[]` sell but enforce nothing; this one is checked server-side before
 any clinic data reaches Anthropic, so a Starter clinic clicking Mira gets a
-refusal. Render the AI bullet from `miraEnabled`, not from a hardcoded list, or
-the page will promise Starter something the platform will deny.
+refusal rather than a consent prompt.
+
+**Which of the two is the source of the AI bullet's text?** `features[]`.
+An earlier version of this paragraph said "render the AI bullet from
+`miraEnabled`, not from a hardcoded list", which was meant as *do not hardcode
+the bullets in markup* and read as *derive the text from the boolean*. To be
+unambiguous:
+
+- `features[]` is **copy** — bilingual, human-edited, rendered verbatim.
+- `miraEnabled` is **enforcement** — a boolean the server checks. It is not a
+  source of wording.
+
+They can drift, because a person editing the console can change one and not the
+other. A build-time assertion on your side is worth keeping as a canary, but be
+clear about its reach: the catalogue is edited at runtime, so a check that runs
+when you build catches only the drift that already existed. The real guard
+belongs in the console, where the edit happens, and that is the platform's to
+add.
+
+`stripePriceId` is the single test for whether a tier is **purchasable**. Not
+`monthlyEur`, not `trialDays` — neither of those can produce a checkout session.
+When they disagree, the price id wins and the tier renders as "on request".
 
 **Why read it rather than copy it.** These same numbers cap the clinic. If the
 page says 100 clients and the catalogue says 30, the clinic stops at 30 and the
@@ -520,8 +566,10 @@ put two copies of it one missed webhook apart.
 
 ### What it records, and what you will read
 
-On `checkout.session.completed` the webhook writes one document,
-`signups/{signupRef}`, in the platform's control plane:
+On `checkout.session.completed` the webhook **merges** the payment trail into
+`signups/{signupRef}` in the platform's control plane — the document
+`checkout-session` already created from your signup body (§3). A merge, not a
+create, so the clinic details captured before checkout survive it:
 
 | Field | From | Note |
 |---|---|---|
