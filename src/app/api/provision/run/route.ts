@@ -43,7 +43,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "unauthorised" }, { status: 401 });
   }
 
-  const ids = await pending();
+  let ids: string[];
+  try {
+    ids = await pending();
+  } catch (e) {
+    // An unhandled throw here becomes an empty 500 with nothing in the body,
+    // which is how a missing Firestore index cost a debugging session: every
+    // pass failed identically and silently, and the queue simply never drained.
+    console.error("[provision/run] could not list pending:", (e as Error)?.message);
+    return NextResponse.json(
+      { error: "queue_unreadable", detail: String((e as Error)?.message).slice(0, 300) },
+      { status: 500 },
+    );
+  }
+
   if (!ids.length) return NextResponse.json({ advanced: 0, results: [] });
 
   // Sequential, not parallel. These steps talk to Google's control plane, which

@@ -193,11 +193,23 @@ async function markSignupProvisioned(signupRef: string, label: string): Promise<
  * at once.
  */
 export async function pending(limit = 5): Promise<string[]> {
+  // Filtered in Firestore, sorted here. A `where` plus an `orderBy` on a
+  // different field needs a composite index, and the control plane had none —
+  // which failed the whole cron pass with a 500 rather than degrading.
+  //
+  // Sorting in memory also sidesteps a sharper trap: `orderBy` silently DROPS
+  // documents that lack the ordered field. A provision written by an older
+  // version without `createdAt` would have become invisible to the runner and
+  // simply never been built, with nothing anywhere saying so.
   const snap = await adminDb()
     .collection("provisions")
     .where("status", "==", "provisioning")
-    .orderBy("createdAt", "asc")
-    .limit(limit)
+    .limit(50)
     .get();
-  return snap.docs.map((d) => d.id);
+
+  return snap.docs
+    .map((d) => ({ id: d.id, createdAt: String(d.data()?.createdAt || "") }))
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .slice(0, limit)
+    .map((d) => d.id);
 }
