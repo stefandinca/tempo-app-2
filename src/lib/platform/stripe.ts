@@ -52,12 +52,14 @@ function client(key: string): Stripe {
  * is the worst outcome available.
  */
 export function stripe(livemode = true): Stripe {
-  const key = livemode
-    ? process.env.STRIPE_SECRET_KEY
-    : process.env.STRIPE_SECRET_KEY_TEST || process.env.STRIPE_SECRET_KEY;
-  if (!key) {
-    throw new Error(livemode ? "STRIPE_SECRET_KEY is not set" : "STRIPE_SECRET_KEY_TEST is not set");
-  }
+  // No falling back to the live key for a test event. A live key cannot see a
+  // test subscription, so the fallback would turn a missing variable into
+  // "No such subscription" — an error that sends whoever is debugging to look
+  // for a deleted subscription that was never the problem. Say which variable
+  // is missing instead.
+  const name = livemode ? "STRIPE_SECRET_KEY" : "STRIPE_SECRET_KEY_TEST";
+  const key = process.env[name];
+  if (!key) throw new Error(name + " is not set");
   return client(key);
 }
 
