@@ -70,15 +70,23 @@ function body(args: {
     ? `Perioada de probă TempoApp se încheie ${when}`
     : `Licența TempoApp expiră ${when}`;
 
+  // Matches the Terms' first ending: "cardul este taxat și abonamentul începe,
+  // fără nicio întrerupere a accesului la platformă".
   const charge = args.isTrial && price
-    ? `<p>La încheierea perioadei de probă, abonamentul continuă automat și cardul înregistrat va fi debitat cu <strong>${escapeHtml(price)}</strong> pe lună.</p>`
+    ? `<p>Dacă nu anulați, cardul înregistrat va fi debitat cu <strong>${escapeHtml(price)}</strong> pe lună și abonamentul începe, fără nicio întrerupere a accesului la platformă.</p>`
     : "";
 
   // Says how to stop it in the same breath as saying it will happen. A notice
   // that announces a charge without saying how to avoid it is worse than none.
+  //
+  // THE WORDING IS NOT OURS TO PARAPHRASE. tempo-web's Terms say "needitabil
+  // (read-only)", and they carry a clause covering "comunicările noastre" —
+  // our emails — which exists precisely because "anulați oricând" gets read as
+  // "and nothing happens to my data". Writing "doar-citire" here would be a
+  // second phrasing of a promise the customer accepted in one specific form.
   const cancel = args.isTrial
-    ? `<p>Dacă nu doriți să continuați, puteți anula oricând înainte de această dată din <strong>Setări → Abonament</strong>. Anularea păstrează toate datele: contul devine doar-citire, nu se șterge nimic.</p>`
-    : `<p>Pentru prelungire, scrieți-ne la <a href="mailto:contact@tempoapp.ro">contact@tempoapp.ro</a>. La expirare contul devine doar-citire — datele rămân intacte.</p>`;
+    ? `<p>Dacă nu doriți să continuați, puteți anula oricând înainte de această dată din <strong>Setări → Abonament</strong>. Anularea nu șterge datele clinicii: la finalul perioadei contul devine <strong>needitabil</strong> (read-only), cu toate înregistrările intacte.</p>`
+    : `<p>Pentru prelungire, scrieți-ne la <a href="mailto:contact@tempoapp.ro">contact@tempoapp.ro</a>. La expirare contul devine <strong>needitabil</strong> (read-only), cu toate înregistrările intacte — nu se șterge nimic.</p>`;
 
   const html =
     `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;color:#111">` +

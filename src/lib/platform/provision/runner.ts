@@ -22,6 +22,8 @@
  */
 import { adminDb } from "@/lib/firebaseAdmin";
 import { clinicDatabaseId } from "@/lib/platform/labels";
+import { limitsFor } from "@/lib/platform/licence";
+import { hasAnthropicKey } from "@/lib/assistant/anthropic";
 import { GcpError } from "./gcp";
 import { STEPS, RUNNERS, StepIncomplete, type StepKey, type ProvisionContext } from "./steps";
 import { recoveryFor, type ProvisionErrorCode } from "@/lib/platform/provisioning";
@@ -210,9 +212,24 @@ async function unusableBecause(label: string): Promise<string[]> {
   if (!databaseId) return ["label does not derive a database id"];
 
   const tenant = await adminDb().collection("tenants").doc(label).get();
-  const licence = tenant.exists ? (tenant.data()?.licence as { expiresAt?: string } | undefined) : undefined;
+  const licence = tenant.exists
+    ? (tenant.data()?.licence as { expiresAt?: string; tier?: string } | undefined)
+    : undefined;
   if (!tenant.exists) missing.push("no tenant record");
   else if (!licence?.expiresAt) missing.push("no licence expiry in the registry");
+
+  // A plan that promises Mira must be able to deliver it. Without a key the
+  // clinic is sold "Acces Mira AI", gets a miraEnabled licence, and answers
+  // `ai_unavailable` the first time anyone clicks it — silent, correct-looking,
+  // and only visible to the customer.
+  //
+  // Depending on a human to remember an environment variable is not a control.
+  // That is the same dependency the admin invite had, and it failed the same
+  // way: nothing threw, nothing looked wrong, and the person at the end could
+  // not do the thing they paid for. So the system objects instead.
+  if (licence?.tier && limitsFor(licence.tier).miraEnabled && !hasAnthropicKey(label)) {
+    missing.push("plan includes Mira but no Anthropic key is configured");
+  }
 
   const clinic = adminDb(databaseId);
   const mirror = await clinic.collection("system_settings").doc("licence").get();
