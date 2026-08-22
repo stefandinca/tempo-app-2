@@ -804,6 +804,68 @@ Mira can be advertised (§3a and §7 — yes, per tier).
 
 ---
 
+## 9a. The environment, exactly
+
+Every variable self-onboarding needs, which side sets it, and what breaks
+without it. **`/platform/health` shows which are present** — a "Self-onboarding
+readiness" panel with a green line when a signup can actually complete. Check
+there rather than guessing; the whole point is that these fail silently.
+
+### On the platform (`tempo-app-2` Vercel project, Production)
+
+| Variable | Missing means | Set? |
+|---|---|---|
+| `VERCEL_API_TOKEN` | Provisioning stops at `hostname`, step six of seven | **No — needed** |
+| `VERCEL_PROJECT_ID` | Same step, same failure | Yes |
+| `VERCEL_TEAM_ID` | Same, on a team account | Yes |
+| `ANTHROPIC_API_KEY` | Provisioning **refuses** any tier that promises Mira | **No — needed** |
+| `PROVISION_API_TOKEN` | Both signup endpoints answer `503 not_configured` | Yes |
+| `CRON_SECRET` | The queue never drains and no expiry notice is sent | Yes |
+| `RESEND_API_KEY` | No trial-conversion warning; cards charged unannounced | Yes |
+| `STRIPE_SECRET_KEY` / `_WEBHOOK_SECRET` | No payment at all | Yes |
+| `STRIPE_SECRET_KEY_TEST` / `_WEBHOOK_SECRET_TEST` | `"mode": "test"` returns `503` | Test webhook only |
+
+**The Vercel token specifically.** It attaches `<label>.tempoapp.ro` to the
+project that serves `*.tempoapp.ro`, which is what makes Vercel issue that
+host's TLS certificate. Two things worth deciding rather than defaulting:
+
+- **Scope it to the team that owns that project.** A Vercel access token is not
+  a "can attach domains" credential — it can administer everything in its
+  scope, deployments and environment variables included. Team scope is the only
+  narrowing available, so a personal token that also reaches unrelated projects
+  is a worse choice than it looks.
+- **An expiry is fine now, and was not before.** An expired token used to fail
+  as a 403 whose message talked about the domain — a mystery months later, on
+  somebody's signup. The step now names the credential: *"VERCEL_API_TOKEN was
+  rejected — expired, revoked, or not scoped to the team that owns …"*. If you
+  set an expiry, record the date somewhere it will be seen.
+
+### On tempo-web
+
+| Variable | Value |
+|---|---|
+| `PROVISION_API_TOKEN` | **The same secret**, copied from the platform |
+
+One secret, two places. Rotating it means changing both **at the same time** —
+there is no overlap window, and a rotation that updates one side gives every
+signup a `401` until the other catches up.
+
+### What replaces the shared token when there is a second consumer
+
+There is one consumer today, so a shared bearer token is proportionate. It stops
+being proportionate quietly, and the failure is not dramatic enough to force the
+issue: a single secret cannot distinguish tempo-web from anyone who obtains it,
+and cannot be revoked for one caller without breaking the other.
+
+So the answer, written before it is needed: **per-consumer tokens, matched
+against a small set rather than one value.** A `provision_clients` document
+holding `{ name, hash, disabledAt }` per caller, compared by hash, so a token
+can be revoked or rotated for one consumer alone and the logs say which caller
+made which request. Roughly an hour's work, and worth doing on the day a second
+consumer appears rather than after.
+
+---
+
 ## 10. Where the truth lives
 
 - Onboarding steps, in order, with the failure modes: `documentation/new-tenant-runbook.md`

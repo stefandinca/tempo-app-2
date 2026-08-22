@@ -20,6 +20,7 @@ export default function PlatformHealthPage() {
   const { t } = useTranslation();
   const { error: toastError } = useToast();
   const [health, setHealth] = useState<ClinicHealth[]>([]);
+  const [config, setConfig] = useState<Record<string, boolean> | null>(null);
   const [loading, setLoading] = useState(true);
   // A toast is transient; this is not. On the screen whose entire job is
   // telling you something is broken, a failed fetch must not fall through to
@@ -28,8 +29,8 @@ export default function PlatformHealthPage() {
 
   useEffect(() => {
     let cancelled = false;
-    platformGet<{ health: ClinicHealth[] }>("/api/platform/health")
-      .then((d) => { if (!cancelled) setHealth(d.health); })
+    platformGet<{ health: ClinicHealth[]; provisioning?: Record<string, boolean> }>("/api/platform/health")
+      .then((d) => { if (!cancelled) { setHealth(d.health); setConfig(d.provisioning ?? null); } })
       .catch((e) => {
         console.error("[platform/health] failed to load:", e);
         if (cancelled) return;
@@ -72,14 +73,52 @@ export default function PlatformHealthPage() {
     },
   ];
 
+  // Self-onboarding readiness. On the screen whose job is telling you what is
+  // broken, a missing credential belongs next to a broken clinic — otherwise it
+  // is only discoverable by a customer who has already paid.
+  const readiness: [string, string][] = [
+    ["vercelApiToken", t("platform.health.cfg_vercel_token", { defaultValue: "Vercel API token" })],
+    ["vercelProjectId", t("platform.health.cfg_vercel_project", { defaultValue: "Vercel project id" })],
+    ["sharedAnthropicKey", t("platform.health.cfg_anthropic", { defaultValue: "Shared Mira key" })],
+    ["provisionApiToken", t("platform.health.cfg_provision_token", { defaultValue: "Signup API token" })],
+    ["cronSecret", t("platform.health.cfg_cron", { defaultValue: "Cron secret" })],
+    ["resendApiKey", t("platform.health.cfg_resend", { defaultValue: "Email (Resend)" })],
+    ["stripeLive", t("platform.health.cfg_stripe_live", { defaultValue: "Stripe live key" })],
+    ["stripeTest", t("platform.health.cfg_stripe_test", { defaultValue: "Stripe test key" })],
+  ];
+
   return (
-    <DataTable
-      rows={health}
-      getRowId={(h) => h.tenantId}
-      columns={columns}
-      loading={loading}
-      error={loadError}
-      empty={t("platform.health.empty", { defaultValue: "No clinics registered." })}
-    />
+    <div className="space-y-6">
+      {config && (
+        <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h2 className="font-bold text-neutral-900 dark:text-white">
+              {t("platform.health.selfonboarding", { defaultValue: "Self-onboarding readiness" })}
+            </h2>
+            <span className={config.canProvision ? "text-xs font-semibold text-success-600 dark:text-success-400" : "text-xs font-semibold text-error-600 dark:text-error-400"}>
+              {config.canProvision
+                ? t("platform.health.can_provision", { defaultValue: "Can create clinics" })
+                : t("platform.health.cannot_provision", { defaultValue: "Cannot complete a signup" })}
+            </span>
+          </div>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+            {readiness.map(([k, label]) => (
+              <li key={k} className="flex items-center justify-between text-sm">
+                <span className="text-neutral-600 dark:text-neutral-300">{label}</span>
+                <Flag ok={!!config[k]} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <DataTable
+        rows={health}
+        getRowId={(h) => h.tenantId}
+        columns={columns}
+        loading={loading}
+        error={loadError}
+        empty={t("platform.health.empty", { defaultValue: "No clinics registered." })}
+      />
+    </div>
   );
 }

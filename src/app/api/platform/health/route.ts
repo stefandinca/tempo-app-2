@@ -100,7 +100,42 @@ export async function GET(req: NextRequest) {
     );
 
     health.sort((a, b) => a.name.localeCompare(b.name));
-    return NextResponse.json({ health });
+
+    // Whether self-onboarding can actually complete, visible BEFORE a customer
+    // discovers it cannot. Every one of these is a variable whose absence is
+    // silent: provisioning stops mid-way, or a clinic ships unable to do what
+    // its plan promised, and nothing says so until somebody has paid.
+    //
+    // Booleans only. This endpoint is Superadmin-gated, but a secret that is
+    // never serialised cannot leak through a screenshot, a bug report, or a
+    // support conversation.
+    const provisioning = {
+      // hostname step — without these it stops at step six of seven
+      vercelApiToken: !!process.env.VERCEL_API_TOKEN,
+      vercelProjectId: !!process.env.VERCEL_PROJECT_ID,
+      vercelTeamId: !!process.env.VERCEL_TEAM_ID,
+      // the shared secret tempo-web calls with
+      provisionApiToken: !!process.env.PROVISION_API_TOKEN,
+      // what drives the queue and the expiry notices
+      cronSecret: !!process.env.CRON_SECRET,
+      resendApiKey: !!process.env.RESEND_API_KEY,
+      // paid tiers promise Mira; provisioning now refuses to ship without this
+      sharedAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
+      stripeLive: !!process.env.STRIPE_SECRET_KEY,
+      stripeTest: !!process.env.STRIPE_SECRET_KEY_TEST,
+    };
+
+    return NextResponse.json({
+      health,
+      provisioning: {
+        ...provisioning,
+        // The single question somebody actually wants answered.
+        canProvision:
+          provisioning.vercelApiToken &&
+          provisioning.vercelProjectId &&
+          provisioning.sharedAnthropicKey,
+      },
+    });
   } catch (e: any) {
     console.error("[platform/health] failed:", String(e?.message || e));
     return NextResponse.json({ error: "server_error" }, { status: 500 });

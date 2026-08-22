@@ -2748,6 +2748,17 @@
       "total_partial": "excludes clinics whose spend could not be read ({{n}}): {{names}}"
     },
     "health": {
+        "selfonboarding": "Self-onboarding readiness",
+        "can_provision": "Can create clinics",
+        "cannot_provision": "Cannot complete a signup",
+        "cfg_vercel_token": "Vercel API token",
+        "cfg_vercel_project": "Vercel project id",
+        "cfg_anthropic": "Shared Mira key",
+        "cfg_provision_token": "Signup API token",
+        "cfg_cron": "Cron secret",
+        "cfg_resend": "Email (Resend)",
+        "cfg_stripe_live": "Stripe live key",
+        "cfg_stripe_test": "Stripe test key",
       "clinic": "Clinic",
       "database": "Database",
       "bucket": "Bucket",

@@ -2753,6 +2753,17 @@
       "total_partial": "nu include centrele ale căror costuri nu au putut fi citite ({{n}}): {{names}}"
     },
     "health": {
+        "selfonboarding": "Pregătire înregistrare automată",
+        "can_provision": "Poate crea clinici",
+        "cannot_provision": "Nu poate finaliza o înregistrare",
+        "cfg_vercel_token": "Token API Vercel",
+        "cfg_vercel_project": "ID proiect Vercel",
+        "cfg_anthropic": "Cheie Mira partajată",
+        "cfg_provision_token": "Token API înregistrare",
+        "cfg_cron": "Secret cron",
+        "cfg_resend": "Email (Resend)",
+        "cfg_stripe_live": "Cheie Stripe live",
+        "cfg_stripe_test": "Cheie Stripe test",
       "clinic": "Centru",
       "database": "Bază de date",
       "bucket": "Stocare",

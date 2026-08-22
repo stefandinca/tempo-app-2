@@ -381,6 +381,16 @@ async function stepHostname(ctx: ProvisionContext): Promise<void> {
   // Already attached — from a retry, or from a hostname that outlived an
   // earlier clinic. Either way there is nothing to do.
   if (res.status === 409 || body.error?.code === "domain_already_in_use") return;
+
+  // A Vercel token can be created with an expiry, and an expired one fails
+  // exactly like a wrong one: a 403 whose message talks about the domain. That
+  // would turn this step into a mystery months from now, on a signup, with
+  // nothing pointing at the credential. So the credential is named.
+  if (res.status === 401 || res.status === 403) {
+    throw new Error(
+      `VERCEL_API_TOKEN was rejected (${res.status}) — expired, revoked, or not scoped to the team that owns ${project}`,
+    );
+  }
   throw new Error(`vercel: ${body.error?.message || res.status}`);
 }
 
