@@ -1,16 +1,25 @@
 /**
  * The thing that actually builds clinics.
  *
- * Runs on a schedule and advances every in-flight provision by one step. This
- * is what makes "a customer who closes the tab still gets their clinic" true —
- * nothing about the work depends on a browser being open.
+ * Runs on a schedule and advances in-flight provisions. This is what makes "a
+ * customer who closes the tab still gets their clinic" true — nothing about the
+ * work depends on a browser being open.
  *
- * ONE STEP PER PROVISION PER PASS, deliberately. It bounds how long a pass can
- * take, so a slow database cannot starve the other provisions in the queue, and
- * it means a pass that dies costs one step rather than a whole clinic.
+ * CALLED BY GOOGLE CLOUD SCHEDULER, not by Vercel's cron. Vercel's never fired:
+ * the plan triggers cron jobs roughly daily whatever the expression says, so
+ * provisioning silently only advanced while somebody was polling this endpoint
+ * by hand. A scheduled job that does not run looks exactly like one with
+ * nothing to do. The vercel.json entry stays as a harmless second trigger.
  *
- * AUTHENTICATION: Vercel's cron secret, or the platform token. Left open, this
- * would be an unauthenticated way to make the platform do work.
+ * PROGRESS-BOUNDED, NOT STEP-BOUNDED. An earlier version did one step per pass,
+ * which meant one step per MINUTE once a real scheduler was calling it — six of
+ * the seven steps take seconds, so a clinic spent six minutes waiting for ticks.
+ * A pass now continues while `advance` reports real progress, inside a time
+ * budget, so a slow database still cannot starve the queue and a pass that dies
+ * still costs one step rather than a clinic.
+ *
+ * AUTHENTICATION: the cron secret, or the platform token. Left open, this would
+ * be an unauthenticated way to make the platform do work.
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { advance, pending } from "@/lib/platform/provision/runner";
