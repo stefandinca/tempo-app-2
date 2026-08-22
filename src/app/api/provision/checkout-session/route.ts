@@ -122,8 +122,14 @@ export async function POST(req: NextRequest) {
   try {
     priceId = await priceFor(tier, entry, livemode);
   } catch (e) {
-    console.error("[provision/checkout-session] price lookup failed:", (e as Error)?.message);
-    return bad("price_unavailable", 503);
+    // The detail is returned, not just logged. "price_unavailable" is true of a
+    // missing price, an invalid key, a key for the wrong mode and a network
+    // blip, and on its own it sends whoever is debugging to look at prices when
+    // the problem was a credential. The caller is authenticated, so there is
+    // nobody here to leak it to.
+    const detail = String((e as Error)?.message || e).slice(0, 300);
+    console.error("[provision/checkout-session] price lookup failed:", detail);
+    return NextResponse.json({ error: "price_unavailable", detail }, { status: 503 });
   }
 
   // --- idempotency ----------------------------------------------------------
