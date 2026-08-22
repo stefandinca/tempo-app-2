@@ -68,12 +68,17 @@ they type.
 
 ## 3. The calls you need from the platform
 
-**This endpoint does not exist yet. Build against a mock.** The shape is fixed;
-the implementation is the platform's side of this handover.
+Most of these do not exist yet — build against a mock. The shape is fixed; the
+implementation is the platform's side of this handover. **`check-label` is the
+exception: it is live.**
 
-### `POST /api/provision/check-label`
+### `POST /api/provision/check-label` — **LIVE, stop mocking it**
 
-Public, rate-limited. Called as the user types.
+```
+https://superadmin.tempoapp.ro/api/provision/check-label/
+```
+
+Public, unauthenticated. Call it as the user types.
 
 ```json
 { "label": "clinicx" }
@@ -83,6 +88,25 @@ Public, rate-limited. Called as the user types.
 { "available": true }
 { "available": false, "reason": "taken" | "reserved" | "invalid" }
 ```
+
+Verified in production: `aicaa` → taken, `brandnewclinic` → available, `www` →
+reserved.
+
+Three things about its behaviour that are deliberate:
+
+- **It shares its validation with the runtime.** The same `labelProblem()` that
+  answers here is what `resolveDatabaseId()` gates on, so this endpoint and
+  provisioning cannot disagree — which is the ordering problem you raised in A6,
+  closed rather than promised.
+- **It fails closed.** If the registry cannot be read it returns `503`, not
+  `available: true`. Treat a 503 as "try again", never as free.
+- **Never cache it.** A label goes from free to taken the moment somebody else
+  provisions one, and the response is sent `no-store`.
+
+Answering A6 directly: **retired labels are already handled.** Any existing
+tenant document counts as taken, tombstones included, so a reissued subdomain
+cannot slip through the pre-check and be rejected after the card is taken. No
+tombstones exist yet, because no clinic has ever been offboarded.
 
 ### `POST /api/provision/clinic`
 
