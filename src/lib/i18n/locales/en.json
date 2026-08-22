@@ -2763,6 +2763,7 @@
       "subtitle": "Read by the pricing page and used to cap each clinic. Changing a limit applies to a clinic the next time its plan is saved, not immediately.",
       "saved": "Pricing updated.",
       "save_failed": "Could not save pricing.",
+      "invalid_price_id": "Stripe price ID must start with price_ (a prod_ id is the product, not the price).",
       "load_error": "Could not load pricing.",
       "label": "Name",
       "tagline": "Tagline",

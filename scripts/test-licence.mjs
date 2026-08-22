@@ -480,6 +480,24 @@ check(
 );
 check("stripePriceId survives a catalogue rebuild", buildCatalogue(priced)[1].stripePriceId, "price_pro_123");
 
+// A PRODUCT id pasted where a PRICE id belongs. This actually happened: all
+// three purchasable tiers held prod_ ids, so tierForPriceId matched nothing
+// and a paying customer would have got a licence with no tier — and then the
+// most permissive limits, because unknown tiers fail open. Silent wrong grant,
+// which is why the catalogue now refuses it at the door rather than storing it.
+const withProductId = defaultCatalogue().map((t) =>
+  t.id === "professional" ? { ...t, stripePriceId: "prod_V7OyIpy9hpBCtO" } : t,
+);
+check("a product id is refused", buildCatalogue(withProductId).error, "invalid_price_id");
+check("a price id is accepted", buildCatalogue(priced).error, undefined);
+// Empty still means "not purchasable" — enterprise is sold by hand and must
+// keep saving without an id.
+check(
+  "an empty price id is still allowed",
+  buildCatalogue(defaultCatalogue())[3].stripePriceId,
+  "",
+);
+
 
 // Mira is a CAPABILITY, not a limit: features[] is marketing that enforces
 // nothing, this is checked before any clinic data reaches Anthropic.

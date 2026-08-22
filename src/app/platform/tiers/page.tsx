@@ -20,7 +20,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2, Save } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
-import { platformGet, platformPut } from "@/lib/platform/clientApi";
+import { platformGet, platformPut, PlatformError } from "@/lib/platform/clientApi";
 import type { TierCatalogueEntry } from "@/lib/platform/licence";
 
 export default function PlatformTiersPage() {
@@ -57,8 +57,18 @@ export default function PlatformTiersPage() {
       const r = await platformPut<{ tiers: TierCatalogueEntry[] }>("/api/platform/tiers", { tiers });
       setTiers(r.tiers);
       success(t("platform.tiers.saved", { defaultValue: "Pricing updated." }));
-    } catch {
-      toastError(t("platform.tiers.save_failed", { defaultValue: "Could not save pricing." }));
+    } catch (e) {
+      // Named rather than folded into the generic message: this is the one
+      // rejection an editor can actually act on, and "Could not save pricing"
+      // gives them nothing to correct.
+      const code = e instanceof PlatformError ? e.message : "";
+      toastError(
+        code === "invalid_price_id"
+          ? t("platform.tiers.invalid_price_id", {
+              defaultValue: "Stripe price ID must start with price_ (a prod_ id is the product, not the price).",
+            })
+          : t("platform.tiers.save_failed", { defaultValue: "Could not save pricing." }),
+      );
     } finally {
       setSaving(false);
     }

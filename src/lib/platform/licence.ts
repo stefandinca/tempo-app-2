@@ -338,6 +338,17 @@ export function buildCatalogue(
       ? e.features.map((f) => String(f ?? "").trim()).filter(Boolean).slice(0, 12)
       : [];
 
+    // A Stripe PRODUCT id where a PRICE id belongs fails silently and
+    // expensively: tierForPriceId compares a subscription's price.id against
+    // this field, never matches a prod_ id, and returns null — so a paying
+    // customer gets a licence with no tier and falls back to unrestricted
+    // limits. It happened once, with the field labelled "Stripe price ID" and
+    // placeholdered "price_...", so the label is not enough on its own.
+    const stripePriceId = String(e.stripePriceId ?? "").trim();
+    if (stripePriceId && !stripePriceId.startsWith("price_")) {
+      return { error: "invalid_price_id" };
+    }
+
     byId.set(e.id, {
       id: e.id,
       label,
@@ -350,7 +361,7 @@ export function buildCatalogue(
       popular: !!e.popular,
       // null here means "not set", which for a trial means none.
       trialDays: trialDays ?? 0,
-      stripePriceId: String(e.stripePriceId ?? "").trim(),
+      stripePriceId,
       // Absent means enabled. A catalogue written before this field existed
       // must not silently switch the assistant off for a clinic paying for it.
       miraEnabled: e.miraEnabled !== false,

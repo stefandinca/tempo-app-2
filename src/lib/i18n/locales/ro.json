@@ -2768,6 +2768,7 @@
       "subtitle": "Sunt citite de pagina de prețuri și limitează fiecare clinică. O limită modificată se aplică unei clinici la următoarea salvare a planului, nu imediat.",
       "saved": "Prețuri actualizate.",
       "save_failed": "Prețurile nu au putut fi salvate.",
+      "invalid_price_id": "ID-ul de preț Stripe trebuie să înceapă cu price_ (un ID prod_ este produsul, nu prețul).",
       "load_error": "Prețurile nu au putut fi încărcate.",
       "label": "Denumire",
       "tagline": "Descriere scurtă",
