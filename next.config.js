@@ -36,6 +36,16 @@ const nextConfig = {
     // jwks-rsa's require('jose') to the ESM build → "require() of ES Module"
     // crash in the AI API routes on Vercel.
     serverComponentsExternalPackages: ['firebase-admin', 'jwks-rsa', 'jose'],
+
+    // Provisioning deploys firestore.rules, storage.rules and the index
+    // definitions to a brand-new clinic database, and reads them from disk so
+    // the deployed rules are byte-identical to the ones in the repo. Vercel's
+    // tracer cannot see a runtime readFileSync, so without this the files are
+    // absent in production and a clinic is created with no rules over it —
+    // exactly the state provisioning is written to make impossible.
+    outputFileTracingIncludes: {
+      '/api/provision/**': ['./firestore.rules', './storage.rules', './firestore.indexes.json'],
+    },
   },
 
   // Transpile firebase packages to ensure they are processed by Babel/SWC

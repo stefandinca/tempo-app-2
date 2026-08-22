@@ -134,6 +134,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // In-flight clinic creations. Holds the admin's name and email, the DPA
+    // acceptance, and the failure text of anything that went wrong — which can
+    // name internal APIs. Server-only, like the signup it comes from: the
+    // provisionId is handed to the customer, so a readable document here would
+    // be a key somebody could carry to somebody else's signup.
+    match /provisions/{provisionId} {
+      allow read, write: if false;
+    }
+
     // The pricing catalogue: tier names, prices, promises and limits.
     //
     // WORLD-READABLE, deliberately and unusually for this file. The marketing

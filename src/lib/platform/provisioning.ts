@@ -32,6 +32,16 @@ export type ProvisionErrorCode =
   | "quota_exhausted"
   /** No confirmed payment for this signupRef. */
   | "payment_unconfirmed"
+  /**
+   * Google or Vercel returned a 5xx, a timeout, or a rate limit. The same
+   * inputs will very likely work in a minute.
+   *
+   * Distinct from `internal` because the two deserve opposite offers. Folding
+   * transient failures into `internal` sent every network blip to a support
+   * queue, and told a customer whose clinic would have appeared on the next
+   * attempt that somebody would be in touch.
+   */
+  | "transient"
   /** Anything else. Deliberately vague to the caller; specific in our logs. */
   | "internal";
 
@@ -51,6 +61,9 @@ const RECOVERY: Record<ProvisionErrorCode, ProvisionRecovery> = {
   quota_exhausted: "support",
   // Not "new_label" either — changing the address does not conjure a payment.
   payment_unconfirmed: "support",
+  // The only code that earns a retry. Everything below it is either the
+  // customer's address to change or ours to investigate; this one is neither.
+  transient: "retry",
   internal: "support",
 };
 
