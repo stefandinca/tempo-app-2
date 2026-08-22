@@ -2780,7 +2780,9 @@
       "features": "Puncte pe card",
       "features_hint": "Câte unul pe rând. Acestea vând — nu impun nimic.",
       "cta": "Text buton",
-      "popular": "Etichetă Popular"
+      "popular": "Etichetă Popular",
+      "stripe_price": "ID preț Stripe",
+      "stripe_price_hint": "price_… din Stripe. Gol = nu poate fi cumpărat."
     }
   }
 }

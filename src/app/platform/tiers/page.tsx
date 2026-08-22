@@ -219,6 +219,34 @@ export default function PlatformTiersPage() {
                 className={inputClass}
               />
             </Field>
+
+            {/*
+              The bridge between Stripe and this tier. Checkout is created from
+              this price, and the webhook maps the price on the resulting
+              subscription back to a tier — so the invoice and the licence
+              cannot disagree about what a clinic is entitled to.
+
+              Not a credential: Stripe price ids are meant to be seen by the
+              buyer. The secret key is an env var and never comes near this
+              document.
+
+              Empty means this tier cannot be bought. Correct for Enterprise,
+              which is quoted; a bug for anything else once payment is live.
+            */}
+            <Field
+              label={t("platform.tiers.stripe_price", { defaultValue: "Stripe price ID" })}
+              hint={t("platform.tiers.stripe_price_hint", {
+                defaultValue: "price_… from Stripe. Empty = not purchasable.",
+              })}
+            >
+              <input
+                value={tier.stripePriceId || ""}
+                onChange={(e) => patch(tier.id, "stripePriceId", e.target.value.trim())}
+                placeholder="price_..."
+                spellCheck={false}
+                className={inputClass + " font-mono text-xs"}
+              />
+            </Field>
           </div>
         ))}
       </div>

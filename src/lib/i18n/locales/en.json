@@ -2775,7 +2775,9 @@
       "features": "Card bullets",
       "features_hint": "One per line. These sell — they do not enforce anything.",
       "cta": "Button label",
-      "popular": "Popular badge"
+      "popular": "Popular badge",
+      "stripe_price": "Stripe price ID",
+      "stripe_price_hint": "price_… from Stripe. Empty = not purchasable."
     }
   }
 }

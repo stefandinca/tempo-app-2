@@ -56,6 +56,21 @@ export interface TierLimits {
    * negotiated, so it does not get one.
    */
   trialDays: number;
+  /**
+   * The Stripe Price this tier sells as. Empty until Stripe is wired, and
+   * permanently empty for Enterprise, which is quoted rather than sold.
+   *
+   * This is the bridge that lets the platform answer "what did they buy?" from
+   * the payment rather than from the browser. A checkout session is created
+   * FROM this id, and the webhook maps the price on the resulting subscription
+   * back to a tier — so the invoice and the licence cannot disagree about what
+   * a clinic is entitled to.
+   *
+   * Not a secret. Stripe price ids are designed to be visible to the buyer, so
+   * living in the world-readable catalogue costs nothing. The secret key is an
+   * env var and never goes near this document.
+   */
+  stripePriceId: string;
 }
 
 /**
@@ -172,6 +187,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     ctaLabel: "Alege Starter",
     popular: false,
     trialDays: 30,
+    stripePriceId: "",
   },
   professional: {
     label: "Professional",
@@ -183,6 +199,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     ctaLabel: "Alege Professional",
     popular: true,
     trialDays: 30,
+    stripePriceId: "",
   },
   clinic: {
     // Sold as "Clinică". The key stays ASCII because it travels through ids,
@@ -196,6 +213,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     ctaLabel: "Alege Clinică",
     popular: false,
     trialDays: 30,
+    stripePriceId: "",
   },
   enterprise: {
     label: "Enterprise",
@@ -207,6 +225,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     ctaLabel: "Contactează-ne",
     popular: false,
     trialDays: 0,
+    stripePriceId: "",
   },
 };
 
@@ -227,6 +246,31 @@ export interface TierCatalogueEntry extends TierLimits {
 /** What gets published when nothing has been edited yet. */
 export function defaultCatalogue(): TierCatalogueEntry[] {
   return TIERS.map((id) => ({ id, ...TIER_LIMITS[id] }));
+}
+
+/**
+ * Which tier a Stripe price sells — the reverse of `stripePriceId`.
+ *
+ * This is how the platform answers "what did they buy?" from the payment rather
+ * than from whatever the browser said. The browser sends a tier during the
+ * mocked-payment phase; once Stripe is live the subscription's price is the
+ * only version of that answer which cannot disagree with the invoice.
+ *
+ * Returns null rather than guessing. An unrecognised price means a Price exists
+ * in Stripe that no tier claims — somebody created one in the dashboard and did
+ * not paste its id into the catalogue — and the honest response is to refuse to
+ * provision and say so, not to fall back to a default tier and quietly grant
+ * someone the wrong plan. A tier with an empty `stripePriceId` never matches,
+ * so an unconfigured catalogue cannot accidentally claim every price.
+ */
+export function tierForPriceId(
+  catalogue: TierCatalogueEntry[],
+  priceId: string,
+): Tier | null {
+  const wanted = String(priceId || "").trim();
+  if (!wanted) return null;
+  const hit = catalogue.find((t) => t.stripePriceId && t.stripePriceId === wanted);
+  return hit ? hit.id : null;
 }
 
 /**
@@ -288,6 +332,7 @@ export function buildCatalogue(
       popular: !!e.popular,
       // null here means "not set", which for a trial means none.
       trialDays: trialDays ?? 0,
+      stripePriceId: String(e.stripePriceId ?? "").trim(),
     });
   }
 

@@ -28,6 +28,7 @@ import {
   buildTrialLicence,
   buildCatalogue,
   defaultCatalogue,
+  tierForPriceId,
   TRIAL_GRACE_DAYS,
   graceDaysForEnd,
   DEFAULT_GRACE_DAYS as GRACE,
@@ -457,6 +458,27 @@ check("the reason reaches the mirror", licenceMirror(trial).endReason, "trial_en
 // A licence written without one stores null rather than dropping the field:
 // Firestore discards undefined, and "not known" is a real state.
 check("an unstated reason is stored as null", tiered.endReason, null);
+
+// The Stripe price -> tier bridge. Once payment is live this is how the
+// platform answers "what did they buy?" from the invoice rather than from the
+// browser, so a wrong answer here grants somebody the wrong plan.
+const priced = defaultCatalogue().map((t) =>
+  t.id === "professional" ? { ...t, stripePriceId: "price_pro_123" } : t,
+);
+check("a known price maps to its tier", tierForPriceId(priced, "price_pro_123"), "professional");
+// Refuses rather than guessing: an unknown price means a Price exists in
+// Stripe that no tier claims, and defaulting would quietly grant a plan.
+check("an unknown price maps to nothing", tierForPriceId(priced, "price_nobody"), null);
+check("an empty price maps to nothing", tierForPriceId(priced, ""), null);
+// The dangerous one. Every tier ships with stripePriceId "" until the ids are
+// pasted in, so an empty id must never match an empty query.
+check("an unconfigured tier does not claim every price", tierForPriceId(defaultCatalogue(), ""), null);
+check(
+  "an unconfigured catalogue matches no real price",
+  tierForPriceId(defaultCatalogue(), "price_pro_123"),
+  null,
+);
+check("stripePriceId survives a catalogue rebuild", buildCatalogue(priced)[1].stripePriceId, "price_pro_123");
 
 if (failures.length) {
   console.log(`${C.red(`✗ ${failures.length} failed`)}, ${passed} passed\n`);
