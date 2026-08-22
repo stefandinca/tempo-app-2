@@ -57,6 +57,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "missing_signature" }, { status: 400 });
   }
 
+  // Configuration is checked BEFORE verification, and reported differently.
+  // Both used to surface as 400 "invalid_signature", which sends whoever is
+  // debugging to re-copy a secret that was never the problem — the env var was
+  // simply absent. A missing key is 500 because it IS our fault, and Stripe
+  // retrying a 500 is the behaviour we want once the var is added.
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error(
+      "[stripe/webhook] not configured:",
+      !process.env.STRIPE_SECRET_KEY ? "STRIPE_SECRET_KEY missing" : "",
+      !process.env.STRIPE_WEBHOOK_SECRET ? "STRIPE_WEBHOOK_SECRET missing" : "",
+    );
+    return NextResponse.json({ error: "not_configured" }, { status: 500 });
+  }
+
   let event: Stripe.Event;
   try {
     event = stripe().webhooks.constructEvent(raw, signature, webhookSecret());
