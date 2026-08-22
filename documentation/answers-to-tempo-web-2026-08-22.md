@@ -153,6 +153,40 @@ and populated by the time it reads `ready`. Do not show a date before then.
 
 ---
 
+## A8. Agreed, and specified. You found a real hole.
+
+You are right that `error` as prose is unusable, and right that the mock hid it.
+That is the failure mode mocks have: they agree with whatever you wrote them to
+agree with, so the contract only gets tested the day it is real — which here
+would have been for customers who had already paid.
+
+**Two fields, not one.** `errorCode` alone would have made you branch on a
+string list that grows, and every new code we add would silently fall into
+whichever branch you wrote last. So there is also `recovery`, which is the thing
+your flow actually needs to know:
+
+| `recovery` | Offer |
+|---|---|
+| `new_label` | The address picker, retry under the same `signupRef` |
+| `retry` | A retry button, same inputs |
+| `support` | Contact and the `provisionId` |
+
+`errorCode` stays for logs, support and any wording you want to special-case:
+`label_taken`, `label_invalid`, `quota_exhausted`, `payment_unconfirmed`,
+`internal`. That list will grow; `recovery` will not.
+
+**One change to what you have built.** Your interim workaround offers the
+new-address path when the reason is unrecognisable. Please flip that to
+`support` once these fields exist. Offering the picker for a failure the address
+did not cause asks somebody who has already paid to change something that was
+never wrong, three times, and then still fails — and it buries the real error
+under a UI that looks like it is making progress. `support` says "we do not know
+what happened", which is true and actionable.
+
+Handover §3 now carries the full contract.
+
+---
+
 ## B1. 100 databases per project. 5 used.
 
 Read from the Service Usage API rather than the Cloud Quotas one, which avoids

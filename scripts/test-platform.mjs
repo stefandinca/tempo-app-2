@@ -24,6 +24,11 @@ const { clinicDatabaseId, isPlatformHost } = await import(
   "../src/lib/platform/labels.ts?env=development"
 );
 
+// The failure contract tempo-web branches on. Asserted here because it is
+// published to another repo: a change made without updating them is a signup
+// flow taking a branch nobody meant, for somebody who has already paid.
+const { recoveryFor, provisionFailure } = await import("../src/lib/platform/provisioning.ts");
+
 const C = {
   red: (s) => `\x1b[31m${s}\x1b[0m`,
   green: (s) => `\x1b[32m${s}\x1b[0m`,
@@ -127,6 +132,32 @@ if (BASE) {
 }
 
 console.log("");
+
+console.log(`\n${C.bold("provisioning failure contract")}\n`);
+
+// tempo-web branches on `recovery`, never on `errorCode` — the code list grows,
+// the three recoveries do not.
+check("a taken label offers a new one".padEnd(44), recoveryFor("label_taken"), "new_label");
+check("an invalid label offers a new one".padEnd(44), recoveryFor("label_invalid"), "new_label");
+// NOT retry: retrying finds the ceiling still there, and invites someone to
+// keep trying while an operational problem hides behind their patience.
+check("running out of databases is support".padEnd(44), recoveryFor("quota_exhausted"), "support");
+// NOT new_label: changing the address does not conjure a payment.
+check("an unconfirmed payment is support".padEnd(44), recoveryFor("payment_unconfirmed"), "support");
+check("internal is support".padEnd(44), recoveryFor("internal"), "support");
+
+// THE ONE THAT MATTERS. An unknown code must never offer the address picker:
+// that asks somebody who has already paid to change something that was never
+// wrong, and buries the real error behind a UI that looks like progress.
+check("an unknown code is support, not new_label".padEnd(44), recoveryFor("something_new"), "support");
+check("a missing code is support".padEnd(44), recoveryFor(undefined), "support");
+
+// The builder exists so the two fields cannot disagree.
+const f = provisionFailure("register", "label_taken", "clinicx was claimed");
+check("the builder derives recovery from the code".padEnd(44), f.recovery, "new_label");
+check("the builder keeps the prose".padEnd(44), f.error, "clinicx was claimed");
+
+
 if (failures.length) {
   console.log(`${C.red(`✗ ${failures.length} failed`)}, ${passed} passed\n`);
   failures.forEach((f) => console.log(`  ${C.red("-")} ${f}`));

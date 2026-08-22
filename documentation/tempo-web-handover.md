@@ -171,9 +171,47 @@ deleting the moment it stops being needed.
   "step": "database" | "rules" | "bucket" | "seed" | "register" | "hostname" | "admin",
   "url": "https://clinicx.tempoapp.ro",
   "trialEndsAt": "2026-09-21T00:00:00.000Z",
+  "errorCode": null,
+  "recovery": null,
   "error": null
 }
 ```
+
+### Failing usefully — branch on `recovery`, not on prose
+
+A `failed` response carries two machine-readable fields. **Branch on `recovery`**;
+`errorCode` is for logs, support and anything you want to word specially.
+
+| `recovery` | What it means | What to offer |
+|---|---|---|
+| `new_label` | The subdomain is the problem and only the subdomain | The address picker, then retry with the **same** `signupRef` |
+| `retry` | Transient — a timeout, a rate limit, a Google hiccup | A retry button with the same inputs |
+| `support` | We cannot fix this from a form | The support contact and the `provisionId` |
+
+`errorCode` values today: `label_taken`, `label_invalid`, `quota_exhausted`,
+`payment_unconfirmed`, `internal`. That list will grow.
+
+```json
+{
+  "status": "failed",
+  "step": "register",
+  "errorCode": "label_taken",
+  "recovery": "new_label",
+  "error": "clinicx was claimed while you were signing up."
+}
+```
+
+**Treat an unrecognised `recovery`, or a missing one, as `support`.** That is the
+opposite of the workaround currently in place, and deliberately so: offering the
+address picker for a failure the address did not cause asks a paying customer to
+change something that was never wrong, three times, and then still fails.
+`support` is honest about not knowing. New codes will keep arriving; a default
+that guesses will keep mis-routing them.
+
+Worth knowing about one of them: **`quota_exhausted` is our problem, not the
+customer's.** There is a hard ceiling of 100 Firestore databases per project and
+every clinic consumes one, so this means we have run out of room. It is
+`support`, and it should page us rather than merely apologising.
 
 `trialEndsAt` is `null` until the licence exists and populated by the time
 `status` is `ready`. Show it from here rather than computing `now + trialDays`:

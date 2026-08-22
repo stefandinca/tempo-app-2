@@ -116,6 +116,44 @@ with the app.
 
 ---
 
+### A8. The failure response needs a machine-readable reason
+
+**Found by building against the mock, which hid it.** This is the one that matters most in
+this round.
+
+When provisioning fails because the label was taken, the flow lets the customer pick a new
+address and retries under the same `signupRef`, which is the behaviour A5 confirmed. That
+recovery exists so somebody who has already handed over a card is not asked to start again.
+
+But handover section 3's status response is:
+
+```json
+{ "status": "failed", "step": "register", "url": null, "error": null }
+```
+
+`error` is prose. There is no field saying *why* it failed, so nothing can distinguish "the
+subdomain collided, offer a new one" from "the database could not be created, this needs a
+human". Our mock invented an `errorCode`, we built the recovery on it, and the whole path
+would have gone dead the day the real API arrived, silently, for exactly the customers who
+had already paid.
+
+**Please add a machine-readable reason to the failure response.** Something like:
+
+```json
+{ "status": "failed", "step": "register", "errorCode": "label_taken", "error": "..." }
+```
+
+with `label_taken` distinguished from everything else. The prose `error` stays useful for
+support; the code is what the flow branches on.
+
+**In the meantime we have relaxed our side**: a `failed` provision with no recognisable
+reason also offers the new-address path, on the grounds that if the label was not the cause
+the retry fails the same way and is bounded at three attempts. That is a workaround, not a
+design. It means a customer whose provisioning failed for an unrelated reason is invited to
+change their address for no benefit.
+
+---
+
 ## B. These block launch, not the build
 
 ### B1. What is the Firestore database ceiling on `tempo-app-2`?
