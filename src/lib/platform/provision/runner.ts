@@ -21,6 +21,7 @@
  * once passed.
  */
 import { adminDb } from "@/lib/firebaseAdmin";
+import { clinicDatabaseId } from "@/lib/platform/labels";
 import { GcpError } from "./gcp";
 import { STEPS, RUNNERS, StepIncomplete, type StepKey, type ProvisionContext } from "./steps";
 import { recoveryFor, type ProvisionErrorCode } from "@/lib/platform/provisioning";
@@ -125,6 +126,32 @@ export async function advance(provisionId: string): Promise<string> {
   const nextIndex = STEPS.indexOf(key) + 1;
 
   if (nextIndex >= STEPS.length) {
+    // Seven steps returning without throwing is NOT the same as a clinic that
+    // works, and treating it as such is how this build has been bitten four
+    // times: a thing that passes every check, throws nothing, and is unusable
+    // by the person at the end of it. The invite was the last one — an account
+    // created with no password, reported `ready`, with a login page the
+    // customer could not get past.
+    //
+    // So `ready` asserts the end state independently, by reading the clinic
+    // back rather than trusting the steps that built it.
+    const missing = await unusableBecause(rec.label);
+    if (missing.length) {
+      console.error(`[provision] ${provisionId} finished but is unusable:`, missing.join("; "));
+      await ref.set(
+        {
+          status: "failed",
+          errorCode: "internal",
+          recovery: recoveryFor("internal"),
+          error: `provisioned but unusable: ${missing.join("; ")}`,
+          updatedAt: new Date().toISOString(),
+          lockedUntil: null,
+        },
+        { merge: true },
+      );
+      return `failed:verify:${missing.length}`;
+    }
+
     const licence = await trialEndsAtFor(rec.label);
     await ref.set(
       {
@@ -156,6 +183,51 @@ export async function advance(provisionId: string): Promise<string> {
     { merge: true },
   );
   return `done:${key}`;
+}
+
+/**
+ * Everything that would make this clinic unusable, read back from the clinic
+ * itself. Empty means it genuinely works.
+ *
+ * Each check is a property somebody would notice within a minute of trying to
+ * use their new clinic, and each has a silent failure mode:
+ *
+ *   no licence          the clinic runs UNRESTRICTED forever — licenceActive()
+ *                       fails open, so every paid limit is silently given away
+ *                       and nothing ever prompts anyone to come back
+ *   no licence mirror   rules cannot read another database, so the registry
+ *                       licence is invisible to enforcement
+ *   no Admin            nobody can log in, and every screen says it worked
+ *   no member mirror    Storage rules deny them every document, video and voice
+ *                       note in their own clinic
+ *
+ * Deliberately reads rather than trusting the step that wrote. A step that
+ * returned without throwing is evidence about the step, not about the clinic.
+ */
+async function unusableBecause(label: string): Promise<string[]> {
+  const missing: string[] = [];
+  const databaseId = clinicDatabaseId(label);
+  if (!databaseId) return ["label does not derive a database id"];
+
+  const tenant = await adminDb().collection("tenants").doc(label).get();
+  const licence = tenant.exists ? (tenant.data()?.licence as { expiresAt?: string } | undefined) : undefined;
+  if (!tenant.exists) missing.push("no tenant record");
+  else if (!licence?.expiresAt) missing.push("no licence expiry in the registry");
+
+  const clinic = adminDb(databaseId);
+  const mirror = await clinic.collection("system_settings").doc("licence").get();
+  if (!mirror.exists) missing.push("no licence mirror in the clinic");
+
+  const admins = await clinic.collection("team_members").where("role", "==", "Admin").limit(1).get();
+  if (admins.empty) missing.push("no Admin in team_members");
+  else {
+    const uid = admins.docs[0].id;
+    const bucket = tenant.data()?.bucket || "";
+    const member = await adminDb().collection("tenant_members").doc(`${bucket}__${uid}`).get();
+    if (!member.exists) missing.push("no membership mirror for the Admin");
+  }
+
+  return missing;
 }
 
 /** The trial's end, read from the licence that `register` wrote. */
