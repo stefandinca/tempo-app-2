@@ -25,9 +25,9 @@ else here is already true.
 | Provisioning | "one step needs a Cloud Functions deploy" | **No longer true** — the per-clinic triggers are gone (§4) |
 | `checkout-session` + confirm | "not landing this week" | **Live now.** Both verified in production against real Stripe (§3) |
 | Calling them | unspecified | **`Authorization: Bearer <token>`, server-side only** (§3) |
+| `provision/clinic` | mocked | **Built.** Five of seven steps verified against a real clinic; `hostname` and `admin` await a Vercel token (§4) |
 
-Everything else stands. `provision/clinic` and its status endpoint are still the
-mocked ones — that answer has not changed.
+Everything else stands.
 
 ---
 
@@ -184,6 +184,39 @@ and it is authoritative at build time — which is exactly what makes the recove
 path below work: a label rejected by provisioning can be replaced on the retry
 without touching the sale, the subscription, or the record of what they bought.
 If provisioning simply re-read the signup record, a bad label would be permanent.
+
+### Nothing rolls back, and a retry never restarts
+
+Worth stating plainly, because the instinct on seeing a half-built clinic is to
+clean it up, and that instinct is wrong here.
+
+**A failed provision leaves what it built.** Every step checks whether its work
+is already done and returns quietly if so, so a retry walks the completed steps
+in milliseconds and does real work only where it stopped. Measured: a first
+attempt is around three minutes, dominated by database creation; a retry that
+resumes at the last step is seconds.
+
+**The slot is never consumed twice.** A new attempt compares the existing tenant
+record's `signupRef` against the one you send. Same signup, same clinic, no
+second database. A different signup asking for a taken label gets `label_taken`.
+
+**Why not roll back, given a database is a permanently consumed slot out of
+100.** Deleting a database to tidy up a failed provision would mean the
+provisioning service holds delete-a-database power permanently, exercised only
+in an error path — by definition the least-tested code there is. Its role
+deliberately excludes `databases.delete`. A half-built clinic is inert: without
+the `admin` step nobody can log in. So the cost of leaving it is one slot until
+a retry claims it, and the cost of the alternative is a delete primitive living
+in an error handler. That is "halt loudly" rather than "roll back", and the
+loudness is the recorded status and step, not a cleanup.
+
+**What that means for your screens.** On `recovery: 'support'` after a partial
+build, say the clinic was created and is being finished — not that nothing
+happened. The customer's next move otherwise is to sign up again, hit
+`label_taken` on their *own* subdomain, and be baffled. And never offer
+`new_label` after a partial build: relabelling once `register` has landed
+orphans a fully-built clinic on the old subdomain, consuming a slot nothing
+reclaims automatically.
 
 **Idempotency: only success is sticky.**
 
