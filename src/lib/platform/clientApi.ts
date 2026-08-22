@@ -37,6 +37,12 @@ export async function platformPatch<T>(path: string, body: unknown): Promise<T> 
   );
 }
 
+export async function platformPost<T>(path: string, body: unknown): Promise<T> {
+  return unwrap<T>(
+    await fetch(path, { method: "POST", headers: await authHeaders(), body: JSON.stringify(body) }),
+  );
+}
+
 export async function platformPut<T>(path: string, body: unknown): Promise<T> {
   return unwrap<T>(
     await fetch(path, { method: "PUT", headers: await authHeaders(), body: JSON.stringify(body) }),

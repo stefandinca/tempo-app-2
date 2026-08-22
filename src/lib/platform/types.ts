@@ -95,3 +95,58 @@ export interface ClinicHealth {
   licenceInSync: boolean;
   error: string | null;
 }
+
+/**
+ * One self-onboarding attempt, as the console shows it.
+ *
+ * `error` is the raw message the step threw. It is the reason this screen
+ * exists, so it is passed through whole rather than summarised — a shortened
+ * error sends whoever is reading it back to the function logs, which is the
+ * thing this screen replaces.
+ */
+export interface ProvisionRow {
+  provisionId: string;
+  signupRef: string;
+  label: string;
+  clinicName: string;
+  adminEmail: string;
+  tier: string;
+  status: "provisioning" | "ready" | "failed";
+  /** A key from the seven-step enum, never display text. */
+  step: string;
+  attempt: number;
+  errorCode: string | null;
+  recovery: string | null;
+  error: string | null;
+  url: string | null;
+  /**
+   * Whether the new Admin got their password link. Null on older records that
+   * predate the invite. A clinic can be `ready` with this false — complete,
+   * correct, and impossible to log into.
+   */
+  inviteSent: boolean | null;
+  inviteError: string | null;
+  startedAt: string | null;
+  updatedAt: string | null;
+}
+
+/** One sale, and whether anything was ever built for it. */
+export interface SignupRow {
+  signupRef: string;
+  clinicName: string;
+  label: string;
+  adminEmail: string;
+  tier: string;
+  /** False for a signup made against Stripe test mode. */
+  livemode: boolean;
+  /** Written by the Stripe webhook. Null means this platform has no evidence of payment. */
+  confirmedAt: string | null;
+  provisioned: boolean;
+  /** Whether any provision attempt exists for this signup. */
+  provisionStarted: boolean;
+  /** Set when a create call was refused — `payment_unconfirmed` or `signup_missing`. */
+  blockedReason: string | null;
+  blockedAttempts: number | null;
+  blockedAt: string | null;
+  createdAt: string | null;
+}

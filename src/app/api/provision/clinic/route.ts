@@ -24,6 +24,7 @@ import { isTier } from "@/lib/platform/licence";
 import { STEPS } from "@/lib/platform/provision/steps";
 import { advance, type ProvisionRecord } from "@/lib/platform/provision/runner";
 import { recoveryFor } from "@/lib/platform/provisioning";
+import { alertPlatform } from "@/lib/platform/alerts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -90,6 +91,19 @@ async function handlePost(req: NextRequest) {
 
   const signup = await db.collection("signups").doc(signupRef).get();
   if (!signup.exists || !signup.data()?.confirmedAt) {
+    // RECORDED BEFORE IT IS REFUSED.
+    //
+    // This branch is the one failure in the whole flow that used to leave no
+    // trace anywhere: no provision document is created, so the console has
+    // nothing to show and the customer is told — truthfully, from tempo-web's
+    // point of view — that support has been notified. Nobody had been. The only
+    // evidence was a 402 in a function log.
+    //
+    // It is also the branch a broken Stripe webhook lands in, which makes it
+    // the most likely thing an operator needs to see: the card was charged,
+    // `checkout.session.completed` never arrived, and the sale exists only in
+    // Stripe.
+    await recordBlockedCreate(signupRef, signup.exists, { label, clinicName, adminEmail, tier });
     // Deliberately not 404: the caller asked us to build something for a signup
     // that has not been paid for, and saying "not found" invites them to retry
     // a create that will never succeed.
@@ -183,4 +197,59 @@ async function handlePost(req: NextRequest) {
     { status: "accepted", provisionId },
     { status: 202, headers: { "Cache-Control": "no-store" } },
   );
+}
+
+/**
+ * Leave evidence that somebody paid and we refused to build.
+ *
+ * One document per signupRef, so tempo-web retrying the create — which it is
+ * entitled to do — neither multiplies rows on the console nor sends a second
+ * alert. `attempts` says how insistent the caller was; `firstSeenAt` says how
+ * long this has been true.
+ *
+ * NEVER THROWS. The customer's 402 is the important part of this response, and
+ * a failed write here must not turn a precise refusal into an empty 500.
+ */
+async function recordBlockedCreate(
+  signupRef: string,
+  signupExists: boolean,
+  ctx: { label: string; clinicName: string; adminEmail: string; tier: string },
+): Promise<void> {
+  try {
+    const ref = adminDb().collection("provision_blocks").doc(signupRef);
+    const prior = await ref.get();
+    const now = new Date().toISOString();
+
+    await ref.set(
+      {
+        signupRef,
+        reason: signupExists ? "payment_unconfirmed" : "signup_missing",
+        ...ctx,
+        attempts: Number(prior.data()?.attempts || 0) + 1,
+        firstSeenAt: prior.data()?.firstSeenAt || now,
+        lastSeenAt: now,
+      },
+      { merge: true },
+    );
+
+    // First time only. This endpoint is polled and retried; an alert per call
+    // would be a mailbox nobody reads within an hour of the first real problem.
+    if (prior.exists) return;
+
+    const { sent, reason } = await alertPlatform(
+      `Signup blocked: ${ctx.clinicName || signupRef}`,
+      [
+        signupExists
+          ? "A paid signup asked us to create a clinic, but the signup has no confirmedAt — Stripe's checkout.session.completed never landed."
+          : "A signup asked us to create a clinic, but there is no signup record at all.",
+        `signupRef: ${signupRef}`,
+        `clinic: ${ctx.clinicName || "—"} (${ctx.label || "—"}), tier ${ctx.tier || "—"}`,
+        `admin: ${ctx.adminEmail || "—"}`,
+        "The customer has been told their setup did not finish. Check the Stripe webhook: its configuration, its signing secret, and whether the endpoint exists for the mode the payment was made in.",
+      ],
+    );
+    if (!sent) console.error(`[provision/clinic] ${signupRef} blocked; alert not sent: ${reason}`);
+  } catch (e) {
+    console.error(`[provision/clinic] could not record block for ${signupRef}:`, (e as Error)?.message);
+  }
 }

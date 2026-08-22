@@ -63,10 +63,26 @@ export async function POST(req: NextRequest) {
   // debugging to re-copy a secret that was never the problem — the env var was
   // simply absent. A missing key is 500 because it IS our fault, and Stripe
   // retrying a 500 is the behaviour we want once the var is added.
-  if (!process.env.STRIPE_SECRET_KEY || !webhookSecrets().length) {
+  //
+  // EITHER MODE COUNTS, and that is the whole point of this check.
+  //
+  // It used to demand STRIPE_SECRET_KEY specifically, which made a TEST-ONLY
+  // installation reject every event with 500 — while checkout, which asks for
+  // `stripe(false)`, worked perfectly. The failure that produced: a customer
+  // pays on a test card, `checkout.session.completed` never lands, the signup
+  // never gets `confirmedAt`, and /api/provision/clinic answers 402
+  // `payment_unconfirmed`. tempo-web renders that as `recovery: 'support'` —
+  // "your clinic has been created but the setup did not finish" — for a signup
+  // where nothing was ever created at all. Everything looked configured; the
+  // guard was reading the wrong variable.
+  const keys = [
+    process.env.STRIPE_SECRET_KEY && "STRIPE_SECRET_KEY",
+    process.env.STRIPE_SECRET_KEY_TEST && "STRIPE_SECRET_KEY_TEST",
+  ].filter(Boolean);
+  if (!keys.length || !webhookSecrets().length) {
     console.error(
       "[stripe/webhook] not configured:",
-      !process.env.STRIPE_SECRET_KEY ? "STRIPE_SECRET_KEY missing" : "",
+      !keys.length ? "neither STRIPE_SECRET_KEY nor STRIPE_SECRET_KEY_TEST is set" : "",
       !webhookSecrets().length ? "no STRIPE_WEBHOOK_SECRET (or _TEST)" : "",
     );
     return NextResponse.json({ error: "not_configured" }, { status: 500 });

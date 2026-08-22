@@ -27,6 +27,7 @@ import { hasAnthropicKey } from "@/lib/assistant/anthropic";
 import { GcpError } from "./gcp";
 import { STEPS, RUNNERS, StepIncomplete, type StepKey, type ProvisionContext } from "./steps";
 import { recoveryFor, type ProvisionErrorCode } from "@/lib/platform/provisioning";
+import { alertPlatform } from "@/lib/platform/alerts";
 
 /** How long one pass may hold a provision before another runner may take it. */
 const LOCK_MS = 120_000;
@@ -108,6 +109,7 @@ export async function advance(provisionId: string): Promise<string> {
     }
 
     const errorCode = classify(e);
+    const message = String((e as Error)?.message || e).slice(0, 500);
     console.error(`[provision] ${provisionId} step=${key} failed:`, (e as Error)?.message);
     await ref.set(
       {
@@ -116,12 +118,13 @@ export async function advance(provisionId: string): Promise<string> {
         recovery: recoveryFor(errorCode),
         // The message is for us. tempo-web branches on `recovery`, never on
         // this — prose is not an interface.
-        error: String((e as Error)?.message || e).slice(0, 500),
+        error: message,
         updatedAt: new Date().toISOString(),
         lockedUntil: null,
       },
       { merge: true },
     );
+    await tellSomebody(rec, key, errorCode, message);
     return `failed:${key}:${errorCode}`;
   }
 
@@ -139,18 +142,20 @@ export async function advance(provisionId: string): Promise<string> {
     // back rather than trusting the steps that built it.
     const missing = await unusableBecause(rec.label);
     if (missing.length) {
+      const message = `provisioned but unusable: ${missing.join("; ")}`;
       console.error(`[provision] ${provisionId} finished but is unusable:`, missing.join("; "));
       await ref.set(
         {
           status: "failed",
           errorCode: "internal",
           recovery: recoveryFor("internal"),
-          error: `provisioned but unusable: ${missing.join("; ")}`,
+          error: message,
           updatedAt: new Date().toISOString(),
           lockedUntil: null,
         },
         { merge: true },
       );
+      await tellSomebody(rec, "verify", "internal", message);
       return `failed:verify:${missing.length}`;
     }
 
@@ -185,6 +190,42 @@ export async function advance(provisionId: string): Promise<string> {
     { merge: true },
   );
   return `done:${key}`;
+}
+
+/**
+ * Tell an operator that a clinic somebody paid for did not get built.
+ *
+ * tempo-web's failure screen tells the customer, in Romanian, that we have
+ * already been notified and are continuing from where the setup stopped. Until
+ * this existed that was a sentence, not a mechanism: the failure was written to
+ * `provisions/{id}` and to a log line, and a customer who had been asked NOT to
+ * sign up again waited for somebody who did not know.
+ *
+ * Once per transition, because this is only reached on the write that moves a
+ * provision INTO `failed` — a record already failed is skipped by `advance`
+ * before any step runs, and a retry produces a new attempt, which is genuinely
+ * new news.
+ *
+ * Never throws: reporting a failure must not become a second failure that
+ * discards the recorded status the retry depends on.
+ */
+async function tellSomebody(
+  rec: ProvisionRecord,
+  step: string,
+  errorCode: ProvisionErrorCode,
+  message: string,
+): Promise<void> {
+  const { sent, reason } = await alertPlatform(
+    `Provisioning failed at ${step}: ${rec.clinicName || rec.label}`,
+    [
+      `${rec.clinicName || "(no name)"} — ${rec.label}.tempoapp.ro, tier ${rec.tier}`,
+      `Failed at step "${step}" on attempt ${rec.attempt ?? 1}. errorCode: ${errorCode} (recovery: ${recoveryFor(errorCode)}).`,
+      message,
+      `provisionId: ${rec.provisionId} · signupRef: ${rec.signupRef} · admin: ${rec.adminEmail}`,
+      "Nothing is rolled back: every step is idempotent, so fixing the cause and resuming picks up at this step rather than starting again.",
+    ],
+  );
+  if (!sent) console.error(`[provision] ${rec.provisionId} alert not sent: ${reason}`);
 }
 
 /**

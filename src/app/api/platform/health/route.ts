@@ -123,6 +123,18 @@ export async function GET(req: NextRequest) {
       sharedAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
       stripeLive: !!process.env.STRIPE_SECRET_KEY,
       stripeTest: !!process.env.STRIPE_SECRET_KEY_TEST,
+      // The keys alone are not the integration. Without a SIGNING SECRET the
+      // webhook refuses every event, `signups/{ref}.confirmedAt` is never
+      // written, and provisioning answers 402 `payment_unconfirmed` for a
+      // customer whose card was charged — a failure whose only visible symptom
+      // is on the customer's screen. One per mode, because a live endpoint's
+      // secret does not verify a test event.
+      stripeWebhookLive: !!process.env.STRIPE_WEBHOOK_SECRET,
+      stripeWebhookTest: !!process.env.STRIPE_WEBHOOK_SECRET_TEST,
+      // Who hears about a failed signup. Without Resend, and without either an
+      // alert address or a Superadmin with an email in the control plane,
+      // "we have already been notified" is not true of anybody.
+      alertRecipient: !!process.env.PLATFORM_ALERT_EMAIL,
     };
 
     return NextResponse.json({
@@ -133,7 +145,12 @@ export async function GET(req: NextRequest) {
         canProvision:
           provisioning.vercelApiToken &&
           provisioning.vercelProjectId &&
-          provisioning.sharedAnthropicKey,
+          provisioning.sharedAnthropicKey &&
+          // A sale that cannot be confirmed cannot be provisioned. Both modes
+          // need their own pair, and having one mode configured says nothing
+          // about the other — so this asks for a COMPLETE pair in at least one.
+          ((provisioning.stripeLive && provisioning.stripeWebhookLive) ||
+            (provisioning.stripeTest && provisioning.stripeWebhookTest)),
       },
     });
   } catch (e: any) {

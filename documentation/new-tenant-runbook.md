@@ -260,6 +260,36 @@ Use a test client, never a real child.
 
 ---
 
+## When a self-onboarded signup fails
+
+This runbook is the manual path. A clinic that arrives through tempoapp.ro's own
+signup does all of it automatically, and when it stops, the customer sees a
+Romanian screen saying their clinic was created, the setup did not finish, and
+we have been notified — and specifically telling them **not** to sign up again,
+because the subdomain they picked is already claimed by that half-built setup.
+
+**Start at `/platform/provisions`.** It shows every signup and every attempt,
+and it distinguishes the two failures that look identical from the customer's
+side:
+
+| What the screen says | What actually happened | What to do |
+|---|---|---|
+| A signup with **No webhook** / **Never started** | The card was charged, but `checkout.session.completed` never reached us, so the sale has no `confirmedAt` and `/api/provision/clinic` refused with 402. Nothing was built. | Fix the Stripe webhook — endpoint, signing secret, and the MODE the payment was made in — then resend the event from the Stripe dashboard. |
+| An attempt marked **Failed** | Provisioning started and a step threw. The row carries the step, the errorCode and the whole error text. | Fix the cause, then press **Resume setup**. |
+
+**Resuming is the whole recovery path, and it is safe.** Every step checks
+whether its own work is already done, so a resumed attempt walks the completed
+steps in milliseconds and re-runs only the one that failed. Nothing is rolled
+back and nothing is built twice — and the label stays claimed by that signup, so
+the customer never has to pick a different subdomain.
+
+**Before you blame the clinic, check `/platform/health`.** The readiness panel
+at the top lists every credential self-onboarding needs, including the Stripe
+signing secret per mode. `Cannot complete a signup` there means the next person
+who pays will fail the same way, whatever you do about this one.
+
+---
+
 ## The mistakes worth naming
 
 - **Deploying storage rules before the mirrors exist** locks the clinic out of
@@ -273,6 +303,12 @@ Use a test client, never a real child.
   `scripts/deploy-rules.mjs`.
 - **Reusing a label that differs from the hostname.** Everything is derived from
   the hostname; a mismatch is a clinic staring at an empty app.
+- **Configuring only Stripe test mode.** The webhook used to demand
+  `STRIPE_SECRET_KEY` specifically, so a test-only installation answered every
+  event with a 500 while checkout worked perfectly — a card charged, a sale
+  never confirmed, and a customer told their setup did not finish. Either mode
+  now satisfies the check, but each still needs its OWN signing secret;
+  `/platform/health` lists both.
 - **Skipping step 5.** A clinic with no licence document isn't broken — it's
   unrestricted, silently and indefinitely, because `licenceActive()` fails
   open. Nothing surfaces the omission later; check `/platform/health` before

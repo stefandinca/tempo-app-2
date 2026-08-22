@@ -85,6 +85,12 @@ export default function PlatformHealthPage() {
     ["resendApiKey", t("platform.health.cfg_resend", { defaultValue: "Email (Resend)" })],
     ["stripeLive", t("platform.health.cfg_stripe_live", { defaultValue: "Stripe live key" })],
     ["stripeTest", t("platform.health.cfg_stripe_test", { defaultValue: "Stripe test key" })],
+    // A key without its signing secret is the failure that looks like nothing:
+    // checkout works, the card is charged, and the webhook that would confirm
+    // the sale is refused — so provisioning never starts.
+    ["stripeWebhookLive", t("platform.health.cfg_stripe_webhook_live", { defaultValue: "Stripe live webhook secret" })],
+    ["stripeWebhookTest", t("platform.health.cfg_stripe_webhook_test", { defaultValue: "Stripe test webhook secret" })],
+    ["alertRecipient", t("platform.health.cfg_alert_email", { defaultValue: "Alert address (else Superadmins)" })],
   ];
 
   return (

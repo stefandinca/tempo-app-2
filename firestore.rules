@@ -143,6 +143,15 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // A create call we refused, keyed by signupRef: somebody paid and asked for
+    // a clinic we would not build. Holds the same personal data as the signup
+    // it names, and exists only so the console can show a failure that
+    // otherwise lives nowhere. Written by /api/provision/clinic, read by
+    // /api/platform/provisions, both with the Admin SDK.
+    match /provision_blocks/{signupRef} {
+      allow read, write: if false;
+    }
+
     // The pricing catalogue: tier names, prices, promises and limits.
     //
     // WORLD-READABLE, deliberately and unusually for this file. The marketing
