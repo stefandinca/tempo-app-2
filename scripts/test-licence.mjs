@@ -480,6 +480,30 @@ check(
 );
 check("stripePriceId survives a catalogue rebuild", buildCatalogue(priced)[1].stripePriceId, "price_pro_123");
 
+
+// Mira is a CAPABILITY, not a limit: features[] is marketing that enforces
+// nothing, this is checked before any clinic data reaches Anthropic.
+check("starter has no Mira", limitsFor("starter").miraEnabled, false);
+check("professional has Mira", limitsFor("professional").miraEnabled, true);
+check("clinic has Mira", limitsFor("clinic").miraEnabled, true);
+check("enterprise has Mira", limitsFor("enterprise").miraEnabled, true);
+// Fails OPEN, like every other gate here. An unreadable tier is our bug, and
+// switching off a paying clinic's assistant is worse than briefly giving it away.
+check("an unknown tier keeps Mira", limitsFor("nonsense").miraEnabled, true);
+check("no tier at all keeps Mira", limitsFor(undefined).miraEnabled, true);
+// A catalogue stored before the field existed must not switch it off.
+check(
+  "a catalogue with no miraEnabled defaults to on",
+  buildCatalogue(defaultCatalogue().map(({ miraEnabled, ...rest }) => rest))[1].miraEnabled,
+  true,
+);
+// But an explicit false survives, or the console could not turn it off.
+check(
+  "an explicit false is kept",
+  buildCatalogue(defaultCatalogue().map((c, i) => (i ? c : { ...c, miraEnabled: false })))[0].miraEnabled,
+  false,
+);
+
 if (failures.length) {
   console.log(`${C.red(`✗ ${failures.length} failed`)}, ${passed} passed\n`);
   failures.forEach((f) => console.log(`  ${C.red("-")} ${f}`));

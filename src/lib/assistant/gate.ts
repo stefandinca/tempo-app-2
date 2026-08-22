@@ -3,6 +3,7 @@
 // All reads use Admin (rule-bypass) so the route never needs the user's auth ctx.
 import type { NextRequest } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { limitsFor } from "@/lib/platform/licence";
 
 const STAFF_ROLES = new Set(["superadmin", "admin", "coordinator", "therapist"]);
 const DAILY_LIMIT = 100;
@@ -63,6 +64,24 @@ export async function requireStaffWithConsent(req: NextRequest, databaseId?: str
     // isActive: false. Missing means active — most members predate the field.
     if (role !== "superadmin" && member.isActive === false) {
       return { ok: false, status: 403, error: "deactivated" };
+    }
+
+    // Does this clinic's plan include Mira at all?
+    //
+    // Checked BEFORE consent, deliberately: asking somebody to agree to their
+    // clients' data being sent to Anthropic, and then refusing them the feature,
+    // is both rude and a consent record we have no business holding.
+    //
+    // The tier comes from the licence mirror in the clinic's own database, so
+    // this needs no control-plane read. A clinic with no mirror, or an
+    // unrecognised tier, is ALLOWED — limitsFor() falls back to the most
+    // permissive tier, matching the licence itself failing open. Switching off
+    // a paying clinic's assistant because we could not read a document is the
+    // worse error.
+    const licenceSnap = await db.collection("system_settings").doc("licence").get();
+    const tier = licenceSnap.exists ? licenceSnap.data()?.tier : undefined;
+    if (!limitsFor(tier).miraEnabled) {
+      return { ok: false, status: 403, error: "not_in_plan" };
     }
 
     // Consent.

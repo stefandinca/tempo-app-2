@@ -15,9 +15,17 @@ async function authHeaders(): Promise<Record<string, string>> {
 
 export class AssistantError extends Error {
   status: number;
+  /**
+   * The gate's own reason — `consent_required`, `not_in_plan`, `rate_limited`,
+   * `deactivated`. Carried explicitly because several of them share a status:
+   * consent and plan-exclusion are both 403, and telling a clinic whose plan
+   * excludes Mira to "give consent" sends them to a switch that will not help.
+   */
+  code: string;
   constructor(message: string, status: number) {
     super(message);
     this.status = status;
+    this.code = message;
   }
 }
 

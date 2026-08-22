@@ -372,7 +372,8 @@
       "back": "Back to chat",
       "no_history": "No conversations yet.",
       "untitled": "Conversation"
-    }
+    },
+    "not_in_plan": "Mira is not included in your plan."
   },
   "ai_usage": {
     "title": "AI usage & cost",
@@ -2777,7 +2778,8 @@
       "cta": "Button label",
       "popular": "Popular badge",
       "stripe_price": "Stripe price ID",
-      "stripe_price_hint": "price_… from Stripe. Empty = not purchasable."
+      "stripe_price_hint": "price_… from Stripe. Empty = not purchasable.",
+      "mira": "Mira AI"
     }
   }
 }

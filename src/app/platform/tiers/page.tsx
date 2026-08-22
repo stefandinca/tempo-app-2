@@ -117,15 +117,31 @@ export default function PlatformTiersPage() {
           >
             <div className="flex items-center justify-between gap-2">
               <code className="text-[11px] text-neutral-400">{tier.id}</code>
-              <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
-                <input
-                  type="checkbox"
-                  checked={tier.popular}
-                  onChange={(e) => patch(tier.id, "popular", e.target.checked)}
-                  className="w-4 h-4"
-                />
-                {t("platform.tiers.popular", { defaultValue: "Popular badge" })}
-              </label>
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
+                  <input
+                    type="checkbox"
+                    checked={tier.popular}
+                    onChange={(e) => patch(tier.id, "popular", e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  {t("platform.tiers.popular", { defaultValue: "Popular badge" })}
+                </label>
+                {/*
+                  Unlike the bullets above, this one bites: it is checked
+                  server-side before any clinic data is sent to Anthropic.
+                  Turning it off here actually turns the assistant off.
+                */}
+                <label className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
+                  <input
+                    type="checkbox"
+                    checked={tier.miraEnabled !== false}
+                    onChange={(e) => patch(tier.id, "miraEnabled", e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  {t("platform.tiers.mira", { defaultValue: "Mira AI" })}
+                </label>
+              </div>
             </div>
 
             <Field label={t("platform.tiers.label", { defaultValue: "Name" })}>

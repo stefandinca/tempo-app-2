@@ -372,7 +372,8 @@
       "back": "Înapoi la chat",
       "no_history": "Nicio conversație încă.",
       "untitled": "Conversație"
-    }
+    },
+    "not_in_plan": "Mira nu este inclusă în planul dumneavoastră."
   },
   "ai_usage": {
     "title": "Utilizare și cost AI",
@@ -2782,7 +2783,8 @@
       "cta": "Text buton",
       "popular": "Etichetă Popular",
       "stripe_price": "ID preț Stripe",
-      "stripe_price_hint": "price_… din Stripe. Gol = nu poate fi cumpărat."
+      "stripe_price_hint": "price_… din Stripe. Gol = nu poate fi cumpărat.",
+      "mira": "Mira AI"
     }
   }
 }

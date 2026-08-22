@@ -170,9 +170,14 @@ export default function AssistantPanel({ isOpen, onClose }: { isOpen: boolean; o
       }
     } catch (err) {
       const status = err instanceof AssistantError ? err.status : 0;
+      const code = err instanceof AssistantError ? err.code : "";
       const msg =
         status === 503
           ? t("assistant.unavailable", { defaultValue: "This feature is only available in the full release." })
+          : // Both are 403, and they need different words: consent is something
+            // the user can give, a plan exclusion is not.
+            code === "not_in_plan"
+          ? t("assistant.not_in_plan", { defaultValue: "Mira is not included in your plan." })
           : status === 403
           ? t("assistant.chat.consent_needed", { defaultValue: "AI consent is required." })
           : status === 429

@@ -71,6 +71,19 @@ export interface TierLimits {
    * env var and never goes near this document.
    */
   stripePriceId: string;
+  /**
+   * Whether this tier includes Mira, the AI assistant.
+   *
+   * A CAPABILITY, not a limit — the distinction matters. `features[]` is
+   * marketing copy that enforces nothing; this is checked server-side before
+   * any clinic data is sent to Anthropic, so turning it off in the console
+   * actually turns the assistant off.
+   *
+   * Defaults to true for anything unrecognised, like every other gate here: an
+   * unreadable tier is our bug, and switching off a paying clinic's assistant
+   * is a worse outcome than briefly giving it away.
+   */
+  miraEnabled: boolean;
 }
 
 /**
@@ -188,6 +201,8 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     popular: false,
     trialDays: 30,
     stripePriceId: "",
+    // The only tier without Mira. Everything else includes it.
+    miraEnabled: false,
   },
   professional: {
     label: "Professional",
@@ -200,6 +215,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     popular: true,
     trialDays: 30,
     stripePriceId: "",
+    miraEnabled: true,
   },
   clinic: {
     // Sold as "Clinică". The key stays ASCII because it travels through ids,
@@ -214,6 +230,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     popular: false,
     trialDays: 30,
     stripePriceId: "",
+    miraEnabled: true,
   },
   enterprise: {
     label: "Enterprise",
@@ -226,6 +243,7 @@ export const TIER_LIMITS: Record<Tier, TierLimits> = {
     popular: false,
     trialDays: 0,
     stripePriceId: "",
+    miraEnabled: true,
   },
 };
 
@@ -333,6 +351,9 @@ export function buildCatalogue(
       // null here means "not set", which for a trial means none.
       trialDays: trialDays ?? 0,
       stripePriceId: String(e.stripePriceId ?? "").trim(),
+      // Absent means enabled. A catalogue written before this field existed
+      // must not silently switch the assistant off for a clinic paying for it.
+      miraEnabled: e.miraEnabled !== false,
     });
   }
 

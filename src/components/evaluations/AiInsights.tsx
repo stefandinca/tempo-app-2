@@ -61,7 +61,11 @@ export default function AiInsights({ kind, clientId, evaluation, client, readOnl
       success(t("assistant.insights.generated", { defaultValue: "AI insights generated" }));
     } catch (err) {
       const status = err instanceof AssistantError ? err.status : 0;
+      const code = err instanceof AssistantError ? err.code : "";
       if (status === 503) toastError(t("assistant.unavailable", { defaultValue: "This feature is only available in the full release." }));
+      // Checked before the generic 403: a plan exclusion is not something the
+      // user can consent their way out of.
+      else if (code === "not_in_plan") toastError(t("assistant.not_in_plan", { defaultValue: "Mira is not included in your plan." }));
       else if (status === 403) toastError(t("assistant.insights.consent_needed", { defaultValue: "AI consent is required" }));
       else if (status === 429) toastError(t("assistant.insights.rate_limited", { defaultValue: "Daily AI limit reached" }));
       else toastError(t("assistant.insights.failed", { defaultValue: "Could not generate insights" }));
